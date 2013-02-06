@@ -10,7 +10,7 @@
 #define __MAINCOMPONENT_H_9C53AA1C__
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#include "GPCore.h"
 
 //==============================================================================
 /*
@@ -28,6 +28,9 @@ public:
     void resized();
 
 private:
+    ScopedPointer<AudioDeviceManager> deviceManager;
+    AudioProcessorPlayer player;
+    ScopedPointer<GPAudioProcessor> filter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
