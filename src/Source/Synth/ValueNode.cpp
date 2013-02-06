@@ -10,7 +10,8 @@
 
 #include "ValueNode.h"
 
-ValueNode::ValueNode(float *val) {
+ValueNode::ValueNode(GPInfo* i, float *val) {
+    info = i;
     value = val;
 }
 
@@ -18,22 +19,24 @@ ValueNode::~ValueNode() {
     delete value;
 }
 
-ValueNode& ValueNode::getCopy() {
-    return new ValueNode(value);
+ValueNode* ValueNode::getCopy() {
+    return new ValueNode(info, value);
 }
 
-float evaluate() {
+float ValueNode::evaluate() {
     return *value;
 }
 
-std::string toString() {
-    if (value == time) {
-        return "time";
+std::string ValueNode::toString() {
+    char buffer[10];
+    if (value == info->time) {
+        sprintf(buffer, "%s", "time");
     }
-    else if (value == cps) {
-        return "f"
+    else if (value == info->cps) {
+        sprintf(buffer, "%s", "f");
     }
     else {
-        return sprintf("%f", value);
+        sprintf(buffer, "%f", *value);
     }
+    return std::string(buffer);
 }

@@ -14,36 +14,24 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "GPNetwork.h"
 #include "GPNode.h"
-#include "ValueNode.h"
-#include "FunctionNode.h"
 
-class GPParams {
-public:
-    // parameters
-    int populationSize;
-    int valueRange;
-    int LFORange;
-    int numPartials;
+class GPInfo {
+    public:
+        // IDs
+        int nextNetworkID;
 
-    // chance params
-    float mutationChance;
-    float simplifyChance;
-    float specialChance;
-    float harmonyChance;
-    float functionChance;
-    float crossChance;
+        // special node values
+        float *time;
+        float *cps;
 
-    // IDs
-    int nextNetworkID;
-    int nextGenerationID;
-
-    // network containers
-    std::vector<GPNetwork&> networks;
-    std::vector<GPNetwork&> currentlyEvaluating;
-    std::set<GPNetwork&> evaluated;
-    std::set<GPNetwork&> selected;
+        // chance params
+        float mutationChance;
+        float simplifyChance;
+        float specialChance;
+        float harmonyChance;
+        float functionChance;
+        float crossChance;
 };
 
 //available network functions
@@ -56,8 +44,21 @@ float pow(GPNode& left, GPNode& right);
 float sine(GPNode& left, GPNode& right);
 float cosine(GPNode& left, GPNode& right);
 
-// special node values
-float *time;
-float *cps;
+/*
+// parameters
+int populationSize;
+int valueRange;
+int LFORange;
+int numPartials;
+ 
+// IDs
+int nextGenerationID;
+
+// network containers
+std::vector<GPNetwork&> networks;
+std::vector<GPNetwork&> currentlyEvaluating;
+std::set<GPNetwork&> evaluated;
+std::set<GPNetwork&> selected;
+*/
 
 #endif  // __GPCORE_H_E81233F7__

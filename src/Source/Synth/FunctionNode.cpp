@@ -16,7 +16,7 @@
     ==============
 */
 
-FunctionNode::FunctionNode(void (*fun)(GPNode&, GPNode&), std::string sym, GPNode& l, GPNode& r) {
+FunctionNode::FunctionNode(float (*fun)(GPNode*, GPNode*), std::string sym, GPNode* l, GPNode* r) {
     function = fun;
     symbol = sym;
     left = l;
@@ -27,14 +27,14 @@ FunctionNode::FunctionNode(void (*fun)(GPNode&, GPNode&), std::string sym, GPNod
 FunctionNode::~FunctionNode() {
     delete left;
     delete right;
-    delete symbol;
+    delete &symbol;
 }
 
-FunctionNode& FunctionNode::getCopy() {
-    return new FunctionNode(fun, symbol, left, right);
+FunctionNode* FunctionNode::getCopy() {
+    return new FunctionNode(function, symbol, left, right);
 }
 
-void FunctionNode::setFunction(void (*fun)(GPNode&, GPNode&), std::string sym, GPNode& rSub) {
+void FunctionNode::setFunction(float (*fun)(GPNode*, GPNode*), std::string sym, GPNode* rSub) {
     if (right == NULL) {
         right = rSub;
     }
@@ -47,12 +47,14 @@ float FunctionNode::evaluate() {
 }
 
 std::string FunctionNode::toString() {
+    char buffer[1024];
     if (right != NULL) {
-        return sprintf("(%s %s %s)", symbol, left.toString(), right.toString());
+        sprintf(buffer, "(%s %s %s)", symbol.c_str(), left->toString().c_str(), right->toString().c_str());
     }
     else {
-        return sprintf("(%s %s)", symbol, left.toString());
+        sprintf(buffer, "(%s %s)", symbol.c_str(), left->toString().c_str());
     }
+    return std::string(buffer);
 }
 
 void traceLineage() {
