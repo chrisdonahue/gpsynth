@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="suGgLk" name="GeneticProgrammingSynthesizer" projectType="guiapp"
+              version="1.0.0" bundleIdentifier="com.yourcompany.GeneticProgrammingSynthesizer"
+              jucerVersion="3.0.0" companyName="Radio Hunches Software">
+  <MAINGROUP id="nyQob7" name="GeneticProgrammingSynthesizer">
+    <GROUP id="{C8C5F341-02E9-4643-2317-4992DA778A60}" name="Source">
+      <GROUP id="{1E782646-7013-5E58-95F1-9E87A01F6D69}" name="Synthesizer">
+        <FILE id="kJf69D" name="ValueNode.cpp" compile="1" resource="0" file="Source/Synth/ValueNode.cpp"/>
+        <FILE id="v38u9I" name="ValueNode.h" compile="0" resource="0" file="Source/Synth/ValueNode.h"/>
+        <FILE id="bJRmfG" name="GPNode.h" compile="0" resource="0" file="Source/Synth/GPNode.h"/>
+        <FILE id="k7QaXU" name="GPCore.h" compile="0" resource="0" file="Source/Synth/GPCore.h"/>
+        <FILE id="u0gxfj" name="FunctionNode.cpp" compile="1" resource="0"
+              file="Source/Synth/FunctionNode.cpp"/>
+        <FILE id="AeMH4u" name="FunctionNode.h" compile="0" resource="0" file="Source/Synth/FunctionNode.h"/>
+        <FILE id="FOfJQV" name="GPNetwork.cpp" compile="1" resource="0" file="Source/Synth/GPNetwork.cpp"/>
+        <FILE id="Zs85yS" name="GPNetwork.h" compile="0" resource="0" file="Source/Synth/GPNetwork.h"/>
+      </GROUP>
+      <FILE id="SJWYqo" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="rT0fqT" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="Q71Cf1" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/Linux" juceFolder="../../../juce/modules">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="GeneticProgrammingSynthesizer"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
+                       targetName="GeneticProgrammingSynthesizer"/>
+      </CONFIGURATIONS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>

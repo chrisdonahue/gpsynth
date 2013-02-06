@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __JUCE_APPCONFIG_GCFRKS__
-#define __JUCE_APPCONFIG_GCFRKS__
+#ifndef __JUCE_APPCONFIG_SUGGLK__
+#define __JUCE_APPCONFIG_SUGGLK__
 
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
@@ -26,7 +26,6 @@
 #define JUCE_MODULE_AVAILABLE_juce_audio_devices         1
 #define JUCE_MODULE_AVAILABLE_juce_audio_formats         1
 #define JUCE_MODULE_AVAILABLE_juce_audio_processors      1
-#define JUCE_MODULE_AVAILABLE_juce_audio_utils           1
 #define JUCE_MODULE_AVAILABLE_juce_core                  1
 #define JUCE_MODULE_AVAILABLE_juce_data_structures       1
 #define JUCE_MODULE_AVAILABLE_juce_events                1
@@ -156,4 +155,4 @@
 #endif
 
 
-#endif  // __JUCE_APPCONFIG_GCFRKS__
+#endif  // __JUCE_APPCONFIG_SUGGLK__
