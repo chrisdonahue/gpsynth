@@ -23,45 +23,37 @@
   ==============================================================================
 */
 
-#if JUCE_WINDOWS
- #undef _WIN32_WINNT
- #define _WIN32_WINNT 0x500
- #undef STRICT
- #define STRICT 1
- #include <windows.h>
- #include <float.h>
- #pragma warning (disable : 4312 4355)
- #ifdef __INTEL_COMPILER
-  #pragma warning (disable : 1899)
- #endif
+#ifndef __JUCE_AUDIO_UTILS_JUCEHEADER__
+#define __JUCE_AUDIO_UTILS_JUCEHEADER__
 
-#elif JUCE_LINUX
- #include <float.h>
- #include <sys/time.h>
- #include <X11/Xlib.h>
- #include <X11/Xutil.h>
- #include <X11/Xatom.h>
- #undef Font
- #undef KeyPress
- #undef Drawable
- #undef Time
+#include "../juce_gui_basics/juce_gui_basics.h"
+#include "../juce_audio_devices/juce_audio_devices.h"
+#include "../juce_audio_formats/juce_audio_formats.h"
+#include "../juce_audio_processors/juce_audio_processors.h"
 
-#else
- #if ! (defined (JUCE_SUPPORT_CARBON) || defined (__LP64__))
-  #define JUCE_SUPPORT_CARBON 1
- #endif
+//=============================================================================
+namespace juce
+{
 
- #if JUCE_SUPPORT_CARBON
-  #define Point CarbonDummyPointName
-  #define Component CarbonDummyCompName
-  #include <Cocoa/Cocoa.h>
-  #include <Carbon/Carbon.h>
-  #undef Point
-  #undef Component
- #else
-  #include <Cocoa/Cocoa.h>
- #endif
- #include <objc/runtime.h>
- #include <objc/objc.h>
- #include <objc/message.h>
+#ifndef __JUCE_AUDIODEVICESELECTORCOMPONENT_JUCEHEADER__
+ #include "gui/juce_AudioDeviceSelectorComponent.h"
 #endif
+#ifndef __JUCE_AUDIOTHUMBNAILBASE_JUCEHEADER__
+ #include "gui/juce_AudioThumbnailBase.h"
+#endif
+#ifndef __JUCE_AUDIOTHUMBNAIL_JUCEHEADER__
+ #include "gui/juce_AudioThumbnail.h"
+#endif
+#ifndef __JUCE_AUDIOTHUMBNAILCACHE_JUCEHEADER__
+ #include "gui/juce_AudioThumbnailCache.h"
+#endif
+#ifndef __JUCE_MIDIKEYBOARDCOMPONENT_JUCEHEADER__
+ #include "gui/juce_MidiKeyboardComponent.h"
+#endif
+#ifndef __JUCE_AUDIOPROCESSORPLAYER_JUCEHEADER__
+ #include "players/juce_AudioProcessorPlayer.h"
+#endif
+
+}
+
+#endif   // __JUCE_AUDIO_UTILS_JUCEHEADER__

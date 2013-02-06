@@ -23,13 +23,4 @@
   ==============================================================================
 */
 
-#include "../juce_audio_plugin_client.h"
-
-using namespace juce;
-
-#if JUCE_MAC && ! DOXYGEN
- #define Point     juce::Point
- #define Component juce::Component
-#endif
-
-extern AudioProcessor* JUCE_CALLTYPE createPluginFilterOfType (AudioProcessor::WrapperType);
+#include "juce_audio_utils.cpp"

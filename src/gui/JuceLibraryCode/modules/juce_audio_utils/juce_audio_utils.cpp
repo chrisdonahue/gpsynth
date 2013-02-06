@@ -23,5 +23,31 @@
   ==============================================================================
 */
 
-#define JUCE_INCLUDED_AAX_IN_MM 1
-#include "juce_AAX_Wrapper.cpp"
+#if defined (__JUCE_AUDIO_UTILS_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+ /* When you add this cpp file to your project, you mustn't include it in a file where you've
+    already included any other headers - just put it inside a file on its own, possibly with your config
+    flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
+    header files that the compiler may be using.
+ */
+ #error "Incorrect use of JUCE cpp file"
+#endif
+
+// Your project must contain an AppConfig.h file with your project-specific settings in it,
+// and your header search path must make it accessible to the module's files.
+#include "AppConfig.h"
+
+#include "../juce_core/native/juce_BasicNativeHeaders.h"
+#include "juce_audio_utils.h"
+
+namespace juce
+{
+
+// START_AUTOINCLUDE gui/*.cpp, players/*.cpp
+#include "gui/juce_AudioDeviceSelectorComponent.cpp"
+#include "gui/juce_AudioThumbnail.cpp"
+#include "gui/juce_AudioThumbnailCache.cpp"
+#include "gui/juce_MidiKeyboardComponent.cpp"
+#include "players/juce_AudioProcessorPlayer.cpp"
+// END_AUTOINCLUDE
+
+}
