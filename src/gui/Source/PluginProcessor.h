@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
-#ifndef __PLUGINPROCESSOR_H_8B6F22FB__
-#define __PLUGINPROCESSOR_H_8B6F22FB__
+#ifndef __PLUGINPROCESSOR_H_BF9AEFD0__
+#define __PLUGINPROCESSOR_H_BF9AEFD0__
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -70,4 +70,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneticProgrammingSynthesizerAudioProcessor)
 };
 
-#endif  // __PLUGINPROCESSOR_H_8B6F22FB__
+#endif  // __PLUGINPROCESSOR_H_BF9AEFD0__

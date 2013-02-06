@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
-#ifndef __PLUGINEDITOR_H_DB069198__
-#define __PLUGINEDITOR_H_DB069198__
+#ifndef __PLUGINEDITOR_H_160FCE3__
+#define __PLUGINEDITOR_H_160FCE3__
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
@@ -30,4 +30,4 @@ public:
 };
 
 
-#endif  // __PLUGINEDITOR_H_DB069198__
+#endif  // __PLUGINEDITOR_H_160FCE3__

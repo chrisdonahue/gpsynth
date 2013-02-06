@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="GvDgQb" name="GeneticProgrammingSynthesizer" projectType="audioplug"
-              version="1.0.0" bundleIdentifier="com.yourcompany.GeneticProgrammingSynthesizer"
+<JUCERPROJECT id="rRES34" name="GeneticProgrammingSynthesizer" projectType="audioplug"
+              version="1.0.0" bundleIdentifier="com.radiohunches.GeneticProgrammingSynthesizer"
               buildVST="1" buildAU="1" pluginName="GeneticProgrammingSynthesizer"
-              pluginDesc="GeneticProgrammingSynthesizer" pluginManufacturer="yourcompany"
-              pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{1, 1}, {2, 2}"
+              pluginDesc="GeneticProgrammingSynthesizer" pluginManufacturer="Radio Hunches Software"
+              pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{0, 1}, {0, 2}"
               pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="GeneticProgrammingSynthesizerAU" pluginAUViewClass="GeneticProgrammingSynthesizerAU_V1"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.GeneticProgrammingSynthesizer"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="3.0.0"
-              buildRTAS="1" buildAAX="0">
-  <MAINGROUP id="ibSRpL" name="GeneticProgrammingSynthesizer">
-    <GROUP id="{3D153F4B-A5AB-5536-092E-2F322373DA76}" name="Source">
-      <FILE id="xmaZjz" name="PluginProcessor.cpp" compile="1" resource="0"
+              companyName="Radio Hunches Software" buildRTAS="1">
+  <MAINGROUP id="sdGuzH" name="GeneticProgrammingSynthesizer">
+    <GROUP id="{D1AD29F0-2156-8298-8270-DDEED0E1835A}" name="Source">
+      <FILE id="gbOywN" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
-      <FILE id="nDRZ49" name="PluginProcessor.h" compile="0" resource="0"
+      <FILE id="HGzjYr" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="OplGcV" name="PluginEditor.cpp" compile="1" resource="0"
+      <FILE id="xYCC4s" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
-      <FILE id="GqrdrY" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="CfaCSX" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
@@ -30,9 +30,6 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
@@ -41,7 +38,7 @@
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
   <EXPORTFORMATS>
-    <LINUX_MAKE targetFolder="Builds/Linux" juceFolder="modules" vstFolder="~/SDKs/vstsdk2.4">
+    <LINUX_MAKE targetFolder="Builds/Linux" juceFolder="../../juce/modules">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="GeneticProgrammingSynthesizer"/>
