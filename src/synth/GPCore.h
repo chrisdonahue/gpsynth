@@ -31,10 +31,6 @@ class GPParams {
 		std::vector<GPNetwork&> currentlyEvaluating;
 		std::set<GPNetwork&> evaluated;
 		std::set<GPNetwork&> selected;
-		
-		// special node values
-		float *time;
-		float *cps;
 };
 
 //available network functions
@@ -46,3 +42,7 @@ float divide(GPNode& left, GPNode& right);
 float pow(GPNode& left, GPNode& right);
 float sine(GPNode& left, GPNode& right);
 float cosine(GPNode& left, GPNode& right);
+
+// special node values
+float *time;
+float *cps;

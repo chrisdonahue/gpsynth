@@ -2,10 +2,10 @@
 
 class GPNetwork {
 	public:
-		GPNetwork(const GPNode& h);
-		GPNetwork(const GPNetwork&);
+		GPNetwork(const GPParams& p, GPNode& h);
 		~GPNetwork();
 		GPNetwork& getCopy();
+        const GPNode& getRoot();
 		
 		float evaluate();
 		std::string toString();
@@ -14,8 +14,9 @@ class GPNetwork {
 
 	private:
 		int networkID;
-		std::string functionString;
-		GPNode head;
+		std::string asText;
+		GPNode& root;
+        const GPParams& params;
 
 		void swap(GPNode& one, GPNode& two);
 };

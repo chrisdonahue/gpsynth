@@ -9,11 +9,9 @@ class FunctionNode: public GPNode {
 		void setFunction(void (*fun)(GPNode&, GPNode&), std::string sym, GPNode& rSub);
 		float evaluate();
 		std::string toString();
+        void traceLineage();
 
 	private:
-		void (*fun)(GPNode&, GPNode&);
+		void (*function)(GPNode&, GPNode&);
 		std::string symbol;
-		GPNode& left;
-		GPNode& right;
-		GPNode& parent;
 };
