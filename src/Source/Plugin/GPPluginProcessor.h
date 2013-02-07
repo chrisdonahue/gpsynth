@@ -12,6 +12,9 @@
 #define __GPPLUGINPROCESSOR_H_7631AE8A__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Synth/GPNetwork.h"
+#include "../Synth/GPNode.h"
+#include "../Synth/GPCore.h"
 
 //==============================================================================
 // GPPluginAudioProcessor definition
@@ -42,6 +45,13 @@ public:
     bool isInputChannelStereoPair (int index) const;
     bool isOutputChannelStereoPair (int index) const;
     AudioProcessorEditor* createEditor();
+
+    //===== GP CODE =====
+    GPInfo* info;
+    GPNetwork* net;
+    float* time;
+    float* cps;
+
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock);

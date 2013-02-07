@@ -101,8 +101,21 @@ void GPPluginAudioProcessor::changeProgramName (int /*index*/, const String& /*n
 //==============================================================================
 void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samplesPerBlock*/)
 {
+    float numtwo = 2;
+    float numpi = 3.14;
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    info = new GPInfo();
+    GPNode* leafone = new ValueNode(info, &numtwo);
+    GPNode* leaftwo = new ValueNode(info, &numpi);
+    GPNode* leafthree = new ValueNode(info, time);
+    GPNode* leaffour = new ValueNode(info, cps);
+    GPNode* connectone = new FunctionNode(multiply, std::string("*"), leafthree, leaffour);
+    GPNode* connecttwo = new FunctionNode(multiply, std::string("*"), leafone, leaftwo);
+    GPNode* connectthree = new FunctionNode(multiply, std::string("*"), connectone, connecttwo);
+    GPNode* root = new FunctionNode(sin, std::string("sin"), connectthree, NULL);
+    net = new GPNetwork(info, root);
+
 }
 //==============================================================================
 void GPPluginAudioProcessor::releaseResources()
@@ -114,7 +127,6 @@ void GPPluginAudioProcessor::releaseResources()
 //this following callback only runs in plugin mode, and only when one of the
 //host widgets is being used
 void GPPluginAudioProcessor::timerCallback() {
-
 }
 //==============================================================================
 void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
