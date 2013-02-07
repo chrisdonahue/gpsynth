@@ -23,6 +23,7 @@
   ==============================================================================
 */
 
+
 SamplerSound::SamplerSound (const String& name_,
                             AudioFormatReader& source,
                             const BigInteger& midiNotes_,

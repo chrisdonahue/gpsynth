@@ -1562,8 +1562,7 @@ struct MP3Stream
 
             if (result < 0)
                 return false;
-
-            if (result > 0)
+            else if (result > 0)
                 break;
         }
 
@@ -3053,8 +3052,7 @@ private:
                 createEmptyDecodedData();
                 return true;
             }
-
-            if (result <= 0)
+            else if (result <= 0)
             {
                 decodedStart = 0;
                 decodedEnd = samplesDone;

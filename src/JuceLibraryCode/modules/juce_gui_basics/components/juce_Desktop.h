@@ -235,8 +235,7 @@ public:
     //==============================================================================
     /** Returns the number of MouseInputSource objects the system has at its disposal.
         In a traditional single-mouse system, there might be only one object. On a multi-touch
-        system, there could be one input source per potential finger. The number of mouse
-        sources returned here may increase dynamically as the program runs.
+        system, there could be one input source per potential finger.
         To find out how many mouse events are currently happening, use getNumDraggingMouseSources().
         @see getMouseSource
     */
@@ -384,7 +383,7 @@ private:
     friend class TopLevelWindowManager;
 
     OwnedArray <MouseInputSource> mouseSources;
-    bool addMouseInputSource();
+    void createMouseInputSources();
 
     ListenerList <MouseListener> mouseListeners;
     ListenerList <FocusChangeListener> focusListeners;

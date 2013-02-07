@@ -28,7 +28,7 @@ Desktop::Desktop()
       kioskModeComponent (nullptr),
       allowedOrientations (allOrientations)
 {
-    addMouseInputSource();
+    createMouseInputSources();
 }
 
 Desktop::~Desktop()

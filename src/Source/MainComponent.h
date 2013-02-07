@@ -10,7 +10,8 @@
 #define __MAINCOMPONENT_H_9C53AA1C__
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "GPCore.h"
+#include "Synth/GPCore.h"
+#include "Plugin/GPPluginProcessor.h"
 
 //==============================================================================
 /*

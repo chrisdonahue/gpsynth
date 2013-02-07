@@ -328,8 +328,10 @@ public:
     */
     bool isNonRealtime() const noexcept                                 { return nonRealtime; }
 
-    /** Called by the host to tell this processor whether it's being used in a non-realtime
+    /** Called by the host to tell this processor whether it's being used in a non-realime
         capacity for offline rendering or bouncing.
+
+        Whatever value is passed-in will be
     */
     void setNonRealtime (bool isNonRealtime) noexcept;
 

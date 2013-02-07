@@ -55,7 +55,9 @@ OBJECTS := \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
   $(OBJDIR)/juce_audio_processors_44a134a2.o \
+  $(OBJDIR)/juce_audio_utils_f63b12e8.o \
   $(OBJDIR)/juce_core_aff681cc.o \
+  $(OBJDIR)/juce_cryptography_25c7e826.o \
   $(OBJDIR)/juce_data_structures_bdd6d488.o \
   $(OBJDIR)/juce_events_79b2840.o \
   $(OBJDIR)/juce_graphics_c8f1e7a4.o \
@@ -141,9 +143,19 @@ $(OBJDIR)/juce_audio_processors_44a134a2.o: ../../JuceLibraryCode/modules/juce_a
 	@echo "Compiling juce_audio_processors.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/juce_audio_utils_f63b12e8.o: ../../JuceLibraryCode/modules/juce_audio_utils/juce_audio_utils.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_audio_utils.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/juce_core_aff681cc.o: ../../JuceLibraryCode/modules/juce_core/juce_core.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling juce_core.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/juce_cryptography_25c7e826.o: ../../JuceLibraryCode/modules/juce_cryptography/juce_cryptography.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling juce_cryptography.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_data_structures_bdd6d488.o: ../../JuceLibraryCode/modules/juce_data_structures/juce_data_structures.cpp

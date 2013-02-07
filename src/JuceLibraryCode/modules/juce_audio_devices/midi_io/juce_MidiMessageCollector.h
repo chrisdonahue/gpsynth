@@ -79,8 +79,6 @@ public:
 
         This method is fully thread-safe when overlapping calls are made with
         addMessageToQueue().
-
-        Precondition: numSamples must be greater than 0.
     */
     void removeNextBlockOfMessages (MidiBuffer& destBuffer, int numSamples);
 

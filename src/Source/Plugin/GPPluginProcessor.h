@@ -12,7 +12,6 @@
 #define __GPPLUGINPROCESSOR_H_7631AE8A__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Editor/CabbageEditorWindow.h"
 
 //==============================================================================
 // GPPluginAudioProcessor definition

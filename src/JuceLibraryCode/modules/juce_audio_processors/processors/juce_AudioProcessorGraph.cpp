@@ -886,7 +886,7 @@ AudioProcessorGraph::Node::Node (const uint32 nodeId_, AudioProcessor* const pro
       processor (processor_),
       isPrepared (false)
 {
-    jassert (processor != nullptr);
+    jassert (processor_ != nullptr);
 }
 
 void AudioProcessorGraph::Node::prepare (const double sampleRate, const int blockSize,
@@ -978,8 +978,6 @@ AudioProcessorGraph::Node* AudioProcessorGraph::addNode (AudioProcessor* const n
         if (nodeId > lastNodeId)
             lastNodeId = nodeId;
     }
-
-    newProcessor->setPlayHead (getPlayHead());
 
     Node* const n = new Node (nodeId, newProcessor);
     nodes.add (n);
@@ -1169,7 +1167,7 @@ void AudioProcessorGraph::clearRenderingSequence()
     Array<void*> oldOps;
 
     {
-        const ScopedLock sl (getCallbackLock());
+        const ScopedLock sl (renderLock);
         renderingOps.swapWithArray (oldOps);
     }
 
@@ -1233,7 +1231,7 @@ void AudioProcessorGraph::buildRenderingSequence()
 
     {
         // swap over to the new rendering sequence..
-        const ScopedLock sl (getCallbackLock());
+        const ScopedLock sl (renderLock);
 
         renderingBuffers.setSize (numRenderingBuffersNeeded, getBlockSize());
         renderingBuffers.clear();
@@ -1282,17 +1280,11 @@ void AudioProcessorGraph::releaseResources()
     currentMidiOutputBuffer.clear();
 }
 
-void AudioProcessorGraph::reset()
-{
-    const ScopedLock sl (getCallbackLock());
-
-    for (int i = 0; i < nodes.size(); ++i)
-        nodes.getUnchecked(i)->getProcessor()->reset();
-}
-
 void AudioProcessorGraph::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     const int numSamples = buffer.getNumSamples();
+
+    const ScopedLock sl (renderLock);
 
     currentAudioInputBuffer = &buffer;
     currentAudioOutputBuffer.setSize (jmax (1, buffer.getNumChannels()), numSamples);
