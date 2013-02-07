@@ -123,6 +123,55 @@ void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer
 }
 
 
+int GPPluginAudioProcessor::getNumParameters()
+{
+    return 0;
+}
+
+float GPPluginAudioProcessor::getParameter (int index)
+{
+	return 0.f;
+}
+
+void GPPluginAudioProcessor::setParameter (int index, float newValue)
+{
+}
+
+
+const String GPPluginAudioProcessor::getParameterName (int index)
+{
+return String::empty;
+}
+
+const String GPPluginAudioProcessor::getParameterText (int index)
+{
+return String::empty;
+}
+
+const String GPPluginAudioProcessor::getInputChannelName (int channelIndex) const
+{
+		return String::empty;
+}
+
+const String GPPluginAudioProcessor::getOutputChannelName (int channelIndex) const
+{
+		return String::empty;
+}
+
+bool GPPluginAudioProcessor::isInputChannelStereoPair (int /*index*/) const
+{
+    return true;
+}
+
+bool GPPluginAudioProcessor::isOutputChannelStereoPair (int /*index*/) const
+{
+    return true;
+}
+
+bool GPPluginAudioProcessor::silenceInProducesSilenceOut() const {
+    return true;
+}
+
 //==============================================================================
 // MIDI functions
 //==============================================================================
@@ -130,7 +179,12 @@ void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer
 //==============================================================================
 bool GPPluginAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return false; // (change this to false if you choose to not supply an editor)
+}
+
+AudioProcessorEditor* GPPluginAudioProcessor::createEditor()
+{
+    return NULL;
 }
 
 //==============================================================================

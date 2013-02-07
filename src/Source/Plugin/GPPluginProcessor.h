@@ -31,7 +31,7 @@ public:
     GPPluginAudioProcessor();
     ~GPPluginAudioProcessor();
 
-		bool silenceInProducesSilenceOut() const;
+    bool silenceInProducesSilenceOut() const;
     int getNumParameters();
     float getParameter (int index);
     void setParameter (int index, float newValue);
@@ -69,7 +69,7 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData);
     void setStateInformation (const void* data, int sizeInBytes);
-    
+
     //======== log information about GUI controls ===============
 
     void createGUI();

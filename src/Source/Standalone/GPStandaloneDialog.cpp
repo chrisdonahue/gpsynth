@@ -61,6 +61,10 @@ StandaloneFilterWindow::~StandaloneFilterWindow()
     deleteFilter();
 }
 
+void StandaloneFilterWindow::timerCallback()
+{   
+}
+
 //==============================================================================
 // action Callback - updates instrument according to changes in source code
 //==============================================================================
