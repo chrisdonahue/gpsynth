@@ -17,7 +17,7 @@ ifeq ($(CONFIG),Debug)
   LIBDIR := build
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../Source/Synth -I ../../JuceLibraryCode
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
   CXXFLAGS += $(CFLAGS) 
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt 
@@ -43,11 +43,14 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/GPExperiment_a4510b2f.o \
+  $(OBJDIR)/Main_90ebc5c2.o \
+  $(OBJDIR)/MainComponent_a6ffb4a5.o \
+  $(OBJDIR)/GPPluginEditor_9953f146.o \
+  $(OBJDIR)/GPPluginProcessor_d30ae823.o \
   $(OBJDIR)/ValueNode_ed35cc41.o \
   $(OBJDIR)/FunctionNode_5e7b0916.o \
   $(OBJDIR)/GPNetwork_24a38153.o \
-  $(OBJDIR)/MainComponent_a6ffb4a5.o \
-  $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -78,6 +81,31 @@ strip:
 	@echo Stripping GeneticProgrammingSynthesizer
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
+$(OBJDIR)/GPExperiment_a4510b2f.o: ../../Source/GPExperiment.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPExperiment.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Main.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MainComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPPluginEditor_9953f146.o: ../../Source/Plugin/GPPluginEditor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPPluginEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPPluginProcessor_d30ae823.o: ../../Source/Plugin/GPPluginProcessor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPPluginProcessor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ValueNode_ed35cc41.o: ../../Source/Synth/ValueNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
@@ -91,16 +119,6 @@ $(OBJDIR)/FunctionNode_5e7b0916.o: ../../Source/Synth/FunctionNode.cpp
 $(OBJDIR)/GPNetwork_24a38153.o: ../../Source/Synth/GPNetwork.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPNetwork.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MainComponent.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
