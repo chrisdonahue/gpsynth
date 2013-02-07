@@ -29,7 +29,7 @@ GPPluginAudioProcessor::~GPPluginAudioProcessor()
 //===========================================================
 // PARSE CSD FILE AND FILL GUI/GUI-LAYOUT VECTORs.
 // NO JUCE WIDGETS GET CREATED IN THIS CLASS. ALL
-// GUI OBJECTS ARE CREATED ON THE FLY IN THE CABBAGE PLUGIN
+// GUI OBJECTS ARE CREATED ON THE FLY IN THE GP PLUGIN
 // EDITOR FROM INFORMATION HELD IN THE GUICONTROLS VECTOR
 //===========================================================
 void GPPluginAudioProcessor::createGUI()
@@ -37,18 +37,19 @@ void GPPluginAudioProcessor::createGUI()
 }
 
 //==============================================================================
-#ifdef Cabbage_Build_Standalone
+//#ifdef GP_Build_Standalone
 GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter()
 {
     return new GPPluginAudioProcessor();
 }
+/*
 #else
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new GPPluginAudioProcessor();
 }
 #endif
-
+*/
 
 //==============================================================================
 const String GPPluginAudioProcessor::getName() const

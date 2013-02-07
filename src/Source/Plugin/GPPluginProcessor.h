@@ -59,15 +59,7 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData);
     void setStateInformation (const void* data, int sizeInBytes);
-    //==============================================================================
-
-
-    void setMidiDebug(bool val) {
-        showMIDI=val;
-    }
-    bool getMidiDebug() {
-        return showMIDI;
-    }
+    
     //======== log information about GUI controls ===============
 
     void createGUI(String source);

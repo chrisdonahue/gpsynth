@@ -31,7 +31,7 @@ public:
 private:
     ScopedPointer<AudioDeviceManager> deviceManager;
     AudioProcessorPlayer player;
-    ScopedPointer<GPAudioProcessor> filter;
+    ScopedPointer<GPPluginAudioProcessor> filter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

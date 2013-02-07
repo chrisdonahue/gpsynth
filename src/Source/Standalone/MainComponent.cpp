@@ -8,6 +8,8 @@
 
 #include "MainComponent.h"
 
+// MUST DFEFINE SOMEWHERE
+extern GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
@@ -15,7 +17,7 @@ MainContentComponent::MainContentComponent()
     setSize (500, 400);
     JUCE_TRY
     {
-        filter = createGPPluginFilter("", false);
+        filter = createGPPluginFilter();
         filter->addChangeListener(this);
         filter->addActionListener(this);
         filter->sendChangeMessage();
