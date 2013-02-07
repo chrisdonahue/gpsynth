@@ -2,6 +2,7 @@
 #define __JUCE_STANDALONEFILTERWINDOW_JUCEHEADER__
 
 #include "../Plugin/GPPluginProcessor.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 //==============================================================================
 // This is the main host window. It gets instatiated in StandaloneFilterApp.cpp
@@ -32,10 +33,12 @@ public:
     void showInfoWindow(String text);
     void resized();
     void actionListenerCallback (const String& message);
+    	void changeListenerCallback(ChangeBroadcaster *source);
     int exportPlugin(String type, bool saveAs);
     void openFile();
     void saveFile();
     void saveFileAs();
+	PropertySet* getGlobalSettings();
 
 
 
@@ -57,9 +60,6 @@ public:
 
 private:
     void timerCallback();
-    ScopedPointer<socketServer> server;
-    ScopedPointer<socketConnection> ipConnection;  //*** MOD:STEFANO - ADDED
-    OwnedArray <socketConnection, CriticalSection> activeConnections;
     ScopedPointer<GPPluginAudioProcessor> filter;
     ScopedPointer<AudioDeviceManager> deviceManager;
     AudioProcessorPlayer player;
@@ -68,8 +68,6 @@ private:
     bool isGUIOn;
     int currentLine;
     bool pipeOpenedOk;
-    ScopedPointer<GPLookAndFeel> lookAndFeel;
-    ScopedPointer<GPEditorWindow> GPCsoundEditor;
     String consoleMessages;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StandaloneFilterWindow);

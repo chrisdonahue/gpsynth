@@ -31,6 +31,17 @@ public:
     GPPluginAudioProcessor();
     ~GPPluginAudioProcessor();
 
+		bool silenceInProducesSilenceOut() const;
+    int getNumParameters();
+    float getParameter (int index);
+    void setParameter (int index, float newValue);
+    const String getParameterName (int index);
+    const String getParameterText (int index);
+    const String getInputChannelName (int channelIndex) const;
+    const String getOutputChannelName (int channelIndex) const;
+    bool isInputChannelStereoPair (int index) const;
+    bool isOutputChannelStereoPair (int index) const;
+    AudioProcessorEditor* createEditor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock);
@@ -39,7 +50,6 @@ public:
     void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     //==============================================================================
-    AudioProcessorEditor* createEditor();
     bool hasEditor() const;
 
     //==============================================================================
@@ -62,7 +72,7 @@ public:
     
     //======== log information about GUI controls ===============
 
-    void createGUI(String source);
+    void createGUI();
     //midiBuffers
     MidiBuffer midiBuffer;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GPPluginAudioProcessor);

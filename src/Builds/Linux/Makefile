@@ -45,7 +45,7 @@ endif
 OBJECTS := \
   $(OBJDIR)/GPExperiment_a4510b2f.o \
   $(OBJDIR)/Main_90ebc5c2.o \
-  $(OBJDIR)/MainComponent_a6ffb4a5.o \
+  $(OBJDIR)/GPStandaloneDialog.o \
   $(OBJDIR)/GPPluginEditor_9953f146.o \
   $(OBJDIR)/GPPluginProcessor_d30ae823.o \
   $(OBJDIR)/ValueNode_ed35cc41.o \
@@ -88,14 +88,14 @@ $(OBJDIR)/GPExperiment_a4510b2f.o: ../../Source/GPExperiment.cpp
 	@echo "Compiling GPExperiment.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
+$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Standalone/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
+$(OBJDIR)/GPStandaloneDialog.o: ../../Source/Standalone/GPStandaloneDialog.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MainComponent.cpp"
+	@echo "Compiling GPStandaloneDialog.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPPluginEditor_9953f146.o: ../../Source/Plugin/GPPluginEditor.cpp

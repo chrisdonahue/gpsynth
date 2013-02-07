@@ -133,11 +133,6 @@ bool GPPluginAudioProcessor::hasEditor() const
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* GPPluginAudioProcessor::createEditor()
-{
-    return new GPPluginAudioProcessorEditor (this);
-}
-
 //==============================================================================
 void GPPluginAudioProcessor::getStateInformation (MemoryBlock& /*destData*/)
 {

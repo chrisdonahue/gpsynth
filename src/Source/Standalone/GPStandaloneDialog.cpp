@@ -3,7 +3,7 @@
 //==============================================================================
 //  Somewhere in the codebase of your plugin, you need to implement this function
 //  and make it create an instance of the filter subclass that you're building.
-extern GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter(String inputfile, bool guiOnOff);
+extern GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
 
 
 //==============================================================================
@@ -15,11 +15,11 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
 {
     JUCE_TRY
     {
-        filter = createGPPluginFilter("", false);
+        filter = createGPPluginFilter();
         filter->addChangeListener(this);
         filter->addActionListener(this);
         filter->sendChangeMessage();
-        filter->createGUI("");
+        filter->createGUI();
     }
     JUCE_CATCH_ALL
 
@@ -29,9 +29,9 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
         JUCEApplication::quit();
     }
 
-    filter->setPlayConfigDetails (JucePlugin_MaxNumInputChannels,
-                                  JucePlugin_MaxNumOutputChannels,
-                                  44100, 512);
+    filter->setPlayConfigDetails (//JucePlugin_MaxNumInputChannels,
+                                  //JucePlugin_MaxNumOutputChannels,
+                                  0,2,44100, 512);
 
     deviceManager = new AudioDeviceManager();
     deviceManager->addAudioCallback (&player);
@@ -39,6 +39,8 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
 
 
     player.setProcessor (filter);
+
+ScopedPointer<XmlElement> savedState;
 
     deviceManager->initialise (filter->getNumInputChannels(),
                                filter->getNumOutputChannels(),
@@ -69,6 +71,10 @@ void StandaloneFilterWindow::actionListenerCallback (const String& message) {
     */
 }
 
+void StandaloneFilterWindow::changeListenerCallback(juce::ChangeBroadcaster* /*source*/)
+{
+}
+
 //==============================================================================
 // Delete filter
 //==============================================================================
@@ -95,8 +101,6 @@ void StandaloneFilterWindow::resetFilter()
     filter->addActionListener(this);
     filter->sendChangeMessage();
     filter->createGUI();
-    String test = filter->getPluginName();
-    setName(filter->getPluginName());
 
     if (filter != nullptr)
     {
@@ -124,8 +128,9 @@ PropertySet* StandaloneFilterWindow::getGlobalSettings()
 
 void StandaloneFilterWindow::showAudioSettingsDialog()
 {
-    const int numIns = filter->getNumInputChannels() <= 0 ? JucePlugin_MaxNumInputChannels : filter->getNumInputChannels();
-    const int numOuts = filter->getNumOutputChannels() <= 0 ? JucePlugin_MaxNumOutputChannels : filter->getNumOutputChannels();
+	/*
+    const int numIns =  filter->getNumInputChannels();
+    const int numOuts = filter->getNumOutputChannels();
 
     AudioDeviceSelectorComponent selectorComp (*deviceManager,
             numIns, numIns, numOuts, numOuts,
@@ -137,6 +142,7 @@ void StandaloneFilterWindow::showAudioSettingsDialog()
     Colour col(44, 44, 44);
     DialogWindow::showModalDialog(TRANS("Audio Settings"), &selectorComp, this, col, true, false, false);
     setAlwaysOnTop(true);
+	*/
 }
 //==============================================================================
 void StandaloneFilterWindow::closeButtonPressed()
@@ -343,9 +349,3 @@ if(!csdFile.exists()){
 	return 0;
 }
 */
-
-//==============================================================================
-// Set unique plugin ID for each plugin based on the file name
-//==============================================================================
-int StandaloneFilterWindow::setUniquePluginID(File binFile, File csdFile) {
-}
