@@ -15,7 +15,7 @@ MainContentComponent::MainContentComponent()
     setSize (500, 400);
     JUCE_TRY
     {
-        filter = createCabbagePluginFilter("", false);
+        filter = createGPPluginFilter("", false);
         filter->addChangeListener(this);
         filter->addActionListener(this);
         filter->sendChangeMessage();
