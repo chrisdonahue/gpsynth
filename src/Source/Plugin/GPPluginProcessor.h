@@ -15,6 +15,8 @@
 #include "../Synth/GPNetwork.h"
 #include "../Synth/GPNode.h"
 #include "../Synth/GPCore.h"
+#include "../Synth/ValueNode.h"
+#include "../Synth/FunctionNode.h"
 
 //==============================================================================
 // GPPluginAudioProcessor definition

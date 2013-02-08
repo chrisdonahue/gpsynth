@@ -113,7 +113,7 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     GPNode* connectone = new FunctionNode(multiply, std::string("*"), leafthree, leaffour);
     GPNode* connecttwo = new FunctionNode(multiply, std::string("*"), leafone, leaftwo);
     GPNode* connectthree = new FunctionNode(multiply, std::string("*"), connectone, connecttwo);
-    GPNode* root = new FunctionNode(sin, std::string("sin"), connectthree, NULL);
+    GPNode* root = new FunctionNode(sine, std::string("sin"), connectthree, NULL);
     net = new GPNetwork(info, root);
 
 }
