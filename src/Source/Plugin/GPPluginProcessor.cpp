@@ -102,15 +102,19 @@ void GPPluginAudioProcessor::changeProgramName (int /*index*/, const String& /*n
 //==============================================================================
 void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samplesPerBlock*/)
 {
+    cps = (float*) malloc(sizeof(float));
+    time = (float*) malloc(sizeof(float));
+    float* numtwo = (float*) malloc(sizeof(float));
+    float* numpi = (float*) malloc(sizeof(float));
     printf("preparing to play!\n");
     *cps = 440.0;
-    float numtwo = 2;
-    float numpi = 3.14;
+    *numtwo = 2.0;
+    *numpi = 3.1415926536;
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     info = new GPInfo();
-    GPNode* leafone = new ValueNode(info, &numtwo);
-    GPNode* leaftwo = new ValueNode(info, &numpi);
+    GPNode* leafone = new ValueNode(info, numtwo);
+    GPNode* leaftwo = new ValueNode(info, numpi);
     GPNode* leafthree = new ValueNode(info, time);
     GPNode* leaffour = new ValueNode(info, cps);
     GPNode* connectone = new FunctionNode(GPFunction::multiply, std::string("*"), leafthree, leaffour);
@@ -134,13 +138,31 @@ void GPPluginAudioProcessor::timerCallback() {
 //==============================================================================
 void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    printf("processingBlock\n");
-    float* audioBuffer;
-    audioBuffer = buffer.getSampleData(0, 0);
+    float* audioBufferl = buffer.getSampleData(0, 0);
+    float* audioBufferr = buffer.getSampleData(1, 0);
     for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
         *time = cycle/float(this->getSampleRate());
-        audioBuffer[i] = net->evaluate();
+        float res = net->evaluate();
+        audioBufferl[i] = res;
+        audioBufferr[i] = res;
     }
+/*
+    }
+    for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
+        for (int chan = 0; chan < getNumOutputChannels(); chan++) {
+            audioBuffer = buffer.getSampleData(chan, 0);
+            audioBuffer[i] = net->evaluate();
+        }
+    }
+    for (int chan = 0; chan < getNumOutputChannels(); chan++) {
+        audioBuffer = buffer.getSampleData(chan, 0);
+        int cycle = 0;
+        for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
+            *time = cycle/float(this->getSampleRate());
+            audioBuffer[i] = net->evaluate();
+        }
+    }
+    */
 }
 
 
