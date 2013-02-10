@@ -14,7 +14,6 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPNetwork.h"
 #include "../Synth/GPNode.h"
-#include "../Synth/GPCore.h"
 #include "../Synth/ValueNode.h"
 #include "../Synth/FunctionNode.h"
 
@@ -53,6 +52,7 @@ public:
     GPNetwork* net;
     float* time;
     float* cps;
+    int cycle;
 
 
     //==============================================================================

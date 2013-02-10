@@ -12,6 +12,7 @@
 #define __GPNETWORK_H_3A9005CA__
 
 #include "GPCore.h"
+#include "GPNode.h"
 
 class GPNetwork {
     public:

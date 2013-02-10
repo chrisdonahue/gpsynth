@@ -9,6 +9,7 @@
 */
 
 #include "GPPluginProcessor.h"
+#include "../Synth/GPFunctions.h"
 
 #define MAX_BUFFER_SIZE 1024
 //===========================================================
@@ -101,6 +102,8 @@ void GPPluginAudioProcessor::changeProgramName (int /*index*/, const String& /*n
 //==============================================================================
 void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samplesPerBlock*/)
 {
+    printf("preparing to play!\n");
+    *cps = 440.0;
     float numtwo = 2;
     float numpi = 3.14;
     // Use this method as the place to do any pre-playback
@@ -110,10 +113,10 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     GPNode* leaftwo = new ValueNode(info, &numpi);
     GPNode* leafthree = new ValueNode(info, time);
     GPNode* leaffour = new ValueNode(info, cps);
-    GPNode* connectone = new FunctionNode(multiply, std::string("*"), leafthree, leaffour);
-    GPNode* connecttwo = new FunctionNode(multiply, std::string("*"), leafone, leaftwo);
-    GPNode* connectthree = new FunctionNode(multiply, std::string("*"), connectone, connecttwo);
-    GPNode* root = new FunctionNode(sine, std::string("sin"), connectthree, NULL);
+    GPNode* connectone = new FunctionNode(GPFunction::multiply, std::string("*"), leafthree, leaffour);
+    GPNode* connecttwo = new FunctionNode(GPFunction::multiply, std::string("*"), leafone, leaftwo);
+    GPNode* connectthree = new FunctionNode(GPFunction::multiply, std::string("*"), connectone, connecttwo);
+    GPNode* root = new FunctionNode(GPFunction::sine, std::string("sin"), connectthree, NULL);
     net = new GPNetwork(info, root);
 
 }
@@ -131,7 +134,13 @@ void GPPluginAudioProcessor::timerCallback() {
 //==============================================================================
 void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-
+    printf("processingBlock\n");
+    float* audioBuffer;
+    audioBuffer = buffer.getSampleData(0, 0);
+    for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
+        *time = cycle/float(this->getSampleRate());
+        audioBuffer[i] = net->evaluate();
+    }
 }
 
 

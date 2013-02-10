@@ -11,7 +11,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GPStandaloneDialog.h"
 
-
 //==============================================================================
 class GeneticProgrammingSynthesizerApplication  : public JUCEApplication
 {

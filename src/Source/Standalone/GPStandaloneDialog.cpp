@@ -31,23 +31,28 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
 
     filter->setPlayConfigDetails (//JucePlugin_MaxNumInputChannels,
                                   //JucePlugin_MaxNumOutputChannels,
-                                  0,2,44100, 512);
+                                  2,2,44100, 512);
 
     deviceManager = new AudioDeviceManager();
     deviceManager->addAudioCallback (&player);
     deviceManager->addMidiInputCallback (String::empty, &player);
 
-
     player.setProcessor (filter);
 
+    printf("hrm...\n");
+
 ScopedPointer<XmlElement> savedState;
+    showAudioSettingsDialog();
+    std::cout << String("hrm") << std::endl;
+    std::cout << deviceManager->getCurrentAudioDeviceType() << std::endl;
+    //printf("%s\n", deviceManager->getCurrentAudioDeviceType().toUTF8());
 
     deviceManager->initialise (filter->getNumInputChannels(),
                                filter->getNumOutputChannels(),
                                savedState,
                                true);
 
-    deviceManager->closeAudioDevice();
+    //deviceManager->closeAudioDevice();
 }
 //==============================================================================
 // Destructor
@@ -132,7 +137,6 @@ PropertySet* StandaloneFilterWindow::getGlobalSettings()
 
 void StandaloneFilterWindow::showAudioSettingsDialog()
 {
-	/*
     const int numIns =  filter->getNumInputChannels();
     const int numOuts = filter->getNumOutputChannels();
 
@@ -142,11 +146,10 @@ void StandaloneFilterWindow::showAudioSettingsDialog()
 
     selectorComp.setSize (400, 250);
     setAlwaysOnTop(false);
-    selectorComp.setLookAndFeel(lookAndFeel);
+    //selectorComp.setLookAndFeel(lookAndFeel);
     Colour col(44, 44, 44);
     DialogWindow::showModalDialog(TRANS("Audio Settings"), &selectorComp, this, col, true, false, false);
     setAlwaysOnTop(true);
-	*/
 }
 //==============================================================================
 void StandaloneFilterWindow::closeButtonPressed()
