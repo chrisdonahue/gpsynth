@@ -10,6 +10,8 @@
 
 #include "GPPluginProcessor.h"
 #include "../Synth/GPFunctions.h"
+#include <cmath>
+#define _USE_MATH_DEFINES
 
 #define MAX_BUFFER_SIZE 1024
 //===========================================================
@@ -140,9 +142,19 @@ void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer
 {
     float* audioBufferl = buffer.getSampleData(0, 0);
     float* audioBufferr = buffer.getSampleData(1, 0);
-    for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
-        *time = cycle/float(this->getSampleRate());
+    const int numSamples = buffer.getNumSamples();
+    double sr = float(this->getSampleRate());
+    double manualtime;
+    float res;
+    for (int i = 0; i < numSamples; ++i, cycle++) {
+        /*
+        *time = cycle/sr;
         float res = net->evaluate();
+        audioBufferl[i] = res;
+        audioBufferr[i] = res;
+        */
+        manualtime = cycle/sr;
+        res = sin(2.0*M_PI*manualtime*40.0);
         audioBufferl[i] = res;
         audioBufferr[i] = res;
     }
