@@ -104,25 +104,29 @@ void GPPluginAudioProcessor::changeProgramName (int /*index*/, const String& /*n
 //==============================================================================
 void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samplesPerBlock*/)
 {
-    cps = (float*) malloc(sizeof(float));
-    time = (float*) malloc(sizeof(float));
-    float* numtwo = (float*) malloc(sizeof(float));
-    float* numpi = (float*) malloc(sizeof(float));
-    printf("preparing to play!\n");
-    *cps = 440.0;
-    *numtwo = 2.0;
-    *numpi = 3.1415926536;
-    // Use this method as the place to do any pre-playback
+     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    printf("preparing to play!\n");
+    
+    cycle = 0;
+    cps = (float*) malloc(sizeof(float));
+    *cps = 40.0;
+    double* numtwo = (double*) malloc(sizeof(double));
+    double* numpi = (double*) malloc(sizeof(double));
+    *numtwo = 2.0;
+    *numpi = M_PI;
+
     info = new GPInfo();
-    GPNode* leafone = new ValueNode(info, numtwo);
-    GPNode* leaftwo = new ValueNode(info, numpi);
-    GPNode* leafthree = new ValueNode(info, time);
-    GPNode* leaffour = new ValueNode(info, cps);
+    
+    GPNode* leafone = new ValueNode(numtwo);
+    GPNode* leaftwo = new ValueNode(numpi);
+    GPNode* leafthree = new ValueNode(NULL, true, false);
+    GPNode* leaffour = new ValueNode(NULL, false, true);
     GPNode* connectone = new FunctionNode(GPFunction::multiply, std::string("*"), leafthree, leaffour);
     GPNode* connecttwo = new FunctionNode(GPFunction::multiply, std::string("*"), leafone, leaftwo);
     GPNode* connectthree = new FunctionNode(GPFunction::multiply, std::string("*"), connectone, connecttwo);
     GPNode* root = new FunctionNode(GPFunction::sine, std::string("sin"), connectthree, NULL);
+    
     net = new GPNetwork(info, root);
 
 }
@@ -143,38 +147,24 @@ void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer
     float* audioBufferl = buffer.getSampleData(0, 0);
     float* audioBufferr = buffer.getSampleData(1, 0);
     const int numSamples = buffer.getNumSamples();
-    double sr = float(this->getSampleRate());
-    double manualtime;
+    double sr = double(this->getSampleRate());
+    double inc = 1/sr; 
+    double* manualtime = (double*) malloc(sizeof(double));
     float res;
-    for (int i = 0; i < numSamples; ++i, cycle++) {
+    for (int i = 0; i < numSamples; ++i, ++cycle) {
+        *manualtime = cycle/sr;
+        float res = net->evaluate(manualtime, cps);
+        //if (cycle < 1000) {
+        //    printf("%d: %lf\n", cycle, res);
+        //}
+
         /*
-        *time = cycle/sr;
-        float res = net->evaluate();
-        audioBufferl[i] = res;
-        audioBufferr[i] = res;
-        */
-        manualtime = cycle/sr;
         res = sin(2.0*M_PI*manualtime*40.0);
+        */
+
         audioBufferl[i] = res;
         audioBufferr[i] = res;
     }
-/*
-    }
-    for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
-        for (int chan = 0; chan < getNumOutputChannels(); chan++) {
-            audioBuffer = buffer.getSampleData(chan, 0);
-            audioBuffer[i] = net->evaluate();
-        }
-    }
-    for (int chan = 0; chan < getNumOutputChannels(); chan++) {
-        audioBuffer = buffer.getSampleData(chan, 0);
-        int cycle = 0;
-        for (int i = 0; i < buffer.getNumSamples(); i++, cycle++) {
-            *time = cycle/float(this->getSampleRate());
-            audioBuffer[i] = net->evaluate();
-        }
-    }
-    */
 }
 
 

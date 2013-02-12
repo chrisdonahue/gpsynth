@@ -10,9 +10,10 @@
 
 #include "ValueNode.h"
 
-ValueNode::ValueNode(GPInfo* i, float *val) {
-    info = i;
-    value = val;
+ValueNode::ValueNode(double* v, bool t, bool f) {
+    value = v;
+    isTime = t;
+    isFreq = f;
 }
 
 ValueNode::~ValueNode() {
@@ -20,23 +21,31 @@ ValueNode::~ValueNode() {
 }
 
 ValueNode* ValueNode::getCopy() {
-    return new ValueNode(info, value);
+    return new ValueNode(value, isTime, isFreq);
 }
 
-float ValueNode::evaluate() {
-    return *value;
+double ValueNode::evaluate(double* t, float* f) {
+    if (isTime) {
+        return *t;
+    }
+    else if (isFreq) {
+        return *f;
+    }
+    else {
+        return *value;
+    }
 }
 
 std::string ValueNode::toString() {
     char buffer[10];
-    if (value == info->time) {
-        sprintf(buffer, "%s", "time");
+    if (isTime) {
+        snprintf(buffer, 10, "%s", "time");
     }
-    else if (value == info->cps) {
-        sprintf(buffer, "%s", "f");
+    else if (isFreq) {
+        snprintf(buffer, 10, "%s", "freq");
     }
     else {
-        sprintf(buffer, "%f", *value);
+        snprintf(buffer, 10, "%lf", *value);
     }
     return std::string(buffer);
 }

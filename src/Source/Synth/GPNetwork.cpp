@@ -33,8 +33,8 @@ GPNetwork* GPNetwork::getCopy() {
     return new GPNetwork(info, root->getCopy());
 }
 
-float GPNetwork::evaluate() {
-    return root->evaluate();
+double GPNetwork::evaluate(double* t, float* f) {
+    return root->evaluate(t, f);
 }
 
 std::string GPNetwork::toString() {

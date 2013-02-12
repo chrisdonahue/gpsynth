@@ -21,7 +21,7 @@ class GPNetwork {
         GPNetwork* getCopy();
 
         GPNode* getRoot();
-        float evaluate();
+        double evaluate(double* t, float* f);
         std::string toString();
         void mutate();
         GPNetwork* reproduce(GPNetwork* partner);

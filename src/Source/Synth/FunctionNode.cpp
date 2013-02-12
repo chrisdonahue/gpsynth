@@ -16,7 +16,7 @@
     ==============
 */
 
-FunctionNode::FunctionNode(float (*fun)(GPNode*, GPNode*), std::string sym, GPNode* l, GPNode* r) {
+FunctionNode::FunctionNode(double (*fun)(double, double), std::string sym, GPNode* l, GPNode* r) {
     function = fun;
     symbol = sym;
     left = l;
@@ -34,7 +34,7 @@ FunctionNode* FunctionNode::getCopy() {
     return new FunctionNode(function, symbol, left, right);
 }
 
-void FunctionNode::setFunction(float (*fun)(GPNode*, GPNode*), std::string sym, GPNode* rSub) {
+void FunctionNode::setFunction(double (*fun)(double, double), std::string sym, GPNode* rSub) {
     if (right == NULL) {
         right = rSub;
     }
@@ -42,8 +42,13 @@ void FunctionNode::setFunction(float (*fun)(GPNode*, GPNode*), std::string sym, 
     symbol = sym;
 }
 
-float FunctionNode::evaluate() {
-    return function(left, right);
+double FunctionNode::evaluate(double* t, float* f) {
+    if (right != NULL) {
+        return function(left->evaluate(t, f), right->evaluate(t, f));
+    }
+    else {
+        return function(left->evaluate(t, f), 0.0);
+    }
 }
 
 std::string FunctionNode::toString() {

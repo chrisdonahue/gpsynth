@@ -1,4 +1,3 @@
-#include "GPNode.h"
 namespace GPFunction
 {
 //available network functions
@@ -10,8 +9,8 @@ float subtract(GPNode* left, GPNode* right) {
     return left->evaluate() - right->evaluate();
 }
 */
-float multiply(GPNode* left, GPNode* right) {
-    return left->evaluate() * right->evaluate();
+double multiply(double left, double right) {
+    return left * right;
 }
 /*
 float modulo(GPNode* left, GPNode* right) {
@@ -41,8 +40,8 @@ float pow(GPNode* left, GPNode* right) {
     return pow(l, r);
 }
 */
-float sine(GPNode* left, GPNode* right) {
-    return sin(left->evaluate());
+double sine(double left, double right) {
+    return sin(left);
 }
 /*
 float cosine(GPNode* left, GPNode* right) {

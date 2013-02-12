@@ -13,20 +13,20 @@
 
 #include <stdio.h>
 #include "GPNode.h"
-#include "GPCore.h"
 
 class ValueNode: public GPNode {
     public:
-        ValueNode(GPInfo* i, float* val);
+        ValueNode(double* v, bool t=false, bool f=false);
         ~ValueNode();
         ValueNode* getCopy();
 
-        float evaluate();
+        double evaluate(double* t, float* f);
         std::string toString();
 
     private:
-        GPInfo* info;
-        float* value;
+        double* value;
+        bool isTime;
+        bool isFreq;
 };
 
 #endif  // __VALUENODE_H_AB743438__

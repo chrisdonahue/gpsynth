@@ -16,17 +16,17 @@
 
 class FunctionNode: public GPNode {
     public:
-        FunctionNode(float (*fun)(GPNode*, GPNode*), std::string sym, GPNode* l, GPNode* r);
+        FunctionNode(double (*fun)(double, double), std::string sym, GPNode* l, GPNode* r);
         ~FunctionNode();
         FunctionNode* getCopy();
 
-        void setFunction(float (*fun)(GPNode*, GPNode*), std::string sym, GPNode* rSub);
-        float evaluate();
+        void setFunction(double (*fun)(double, double), std::string sym, GPNode* rSub);
+        double evaluate(double* t, float* f);
         std::string toString();
         void traceLineage();
 
     private:
-        float (*function)(GPNode*, GPNode*);
+        double (*function)(double, double);
         std::string symbol;
 };
 

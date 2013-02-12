@@ -22,7 +22,7 @@ class GPInfo {
         int nextNetworkID;
 
         // special node values
-        float *time;
+        double *time;
         float *cps;
 
         // chance params
