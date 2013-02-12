@@ -18,6 +18,7 @@ class GPNode {
         virtual double evaluate(double* t, float* f) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
+
     protected:
         GPNode* parent;
         GPNode* left;

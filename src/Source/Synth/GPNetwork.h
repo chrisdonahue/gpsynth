@@ -11,28 +11,26 @@
 #ifndef __GPNETWORK_H_3A9005CA__
 #define __GPNETWORK_H_3A9005CA__
 
-#include "GPCore.h"
+#include <stdio>
 #include "GPNode.h"
 
 class GPNetwork {
     public:
-        GPNetwork(GPInfo* i, GPNode* r);
+        GPNetwork(int id, GPNode* r);
         ~GPNetwork();
         GPNetwork* getCopy();
 
         GPNode* getRoot();
         double evaluate(double* t, float* f);
         std::string toString();
-        void mutate();
-        GPNetwork* reproduce(GPNetwork* partner);
+        void replaceSubtree(GPNode* one, GPNode* two);
+        void swap(GPNode* one, GPNode* two);
 
     private:
-        int networkID;
+        int ID;
         std::string asText;
         GPNode* root;
-        GPInfo* info;
 
-        void swap(GPNode* one, GPNode* two);
 };
 
 #endif  // __GPNETWORK_H_3A9005CA__
