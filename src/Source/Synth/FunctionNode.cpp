@@ -54,10 +54,10 @@ double FunctionNode::evaluate(double* t, float* f) {
 std::string FunctionNode::toString() {
     char buffer[1024];
     if (right != NULL) {
-        sprintf(buffer, "(%s %s %s)", symbol.c_str(), left->toString().c_str(), right->toString().c_str());
+        snprintf(buffer, 1024, "(%s %s %s)", symbol.c_str(), left->toString().c_str(), right->toString().c_str());
     }
     else {
-        sprintf(buffer, "(%s %s)", symbol.c_str(), left->toString().c_str());
+        snprintf(buffer, 1024, "(%s %s)", symbol.c_str(), left->toString().c_str());
     }
     return std::string(buffer);
 }

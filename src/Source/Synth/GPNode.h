@@ -8,9 +8,6 @@
   ==============================================================================
 */
 
-#ifndef __GPNODE_H_FAD1259A__
-#define __GPNODE_H_FAD1259A__
-
 #include <string>
 
 class GPNode {
@@ -24,5 +21,3 @@ class GPNode {
         GPNode* left;
         GPNode* right;
 };
-
-#endif  // __GPNODE_H_FAD1259A__

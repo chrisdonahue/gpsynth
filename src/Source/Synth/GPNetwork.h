@@ -8,9 +8,6 @@
   ==============================================================================
 */
 
-#ifndef __GPNETWORK_H_3A9005CA__
-#define __GPNETWORK_H_3A9005CA__
-
 #include <stdio>
 #include "GPNode.h"
 
@@ -30,7 +27,4 @@ class GPNetwork {
         int ID;
         std::string asText;
         GPNode* root;
-
 };
-
-#endif  // __GPNETWORK_H_3A9005CA__

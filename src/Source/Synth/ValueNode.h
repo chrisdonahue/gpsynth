@@ -8,9 +8,6 @@
   ==============================================================================
 */
 
-#ifndef __VALUENODE_H_AB743438__
-#define __VALUENODE_H_AB743438__
-
 #include <stdio.h>
 #include "GPNode.h"
 
@@ -28,5 +25,3 @@ class ValueNode: public GPNode {
         bool isTime;
         bool isFreq;
 };
-
-#endif  // __VALUENODE_H_AB743438__
