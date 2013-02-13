@@ -1,0 +1,56 @@
+Automatic Design of Sound Synthesis Techniques by means of Genetic Programming
+	Abstract:
+		Design of Sound Synthesis Techniques is a hard problem. An automated approach is proposed in this paper.
+		The problem is stated as a search in the multidimensional SST space.
+		Uses GP to suggest valid functional forms and standard optimization techniques to fit their parameters
+		System called AGeSS (Automatic Generator of Sound Synthesizers), simple example of evolved SST shown
+	
+	Introduction:
+		SST can be dissected into a functional form and internal parameters.
+		The functional form (topology) describes the relationship between the functions
+		Design of an SST is customarily limited to the selection of a functional form from a set of algorithms
+		Horner proposed an approach for automating the internal parameter estimation of FM synthesizers with Genetic Algorithms
+		Goal of this paper is to propose a general approach capable of suggesting valid functional forms and internal parameters for an SST to synthesize a target sound, using a known set of inputs (time varying signals)
+		Related to system identification or symbolic regression problem in control theory
+	
+	Approach:
+		Design of an SST is a search in the SST space
+		Measure of closeness is done using an error metric
+		Done using GP which has shown empirical performance in searching complex multidimensional spaces
+	
+	Representing SSTs as expression trees:
+		Topology graphs of complex SSTs are usually in the form of cyclic graphs with closed loops
+		Manipulation of this kind of graph is difficult as it can render a topology invalid very easily
+		Expression trees are graphs taht are very easy to manipulate by following a small set of construction rules. It makes sense to try to find a mapping between an easy-to-manipulate expression tree graph into a difficult-to-manipulate topology graph.
+		Koza and Gruaua mapped expression trees into topology graphs and neural nets respectively
+		
+	Mapping expression trees into topology graphs:
+		Nodes in expression tree represent instructions that when executed will result in a topology graph
+		Bunch of weird rules used to map tree to graph (PAGE 3)
+	
+	Functional Elements:
+		From studying Classic SSTs, several functional elements have been identified:
+			Sinusoidal oscillators (variable amplitude, frequency, phase over time)
+			Wavetable oscillator (variable amplitude, read index)
+			Delay (memory) for one or more samples
+			Controlled gain filter
+			Noise generator
+			Time varying filters (coefficients can change over time)
+			Addition
+			Multiplication
+	
+	Parameter estimation:
+		Once a functional form has been selected. the number and type of internal parameters is fixed
+		Use a GA mathematical analysis technique to approximate a good set of internal parameters
+	
+	Fitness functions:
+		An analytical fitness function that uses the least squares error of the magnitude spectrograms has been successfully applied by Horner and gave good results for this project.
+		An enhancement for this fitness function was to include phase information. The LSE of the phase spectrograms, weighted with the magnitude of the target sound was successfully used in most of the performed tests.
+	
+	AGeSS:
+		Use of AGeSS supplies parameters, control signals and target sound.
+		EXAMPLE of AGeSS: used to replicate Chowning's woodwind sound.
+			Uses two time varying signals.
+			AGeSS USES TIME CHANGING VARIABLES FOR VALUES AS WELL AS OTHER USER INPUT VARIABLES
+		
+		
