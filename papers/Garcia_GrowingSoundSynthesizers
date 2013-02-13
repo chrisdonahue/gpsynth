@@ -1,0 +1,45 @@
+Growing Sound Synthesizers using Evolutionary Methods:
+	Abstract:
+		An approach to automate the design of sound synthesis algorithms. For suggesting topological arrangements for the SSA functional elements, and for optimizing the internal parameters of the functional elements.
+		Horner used genetic algorithms to automate the estimation of parameters for FM synthesizers modeling trumpet, tenor voice and guitar tones.
+		2 Sound Synthesis Algorithms:
+			2.1 SSA as topologies:
+				It is common practice to represent an SSA as a topology graph with interconnected functional blocks, such as Boulanger. A topology and its related SSA are equivalent representations of the same model; therefore a change in one of them will be reflected in the other
+			2.2 SSA space:
+				The space spanned by all the possible combinations of blocks and their connections
+			2.3 Suggested functional blocks:
+				Four types of blocks defined:
+					Source: 1 output
+					Render: 1 input
+					Type_A: 2 input, 1 output
+					Type_B: 1 input, two output
+			2.4 Manipulations of Toplogies: Alternative Representation:
+				Basic building blocks defined:
+					Oscillator, Filter, Split, Constant, Add, Mult, Filter+Osc, Source, Render
+				Problems of topological manipulation have been faced by: Koza et al, Bennett and Gruau 1992. Koza used evolutionary methods to evolve descriptions of analog circuits, gruau represented families of neurl nets.
+				Main solution is to represent the cyclic topology graph as an acyclic tree graph with ordered branches.
+			3 Searching the SSA Space:
+				The original problem of searching for a topology capable of synthesizing a soudn close to a target soudn is restated as "search for a tree description that will grow a topology capable of synthesizing a sound close to a target sound"
+				Genetic programming have shown good results searching in these complicated types of tree spaces
+				3.2 Fitness Function:
+					The fitness function is in charge of evaluating the performance of the individuals compared to a target sound, and guides the search in the SSA space.
+					Different sound-distance metrics have been proposed:
+						Saint-Arnaud proposes a cluster-weighted model of a sound and uses the analytical distance between respective clusters of the associated models for two sounds. Only works with long sounds, especially cyclic sounds
+						Horner use an analytical spectral distance metrics that involve the MSE of the magnitude spectrograms of two sounds.
+						Wun propose a distance metric that includes perceptual simultaneous frequency masking. This metric compares the MSE distance of the perceptually filtered magnitude spectrums.
+						The proposed analytical distance metrics (Garcia) works with the distance between the complex spectrums of the target and testing sounds.
+						This defines an asymmetric distance metric for the complex spectrum of two sounds: target T_ij and rendered X_ij.
+				3.3 Genetic Operations:
+					The genetic operations (copy, crossover and mutation) are applied to selected individuals when creating new populations. Selection is probabilistic based on fitness.
+				3.4 Sub optimization:
+					After a topology and its initial parameters are sugested, a sub optimization of their internal parameters is performed. This optimization will not change the actual layout of the topology but fine tune the SSA for a target sound.
+					Oscillator in the actual topology can be tuned to produce a frequency relevant to the target sound, not a "random" frequency that could be suggested by genetic operation
+					In early stages, sub-optimization was not performed and the algorithm tended to reject or penalize good topologies that were poorly optimized.
+				4 Implementation:
+					Matlab and C++, C++ controlling GP loop and fitness function. Performance was hurt. Results of fitness function to be published in the "near future"
+					Initial population of random trees generated. Every tree was mapped into a working topology and then sub-optimized to fine tune the internal parameters of each block.
+					Typical population ranged from 40 to 70 individuals, total number of generations varied from 200 to 500. First population always randomly generated. Sub-optimization done using a GA which used a variable number of individuals randomly selected from 1 to 15, generations varied from 1 to 7
+				5 Results:
+					Seems this mother fucker got pretty close to his target sounds. God damn!
+
+http://www.ragomusic.com/research/ml/index.html

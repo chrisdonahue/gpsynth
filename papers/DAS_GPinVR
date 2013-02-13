@@ -1,0 +1,11 @@
+Genetic Programming Application in Virtual Reality:
+	Discussing genetic programming in a virtual environment
+	
+	1. Introduction
+		1.1 Background:
+			Search for shapes and sounds
+		1.3 Sound and GA's:
+			The generation of musical sound is usually seperated into timbre generation and composition
+			Horner describes a technique for deriving FM parameters to approximate a desired sound using genetic algorithms
+		
+		This paper describes the "CAVE" which is this thing at UIC in the 90's that had a bunch of crazy shit. Not really relevant.
