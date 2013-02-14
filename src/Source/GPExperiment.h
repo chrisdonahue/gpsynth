@@ -8,35 +8,36 @@
   ==============================================================================
 */
 
-#ifndef __GPEXPERIMENT_H_93920796__
-#define __GPEXPERIMENT_H_93920796__
-
 #include <vector>
 #include <map>
 
 class GPSynth {
-    // experiment state
-    int populationSize;
-    int nextNetworkID;
-    int generationID;
+    public:
+        GPSynth(int psize);
 
-    // experiment parameters
-    int valueRange;
-    int LFORange;
-    int numPartials;
+        // experiment probabilities
+        float mutationChance;
+        float simplifyChance;
+        float specialChance;
+        float harmonyChance;
+        float functionChance;
+        float crossChance;
 
-    // network containers
-    std::vector<GPNetwork*> allNetworks;
-    std::vector<GPNetwork*> upForEvaluation;
-    std::map<GPNetwork*, double> evaluated;
+    private:
+        // experiment state
+        int populationSize;
+        int nextNetworkID;
+        int generationID;
+        double maxFitness;
 
-    // experiment probabilities
-    float mutationChance;
-    float simplifyChance;
-    float specialChance;
-    float harmonyChance;
-    float functionChance;
-    float crossChance;
+        // experiment parameters
+        int valueRange;
+        int LFORange;
+        int numPartials;
+
+        // network containers
+        std::vector<GPNetwork*> allNetworks;
+        std::map<GPNetwork*, double> upForEvaluation;
+        std::vector<GPNetwork*> evaluated;
+
 }
-
-#endif  // __GPEXPERIMENT_H_93920796__

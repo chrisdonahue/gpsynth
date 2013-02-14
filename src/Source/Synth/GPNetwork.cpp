@@ -14,6 +14,7 @@ GPNetwork::GPNetwork(int id, GPNode* r) {
     ID = id;
     asText = "";
     root = r;
+    fitness = -1;
 }
 
 GPNetwork::~GPNetwork() {
