@@ -16,12 +16,17 @@
     ==============
 */
 
-FilterNode::FilterNode(int x, int y, GPNode* l, GPNode* r) {
-    numX = x;
-    numY = y;
+FilterNode::FilterNode(int x, int y, double* xc, double* yc, GPNode* l, GPNode* r) {
     numFilled = 0;
-    xMem = (double*) calloc(sizeof(double) * numX);
-    yMem = (double*) calloc(sizeof(double) * numY);
+
+    numX = x;
+    xMem();
+    xCoefficients = xc;
+
+    numY = y;
+    yMem();
+    yCoefficients = yc;
+
     left = l;
     right = r;
     parent = NULL;
@@ -30,8 +35,10 @@ FilterNode::FilterNode(int x, int y, GPNode* l, GPNode* r) {
 FilterNode::~FilterNode() {
     delete left;
     delete right;
-    free(xMem);
-    free(yMem);
+    delete xMem;
+    delete yMem;
+    free(xCoefficients);
+    free(yCoefficients);
 }
 
 FilterNode* FilterNode::getCopy() {
@@ -41,31 +48,41 @@ FilterNode* FilterNode::getCopy() {
 void FilterNode::setMemoryConstants(int x, int y) {
     numX = x;
     numY = y;
-    free(xMem);
-    free(yMem);
-    xMem = (double*) calloc(sizeof(double) * numX);
-    yMem = (double*) calloc(sizeof(double) * numY);
+    xMem.clear();
+    yMem.clear();
+}
+
+void FilterNode::setXCoefficient(int x, double c) {
+    if (x < numX)
+        xCoefficients[x] = c;
+}
+
+void FilterNode::setYCoefficient(int y, double c) {
+    if (y < numY)
+        yCoefficients[y] = c;
 }
 
 double FilterNode::evaluate(double* t, float* f) {
+    double xn = left->evaluate();
+    xMem.push_front(xn);
+    numFilled++;
+    double yn = 0.0;
 
-
-    if (right != NULL) {
-        return function(left->evaluate(t, f), right->evaluate(t, f));
+    int i = 0;
+    while (i < numFilled) {
+        yn += xCoefficients[i] * xMem[i];
+        if (i != numFilled - 1) {
+            yn -= yCoefficients[i] * yMem[i];
+        }
+        i++;
     }
-    else {
-        return function(left->evaluate(t, f), 0.0);
-    }
+    yMem.push_front(yn);
+    return yn;
 }
 
 std::string FilterNode::toString() {
-    char buffer[1024];
-    if (right != NULL) {
-        snprintf(buffer, 1024, "(%s %s %s)", symbol.c_str(), left->toString().c_str(), right->toString().c_str());
-    }
-    else {
-        snprintf(buffer, 1024, "(%s %s)", symbol.c_str(), left->toString().c_str());
-    }
+    char buffer[100];
+    snprintf(buffer, 100, "(FILTER %d %d)", numX, numY);
     return std::string(buffer);
 }
 

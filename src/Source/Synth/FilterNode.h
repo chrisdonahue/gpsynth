@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "GPNode.h"
+#include <list>
 
 class FilterNode: public GPNode {
     public:
@@ -23,9 +24,13 @@ class FilterNode: public GPNode {
         void traceLineage();
 
     private:
-        int numX;
-        int numY;
         int numFilled;
-        double* xMem;
-        double* yMem;
+
+        int numX;
+        std::list<double> xMem;
+        double* xCoefficients;
+
+        int numY;
+        std::list<double> yMem;
+        double* yCoefficients;
 };
