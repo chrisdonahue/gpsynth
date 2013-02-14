@@ -1,0 +1,3 @@
+Why search in the expression tree space if it is larger than the topology space? Paper says because of difficulty in manipulating cyclical topologies but how often does the solution contain a cyclical topology?
+
+What have you learned from the project that you would do differently? What do you think about my approach?

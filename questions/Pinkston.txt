@@ -1,0 +1,5 @@
+How would I make a band pass filter at the sample level?
+
+How often do cyclical topologies emerge?
+
+Should I try to handle these cyclical topologies?
