@@ -1,5 +1,12 @@
-How would I make a band pass filter at the sample level?
+2/14/13:
+    How often do cyclical topologies emerge?
+        Not very often in the more famous algorithms apparently. Might be possible to ignore this case.
 
-How often do cyclical topologies emerge?
+    What space should I be evolving, expression tree space or cyclical topologies.
+        Expression tree space seems to still be the best bet
 
-Should I try to handle these cyclical topologies?
+    Can all topologies be represented as expression trees? If this is true, I could run crossover as an array representation and mutation as randomly selecting a node and effectively be exploring the full space of topologies.
+        It seems that all non-cyclical topologies have an equivalent experssion tree
+
+    Can we try to map some famous topologies (perhaps Chowning instruments) into expression trees?
+        Possible second experiment. Going to begin with recreating classic FM algorithm from input FM sound file/carrier frequency/modulator frequency

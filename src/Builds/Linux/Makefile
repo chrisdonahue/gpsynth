@@ -48,6 +48,7 @@ OBJECTS := \
   $(OBJDIR)/GPStandaloneDialog.o \
   $(OBJDIR)/GPPluginEditor_9953f146.o \
   $(OBJDIR)/GPPluginProcessor_d30ae823.o \
+  $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/ValueNode_ed35cc41.o \
   $(OBJDIR)/FunctionNode_5e7b0916.o \
   $(OBJDIR)/GPNetwork_24a38153.o \
@@ -111,6 +112,11 @@ $(OBJDIR)/GPPluginProcessor_d30ae823.o: ../../Source/Plugin/GPPluginProcessor.cp
 $(OBJDIR)/ValueNode_ed35cc41.o: ../../Source/Synth/ValueNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/OscilNode.o: ../../Source/Synth/OscilNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling OscilNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FunctionNode_5e7b0916.o: ../../Source/Synth/FunctionNode.cpp

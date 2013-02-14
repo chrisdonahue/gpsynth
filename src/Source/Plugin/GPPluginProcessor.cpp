@@ -110,12 +110,13 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     
     cycle = 0;
     cps = (float*) malloc(sizeof(float));
-    *cps = 40.0;
+    *cps = 220.0;
     double* numtwo = (double*) malloc(sizeof(double));
     double* numpi = (double*) malloc(sizeof(double));
     *numtwo = 2.0;
     *numpi = M_PI;
 
+    /*
     info = new GPInfo();
     
     GPNode* leafone = new ValueNode(numtwo);
@@ -127,7 +128,9 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     GPNode* connectthree = new FunctionNode(GPFunction::multiply, std::string("*"), connectone, connecttwo);
     GPNode* root = new FunctionNode(GPFunction::sine, std::string("sin"), connectthree, NULL);
     
-    net = new GPNetwork(info, root);
+    */
+    GPNode* root = new OscilNode(1, NULL, NULL);
+    net = new GPNetwork(0, root);
 
 }
 //==============================================================================

@@ -10,10 +10,18 @@
 
 #include <vector>
 #include <map>
+#include <stdio.h>
+#include <iostream>
+#include "Synth/GPNetwork.h"
 
 class GPSynth {
     public:
         GPSynth(int psize);
+        ~GPSynth();
+
+        void initPopulation();
+        void prevGeneration();
+        void nextGeneration();
 
         // experiment probabilities
         float mutationChance;
@@ -23,6 +31,11 @@ class GPSynth {
         float functionChance;
         float crossChance;
 
+        // experiment parameters
+        int valueRange;
+        int LFORange;
+        int numPartials;
+
     private:
         // experiment state
         int populationSize;
@@ -30,14 +43,8 @@ class GPSynth {
         int generationID;
         double maxFitness;
 
-        // experiment parameters
-        int valueRange;
-        int LFORange;
-        int numPartials;
-
         // network containers
         std::vector<GPNetwork*> allNetworks;
         std::map<GPNetwork*, double> upForEvaluation;
         std::vector<GPNetwork*> evaluated;
-
-}
+};

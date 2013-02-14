@@ -13,7 +13,7 @@
 
 class OscilNode: public GPNode {
     public:
-        OscilNode(GPNode* l, GPNode* r);
+        OscilNode(int p, GPNode* l, GPNode* r);
         ~OscilNode();
         OscilNode* getCopy();
 
