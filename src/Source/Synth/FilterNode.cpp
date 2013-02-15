@@ -86,6 +86,6 @@ std::string FilterNode::toString() {
     return std::string(buffer);
 }
 
-void traceLineage() {
-    // IMPLEMENT LATER
+void FilterNode::mutate(GPExperiment* e) {
+
 }

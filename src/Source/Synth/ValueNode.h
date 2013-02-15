@@ -22,6 +22,7 @@ class ValueNode: public GPNode {
 
         double evaluate(double* t, float* f);
         std::string toString();
+        void mutate(GPExperiment* e);
 
     private:
         double* value;

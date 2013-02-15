@@ -43,6 +43,6 @@ std::string OscilNode::toString() {
     return std::string(buffer);
 }
 
-void OscilNode::traceLineage() {
+void OscilNode::mutate(GPExperiment* e) {
 
 }

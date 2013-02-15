@@ -49,3 +49,6 @@ std::string ValueNode::toString() {
     }
     return std::string(buffer);
 }
+
+void mutate(GPExperiment* e) {
+}

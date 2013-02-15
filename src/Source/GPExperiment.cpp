@@ -70,7 +70,7 @@ void GPSynth::nextGeneration() {
         // SET UP PROBABILITIES BASED ON FITNESS
     }
 
-        /*
+    /*
     for (std::map<GPNode*, double>::iterator i = upForEvaluation.begin(); i != upForEvaluation.end(); i++) {
         GPNode* dad = random sample based on probabilities
         GPNode* one = dad->getCopy();
@@ -92,8 +92,8 @@ void GPSynth::nextGeneration() {
         networks.push_back(offspring);
         upForEvaluation.push_back(offspring);
     }
+    */
 
-        */
     evaluated.clear();
     generationID++;
 }

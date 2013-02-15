@@ -24,7 +24,7 @@ class DelayNode: public GPNode {
         void setMemoryConstants(int x, int y);
         double evaluate(double* t, float* f);
         std::string toString();
-        void traceLineage();
+        void mutate(GPExperiment* e);
 
     private:
         int numFilled;

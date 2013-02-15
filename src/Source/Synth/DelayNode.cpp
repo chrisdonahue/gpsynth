@@ -50,7 +50,3 @@ std::string DelayNode::toString() {
     snprintf(buffer, 100, "(DELAY %d)", numSamples);
     return std::string(buffer);
 }
-
-void DelayNode::traceLineage() {
-    // IMPLEMENT LATER
-}

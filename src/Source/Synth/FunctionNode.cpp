@@ -61,7 +61,3 @@ std::string FunctionNode::toString() {
     }
     return std::string(buffer);
 }
-
-void FunctionNode::traceLineage() {
-    // IMPLEMENT LATER
-}

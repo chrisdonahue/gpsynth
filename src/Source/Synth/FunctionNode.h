@@ -23,7 +23,7 @@ class FunctionNode: public GPNode {
         void setFunction(double (*fun)(double, double), std::string sym, GPNode* rSub);
         double evaluate(double* t, float* f);
         std::string toString();
-        void traceLineage();
+        void mutate(GPExperiment* e);
 
     private:
         double (*function)(double, double);

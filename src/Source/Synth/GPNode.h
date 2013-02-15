@@ -12,18 +12,29 @@
 #define GPNODE_H
 
 #include <string>
+#include "../GPExperiment.h"
 
 class GPNode {
     public:
         virtual double evaluate(double* t, float* f) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
-        //void traceLineage();
-        //virtual void mutate(GPExperiment* e) = 0;
+        virtual void mutate(GPExperiment* e) = 0;
 
         GPNode* parent;
         GPNode* left;
         GPNode* right;
+
+        void traceLineage() {
+            if (left != NULL) {
+                left->parent = this;
+                left->traceLineage();
+            }
+            if (right != NULL) {
+                right->parent = this;
+                right->traceLineage();
+            }
+        };
 };
 
 #endif

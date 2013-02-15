@@ -8,6 +8,9 @@
   ==============================================================================
 */
 
+#ifndef GPEXPERIMENT_H
+#define GPEXPERIMENT_H
+
 #include <vector>
 #include <map>
 #include <stdio.h>
@@ -48,3 +51,5 @@ class GPSynth {
         std::map<GPNetwork*, double> upForEvaluation;
         std::vector<GPNetwork*> evaluated;
 };
+
+#endif

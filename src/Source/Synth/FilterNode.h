@@ -24,7 +24,6 @@ class FilterNode: public GPNode {
         void setMemoryConstants(int x, int y);
         double evaluate(double* t, float* f);
         std::string toString();
-        void traceLineage();
 
     private:
         int numFilled;
