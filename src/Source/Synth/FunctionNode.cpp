@@ -44,10 +44,10 @@ void FunctionNode::setFunction(double (*fun)(double, double), std::string sym, G
 
 double FunctionNode::evaluate(double* t, double* v) {
     if (right != NULL) {
-        return function(left->evaluate(t, f), right->evaluate(t, f));
+        return function(left->evaluate(t, v), right->evaluate(t, v));
     }
     else {
-        return function(left->evaluate(t, f), 0.0);
+        return function(left->evaluate(t, v), 0.0);
     }
 }
 
@@ -62,5 +62,5 @@ std::string FunctionNode::toString() {
     return std::string(buffer);
 }
 
-void FunctionNode::mutate(GPParams* e) {
+void FunctionNode::mutate(GPNodeParams* e) {
 }

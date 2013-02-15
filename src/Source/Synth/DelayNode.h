@@ -24,7 +24,7 @@ class DelayNode: public GPNode {
         void setMemoryConstants(int x, int y);
         double evaluate(double* t, double* v);
         std::string toString();
-        void mutate(GPParams* e);
+        void mutate(GPNodeParams* e);
 
     private:
         int numFilled;

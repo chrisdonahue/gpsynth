@@ -127,7 +127,11 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     */
 
     cycle = 0;
-    vars = {220.0, 10.0, 0.5, 2.0*M_PI};
+    vars = (double*) malloc(sizeof(double) * 4);
+    vars[0] = 220.0;
+    vars[1] = 1.0;
+    vars[2] = 1.0;
+    vars[3] = 2.0*M_PI;
     GPNode* one = new OscilNode(1, 1, NULL, NULL);
     GPNode* two = new OscilNode(1, 2, NULL, NULL);
     GPNode* three = new ValueNode(NULL, 3);
@@ -159,7 +163,7 @@ void GPPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer
     float res;
     for (int i = 0; i < numSamples; ++i, ++cycle) {
         *manualtime = cycle/sr;
-        float res = net->evaluate(manualtime, cps);
+        float res = net->evaluate(manualtime, vars);
         //if (cycle < 1000) {
         //    printf("%d: %lf\n", cycle, res);
         //}

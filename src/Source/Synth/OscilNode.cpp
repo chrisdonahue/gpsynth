@@ -44,6 +44,6 @@ std::string OscilNode::toString() {
     return std::string(buffer);
 }
 
-void OscilNode::mutate(GPParams* e) {
+void OscilNode::mutate(GPNodeParams* e) {
 
 }

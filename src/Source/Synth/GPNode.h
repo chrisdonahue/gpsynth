@@ -13,7 +13,7 @@
 
 #include <string>
 
-struct GPMutationParams {
+struct GPNodeParams {
     float mutationChance;
     float simplifyChance;
     float specialChance;
@@ -33,7 +33,7 @@ class GPNode {
         virtual double evaluate(double* t, double* v) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
-        virtual void mutate(GPMutationParams* e) = 0;
+        virtual void mutate(GPNodeParams* e) = 0;
 
         GPNode* parent;
         GPNode* left;

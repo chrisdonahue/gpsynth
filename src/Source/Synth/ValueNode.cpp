@@ -51,7 +51,7 @@ std::string ValueNode::toString() {
     return std::string(buffer);
 }
 
-void ValueNode::mutate(GPParams* e) {
+void ValueNode::mutate(GPNodeParams* e) {
     if (value != NULL) {
     
     }

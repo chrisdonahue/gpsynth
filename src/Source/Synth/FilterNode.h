@@ -24,6 +24,7 @@ class FilterNode: public GPNode {
         void setMemoryConstants(int x, int y);
         double evaluate(double* t, double* v);
         std::string toString();
+        void mutate(GPNodeParams* e);
 
     private:
         int numFilled;

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "Synth/GPNetwork.h"
+#include <stdlib.h>
 
 class GPSynth {
     public:
@@ -26,7 +27,7 @@ class GPSynth {
         void prevGeneration();
         void nextGeneration();
 
-        GPMutationParams* nodeMutationParams;
+        GPNodeParams* nodeParams;
 
     private:
         // experiment state
