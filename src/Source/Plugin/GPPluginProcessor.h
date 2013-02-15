@@ -50,6 +50,7 @@ public:
 
     //===== GP CODE =====
     GPNetwork* net;
+    double* vars;
     float* time;
     float* cps;
     int cycle;

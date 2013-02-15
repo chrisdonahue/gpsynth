@@ -16,8 +16,9 @@
     ==============
 */
 
-OscilNode::OscilNode(int p, GPNode* l, GPNode* r) {
+OscilNode::OscilNode(int p, int vn, GPNode* l, GPNode* r) {
     partial = p;
+    variableNum = vn - 1;
     left = l;
     right = r;
     parent = NULL;
@@ -30,11 +31,11 @@ OscilNode::~OscilNode() {
 }
 
 OscilNode* OscilNode::getCopy() {
-    return new OscilNode(partial, left->getCopy(), right->getCopy());
+    return new OscilNode(partial, variableNum + 1, left->getCopy(), right->getCopy());
 }
 
 double OscilNode::evaluate(double* t, double* v) {
-    return sin(w*(*t)*(*f));
+    return sin(w*(*t)*(v[variableNum]));
 }
 
 std::string OscilNode::toString() {
