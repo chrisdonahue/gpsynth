@@ -51,6 +51,6 @@ std::string DelayNode::toString() {
     return std::string(buffer);
 }
 
-void traceLineage() {
+void DelayNode::traceLineage() {
     // IMPLEMENT LATER
 }

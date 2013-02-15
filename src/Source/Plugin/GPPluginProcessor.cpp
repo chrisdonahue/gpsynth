@@ -8,10 +8,8 @@
   ==============================================================================
 */
 
-#include "GPPluginProcessor.h"
 #include "../Synth/GPFunctions.h"
-#include <cmath>
-#define _USE_MATH_DEFINES
+#include "GPPluginProcessor.h"
 
 #define MAX_BUFFER_SIZE 1024
 //===========================================================
@@ -127,8 +125,8 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     GPNode* connecttwo = new FunctionNode(GPFunction::multiply, std::string("*"), leafone, leaftwo);
     GPNode* connectthree = new FunctionNode(GPFunction::multiply, std::string("*"), connectone, connecttwo);
     GPNode* root = new FunctionNode(GPFunction::sine, std::string("sin"), connectthree, NULL);
-    
     */
+
     GPNode* root = new OscilNode(1, NULL, NULL);
     net = new GPNetwork(0, root);
 

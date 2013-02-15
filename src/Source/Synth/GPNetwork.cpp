@@ -14,17 +14,16 @@ GPNetwork::GPNetwork(int id, GPNode* r) {
     ID = id;
     asText = "";
     root = r;
-    fitness = -1;
 }
 
 GPNetwork::~GPNetwork() {
-    delete &networkID;
+    delete &ID;
     delete &asText;
     delete root;
 }
 
 GPNetwork* GPNetwork::getCopy() {
-    return new GPNetwork(id, root->getCopy());
+    return new GPNetwork(ID, root->getCopy());
 }
 
 double GPNetwork::evaluate(double* t, float* f) {
@@ -57,7 +56,7 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
         else if (old->parent->right == old)
             old->parent->right = nu;
         else
-            cerr << "Bad parent-child links detected during subtree replacement." << endl;
+            std::cerr << "Bad parent-child links detected during subtree replacement." << std::endl;
     }
 
     // assign nu pointers
@@ -79,7 +78,7 @@ void GPNetwork::swap(GPNode* old, GPNode* nu) {
         else if (old->parent->right == old)
             old->parent->right = nu;
         else
-            cerr << "Bad parent-child links detected during node swap." << endl;
+            std::cerr << "Bad parent-child links detected during node swap." << std::endl;
     }
 
     // assign nu pointers

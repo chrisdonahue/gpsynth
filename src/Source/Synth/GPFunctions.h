@@ -1,3 +1,8 @@
+#ifndef GPFUNCTION_H
+#define GPFUNCTION_H
+
+#include <cmath>
+
 namespace GPFunction
 {
     double add(double left, double right) {
@@ -35,7 +40,7 @@ namespace GPFunction
         else if (left == 0) {
             return 0;
         }
-        return pow(l, r);
+        return pow(left, r);
     }
     double sine(double left, double right) {
         return sin(left);
@@ -44,3 +49,5 @@ namespace GPFunction
         return cos(left);
     }
 }
+
+#endif

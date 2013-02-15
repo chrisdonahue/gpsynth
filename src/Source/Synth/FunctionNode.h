@@ -8,6 +8,9 @@
   ==============================================================================
 */
 
+#ifndef FUNCTIONNODE_H
+#define FUNCTIONNODE_H
+
 #include <stdio.h>
 #include "GPNode.h"
 
@@ -26,3 +29,5 @@ class FunctionNode: public GPNode {
         double (*function)(double, double);
         std::string symbol;
 };
+
+#endif

@@ -30,7 +30,7 @@ OscilNode::~OscilNode() {
 }
 
 OscilNode* OscilNode::getCopy() {
-    return new OscilNode(left, right);
+    return new OscilNode(partial, left->getCopy(), right->getCopy());
 }
 
 double OscilNode::evaluate(double* t, float* f) {
@@ -43,6 +43,6 @@ std::string OscilNode::toString() {
     return std::string(buffer);
 }
 
-void traceLineage() {
+void OscilNode::traceLineage() {
 
 }

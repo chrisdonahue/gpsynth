@@ -8,6 +8,9 @@
   ==============================================================================
 */
 
+#ifndef FILTERNODE_H
+#define FILTERNODE_H
+
 #include <stdio.h>
 #include "GPNode.h"
 #include <list>
@@ -34,3 +37,5 @@ class FilterNode: public GPNode {
         std::list<double> yMem;
         double* yCoefficients;
 };
+
+#endif

@@ -8,7 +8,11 @@
   ==============================================================================
 */
 
+#ifndef OSCILNODE_H
+#define OSCILNODE_H
+
 #include <stdio.h>
+#include <cmath>
 #include "GPNode.h"
 
 class OscilNode: public GPNode {
@@ -25,3 +29,5 @@ class OscilNode: public GPNode {
         int partial;
         double w;
 };
+
+#endif

@@ -11,9 +11,9 @@
 #ifndef __GPPLUGINPROCESSOR_H_7631AE8A__
 #define __GPPLUGINPROCESSOR_H_7631AE8A__
 
+#include <cmath>
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPNetwork.h"
-#include "../Synth/GPNode.h"
 #include "../Synth/ValueNode.h"
 #include "../Synth/FunctionNode.h"
 #include "../Synth/OscilNode.h"
@@ -49,7 +49,6 @@ public:
     AudioProcessorEditor* createEditor();
 
     //===== GP CODE =====
-    GPInfo* info;
     GPNetwork* net;
     float* time;
     float* cps;
