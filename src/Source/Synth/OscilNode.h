@@ -23,7 +23,7 @@ class OscilNode: public GPNode {
 
         double evaluate(double* t, float* f);
         std::string toString();
-        void mutate(GPExperiment* e);
+        void mutate(GPParams* e);
 
     private:
         int partial;

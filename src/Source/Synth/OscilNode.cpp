@@ -43,6 +43,6 @@ std::string OscilNode::toString() {
     return std::string(buffer);
 }
 
-void OscilNode::mutate(GPExperiment* e) {
+void OscilNode::mutate(GPParams* e) {
 
 }

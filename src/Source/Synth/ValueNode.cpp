@@ -50,5 +50,5 @@ std::string ValueNode::toString() {
     return std::string(buffer);
 }
 
-void mutate(GPExperiment* e) {
+void ValueNode::mutate(GPParams* e) {
 }

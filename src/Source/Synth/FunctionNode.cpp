@@ -61,3 +61,6 @@ std::string FunctionNode::toString() {
     }
     return std::string(buffer);
 }
+
+void FunctionNode::mutate(GPParams* e) {
+}
