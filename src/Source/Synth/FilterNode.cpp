@@ -62,7 +62,7 @@ void FilterNode::setYCoefficient(int y, double c) {
         yCoefficients[y] = c;
 }
 
-double FilterNode::evaluate(double* t, float* f) {
+double FilterNode::evaluate(double* t, double* v) {
     double xn = left->evaluate();
     xMem.push_front(xn);
     numFilled++;

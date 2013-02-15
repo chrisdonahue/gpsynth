@@ -22,7 +22,7 @@ class GPNetwork {
         GPNetwork* getCopy();
 
         GPNode* getRoot();
-        double evaluate(double* t, float* f);
+        double evaluate(double* t, double* v);
         std::string toString();
         void replaceSubtree(GPNode* one, GPNode* two);
         void swap(GPNode* one, GPNode* two);

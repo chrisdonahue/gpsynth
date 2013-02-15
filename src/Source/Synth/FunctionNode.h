@@ -21,7 +21,7 @@ class FunctionNode: public GPNode {
         FunctionNode* getCopy();
 
         void setFunction(double (*fun)(double, double), std::string sym, GPNode* rSub);
-        double evaluate(double* t, float* f);
+        double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPParams* e);
 

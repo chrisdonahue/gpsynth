@@ -26,18 +26,7 @@ class GPSynth {
         void prevGeneration();
         void nextGeneration();
 
-        // experiment probabilities
-        float mutationChance;
-        float simplifyChance;
-        float specialChance;
-        float harmonyChance;
-        float functionChance;
-        float crossChance;
-
-        // experiment parameters
-        int valueRange;
-        int LFORange;
-        int numPartials;
+        GPMutationParams* nodeMutationParams;
 
     private:
         // experiment state

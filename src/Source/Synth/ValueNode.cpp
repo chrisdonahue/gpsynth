@@ -10,10 +10,11 @@
 
 #include "ValueNode.h"
 
-ValueNode::ValueNode(double* v, bool t, bool f) {
+ValueNode::ValueNode(double* v, int vn) {
     value = v;
-    isTime = t;
-    isFreq = f;
+    if (vn == 0)
+        isTime = true;
+    variableNum = vn - 1;
 }
 
 ValueNode::~ValueNode() {
@@ -21,34 +22,43 @@ ValueNode::~ValueNode() {
 }
 
 ValueNode* ValueNode::getCopy() {
-    return new ValueNode(value, isTime, isFreq);
+    return new ValueNode(value, variableNum + 1);
 }
 
-double ValueNode::evaluate(double* t, float* f) {
-    if (isTime) {
+double ValueNode::evaluate(double* t, double* v) {
+    if (value != NULL) {
+        return *value;
+    }
+    else if (isTime) {
         return *t;
     }
-    else if (isFreq) {
-        return *f;
-    }
     else {
-        return *value;
+        return v[variableNum];
     }
 }
 
 std::string ValueNode::toString() {
     char buffer[10];
-    if (isTime) {
+    if (value != NULL) {
+        snprintf(buffer, 10, "%lf", *value);
+    }
+    else if (isTime) {
         snprintf(buffer, 10, "%s", "time");
     }
-    else if (isFreq) {
-        snprintf(buffer, 10, "%s", "freq");
-    }
     else {
-        snprintf(buffer, 10, "%lf", *value);
+        snprintf(buffer, 10, "Variable: %d", variableNum);
     }
     return std::string(buffer);
 }
 
 void ValueNode::mutate(GPParams* e) {
+    if (value != NULL) {
+    
+    }
+    else if (isTime) {
+    
+    }
+    else {
+    
+    }
 }

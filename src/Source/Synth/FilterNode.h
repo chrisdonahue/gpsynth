@@ -22,7 +22,7 @@ class FilterNode: public GPNode {
         FilterNode* getCopy();
 
         void setMemoryConstants(int x, int y);
-        double evaluate(double* t, float* f);
+        double evaluate(double* t, double* v);
         std::string toString();
 
     private:

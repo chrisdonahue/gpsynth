@@ -33,7 +33,7 @@ OscilNode* OscilNode::getCopy() {
     return new OscilNode(partial, left->getCopy(), right->getCopy());
 }
 
-double OscilNode::evaluate(double* t, float* f) {
+double OscilNode::evaluate(double* t, double* v) {
     return sin(w*(*t)*(*f));
 }
 

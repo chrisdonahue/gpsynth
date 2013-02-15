@@ -39,13 +39,9 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
 
     player.setProcessor (filter);
 
-    printf("hrm...\n");
-
-ScopedPointer<XmlElement> savedState;
+    ScopedPointer<XmlElement> savedState;
     showAudioSettingsDialog();
-    std::cout << String("hrm") << std::endl;
     std::cout << deviceManager->getCurrentAudioDeviceType() << std::endl;
-    //printf("%s\n", deviceManager->getCurrentAudioDeviceType().toUTF8());
 
     deviceManager->initialise (filter->getNumInputChannels(),
                                filter->getNumOutputChannels(),

@@ -42,7 +42,7 @@ void FunctionNode::setFunction(double (*fun)(double, double), std::string sym, G
     symbol = sym;
 }
 
-double FunctionNode::evaluate(double* t, float* f) {
+double FunctionNode::evaluate(double* t, double* v) {
     if (right != NULL) {
         return function(left->evaluate(t, f), right->evaluate(t, f));
     }

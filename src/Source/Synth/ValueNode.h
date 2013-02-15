@@ -16,18 +16,18 @@
 
 class ValueNode: public GPNode {
     public:
-        ValueNode(double* v, bool t=false, bool f=false);
+        ValueNode(double* v, int p);
         ~ValueNode();
         ValueNode* getCopy();
 
-        double evaluate(double* t, float* f);
+        double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPParams* e);
 
     private:
         double* value;
         bool isTime;
-        bool isFreq;
+        int variableNum;
 };
 
 #endif

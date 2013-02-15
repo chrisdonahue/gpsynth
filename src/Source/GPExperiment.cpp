@@ -13,20 +13,24 @@
 GPSynth::GPSynth(int psize) :
 allNetworks(), upForEvaluation(), evaluated()
 {
+    nodeMutationParams = (GPMutationParams*) malloc(sizeof(GPMutationParams));
+
     populationSize = 50;
     nextNetworkID = 0;
     generationID = 0;
 
-    valueRange = 1;
-    LFORange = 10;
-    numPartials = 10;
+    nodeMutationParams->numVariables = 1;
 
-    mutationChance = 0.5;
-    simplifyChance = 0.5;
-    specialChance = 0.5;
-    harmonyChance = 0.5;
-    functionChance = 0.5;
-    crossChance = 0.5;
+    nodeMutationParams->valueRange = 1;
+    nodeMutationParams->LFORange = 10;
+    nodeMutationParams->numPartials = 10;
+
+    nodeMutationParams->mutationChance = 0.5;
+    nodeMutationParams->simplifyChance = 0.5;
+    nodeMutationParams->specialChance = 0.5;
+    nodeMutationParams->harmonyChance = 0.5;
+    nodeMutationParams->functionChance = 0.5;
+    nodeMutationParams->crossChance = 0.5;
 
     maxFitness = 0;
 }
@@ -35,6 +39,7 @@ GPSynth::~GPSynth() {
     delete &allNetworks;
     delete &upForEvaluation;
     delete &evaluated;
+    free(nodeMutationParams);
 }
 
 void GPSynth::initPopulation() {

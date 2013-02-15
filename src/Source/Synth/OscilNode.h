@@ -21,7 +21,7 @@ class OscilNode: public GPNode {
         ~OscilNode();
         OscilNode* getCopy();
 
-        double evaluate(double* t, float* f);
+        double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPParams* e);
 

@@ -42,7 +42,7 @@ void DelayNode::setMemoryConstants(int n) {
     delayLine.clear();
 }
 
-double DelayNode::evaluate(double* t, float* f) {
+double DelayNode::evaluate(double* t, double* v) {
 }
 
 std::string DelayNode::toString() {
