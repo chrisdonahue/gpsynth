@@ -139,6 +139,37 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     GPNode* root = new FunctionNode(GPFunction::multiply, "", one, four);
     net = new GPNetwork(0, root);
 
+    WavAudioFormat waveAudioFormat;
+
+    File newFile (File ("./").getNonexistentChildFile("TestOutput", ".wav", true));
+    FileOutputStream fos(newFile);
+    StringPairArray metaData = WavAudioFormat::createBWAVMetadata("","","",Time::getCurrentTime(),0,"");
+    AudioFormatWriter* afw = waveAudioFormat.createWriterFor(&fos, 44100, 1, 32, metaData, 0);
+    
+    printf("%d\n", afw->isFloatingPoint());
+
+    double sr = 44100.0;
+    double* manualtime = (double*) malloc(sizeof(double));
+    for (int blocks = 0; blocks < 441; blocks++) {
+        float** samples = (float**) malloc(sizeof(float*) * 1);
+        samples[0] = (float*) malloc(sizeof(float) * 200);
+        for (int samp = 0; samp < 200; samp++, cycle++) {
+            *manualtime = cycle/sr;
+            samples[0][samp] = (float) net->evaluate(manualtime, vars);
+        }
+        afw->write((const int**) samples, 200);
+        free(samples[0]);
+        free(samples);
+    }
+    free(manualtime);
+
+    float** nullterm = (float**) malloc(sizeof(float*) * 1);
+    nullterm[0] = NULL;
+
+    //afw->write((const int**) nullterm, 1);
+    free(nullterm);
+
+    cycle = 0;
 }
 //==============================================================================
 void GPPluginAudioProcessor::releaseResources()
