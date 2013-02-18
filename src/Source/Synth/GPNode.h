@@ -14,7 +14,6 @@
 #include <string>
 
 struct GPNodeParams {
-    float mutationChance;
     float simplifyChance;
     float specialChance;
     float harmonyChance;

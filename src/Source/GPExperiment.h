@@ -23,23 +23,30 @@ class GPSynth {
         GPSynth(int psize);
         ~GPSynth();
 
-        void initPopulation();
         void prevGeneration();
         void nextGeneration();
 
         GPNodeParams* nodeParams;
 
     private:
+        void initPopulation();
+        GPNetwork* generateInitialNetwork();
+        GPNode* getRandomNode();
+
         // experiment state
         int populationSize;
         int nextNetworkID;
         int generationID;
         double maxFitness;
 
+        float nodeAddChance;
+        float nodeMutationChance;
+        float crossoverChance;
+
         // network containers
         std::vector<GPNetwork*> allNetworks;
-        std::map<GPNetwork*, double> upForEvaluation;
-        std::vector<GPNetwork*> evaluated;
+        std::vector<GPNetwork*> upForEvaluation;
+        std::vector<std::pair<GPNetwork*, double> > evaluated;
 };
 
 #endif

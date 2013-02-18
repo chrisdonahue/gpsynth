@@ -25,12 +25,14 @@ allNetworks(), upForEvaluation(), evaluated()
     nodeParams->LFORange = 10;
     nodeParams->numPartials = 10;
 
-    nodeParams->mutationChance = 0.5;
     nodeParams->simplifyChance = 0.5;
     nodeParams->specialChance = 0.5;
     nodeParams->harmonyChance = 0.5;
     nodeParams->functionChance = 0.5;
-    nodeParams->crossChance = 0.5;
+
+    nodeAddChance = 0.5;
+    nodeMutateChance = 0.5;
+    crossoverChance = 0.5;
 
     maxFitness = 0;
 }
@@ -42,13 +44,22 @@ GPSynth::~GPSynth() {
     free(nodeParams);
 }
 
+GPNetwork* GPSynth::generateInitialNetwork() {
+    GPNode* init = getRandomNode();
+    newnet = new GPNetwork(nextNetworkID++, init);
+}
+
+GPNode* GPSynth::getRandomNode() {
+
+}
+
 void GPSynth::initPopulation() {
     GPNetwork* newnet;
     for (int i = 0; i < populationSize; i++) {
-        GPNode* osc;
-        newnet = new GPNetwork(nextNetworkID++, osc);
+        newnet = generateInitialNetwork();
         allNetworks.push_back(newnet);
-        upForEvaluation.insert(std::pair<GPNetwork*, double>(newnet, -1.0));
+        upForEvaluation.push_back(newnet);
+        //upForEvaluation.insert(std::pair<GPNetwork*, double>(newnet, -1.0));
     }
 }
 
@@ -57,26 +68,44 @@ void GPSynth::prevGeneration() {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
         return;
     }
-    // clear upForEvaluation
-    // delete past populationSize network
+    upForEvaluation.clear();
+    evaluated.clear();
     for (int i = 0; i < populationSize; i++) {
-        // push back networks to upForEvaluation
+        upForEvaluation.insert(allNetworks.pop_back());
     }
-    // clear last few in evaluated
     generationID--;
 }
 
+void GPSynth::normalizeDistribution(std::vector<double>* weights) {
+    double sum = 0;
+    for (std::vector<double>::iterator i = weights->begin(); i != weights->end(); i++) {
+        sum += *i;
+    }
+    for (std::vector<double>::iterator i = weights->begin(); i != weights->end(); i++) {
+        *i = (*i) / sum;
+    }
+}
+
+int GPSynth::sampleFromDistribution(std::vector<double>* weights) {
+    // sample from normalized distribution
+    return -1;
+}
+
 void GPSynth::nextGeneration() {
-    for (std::map<GPNetwork*, double>::iterator i = upForEvaluation.begin(); i != upForEvaluation.end(); i++) {
+    std::vector<double> fitnessWeights();
+    for (std::map<GPNetwork*, double>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
         if (i->second < 0) {
             std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
             return;
         }
+        fitnessWeights.push_back(i->second);
         // SET UP PROBABILITIES BASED ON FITNESS
     }
 
+    normalizeDistribution(fitnessWeights);
+
     /*
-    for (std::map<GPNode*, double>::iterator i = upForEvaluation.begin(); i != upForEvaluation.end(); i++) {
+    for (std::map<GPNode*, double>::iterator i = evaluated.begin(); i != upForEvaluation.end(); i++) {
         GPNode* dad = random sample based on probabilities
         GPNode* one = dad->getCopy();
         GPNode* offspring = one;
