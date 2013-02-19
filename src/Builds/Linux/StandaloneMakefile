@@ -43,15 +43,16 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
-  $(OBJDIR)/GPExperiment_a4510b2f.o \
-  $(OBJDIR)/Main_90ebc5c2.o \
+  $(OBJDIR)/Main.o \
   $(OBJDIR)/GPStandaloneDialog.o \
-  $(OBJDIR)/GPPluginEditor_9953f146.o \
-  $(OBJDIR)/GPPluginProcessor_d30ae823.o \
+  $(OBJDIR)/GPPluginProcessor.o \
+  $(OBJDIR)/GPPluginEditor.o \
+  $(OBJDIR)/GPSynth.o \
+  $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/OscilNode.o \
-  $(OBJDIR)/ValueNode_ed35cc41.o \
-  $(OBJDIR)/FunctionNode_5e7b0916.o \
-  $(OBJDIR)/GPNetwork_24a38153.o \
+  $(OBJDIR)/FunctionNode.o \
+  $(OBJDIR)/ValueNode.o \
+  $(OBJDIR)/Random.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -84,12 +85,7 @@ strip:
 	@echo Stripping GeneticProgrammingSynthesizer
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
-$(OBJDIR)/GPExperiment_a4510b2f.o: ../../Source/GPExperiment.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GPExperiment.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Standalone/Main.cpp
+$(OBJDIR)/Main.o: ../../Source/Standalone/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
@@ -99,19 +95,24 @@ $(OBJDIR)/GPStandaloneDialog.o: ../../Source/Standalone/GPStandaloneDialog.cpp
 	@echo "Compiling GPStandaloneDialog.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/GPPluginEditor_9953f146.o: ../../Source/Plugin/GPPluginEditor.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GPPluginEditor.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/GPPluginProcessor_d30ae823.o: ../../Source/Plugin/GPPluginProcessor.cpp
+$(OBJDIR)/GPPluginProcessor.o: ../../Source/Plugin/GPPluginProcessor.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPPluginProcessor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ValueNode_ed35cc41.o: ../../Source/Synth/ValueNode.cpp
+$(OBJDIR)/GPPluginEditor.o: ../../Source/Plugin/GPPluginEditor.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ValueNode.cpp"
+	@echo "Compiling GPPluginEditor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPSynth.o: ../../Source/Synth/GPSynth.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPSynth.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPNetwork.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/OscilNode.o: ../../Source/Synth/OscilNode.cpp
@@ -119,14 +120,19 @@ $(OBJDIR)/OscilNode.o: ../../Source/Synth/OscilNode.cpp
 	@echo "Compiling OscilNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FunctionNode_5e7b0916.o: ../../Source/Synth/FunctionNode.cpp
+$(OBJDIR)/FunctionNode.o: ../../Source/Synth/FunctionNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FunctionNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/GPNetwork_24a38153.o: ../../Source/Synth/GPNetwork.cpp
+$(OBJDIR)/ValueNode.o: ../../Source/Synth/ValueNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GPNetwork.cpp"
+	@echo "Compiling ValueNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Random.o: ../../Source/Common/Random.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Random.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
