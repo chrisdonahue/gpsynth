@@ -16,10 +16,10 @@
    ============
 */
 
-GPSynth::GPSynth(int psize, unsigned s, double max, double addchance, double mutatechance, double crosschance, std::vector<GPNode*>* nodes, std::vector<GPFunction*>* functions) :
-nextNetworkID(0), generationID(0), maxFitness(max),
+GPSynth::GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
+populationSize(pszie),
+nextNetworkID(0), generationID(0), maxFitness(max), lowerIsBetter(lowerbetter),
 nodeAddChance(addchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
-populationSize(pszie), seed(s),
 allNetworks(), upForEvaluation(), evaluated(),
 engine(seed), uni_real(0.0, 1.0)
 {
@@ -35,6 +35,8 @@ engine(seed), uni_real(0.0, 1.0)
     nodeParams->specialChance = 0.5;
     nodeParams->harmonyChance = 0.5;
     nodeParams->functionChance = 0.5;
+
+    nodeParams->rng = new GPRandom(s);
 
     nodeParams->availableNodes = nodes;
     nodeParams->availableFunctions = functions;

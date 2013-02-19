@@ -12,6 +12,7 @@
 #define GPNODE_H
 
 #include <string>
+#include "../Common/GPRandom.h"
 
 typedef double (GPFunction)(double, double);
 
@@ -27,8 +28,12 @@ struct GPNodeParams {
 
     int numVariables;
 
+    GPRandom* rng;
+
     std::vector<GPNode*>* availableNodes;
+    std::vector<double>* nodeLikelihoods;
     std::vector<GPFunction*>* availableFunctions;
+    std::vector<double>* functionLikelihoods;
 };
 
 class GPNode {

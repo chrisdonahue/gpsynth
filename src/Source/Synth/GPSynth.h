@@ -41,6 +41,7 @@ class GPSynth {
         int nextNetworkID;
         int generationID;
         double maxFitness;
+        bool lowerIsBetter;
 
         // mutation rates
         float nodeAddChance;
