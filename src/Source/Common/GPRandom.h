@@ -1,5 +1,8 @@
+#include <random>
 
 class GPRandom {
+    GPRandom(bool lowerbetter, unsigned seed);
+
     bool lowerIsBetter;
     unsigned seed;
     std::mt19937_64 engine;
