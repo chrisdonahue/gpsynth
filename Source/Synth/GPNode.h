@@ -19,28 +19,7 @@
 */
 typedef double (GPFunction)(double, double);
 
-/*
-    Structure passed to a network for mutation at the node level.
-*/
-struct GPNodeParams {
-    float simplifyChance;
-    float specialChance;
-    float harmonyChance;
-    float functionChance;
-
-    int valueRange;
-    int LFORange;
-    int numPartials;
-
-    int numVariables;
-
-    GPRandom* rng;
-
-    std::vector<GPNode*>* availableNodes;
-    std::vector<double>* nodeLikelihoods;
-    std::vector<GPFunction*>* availableFunctions;
-    std::vector<double>* functionLikelihoods;
-};
+struct GPNodeParams;
 
 class GPNode {
     public:
@@ -66,6 +45,29 @@ class GPNode {
                 right->traceLineage();
             }
         };
+};
+
+/*
+    Structure passed to a network for mutation at the node level.
+*/
+struct GPNodeParams {
+    float simplifyChance;
+    float specialChance;
+    float harmonyChance;
+    float functionChance;
+
+    int valueRange;
+    int LFORange;
+    int numPartials;
+
+    int numVariables;
+
+    GPRandom* rng;
+
+    std::vector<GPNode*>* availableNodes;
+    std::vector<double>* nodeLikelihoods;
+    std::vector<GPFunction*>* availableFunctions;
+    std::vector<double>* functionLikelihoods;
 };
 
 #endif

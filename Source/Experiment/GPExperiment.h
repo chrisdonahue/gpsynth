@@ -35,6 +35,6 @@ class GPExperiment {
         void saveWavFile(String path, String metadata, float** data);
 
         // FITNESS FUNCTION
-        float** evaluateIndividual(GPNetwork* candidate, unsigned numFrames)
+        float** evaluateIndividual(GPNetwork* candidate, unsigned numFrames);
         double compare(float** dataone, float** datatwo);
 };
