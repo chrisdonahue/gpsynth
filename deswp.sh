@@ -5,8 +5,9 @@
 
 set -e
 
-echo "Cleaning all .sw* files"
+echo "Cleaning all *.sw* and *~ files"
 
 find . -name \*.sw* -type f -delete
+find . -name \*~ -type f -delete
 
 set +e
