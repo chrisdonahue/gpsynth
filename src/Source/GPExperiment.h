@@ -20,7 +20,7 @@
 
 class GPSynth {
     public:
-        GPSynth(int psize);
+        GPSynth(int psize, int seed);
         ~GPSynth();
 
         void prevGeneration();
@@ -33,12 +33,16 @@ class GPSynth {
         GPNetwork* generateInitialNetwork();
         GPNode* getRandomNode();
 
+        // RNG
+        GPRandom* rng;
+
         // experiment state
         int populationSize;
         int nextNetworkID;
         int generationID;
         double maxFitness;
 
+        // mutation rates
         float nodeAddChance;
         float nodeMutationChance;
         float crossoverChance;

@@ -10,14 +10,20 @@
 
 #include "GPExperiment.h"
 
-GPSynth::GPSynth(int psize) :
-allNetworks(), upForEvaluation(), evaluated()
+/*
+   ============
+   CONSTRUCTION
+   ============
+*/
+
+GPSynth::GPSynth(int psize, unsigned s, double max, double addchance, double mutatechance, double crosschance, std::vector<GPNode*>* nodes, std::vector<GPFunction*>* functions) :
+nextNetworkID(0), generationID(0), maxFitness(max),
+nodeAddChance(addchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
+populationSize(pszie), seed(s),
+allNetworks(), upForEvaluation(), evaluated(),
+engine(seed), uni_real(0.0, 1.0)
 {
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
-
-    populationSize = 50;
-    nextNetworkID = 0;
-    generationID = 0;
 
     nodeParams->numVariables = 1;
 
@@ -30,11 +36,8 @@ allNetworks(), upForEvaluation(), evaluated()
     nodeParams->harmonyChance = 0.5;
     nodeParams->functionChance = 0.5;
 
-    nodeAddChance = 0.5;
-    nodeMutateChance = 0.5;
-    crossoverChance = 0.5;
-
-    maxFitness = 0;
+    nodeParams->availableNodes = nodes;
+    nodeParams->availableFunctions = functions;
 }
 
 GPSynth::~GPSynth() {
@@ -49,24 +52,35 @@ GPNetwork* GPSynth::generateInitialNetwork() {
     newnet = new GPNetwork(nextNetworkID++, init);
 }
 
-GPNode* GPSynth::getRandomNode() {
-
-}
-
 void GPSynth::initPopulation() {
     GPNetwork* newnet;
     for (int i = 0; i < populationSize; i++) {
         newnet = generateInitialNetwork();
         allNetworks.push_back(newnet);
         upForEvaluation.push_back(newnet);
-        //upForEvaluation.insert(std::pair<GPNetwork*, double>(newnet, -1.0));
     }
 }
 
-void GPSynth::prevGeneration() {
+/*
+   =================
+   EVOLUTION CONTROL
+   =================
+*/
+
+bool GPSynth::assignFitness(GPNetwork* net, double fitness) {
+    std::find finder(upForEvaluation.begin(), upForEvaluation.end(), net);
+    if (finder == upForEvaluation.end()) {
+        evaluated.push_back(std::pair<GPNetwork*, double>(evaluated, fitness));
+        upForEvaluation.erase(finder);
+        return true;
+    }
+    return false;
+}
+
+bool GPSynth::prevGeneration() {
     if (generationID == 0) {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
-        return;
+        return false;
     }
     upForEvaluation.clear();
     evaluated.clear();
@@ -74,60 +88,56 @@ void GPSynth::prevGeneration() {
         upForEvaluation.insert(allNetworks.pop_back());
     }
     generationID--;
+    return true;
 }
 
-void GPSynth::normalizeDistribution(std::vector<double>* weights) {
-    double sum = 0;
-    for (std::vector<double>::iterator i = weights->begin(); i != weights->end(); i++) {
-        sum += *i;
-    }
-    for (std::vector<double>::iterator i = weights->begin(); i != weights->end(); i++) {
-        *i = (*i) / sum;
-    }
-}
-
-int GPSynth::sampleFromDistribution(std::vector<double>* weights) {
-    // sample from normalized distribution
-    return -1;
-}
-
-void GPSynth::nextGeneration() {
+bool GPSynth::nextGeneration() {
     std::vector<double> fitnessWeights();
     for (std::map<GPNetwork*, double>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
         if (i->second < 0) {
             std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
-            return;
+            return false;
         }
         fitnessWeights.push_back(i->second);
-        // SET UP PROBABILITIES BASED ON FITNESS
     }
 
-    normalizeDistribution(fitnessWeights);
+    normalizeDistribution(&fitnessWeights);
 
-    /*
-    for (std::map<GPNode*, double>::iterator i = evaluated.begin(); i != upForEvaluation.end(); i++) {
-        GPNode* dad = random sample based on probabilities
-        GPNode* one = dad->getCopy();
-        GPNode* offspring = one;
+    for (int i = 0; i < populationSize; i++) {
+        GPNetwork* dad = evaluated[sampleFromDistribution(&fitnessWeights)].first;
+        GPNetwork* one = dad->getCopy();
+        GPNetwork* offspring = one;
 
-        if (mutation):
-            mutate(one);
-
-        if (crossover) 
-            GPNode* mom = random sample based on probabilities
+        if (random() < nodeAddChance) {
+            one->mutateAddNode();
+        }
+        if (random() < nodeMutationChance) {
+            one->mutate(nodeParams);
+        }
+        if (random() < crossoverChance) {
+            GPNetwork* mom = evaluated[sampleFromDistribution(&fitnessWeights)].first;
             while (dad == mom) {
-                mom = random sample based on probabilities
+                mom = evaluated[sampleFromDistribution(&fitnessWeights)].first;
             }
-            two = mom->getCopy()
-            if (mutation)
-                mutate(two)
+            GPNetwork* two = mom->getCopy();
+            if (random() < nodeAddChance) {
+                two>mutateAddNode(getRandomNode());
+            }
+            if (random() < nodeMutationChance) {
+                two->mutate(nodeParams);
+            }
             offspring = reproduce(one, two);
+        }
 
-        networks.push_back(offspring);
+        offspring.ID = nextNetworkID++;
+
+        allNetworks.push_back(offspring);
         upForEvaluation.push_back(offspring);
     }
-    */
 
     evaluated.clear();
     generationID++;
+    return true;
 }
+
+

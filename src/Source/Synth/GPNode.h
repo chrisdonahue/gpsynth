@@ -13,18 +13,22 @@
 
 #include <string>
 
+typedef double (GPFunction)(double, double);
+
 struct GPNodeParams {
     float simplifyChance;
     float specialChance;
     float harmonyChance;
     float functionChance;
-    float crossChance;
 
     int valueRange;
     int LFORange;
     int numPartials;
 
     int numVariables;
+
+    std::vector<GPNode*>* availableNodes;
+    std::vector<GPFunction*>* availableFunctions;
 };
 
 class GPNode {
