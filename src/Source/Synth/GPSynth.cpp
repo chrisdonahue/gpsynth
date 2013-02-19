@@ -1,14 +1,14 @@
 /*
   ==============================================================================
 
-    GPExperiment.cpp
+    GPSynth.cpp
     Created: 6 Feb 2013 7:19:38pm
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#include "GPExperiment.h"
+#include "GPSynth.h"
 
 /*
    ============
@@ -139,5 +139,3 @@ bool GPSynth::nextGeneration() {
     generationID++;
     return true;
 }
-
-

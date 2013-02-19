@@ -10,10 +10,19 @@
 
 #include "GPNetwork.h"
 
-GPNetwork::GPNetwork(int id, GPNode* r) {
+/*
+    ============
+    CONSTRUCTION
+    ============
+*/
+
+GPNetwork::GPNetwork(int id, GPNode* r) :
+allNodes()
+{
     ID = id;
     asText = "";
     root = r;
+    traceNetwork();
 }
 
 GPNetwork::~GPNetwork() {
@@ -25,6 +34,12 @@ GPNetwork::~GPNetwork() {
 GPNetwork* GPNetwork::getCopy() {
     return new GPNetwork(ID, root->getCopy());
 }
+
+/*
+    ===========
+    EXAMINATION
+    ===========
+*/
 
 double GPNetwork::evaluate(double* t, double* v) {
     return root->evaluate(t, v);
@@ -39,6 +54,24 @@ std::string GPNetwork::toString() {
 
 GPNode* GPNetwork::getRoot() {
     return root;
+}
+
+/*
+    ========
+    MUTATION
+    ========
+*/
+
+void GPNetwork::mutateAddNode(GPNodeParams* p) {
+    return;
+}
+
+void GPNetwork::mutate(GPNodeParams* p) {
+    return;
+}
+
+void GPNetwork::traceNetwork() {
+    return;
 }
 
 /*

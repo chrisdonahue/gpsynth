@@ -20,17 +20,24 @@ class GPNetwork {
         GPNetwork(int id, GPNode* r);
         ~GPNetwork();
         GPNetwork* getCopy();
-
         GPNode* getRoot();
+
         double evaluate(double* t, double* v);
         std::string toString();
+
+        void mutateAddNode(GPNodeParams* p);
+        void mutate(GPNodeParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
         void swap(GPNode* one, GPNode* two);
 
-    private:
         int ID;
+
+    private:
         std::string asText;
         GPNode* root;
+        std::vector<GPNode*> allNodes;
+
+        void traceNetwork();
 };
 
 #endif

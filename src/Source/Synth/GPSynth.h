@@ -1,15 +1,15 @@
 /*
   ==============================================================================
 
-    GPExperiment.h
+    GPSynth.h
     Created: 6 Feb 2013 7:19:38pm
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef GPEXPERIMENT_H
-#define GPEXPERIMENT_H
+#ifndef GPSYNTH_H
+#define GPSYNTH_H
 
 #include <vector>
 #include <map>

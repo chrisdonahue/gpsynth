@@ -1,12 +1,16 @@
 /*
-   =============
-   PROBABILISTIC
-   =============
+  ==============================================================================
+
+    GPRandom.cpp
+    Created: 6 Feb 2013 7:19:11pm
+    Author:  cdonahue
+
+  ==============================================================================
 */
 
 #include "GPRandom.h"
 
-void GPRandom::normalizeDistribution(std::vector<double>* weights) {
+void GPRandom::normalizeDistribution(bool lowerIsBetter, std::vector<double>* weights) {
     if (lowerIsBetter) {
     }
     else {
@@ -20,7 +24,7 @@ void GPRandom::normalizeDistribution(std::vector<double>* weights) {
     }
 }
 
-int GPRandom::sampleFromDistribution(std::vector<double>* weights) {
+int GPRandom::sampleFromDistribution(bool lowerIsBetter, std::vector<double>* weights) {
     // sample from normalized distribution
     return -1;
 }
