@@ -17,7 +17,7 @@ class GPRandom {
     GPRandom(unsigned seed);
 
     unsigned seed;
-    std::mt19937_64 engine;
+    std::mt19937 engine;
     std::uniform_real_distribution<double> uni_real;
 
     void normalizeDistribution(bool lowerIsBetter, std::vector<double>* weights);

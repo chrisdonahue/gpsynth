@@ -6,7 +6,7 @@ class GeneticProgrammingSynthesizerExperiment  : public JUCEApplication
 {
 public:
     //==============================================================================
-    GeneticProgrammingSynthesizerApplication() {}
+    GeneticProgrammingSynthesizerExperiment() {}
 
     const String getApplicationName()       {
         return String("GP Synthesis Expermient");
@@ -22,13 +22,45 @@ public:
     void initialise (const String& commandLine)
     {
         // This method is where you should put your application's initialisation code..
-        experiment = new GPExperiment();
+        StringArray args = getCommandLineParameterArray();
+
+        int popsize = 50;
+        unsigned seed = time(NULL);
+        double addchance = 0.5;
+        double mutatechance = 0.5;
+        double crosschance = 0.5;
+        double threshold = 1.0;
+        unsigned numGenerations = 50;
+        for (String* i = args.begin(); i != args.end(); i++) {
+          if (i->equalsIgnoreCase("--popsize")) {
+            popsize = i++->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--seed")) {
+            seed = i++->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--addchance"))  {
+            addchance = i++->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--mutatechance"))  {
+            mutatechance = i++->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--crosschance"))  {
+            crosschance = i++->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--threshold"))  {
+            threshold = i++->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--numgenerations"))  {
+            numGenerations = i++->getIntValue();
+          }
+        }
+        experiment = new GPExperiment(popsize, seed, true, addchance, mutatechance, crosschance, threshold, numGenerations);
         juce::Thread::setCurrentThreadName("experiment");
     }
 
     void shutdown()
     {
-        filterWindow = 0;// = nullptr;
+        experiment = 0;// = nullptr;
     }
 
     //==============================================================================
@@ -52,4 +84,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (GeneticProgrammingSynthesizerApplication)
+START_JUCE_APPLICATION (GeneticProgrammingSynthesizerExperiment)
