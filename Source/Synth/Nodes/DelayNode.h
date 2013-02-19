@@ -11,7 +11,6 @@
 #ifndef DELAYNODE_H
 #define DELAYNODE_H
 
-#include <stdio.h>
 #include "GPNode.h"
 #include <list>
 

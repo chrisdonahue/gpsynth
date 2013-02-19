@@ -12,16 +12,19 @@
 #define GPRANDOM_H
 
 #include <random>
+#include <iostream>
 
 class GPRandom {
     public:
-        GPRandom(unsigned s);
+        GPRandom(unsigned s, bool lowerbetter);
 
-        void normalizeDistribution(bool lowerIsBetter, std::vector<double>* weights);
-        int sampleFromDistribution(bool lowerIsBetter, std::vector<double>* weights);
+        void setNormalizationSymantics(bool lowerbetter);
+        void normalizeDistribution(std::vector<double>* weights);
+        int sampleFromDistribution(std::vector<double>* weights);
         double random();
 
     private:
+        bool lowerIsBetter;
         unsigned seed;
         std::mt19937 engine;
         std::uniform_real_distribution<double> uni_real;

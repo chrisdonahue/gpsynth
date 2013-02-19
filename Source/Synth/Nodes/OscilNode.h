@@ -11,7 +11,6 @@
 #ifndef OSCILNODE_H
 #define OSCILNODE_H
 
-#include <stdio.h>
 #include <cmath>
 #include "../GPNode.h"
 
