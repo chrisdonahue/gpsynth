@@ -1,6 +1,5 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GPExperiment.h"
-#include <stdio.h>
 
 //==============================================================================
 class GeneticProgrammingSynthesizerExperiment  : public JUCEApplication

@@ -16,12 +16,13 @@
    ============
 */
 
-GPSynth::GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
+GPSynth::GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, int crosstype, int selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
 populationSize(psize),
-nextNetworkID(0), generationID(0), maxFitness(max), lowerIsBetter(lowerbetter),
+nextNetworkID(0), generationID(0), maxFitness(max),
+crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
 allNetworks(), upForEvaluation(), evaluated(),
-rng(s)
+rng(s, lowerbetter)
 {
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
@@ -108,10 +109,10 @@ int GPSynth::nextGeneration() {
         fitnessWeights.push_back(i->second);
     }
 
-    rng.normalizeDistribution(lowerIsBetter, &fitnessWeights);
+    rng.normalizeDistribution(&fitnessWeights);
 
     for (int i = 0; i < populationSize; i++) {
-        GPNetwork* dad = evaluated[rng.sampleFromDistribution(lowerIsBetter, &fitnessWeights)].first;
+        GPNetwork* dad = evaluated[rng.sampleFromDistribution(&fitnessWeights)].first;
         GPNetwork* one = dad->getCopy();
         GPNetwork* offspring = one;
 
@@ -122,9 +123,9 @@ int GPSynth::nextGeneration() {
             one->mutate(nodeParams);
         }
         if (rng.random() < crossoverChance) {
-            GPNetwork* mom = evaluated[rng.sampleFromDistribution(lowerIsBetter, &fitnessWeights)].first;
+            GPNetwork* mom = evaluated[rng.sampleFromDistribution(&fitnessWeights)].first;
             while (dad == mom) {
-                mom = evaluated[rng.sampleFromDistribution(lowerIsBetter, &fitnessWeights)].first;
+                mom = evaluated[rng.sampleFromDistribution(&fitnessWeights)].first;
             }
             GPNetwork* two = mom->getCopy();
             if (rng.random() < nodeAddChance) {
@@ -148,6 +149,10 @@ int GPSynth::nextGeneration() {
 }
 
 GPNetwork* GPSynth::getIndividual() {
+    return NULL;
+}
+
+GPNetwork* GPSynth::selectFromEvaluated() {
     return NULL;
 }
 

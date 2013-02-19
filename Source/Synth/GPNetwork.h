@@ -12,7 +12,6 @@
 #define GPNETWORK_H
 
 #include <iostream>
-#include <stdio.h>
 #include "GPNode.h"
 
 class GPNetwork {

@@ -13,7 +13,6 @@
 
 #include <vector>
 #include <map>
-#include <stdio.h>
 #include <iostream>
 #include "GPNetwork.h"
 #include <stdlib.h>
@@ -21,7 +20,7 @@
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods);
+        GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, int crosstype, int selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods);
         ~GPSynth();
 
         // EVOLUTION CONTROL
@@ -42,6 +41,9 @@ class GPSynth {
         void initPopulation();
         GPNode* getRandomNode();
 
+        // EVOLUTION CONTROL
+        GPNetwork* selectFromEvaluated();
+
         // RNG
         GPRandom rng;
 
@@ -50,7 +52,8 @@ class GPSynth {
         int nextNetworkID;
         int generationID;
         double maxFitness;
-        bool lowerIsBetter;
+        int crossoverType;
+        int selectionType;
 
         // NETWORK MUTATION RATES
         float nodeAddChance;

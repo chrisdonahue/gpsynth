@@ -11,7 +11,6 @@
 #ifndef FILTERNODE_H
 #define FILTERNODE_H
 
-#include <stdio.h>
 #include "GPNode.h"
 #include <list>
 
