@@ -1,11 +1,12 @@
 
 
 #include "../Synth/GPSynth.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(int psize, unsigned s, bool lowerbetter, double addchance, double mutatechance, double crosschance, double threshold, int numGenerations);
+        GPExperiment(String target, int psize, unsigned s, bool lowerbetter, double addchance, double mutatechance, double crosschance, double threshold, int numGenerations);
         ~GPExperiment();
 
         // EVOLUTION CONTROL
@@ -27,7 +28,7 @@ class GPExperiment {
         float** targetFrames;
 
         // EVOLUTION CONTOL
-        void evolve(unsigned numFrames, float** targetData);
+        String evolve(unsigned numFrames, float** targetData);
 
         // WAV INTERFACE
         float** loadWavFile(String path);

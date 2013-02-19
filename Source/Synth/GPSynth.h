@@ -26,9 +26,12 @@ class GPSynth {
 
         // EVOLUTION CONTROL
         int assignFitness(GPNetwork* net, double fitness);
-        void prevGeneration();
-        void nextGeneration();
+        int prevGeneration();
+        int nextGeneration();
         GPNetwork* getIndividual();
+
+        // CROSSOVER
+        GPNetwork* reproduce(GPNetwork* one, GPNetwork* two);
 
         // NODE MUTATION PARAMS
         GPNodeParams* nodeParams;
@@ -37,9 +40,10 @@ class GPSynth {
         // CONSTRUCTION
         GPNetwork* generateInitialNetwork();
         void initPopulation();
+        GPNode* getRandomNode();
 
         // RNG
-        GPRandom* rng;
+        GPRandom rng;
 
         // SYNTH EVOLUTION STATE
         int populationSize;
@@ -50,7 +54,7 @@ class GPSynth {
 
         // NETWORK MUTATION RATES
         float nodeAddChance;
-        float nodeMutationChance;
+        float nodeMutateChance;
         float crossoverChance;
 
         // NETWORK CONTAINERS

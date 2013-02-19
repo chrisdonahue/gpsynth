@@ -12,7 +12,7 @@
 #define VALUENODE_H
 
 #include <stdio.h>
-#include "GPNode.h"
+#include "../GPNode.h"
 
 class ValueNode: public GPNode {
     public:

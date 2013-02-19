@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <cmath>
-#include "GPNode.h"
+#include "../GPNode.h"
 
 class OscilNode: public GPNode {
     public:
