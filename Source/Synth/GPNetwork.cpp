@@ -62,7 +62,7 @@ GPNode* GPNetwork::getRoot() {
     ========
 */
 
-void GPNetwork::mutateAddNode(GPNodeParams* p) {
+void GPNetwork::mutateAddNode(GPNodeParams* p, GPNode* newnode) {
     return;
 }
 

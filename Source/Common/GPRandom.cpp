@@ -10,6 +10,10 @@
 
 #include "GPRandom.h"
 
+GPRandom::GPRandom(unsigned s) {
+    seed = s;
+}
+
 void GPRandom::normalizeDistribution(bool lowerIsBetter, std::vector<double>* weights) {
     if (lowerIsBetter) {
     }

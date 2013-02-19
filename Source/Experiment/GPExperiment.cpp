@@ -6,7 +6,7 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, int psize, unsigned s, bool lowerbetter, double addchance, double mutatechance, double crosschance) {
+GPExperiment::GPExperiment(String target, int psize, unsigned s, bool lowerbetter, double addchance, double mutatechance, double crosschance, double threshold, int numGenerations) {
     numTargetFrames = numFramesInWavFile(target);
     targetFrames = loadWavFile(target);
 }
@@ -21,7 +21,7 @@ GPExperiment::~GPExperiment() {
     =================
 */
 
-GPExperiment::evolve() {
+void GPExperiment::evolve() {
     evolve(numTargetFrames, targetFrames);
 }
 
@@ -31,14 +31,14 @@ String GPExperiment::evolve(unsigned numFrames, float** targetData) {
         GPNetwork* candidate = synth->getIndividual();
         float** candidateData = evaluateIndividual(candidate, numFrames);
         double fitness = compare(candidateData, targetData);
-        if (fitness < minFitness) {
+        if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
-            saveWavFile("New Minimum.wav", String(candidate->toString()), candidateData);
+            saveWavFile(String("New Minimum.wav"), String(candidate->toString().c_str()), candidateData);
         }
         currentGeneration = synth->assignFitness(candidate, fitness);
     }
-    return String(champ->toString());
+    return String(champ->toString().c_str());
 }
 
 /*
@@ -51,7 +51,7 @@ float** GPExperiment::loadWavFile(String path) {
     return NULL;
 }
 
-unsigned GPExperiment::numFramesInWavfile(String path) {
+unsigned GPExperiment::numFramesInWavFile(String path) {
     return 0;
 }
 

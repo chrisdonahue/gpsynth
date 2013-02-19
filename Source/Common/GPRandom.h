@@ -14,15 +14,17 @@
 #include <random>
 
 class GPRandom {
-    GPRandom(unsigned seed);
+    public:
+        GPRandom(unsigned s);
 
-    unsigned seed;
-    std::mt19937 engine;
-    std::uniform_real_distribution<double> uni_real;
+        void normalizeDistribution(bool lowerIsBetter, std::vector<double>* weights);
+        int sampleFromDistribution(bool lowerIsBetter, std::vector<double>* weights);
+        double random();
 
-    void normalizeDistribution(bool lowerIsBetter, std::vector<double>* weights);
-    int sampleFromDistribution(bool lowerIsBetter, std::vector<double>* weights);
-    double random();
+    private:
+        unsigned seed;
+        std::mt19937 engine;
+        std::uniform_real_distribution<double> uni_real;
 };
 
 #endif

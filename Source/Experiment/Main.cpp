@@ -1,5 +1,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GPExperiment.h"
+#include <stdio.h>
 
 //==============================================================================
 class GeneticProgrammingSynthesizerExperiment  : public JUCEApplication
@@ -24,6 +25,7 @@ public:
         // This method is where you should put your application's initialisation code..
         StringArray args = getCommandLineParameterArray();
 
+        String target("");
         int popsize = 50;
         unsigned seed = time(NULL);
         double addchance = 0.5;
@@ -32,7 +34,10 @@ public:
         double threshold = 1.0;
         unsigned numGenerations = 50;
         for (String* i = args.begin(); i != args.end(); i++) {
-          if (i->equalsIgnoreCase("--popsize")) {
+          if (i->equalsIgnoreCase("--target")) {
+            target = *i;
+          }
+          else if (i->equalsIgnoreCase("--popsize")) {
             popsize = i++->getIntValue();
           }
           else if (i->equalsIgnoreCase("--seed")) {
@@ -54,7 +59,11 @@ public:
             numGenerations = i++->getIntValue();
           }
         }
-        experiment = new GPExperiment(popsize, seed, true, addchance, mutatechance, crosschance, threshold, numGenerations);
+        if (target.equalsIgnoreCase("")) {
+            std::cerr << "No target specified. Exiting application." << std::endl;
+            quit();
+        }
+        experiment = new GPExperiment(target, popsize, seed, true, addchance, mutatechance, crosschance, threshold, numGenerations);
         juce::Thread::setCurrentThreadName("experiment");
     }
 
