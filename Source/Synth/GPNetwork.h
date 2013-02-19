@@ -17,27 +17,31 @@
 
 class GPNetwork {
     public:
+        // CONSTRUCTION
         GPNetwork(int id, GPNode* r);
         ~GPNetwork();
         GPNetwork* getCopy();
-        GPNode* getRoot();
 
+        // EXAMINATION
         double evaluate(double* t, double* v);
         std::string toString();
+        GPNode* getRoot();
 
+        // MUTATION
         void mutateAddNode(GPNodeParams* p);
         void mutate(GPNodeParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
         void swap(GPNode* one, GPNode* two);
+        void traceNetwork();
 
+        // PUBLIC STATE
         int ID;
 
     private:
+        // PRIVATE STATE
         std::string asText;
         GPNode* root;
         std::vector<GPNode*> allNodes;
-
-        void traceNetwork();
 };
 
 #endif

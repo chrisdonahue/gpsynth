@@ -15,40 +15,45 @@
 #include <map>
 #include <stdio.h>
 #include <iostream>
-#include "Synth/GPNetwork.h"
+#include "GPNetwork.h"
 #include <stdlib.h>
 
 class GPSynth {
     public:
-        GPSynth(int psize, int seed);
+        // CONSTRUCTION
+        GPSynth::GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods);
         ~GPSynth();
 
+        // EVOLUTION CONTROL
+        int assignFitness(GPNetwork* net, double fitness);
         void prevGeneration();
         void nextGeneration();
+        GPNetwork* getIndividual();
 
+        // NODE MUTATION PARAMS
         GPNodeParams* nodeParams;
 
     private:
-        void initPopulation();
+        // CONSTRUCTION
         GPNetwork* generateInitialNetwork();
-        GPNode* getRandomNode();
+        void initPopulation();
 
         // RNG
         GPRandom* rng;
 
-        // experiment state
+        // SYNTH EVOLUTION STATE
         int populationSize;
         int nextNetworkID;
         int generationID;
         double maxFitness;
         bool lowerIsBetter;
 
-        // mutation rates
+        // NETWORK MUTATION RATES
         float nodeAddChance;
         float nodeMutationChance;
         float crossoverChance;
 
-        // network containers
+        // NETWORK CONTAINERS
         std::vector<GPNetwork*> allNetworks;
         std::vector<GPNetwork*> upForEvaluation;
         std::vector<std::pair<GPNetwork*, double> > evaluated;

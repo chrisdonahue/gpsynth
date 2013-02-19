@@ -69,20 +69,19 @@ void GPSynth::initPopulation() {
    =================
 */
 
-bool GPSynth::assignFitness(GPNetwork* net, double fitness) {
+int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     std::find finder(upForEvaluation.begin(), upForEvaluation.end(), net);
     if (finder == upForEvaluation.end()) {
         evaluated.push_back(std::pair<GPNetwork*, double>(evaluated, fitness));
         upForEvaluation.erase(finder);
-        return true;
     }
-    return false;
+    return generationID;
 }
 
-bool GPSynth::prevGeneration() {
+int GPSynth::prevGeneration() {
     if (generationID == 0) {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
-        return false;
+        return generationID;
     }
     upForEvaluation.clear();
     evaluated.clear();
@@ -90,15 +89,15 @@ bool GPSynth::prevGeneration() {
         upForEvaluation.insert(allNetworks.pop_back());
     }
     generationID--;
-    return true;
+    return generationID;
 }
 
-bool GPSynth::nextGeneration() {
+int GPSynth::nextGeneration() {
     std::vector<double> fitnessWeights();
     for (std::map<GPNetwork*, double>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
         if (i->second < 0) {
             std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
-            return false;
+            return generationID;
         }
         fitnessWeights.push_back(i->second);
     }
@@ -139,5 +138,5 @@ bool GPSynth::nextGeneration() {
 
     evaluated.clear();
     generationID++;
-    return true;
+    return generationID;
 }
