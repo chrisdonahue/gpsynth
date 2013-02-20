@@ -42,7 +42,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(function, symbol, left, right);
+    return new FilterNode(function, symbol, left->getCopy(), right->getCopy());
 }
 
 void FilterNode::setMemoryConstants(int x, int y) {
