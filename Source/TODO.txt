@@ -12,7 +12,6 @@ GPNetwork.cpp:
 
 GPSynth.cpp:
     Implement getRandomNode()
-    Implement getIndividual()
     Implement selectFromEvaluated()
     Implement reproduce()
 
