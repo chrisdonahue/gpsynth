@@ -44,6 +44,7 @@ endif
 OBJECTS := \
   $(OBJDIR)/Main.o \
   $(OBJDIR)/GPRandom.o \
+  $(OBJDIR)/GPFunctions.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
@@ -87,6 +88,16 @@ $(OBJDIR)/Main.o: ../../Source/Experiment/Main.cpp
 	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPRandom.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPFunctions.o: ../../Source/Synth/GPFunctions.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPFunctions.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/GPExperiment.o: ../../Source/Experiment/GPExperiment.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPExperiment.cpp"
@@ -115,11 +126,6 @@ $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 $(OBJDIR)/ValueNode.o: ../../Source/Synth/Nodes/ValueNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GPRandom.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp

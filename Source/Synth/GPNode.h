@@ -13,6 +13,7 @@
 
 #include <string>
 #include "../Common/GPRandom.h"
+#include <vector>
 
 /*
     Convenient naming convention for GP-safe functions
@@ -35,14 +36,15 @@ class GPNode {
         GPNode* right;
 
         // INHERITED TRACE METHOD FOR RESTORING PARENT LINKS
-        void traceLineage() {
+        void traceLineage(std::vector<GPNode*>* allnodes) {
+            allnodes->push_back(this);
             if (left != NULL) {
                 left->parent = this;
-                left->traceLineage();
+                left->traceLineage(allnodes);
             }
             if (right != NULL) {
                 right->parent = this;
-                right->traceLineage();
+                right->traceLineage(allnodes);
             }
         };
 };

@@ -67,11 +67,14 @@ void GPNetwork::mutateAddNode(GPNodeParams* p, GPNode* newnode) {
 }
 
 void GPNetwork::mutate(GPNodeParams* p) {
-    return;
+    double rand = p->rng->random();
+    double index = rand * allNodes.size();
+    allNodes[(int) index]->mutate(p);
 }
 
 void GPNetwork::traceNetwork() {
-    return;
+    allNodes.clear();
+    root->traceLineage(&allNodes);
 }
 
 /*

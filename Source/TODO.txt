@@ -7,13 +7,12 @@ GPExperiment.cpp:
 
 GPNetwork.cpp:
     Implement mutateAddNode
-    Implement mutate
-    Implement traceNetwork (store all nodes in vector)
 
 GPSynth.cpp:
-    Implement getRandomNode()
     Implement selectFromEvaluated()
-    Implement reproduce()
+
+Node subclasses:
+    mutate()
 
 NEXT VERSION:
 Main.cpp:
@@ -21,3 +20,7 @@ Main.cpp:
 
 GPExperiment.cpp:
     Figure out how to pass time-varying variables to evaluate()
+
+GPSynth.cpp:
+    Implement reproduce 3 and 4
+    node remove chance
