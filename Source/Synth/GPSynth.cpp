@@ -22,7 +22,7 @@ nextNetworkID(0), generationID(0), maxFitness(max),
 crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
 allNetworks(), upForEvaluation(), evaluated(),
-rng(s, lowerbetter)
+rng(s)
 {
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
