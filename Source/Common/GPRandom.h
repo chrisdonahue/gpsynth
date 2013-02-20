@@ -16,15 +16,13 @@
 
 class GPRandom {
     public:
-        GPRandom(unsigned s, bool lowerbetter);
+        GPRandom(unsigned s);
 
-        void setNormalizationSymantics(bool lowerbetter);
         void normalizeDistribution(std::vector<double>* weights);
         int sampleFromDistribution(std::vector<double>* weights);
         double random();
 
     private:
-        bool lowerIsBetter;
         unsigned seed;
         std::mt19937 engine;
         std::uniform_real_distribution<double> uni_real;

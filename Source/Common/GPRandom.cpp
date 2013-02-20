@@ -10,13 +10,9 @@
 
 #include "GPRandom.h"
 
-GPRandom::GPRandom(unsigned s, bool lowerbetter) :
-seed(s), engine(seed), uni_real(0, 1),
-lowerIsBetter(lowerbetter) {}
-
-void GPRandom::setNormalizationSymantics(bool lowerbetter) {
-    lowerIsBetter = lowerbetter;
-}
+GPRandom::GPRandom(unsigned s) :
+seed(s), engine(seed), uni_real(0, 1)
+{}
 
 void GPRandom::normalizeDistribution(std::vector<double>* weights) {
     double sum = 0;
