@@ -16,13 +16,13 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) {
+GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) {
     if (expnum == 0) {
         std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
         std::vector<double>* nlikelihoods = new std::vector<double>();
         std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
         std::vector<double>* flikelihoods = new std::vector<double>();
-        synth = new GPSynth(psize, s, 0.0, addchance, mutatechance, crosschance, crosstype, selecttype, nodes, nlikelihoods, functions, flikelihoods);
+        synth = new GPSynth(psize, s, 0.0, addchance, subchance, mutatechance, crosschance, crosstype, selecttype, nodes, nlikelihoods, functions, flikelihoods);
     }
     sampleRate = 44100.0;
     targetFrames = NULL;

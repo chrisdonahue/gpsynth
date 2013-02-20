@@ -17,7 +17,7 @@
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
+        GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
         ~GPExperiment();
 
         // EVOLUTION CONTROL

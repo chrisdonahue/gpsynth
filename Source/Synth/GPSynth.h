@@ -22,7 +22,7 @@
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, unsigned s, double max, double addchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods);
+        GPSynth(unsigned psize, unsigned s, double max, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods);
         ~GPSynth();
 
         // EVOLUTION CONTROL
@@ -59,9 +59,10 @@ class GPSynth {
         int currentIndividualNumber;
 
         // NETWORK MUTATION RATES
-        float nodeAddChance;
-        float nodeMutateChance;
-        float crossoverChance;
+        double nodeAddChance;
+        double nodeRemoveChance;
+        double nodeMutateChance;
+        double crossoverChance;
 
         // NETWORK CONTAINERS
         std::vector<GPNetwork*> allNetworks;
