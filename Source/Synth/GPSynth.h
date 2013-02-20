@@ -15,6 +15,8 @@
 #include <map>
 #include <iostream>
 #include "GPNetwork.h"
+#include "Nodes/FunctionNode.h"
+#include "GPFunctions.h"
 #include <stdlib.h>
 
 class GPSynth {

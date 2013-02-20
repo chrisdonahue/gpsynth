@@ -40,7 +40,9 @@ rng(s)
     nodeParams->rng = &rng;
 
     nodeParams->availableNodes = nodes;
+    nodeParams->nodeLikelihoods = nlikelihoods;
     nodeParams->availableFunctions = functions;
+    nodeParams->functionLikelihoods = flikelihoods;
 
     initPopulation();
 }
@@ -53,7 +55,7 @@ GPSynth::~GPSynth() {
 }
 
 GPNode* GPSynth::getRandomNode() {
-    return NULL;
+    return nodeParams->availableNodes->at(nodeParams->rng->sampleFromDistribution(nodeParams->nodeLikelihoods));
 }
 
 GPNetwork* GPSynth::generateInitialNetwork() {
@@ -178,5 +180,26 @@ GPNetwork* GPSynth::selectFromEvaluated() {
 */
 
 GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
-    return NULL;
+    if (crossoverType == 0) {
+        GPNode* newroot = new FunctionNode(multiply, "*", one->getRoot(), two->getRoot());
+        GPNetwork* newnet = new GPNetwork(-1, newroot);
+        return newnet; 
+    }
+    else if (crossoverType == 1) {
+        return one;
+    }
+    else if (crossoverType == 2) {
+        return two;
+    }
+    // standard GP crossover
+    else if (crossoverType == 3) {
+        return NULL;
+    }
+    // array crossover
+    else if (crossoverType == 4) {
+        return NULL;
+    }
+    else {
+        return NULL;
+    }
 }
