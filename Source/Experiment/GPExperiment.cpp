@@ -20,11 +20,11 @@ GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsig
     if (expnum == 0) {
         std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
         std::vector<double>* nlikelihoods = new std::vector<double>();
-        std::vector<GPFunction>* functions = new std::vector<GPFunction>();
+        std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
         std::vector<double>* flikelihoods = new std::vector<double>();
-        synth = new GPSynth(psize, s, 0.0, addchance, mutatechance, crosschance, crosstypep, selecttype, nodes, nlikelihoods, functions, flikelihoods);
+        synth = new GPSynth(psize, s, 0.0, addchance, mutatechance, crosschance, crosstype, selecttype, nodes, nlikelihoods, functions, flikelihoods);
     }
-    samplerate = 44100.0;
+    sampleRate = 44100.0;
     targetFrames = NULL;
     numTargetFrames = 0;
     specialValues = vals->data();
@@ -49,12 +49,12 @@ String GPExperiment::evolve(unsigned numFrames, float* targetData) {
     GPNetwork* champ;
     while (minFitnessAchieved > fitnessThreshold && currentGeneration < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
-        float** candidateData = evaluateIndividual(candidate, numFrames);
+        float* candidateData = evaluateIndividual(candidate, numFrames);
         double fitness = compare(candidateData, targetData);
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
-            saveWavFile(String("New Minimum.wav"), String(candidate->toString().c_str()), candidateData);
+            saveWavFile(String("New Minimum.wav"), String(candidate->toString().c_str()), numTargetFrames, candidateData);
         }
         currentGeneration = synth->assignFitness(candidate, fitness);
     }
@@ -80,6 +80,7 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
 
     unsigned numRemaining = numFrames;
+    unsigned numComplete = 0;
     while (numRemaining > 0) {
         float* chanData = asb.getSampleData(0);
         if (numRemaining > 200) {

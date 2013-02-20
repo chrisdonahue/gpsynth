@@ -1,6 +1,4 @@
 FIRST VERSION:
-
-
 GPExperiment.cpp:
     Fill in nodes/functions vectors 21-24
     do something with max-fitness

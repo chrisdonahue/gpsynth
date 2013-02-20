@@ -17,7 +17,7 @@
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, unsigned psize, unsigned s, double addchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
+        GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
         ~GPExperiment();
 
         // EVOLUTION CONTROL
@@ -44,7 +44,7 @@ class GPExperiment {
         String evolve(unsigned numFrames, float* targetData);
 
         // WAV INTERFACE
-        void loadWavFile(String path);
+        float* loadWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION
