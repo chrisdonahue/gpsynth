@@ -16,7 +16,7 @@
    ============
 */
 
-GPSynth::GPSynth(int psize, unsigned s, double max, bool lowerbetter, double addchance, double mutatechance, double crosschance, int crosstype, int selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
+GPSynth::GPSynth(unsigned psize, unsigned s, double max, double addchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
 populationSize(psize),
 nextNetworkID(0), generationID(0), maxFitness(max),
 crossoverType(crosstype), selectionType(selecttype),

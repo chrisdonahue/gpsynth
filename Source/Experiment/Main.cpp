@@ -1,3 +1,13 @@
+/*
+  ==============================================================================
+
+    Main.cpp
+    Created: 6 Feb 2013 11:05:21am
+    Author:  cdonahue
+
+  ==============================================================================
+*/
+
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GPExperiment.h"
 
@@ -25,16 +35,23 @@ public:
         StringArray args = getCommandLineParameterArray();
 
         String target("");
-        int popsize = 50;
+        unsigned expnum = 0;
+        unsigned popsize = 50;
         unsigned seed = time(NULL);
         double addchance = 0.5;
         double mutatechance = 0.5;
         double crosschance = 0.5;
         double threshold = 1.0;
         unsigned numGenerations = 50;
+        unsigned selecttype = 0;
+        unsigned crosstype = 0;
+        std::vector<double>* values = new std::vector<double>();
         for (String* i = args.begin(); i != args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
             target = *i;
+          }
+          else if (i->equalsIgnoreCase("--exp")) {
+            expnum = i++->getIntValue();
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             popsize = i++->getIntValue();
@@ -57,12 +74,26 @@ public:
           else if (i->equalsIgnoreCase("--numgenerations"))  {
             numGenerations = i++->getIntValue();
           }
+          else if (i->equalsIgnoreCase("--selection")) {
+            selecttype = i++->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--cross")) {
+            crosstype = i++->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--values")) {
+            String* current = i++;
+            while (!(current->startsWith(String("--")))) {
+                values->push_back(current->getDoubleValue());
+                current = i++;
+            }
+          }
         }
+        // check all value ranges here
         if (target.equalsIgnoreCase("")) {
             std::cerr << "No target specified. Exiting application." << std::endl;
             quit();
         }
-        experiment = new GPExperiment(target, popsize, seed, true, addchance, mutatechance, crosschance, threshold, numGenerations);
+        experiment = new GPExperiment(target, expnum, popsize, seed, addchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
         juce::Thread::setCurrentThreadName("experiment");
     }
 

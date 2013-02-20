@@ -11,7 +11,7 @@
 #ifndef DELAYNODE_H
 #define DELAYNODE_H
 
-#include "GPNode.h"
+#include "../GPNode.h"
 #include <list>
 
 class DelayNode: public GPNode {
