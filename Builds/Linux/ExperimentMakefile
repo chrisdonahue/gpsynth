@@ -1,5 +1,4 @@
 # Automatically generated makefile, created by the Introjucer
-# Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
 
 ifndef CONFIG
   CONFIG=Debug
@@ -18,7 +17,7 @@ ifeq ($(CONFIG),Debug)
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 -std=c++0x
   CXXFLAGS += $(CFLAGS) 
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt 
   LDDEPS :=
@@ -33,7 +32,7 @@ ifeq ($(CONFIG),Release)
   OBJDIR := build/intermediate/Release
   OUTDIR := build
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -Os
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -Os -std=C++0x
   CXXFLAGS += $(CFLAGS) 
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt 
   LDDEPS :=
@@ -44,13 +43,13 @@ endif
 
 OBJECTS := \
   $(OBJDIR)/Main.o \
+  $(OBJDIR)/GPRandom.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/FunctionNode.o \
   $(OBJDIR)/ValueNode.o \
-  $(OBJDIR)/Random.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -88,7 +87,7 @@ $(OBJDIR)/Main.o: ../../Source/Experiment/Main.cpp
 	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/GPExperiment.o: ../../Source/GPExperiment.cpp
+$(OBJDIR)/GPExperiment.o: ../../Source/Experiment/GPExperiment.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPExperiment.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
@@ -103,24 +102,24 @@ $(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
 	@echo "Compiling GPNetwork.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/OscilNode.o: ../../Source/Synth/OscilNode.cpp
+$(OBJDIR)/OscilNode.o: ../../Source/Synth/Nodes/OscilNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling OscilNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FunctionNode.o: ../../Source/Synth/FunctionNode.cpp
+$(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FunctionNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ValueNode.o: ../../Source/Synth/ValueNode.cpp
+$(OBJDIR)/ValueNode.o: ../../Source/Synth/Nodes/ValueNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Random.o: ../../Source/Common/Random.cpp
+$(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Random.cpp"
+	@echo "Compiling GPRandom.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
