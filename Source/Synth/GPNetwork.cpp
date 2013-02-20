@@ -32,7 +32,7 @@ GPNetwork::~GPNetwork() {
 }
 
 GPNetwork* GPNetwork::getCopy() {
-    return new GPNetwork(ID, root->getCopy());
+    return new GPNetwork(-1, root->getCopy());
 }
 
 /*
@@ -78,6 +78,7 @@ void GPNetwork::mutate(GPNodeParams* p) {
 
 void GPNetwork::traceNetwork() {
     allNodes.clear();
+    root->parent = NULL;
     root->traceLineage(&allNodes);
 }
 
