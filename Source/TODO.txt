@@ -9,7 +9,7 @@ GPNetwork.cpp:
     Implement mutateAddNode
 
 GPSynth.cpp:
-    Implement selectFromEvaluated()
+    Fill in selectFromEvaluated() skeleton code
 
 Node subclasses:
     mutate()
@@ -17,6 +17,7 @@ Node subclasses:
 NEXT VERSION:
 Main.cpp:
     Add command line for MIDI stuff
+    --help
 
 GPExperiment.cpp:
     Figure out how to pass time-varying variables to evaluate()
