@@ -21,6 +21,9 @@ Main.cpp:
 GPExperiment.cpp:
     Figure out how to pass time-varying variables to evaluate()
 
+GPNetwork.cpp:
+    Implement mutateRemoveNode (maybe multiple versions)
+    
 GPSynth.cpp:
     Implement reproduce 3 and 4
     node remove chance
