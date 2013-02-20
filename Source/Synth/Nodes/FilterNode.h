@@ -11,7 +11,7 @@
 #ifndef FILTERNODE_H
 #define FILTERNODE_H
 
-#include "GPNode.h"
+#include "../GPNode.h"
 #include <list>
 
 class FilterNode: public GPNode {

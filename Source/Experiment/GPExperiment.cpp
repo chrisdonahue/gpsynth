@@ -1,3 +1,13 @@
+/*
+  ==============================================================================
+
+    GPExperiment.cpp
+    Created: 6 Feb 2013 11:05:21am
+    Author:  cdonahue
+
+  ==============================================================================
+*/
+
 #include "GPExperiment.h"
 
 /*
@@ -6,9 +16,19 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, int psize, unsigned s, bool lowerbetter, double addchance, double mutatechance, double crosschance, double threshold, int numGenerations) {
-    numTargetFrames = numFramesInWavFile(target);
-    targetFrames = loadWavFile(target);
+GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) {
+    if (expnum == 0) {
+        std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
+        std::vector<double>* nlikelihoods = new std::vector<double>();
+        std::vector<GPFunction>* functions = new std::vector<GPFunction>();
+        std::vector<double>* flikelihoods = new std::vector<double>();
+        synth = new GPSynth(psize, s, 0.0, addchance, mutatechance, crosschance, crosstypep, selecttype, nodes, nlikelihoods, functions, flikelihoods);
+    }
+    samplerate = 44100.0;
+    targetFrames = NULL;
+    numTargetFrames = 0;
+    specialValues = vals->data();
+    loadWavFile(target);
 }
 
 GPExperiment::~GPExperiment() {
@@ -25,7 +45,7 @@ void GPExperiment::evolve() {
     evolve(numTargetFrames, targetFrames);
 }
 
-String GPExperiment::evolve(unsigned numFrames, float** targetData) {
+String GPExperiment::evolve(unsigned numFrames, float* targetData) {
     GPNetwork* champ;
     while (minFitnessAchieved > fitnessThreshold && currentGeneration < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
@@ -47,16 +67,36 @@ String GPExperiment::evolve(unsigned numFrames, float** targetData) {
     =============
 */
 
-float** GPExperiment::loadWavFile(String path) {
+float* GPExperiment::loadWavFile(String path) {
     return NULL;
 }
 
-unsigned GPExperiment::numFramesInWavFile(String path) {
-    return 0;
-}
+void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
+    ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
+    File output(path);
+    FileOutputStream *fos = output.createOutputStream();
+    StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
+    AudioSampleBuffer asb(1, 200);
+    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
 
-void GPExperiment::saveWavFile(String path, String metadata, float** data) {
-    return;
+    unsigned numRemaining = numFrames;
+    while (numRemaining > 0) {
+        float* chanData = asb.getSampleData(0);
+        if (numRemaining > 200) {
+            for (int samp = 0; samp < 200; samp++, numComplete++) {
+                chanData[samp] = data[numComplete];
+            }
+            afw->writeFromAudioSampleBuffer(asb, 0, 200);
+            numRemaining -= 200;
+        }
+        else {
+            for (int samp = 0; numComplete < numFrames; numComplete++) {
+                chanData[samp] = data[numComplete];
+            }
+            afw->writeFromAudioSampleBuffer(asb, 0, numRemaining);
+            numRemaining -= numRemaining;
+        }
+    }
 }
 
 /*
@@ -65,10 +105,10 @@ void GPExperiment::saveWavFile(String path, String metadata, float** data) {
     ================
 */
 
-float** GPExperiment::evaluateIndividual(GPNetwork* candidate, unsigned numFrams) {
+float* GPExperiment::evaluateIndividual(GPNetwork* candidate, unsigned numFrams) {
     return NULL;
 }
 
-double GPExperiment::compare(float** dataone, float** datatwo) {
+double GPExperiment::compare(float* dataone, float* datatwo) {
     return -1;
 }

@@ -1,11 +1,11 @@
-Main.cpp:
-    Add command line parameters for type of selection and type of crossover
-    Add command line for time-dependent evaluation variables
+FIRST VERSION:
+
 
 GPExperiment.cpp:
+    Fill in nodes/functions vectors 21-24
+    do something with max-fitness
     Implement WAV INTERFACE METHODS
     Implement FITNESS FUNCTION METHODS
-    Figure out how to pass time-varying variables to evaluate()
 
 GPNetwork.cpp:
     Implement mutateAddNode
@@ -17,3 +17,10 @@ GPSynth.cpp:
     Implement getIndividual()
     Implement selectFromEvaluated()
     Implement reproduce()
+
+NEXT VERSION:
+Main.cpp:
+    Add command line for MIDI stuff
+
+GPExperiment.cpp:
+    Figure out how to pass time-varying variables to evaluate()
