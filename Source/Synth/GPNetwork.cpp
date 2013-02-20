@@ -66,6 +66,10 @@ void GPNetwork::mutateAddNode(GPNodeParams* p, GPNode* newnode) {
     return;
 }
 
+void GPNetwork::mutateRemoveNode(GPNodeParams* p) {
+    return;
+}
+
 void GPNetwork::mutate(GPNodeParams* p) {
     double rand = p->rng->random();
     double index = rand * allNodes.size();
