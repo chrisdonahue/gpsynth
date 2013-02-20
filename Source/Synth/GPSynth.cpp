@@ -132,6 +132,9 @@ int GPSynth::nextGeneration() {
         if (rng.random() < nodeAddChance) {
             one->mutateAddNode(nodeParams, getRandomNode());
         }
+        if (rng.random() < nodeRemoveChance) {
+            one->mutateRemoveNode(nodeParams);
+        }
         if (rng.random() < nodeMutateChance) {
             one->mutate(nodeParams);
         }
@@ -143,6 +146,9 @@ int GPSynth::nextGeneration() {
             GPNetwork* two = mom->getCopy();
             if (rng.random() < nodeAddChance) {
                 two->mutateAddNode(nodeParams, getRandomNode());
+            }
+            if (rng.random() < nodeRemoveChance) {
+                two->mutateRemoveNode(nodeParams);
             }
             if (rng.random() < nodeMutateChance) {
                 two->mutate(nodeParams);
