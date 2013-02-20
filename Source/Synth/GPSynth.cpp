@@ -41,6 +41,8 @@ rng(s)
 
     nodeParams->availableNodes = nodes;
     nodeParams->availableFunctions = functions;
+
+    initPopulation();
 }
 
 GPSynth::~GPSynth() {
@@ -66,6 +68,7 @@ void GPSynth::initPopulation() {
         allNetworks.push_back(newnet);
         upForEvaluation.push_back(newnet);
     }
+    currentIndividualNumber = 0;
 }
 
 /*
@@ -75,11 +78,18 @@ void GPSynth::initPopulation() {
 */
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {
+    bool badPointer = true;
     for (int i = 0; i < upForEvaluation.size(); i++) {
         if (net == upForEvaluation[i]) {
             evaluated.push_back(std::make_pair(net, fitness));
             upForEvaluation.erase(upForEvaluation.begin() + i);
+            currentIndividualNumber++;
+            badPointer = false;
         }
+    }
+    if (badPointer) {
+        std::cerr << "Assigned fitness for a pointer not in upForEvaluation. This shouldn't happen." << std::endl;
+        return -1;
     }
     return generationID;
 }
@@ -91,6 +101,7 @@ int GPSynth::prevGeneration() {
     }
     upForEvaluation.clear();
     evaluated.clear();
+    currentIndividualNumber = 0;
     for (int i = 0; i < populationSize; i++) {
         upForEvaluation.push_back(allNetworks.back());
         allNetworks.erase(allNetworks.end() - 1);
@@ -149,7 +160,11 @@ int GPSynth::nextGeneration() {
 }
 
 GPNetwork* GPSynth::getIndividual() {
-    return NULL;
+    if (currentIndividualNumber == populationSize) {
+        currentIndividualNumber = 0;
+        nextGeneration();
+    }
+    return upForEvaluation[currentIndividualNumber];
 }
 
 GPNetwork* GPSynth::selectFromEvaluated() {

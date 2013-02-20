@@ -54,6 +54,7 @@ class GPSynth {
         double maxFitness;
         int crossoverType;
         int selectionType;
+        int currentIndividualNumber;
 
         // NETWORK MUTATION RATES
         float nodeAddChance;
