@@ -39,6 +39,7 @@ public:
         unsigned popsize = 50;
         unsigned seed = time(NULL);
         double addchance = 0.5;
+        double subchance = 0.5;
         double mutatechance = 0.5;
         double crosschance = 0.5;
         double threshold = 1.0;
@@ -61,6 +62,9 @@ public:
           }
           else if (i->equalsIgnoreCase("--addchance"))  {
             addchance = i++->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--removechance"))  {
+            subchance = i++->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--mutatechance"))  {
             mutatechance = i++->getDoubleValue();
@@ -93,7 +97,7 @@ public:
             std::cerr << "No target specified. Exiting application." << std::endl;
             quit();
         }
-        experiment = new GPExperiment(target, expnum, popsize, seed, addchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
+        experiment = new GPExperiment(target, expnum, popsize, seed, addchance, subchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
         juce::Thread::setCurrentThreadName("experiment");
     }
 

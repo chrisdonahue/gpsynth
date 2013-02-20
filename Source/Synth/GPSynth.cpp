@@ -16,11 +16,11 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, unsigned s, double max, double addchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
+GPSynth::GPSynth(unsigned psize, unsigned s, double max, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
 populationSize(psize),
 nextNetworkID(0), generationID(0), maxFitness(max),
 crossoverType(crosstype), selectionType(selecttype),
-nodeAddChance(addchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
+nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
 allNetworks(), upForEvaluation(), evaluated(),
 rng(s)
 {
