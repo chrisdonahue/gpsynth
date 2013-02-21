@@ -60,7 +60,7 @@ wavFormat(new WavAudioFormat())
         flikelihoods->push_back(1);
         flikelihoods->push_back(1);
 
-        synth = new GPSynth(psize, s, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
+        synth = new GPSynth(psize, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
     }
     
     nodeParams->availableNodes = nodes;

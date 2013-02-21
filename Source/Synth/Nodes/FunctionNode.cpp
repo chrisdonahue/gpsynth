@@ -16,7 +16,7 @@
     ==============
 */
 
-FunctionNode::FunctionNode(double (*fun)(double, double), std::string sym, GPNode* l, GPNode* r) {
+FunctionNode::FunctionNode(GPFunction* fun, std::string sym, GPNode* l, GPNode* r) {
     function = fun;
     symbol = sym;
     left = l;
@@ -39,7 +39,7 @@ FunctionNode* FunctionNode::getCopy() {
     return new FunctionNode(function, symbol, left, right);
 }
 
-void FunctionNode::setFunction(double (*fun)(double, double), std::string sym, GPNode* rSub) {
+void FunctionNode::setFunction(GPFunction* fun, std::string sym, GPNode* rSub) {
     if (right == NULL) {
         right = rSub;
     }
@@ -52,11 +52,17 @@ void FunctionNode::setFunction(double (*fun)(double, double), std::string sym, G
 }
 
 double FunctionNode::evaluate(double* t, double* v) {
-    if (right != NULL) {
+    if (left != NULL && right != NULL) {
         return function(left->evaluate(t, v), right->evaluate(t, v));
     }
+    else if (left != NULL && right == NULL) {
+        if (function == add)
+            return function(left->evaluate(t, v), 0.0);
+        if (function == multiply)
+            return function(left->evaluate(t, v), 1.0);
+    }
     else {
-        return function(left->evaluate(t, v), 0.0);
+        return 0.0;
     }
 }
 

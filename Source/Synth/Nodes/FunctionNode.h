@@ -11,21 +11,22 @@
 #ifndef FUNCTIONNODE_H
 #define FUNCTIONNODE_H
 
+#include "../GPFunctions.h"
 #include "../GPNode.h"
 
 class FunctionNode: public GPNode {
     public:
-        FunctionNode(double (*fun)(double, double), std::string sym, GPNode* l, GPNode* r);
+        FunctionNode(GPFunction fun, std::string sym, GPNode* l, GPNode* r);
         ~FunctionNode();
         FunctionNode* getCopy();
 
-        void setFunction(double (*fun)(double, double), std::string sym, GPNode* rSub);
+        void setFunction(GPFunction fun, std::string sym, GPNode* rSub);
         double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPNodeParams* e);
 
     private:
-        double (*function)(double, double);
+        GPFunction* function;
         std::string symbol;
 };
 

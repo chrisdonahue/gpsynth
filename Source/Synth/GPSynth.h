@@ -14,17 +14,18 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <stdlib.h>
+#include <assert.h>
 #include "GPNetwork.h"
 #include "Nodes/FunctionNode.h"
 #include "Nodes/ValueNode.h"
 #include "Nodes/OscilNode.h"
 #include "GPFunctions.h"
-#include <stdlib.h>
 
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, unsigned s, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype);
+        GPSynth(unsigned psize, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype);
         ~GPSynth();
 
         // EVOLUTION CONTROL
@@ -48,9 +49,6 @@ class GPSynth {
         // EVOLUTION CONTROL
         GPNetwork* selectFromEvaluated();
 
-        // RNG
-        GPRandom rng;
-
         // SYNTH EVOLUTION STATE
         int populationSize;
         int nextNetworkID;
@@ -69,7 +67,9 @@ class GPSynth {
         // NETWORK CONTAINERS
         std::vector<GPNetwork*> allNetworks;
         std::vector<GPNetwork*> upForEvaluation;
-        std::vector<std::pair<GPNetwork*, double> > evaluated;
+        std::vector<GPNetwork*> evaluated;
+        std::vector<double> fitnesses;
+        std::vector<int> rank;
 };
 
 #endif
