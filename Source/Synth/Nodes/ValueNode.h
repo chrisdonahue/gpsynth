@@ -15,7 +15,7 @@
 
 class ValueNode: public GPNode {
     public:
-        ValueNode(double* v, int p);
+        ValueNode(double v, int p);
         ~ValueNode();
         ValueNode* getCopy();
 

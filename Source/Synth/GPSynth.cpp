@@ -16,34 +16,14 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, unsigned s, double max, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods) :
+GPSynth::GPSynth(unsigned psize, unsigned s, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype) :
 populationSize(psize),
-nextNetworkID(0), generationID(0), maxFitness(max),
+nextNetworkID(0), generationID(0), maxFitness(max), nodeParams(p),
 crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
 allNetworks(), upForEvaluation(), evaluated(),
 rng(s)
 {
-    nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
-
-    nodeParams->numVariables = 1;
-
-    nodeParams->valueRange = 1;
-    nodeParams->LFORange = 10;
-    nodeParams->numPartials = 10;
-
-    nodeParams->simplifyChance = 0.5;
-    nodeParams->specialChance = 0.5;
-    nodeParams->harmonyChance = 0.5;
-    nodeParams->functionChance = 0.5;
-
-    nodeParams->rng = &rng;
-
-    nodeParams->availableNodes = nodes;
-    nodeParams->nodeLikelihoods = nlikelihoods;
-    nodeParams->availableFunctions = functions;
-    nodeParams->functionLikelihoods = flikelihoods;
-
     initPopulation();
 }
 

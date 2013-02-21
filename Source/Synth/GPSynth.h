@@ -16,13 +16,15 @@
 #include <iostream>
 #include "GPNetwork.h"
 #include "Nodes/FunctionNode.h"
+#include "Nodes/ValueNode.h"
+#include "Nodes/OscilNode.h"
 #include "GPFunctions.h"
 #include <stdlib.h>
 
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, unsigned s, double max, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype, std::vector<GPNode*>* nodes, std::vector<double>* nlikelihoods, std::vector<GPFunction*>* functions, std::vector<double>* flikelihoods);
+        GPSynth(unsigned psize, unsigned s, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype);
         ~GPSynth();
 
         // EVOLUTION CONTROL

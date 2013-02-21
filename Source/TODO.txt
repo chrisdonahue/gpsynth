@@ -1,6 +1,5 @@
 FIRST VERSION:
 GPExperiment.cpp:
-    Implement FITNESS FUNCTION METHODS
 
 GPNetwork.cpp:
     Implement mutateAddNode
@@ -14,11 +13,15 @@ Node subclasses:
 NEXT VERSION:
 Main.cpp:
     Add command line for MIDI stuff
+    Add command line for fitness function type
     --help
 
 GPExperiment.cpp:
+	Delete Node subclasses added to nodeParams
     Figure out how to pass time-varying variables to evaluate()
     do something with max-fitness
+    change "200" to constant value, add command line flag, fix saveWavFile logic
+    add more fitness functions/command line flag/constructor arg
 
 GPNetwork.cpp:
     Implement mutateRemoveNode (maybe multiple versions)
@@ -26,3 +29,6 @@ GPNetwork.cpp:
 GPSynth.cpp:
     Implement reproduce 3 and 4
     node remove chance
+    
+GPNode.h:
+	Change name of GPNodeParams and move it to somewhere where it makes more sense with an RNG in it
