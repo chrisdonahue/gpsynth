@@ -77,5 +77,6 @@ std::string FunctionNode::toString() {
     return std::string(buffer);
 }
 
-void FunctionNode::mutate(GPNodeParams* e) {
+void FunctionNode::mutate(GPNodeParams* p) {
+    return;
 }

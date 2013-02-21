@@ -66,15 +66,15 @@ std::string ValueNode::toString() {
     return std::string(buffer);
 }
 
-void ValueNode::mutate(GPNodeParams* e) {
+void ValueNode::mutate(GPNodeParams* p) {
     if (isConstant) {
-        return;
+        value = (p->rng->random() * (p->valueMax - p->valueMin) + p->valueMin);
     }
     else if (isTime) {
         return;
     }
     else if (isVariable) {
-        return;
+        variableNum = (int) (p->rng->random() * p->numVariables);
     }
     else {
         std::cerr << "ValueNode has no method for evaluation." << std::endl;

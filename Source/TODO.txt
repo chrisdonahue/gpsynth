@@ -1,18 +1,11 @@
-FIRST VERSION:
-GPExperiment.cpp:
-
-GPNetwork.cpp:
-
-GPSynth.cpp:
-
-Node subclasses:
-    mutate()
-
-NEXT VERSION:
 Main.cpp:
     Add command line for MIDI stuff
     Add command line for fitness function type
+    Add command line for numPartials/valuemin/valuemax/LFOrange
     --help
+
+GPFunctions.h:
+    Define GP function as a class with function, symbol, identity
 
 GPExperiment.cpp:
 	Delete Node subclasses added to nodeParams
@@ -26,9 +19,13 @@ GPNetwork.cpp:
     Implement mutateAddNode like typical GP would
     
 GPSynth.cpp:
+    Take out nodeLikelihoods from GPNodeParams
     Fill in selectFromEvaluated() skeleton code
     Implement reproduce 3 and 4
     node remove chance
     
 GPNode.h:
 	Change name of GPNodeParams and move it to somewhere where it makes more sense with an RNG in it
+
+Node subclasses:
+    mutate()

@@ -57,15 +57,18 @@ class GPNode {
     Structure passed to a network for mutation at the node level.
 */
 struct GPNodeParams {
-    float simplifyChance;
-    float specialChance;
-    float harmonyChance;
-    float functionChance;
-
-    int valueRange;
-    int LFORange;
+    // OSCILNODE
+    float partialChance;
     int numPartials;
 
+    // VALUENODE
+    double valueMin;
+    double valueMax;
+
+    // MODULATION NODE
+    int LFORange;
+
+    // MULTIPLE
     int numVariables;
 
     GPRandom* rng;
