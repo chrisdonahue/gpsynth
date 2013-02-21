@@ -36,7 +36,7 @@ class GPExperiment {
 
         // TARGET DATA CONTAINERS
         double sampleRate;
-        unsigned numTargetFrames;
+        int64 numTargetFrames;
         float* targetFrames;
         double* specialValues;
 
@@ -44,6 +44,7 @@ class GPExperiment {
         String evolve(unsigned numFrames, float* targetData);
 
         // WAV INTERFACE
+        ScopedPointer<WavAudioFormat> wavFormat;
         float* loadWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 

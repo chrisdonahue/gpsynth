@@ -16,7 +16,9 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) {
+GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) :
+wavFormat(new WavAudioFormat())
+{
     if (expnum == 0) {
         std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
         std::vector<double>* nlikelihoods = new std::vector<double>();
@@ -68,19 +70,33 @@ String GPExperiment::evolve(unsigned numFrames, float* targetData) {
 */
 
 float* GPExperiment::loadWavFile(String path) {
-    return NULL;
+    File input(path);
+    FileInputStream* fis = input.createInputStream();
+    AudioSampleBuffer asb(1, 200);
+    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis));
+
+    numTargetFrames = afr.lengthInSamples();
+    int64 numRemaining = numTargetFrames;
+    while (numRemaining > 0) {
+        if (numRemaining > 200) {
+            chanData
+        }
+    }
+
+    read(AudioSampleBuffer*, int startSampleInDestBuffer, int numSamples, int64 readerStartSample, bool useReaderLeftChan, bool useReaderRightChan);
+
+
 }
 
 void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
-    ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
     File output(path);
     FileOutputStream *fos = output.createOutputStream();
     StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
     AudioSampleBuffer asb(1, 200);
     ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
 
-    unsigned numRemaining = numFrames;
-    unsigned numComplete = 0;
+    int64 numRemaining = numFrames;
+    int64 numComplete = 0;
     while (numRemaining > 0) {
         float* chanData = asb.getSampleData(0);
         if (numRemaining > 200) {
