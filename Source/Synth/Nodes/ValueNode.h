@@ -24,8 +24,10 @@ class ValueNode: public GPNode {
         void mutate(GPNodeParams* e);
 
     private:
-        double* value;
+        double value;
         bool isTime;
+        bool isVariable;
+        bool isConstant;
         int variableNum;
 };
 

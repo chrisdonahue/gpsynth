@@ -21,9 +21,29 @@ wavFormat(new WavAudioFormat())
 {
     if (expnum == 0) {
         std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
+        nodes.push_back(new FunctionNode(multiply(), "*", NULL, NULL));
+        nodes.push_back(new FunctionNode(add(), "+", NULL, NULL));
+        nodes.push_back(new ValueNode(0, -1));
+        nodes.push_back(new ValueNode(-1, 0));
+        nodes.push_back(new ValueNode(-1, 1));
+        nodes.push_back(new OscilNode(1, 0, NULL, NULL));
+
         std::vector<double>* nlikelihoods = new std::vector<double>();
+        nlikelihoods.push_back(1);
+        nlikelihoods.push_back(1);
+        nlikelihoods.push_back(1);
+        nlikelihoods.push_back(1);
+        nlikelihoods.push_back(1);
+        nlikelihoods.push_back(1);
+
         std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
+        functions.push_back(add());
+        functions.push_back(multiply());
+
         std::vector<double>* flikelihoods = new std::vector<double>();
+        flikelihoods.push_back(1);
+        flikelihoods.push_back(1);
+
         synth = new GPSynth(psize, s, 0.0, addchance, subchance, mutatechance, crosschance, crosstype, selecttype, nodes, nlikelihoods, functions, flikelihoods);
     }
     sampleRate = 44100.0;
@@ -34,7 +54,12 @@ wavFormat(new WavAudioFormat())
 }
 
 GPExperiment::~GPExperiment() {
-
+    free(targetFrames);
+    delete wavFormat;
+    delete nodes;
+    delete nlikelihoods;
+    delete functions;
+    delete flikelihoods;
 }
 
 /*
@@ -69,23 +94,27 @@ String GPExperiment::evolve(unsigned numFrames, float* targetData) {
     =============
 */
 
-float* GPExperiment::loadWavFile(String path) {
+void GPExperiment::loadWavFile(String path) {
     File input(path);
     FileInputStream* fis = input.createInputStream();
     AudioSampleBuffer asb(1, 200);
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis));
 
     numTargetFrames = afr.lengthInSamples();
+    sampleRate = sampleRate();
+
+    free(targetFrames);
+    targetFrames = (float*) malloc(sizeof(gloat) * numTargetFrames);
+    
     int64 numRemaining = numTargetFrames;
+    int64 numCompleted = 0;
     while (numRemaining > 0) {
-        if (numRemaining > 200) {
-            chanData
-        }
+        unsigned numToRead = numRemaining > 200 ? 200 : numRemaining;
+        afr.read(asb, 0, numToRead, numCompleted, true, false);
+        float* chanData = asb.getSampleData(0);
+        memcpy(chanData, targetFrames[numCompleted], numToRead);
+        numRemaining -= numToRead;
     }
-
-    read(AudioSampleBuffer*, int startSampleInDestBuffer, int numSamples, int64 readerStartSample, bool useReaderLeftChan, bool useReaderRightChan);
-
-
 }
 
 void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
