@@ -45,7 +45,7 @@ class GPExperiment {
 
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
-        float* loadWavFile(String path);
+        void loadWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION

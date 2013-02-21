@@ -10,10 +10,17 @@
 
 #include "ValueNode.h"
 
-ValueNode::ValueNode(double* v, int vn) {
+ValueNode::ValueNode(double v, int vn) {
     value = v;
+    isTime = false;
+    isVariable = false;
+    isConstant = false;
+    if (vn == -1)
+        isConstant = true;
     if (vn == 0)
         isTime = true;
+    else
+        isVariable = true;
     variableNum = vn - 1;
 }
 
@@ -26,39 +33,45 @@ ValueNode* ValueNode::getCopy() {
 }
 
 double ValueNode::evaluate(double* t, double* v) {
-    if (value != NULL) {
-        return *value;
+    if (isConstant) {
+        return value;
     }
     else if (isTime) {
         return *t;
     }
-    else {
+    else if (isVariable) {
         return v[variableNum];
     }
+    else {
+        std::cerr << "ValueNode has no method for evaluation." << std::endl;
+    }
+    return -1;
 }
 
 std::string ValueNode::toString() {
     char buffer[10];
-    if (value != NULL) {
-        snprintf(buffer, 10, "%lf", *value);
+    if (isConstant) {
+        snprintf(buffer, 10, "%lf", value);
     }
     else if (isTime) {
         snprintf(buffer, 10, "%s", "time");
     }
-    else {
+    else if (isVariable) {
         snprintf(buffer, 10, "Variable: %d", variableNum);
+    }
+    else {
+        std::cerr << "ValueNode has no method for evaluation." << std::endl;
     }
     return std::string(buffer);
 }
 
 void ValueNode::mutate(GPNodeParams* e) {
-    if (value != NULL) {
+    if (variableNumber == -1) {
     
     }
     else if (isTime) {
     
     }
-    else {
-    
+    else { 
     }
 }

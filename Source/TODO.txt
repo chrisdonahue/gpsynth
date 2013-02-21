@@ -1,8 +1,5 @@
 FIRST VERSION:
 GPExperiment.cpp:
-    Fill in nodes/functions vectors 21-24
-    do something with max-fitness
-    Implement WAV INTERFACE METHODS
     Implement FITNESS FUNCTION METHODS
 
 GPNetwork.cpp:
@@ -21,6 +18,7 @@ Main.cpp:
 
 GPExperiment.cpp:
     Figure out how to pass time-varying variables to evaluate()
+    do something with max-fitness
 
 GPNetwork.cpp:
     Implement mutateRemoveNode (maybe multiple versions)
