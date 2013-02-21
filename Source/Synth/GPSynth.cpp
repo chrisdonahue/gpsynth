@@ -16,13 +16,12 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, unsigned s, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype) :
+GPSynth::GPSynth(unsigned psize, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype) :
 populationSize(psize),
 nextNetworkID(0), generationID(0), maxFitness(max), nodeParams(p),
 crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
-allNetworks(), upForEvaluation(), evaluated(),
-rng(s)
+allNetworks(), upForEvaluation(), evaluated(), fitnesses()
 {
     initPopulation();
 }
@@ -63,7 +62,8 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     bool badPointer = true;
     for (int i = 0; i < upForEvaluation.size(); i++) {
         if (net == upForEvaluation[i]) {
-            evaluated.push_back(std::make_pair(net, fitness));
+            evaluated.push_back(net);
+            fitnesses.push_back(fitness);
             upForEvaluation.erase(upForEvaluation.begin() + i);
             currentIndividualNumber++;
             badPointer = false;
@@ -83,6 +83,7 @@ int GPSynth::prevGeneration() {
     }
     upForEvaluation.clear();
     evaluated.clear();
+    fitnesses.clear();
     currentIndividualNumber = 0;
     for (int i = 0; i < populationSize; i++) {
         upForEvaluation.push_back(allNetworks.back());
@@ -93,44 +94,44 @@ int GPSynth::prevGeneration() {
 }
 
 int GPSynth::nextGeneration() {
-    std::vector<double> fitnessWeights;
-    for (std::vector<std::pair<GPNetwork*, double> >::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
-        if (i->second < 0) {
+    assert (evaluated.size() == fitnesses.size());
+    if (evaluated.size() != populationSize) {
+        std::cerr << "Attempted to advance generation before evaluating all networks in the generation." << std::endl;
+    }
+    for (std::vector<double>::iterator i = fitnesses.begin(); i != fitnesses.end(); i++) {
+        if (*i < 0) {
             std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
             return generationID;
         }
-        fitnessWeights.push_back(i->second);
     }
 
-    rng.normalizeDistribution(&fitnessWeights);
-
     for (int i = 0; i < populationSize; i++) {
-        GPNetwork* dad = evaluated[rng.sampleFromDistribution(&fitnessWeights)].first;
+        GPNetwork* dad = selectFromEvaluated();
         GPNetwork* one = dad->getCopy();
         GPNetwork* offspring = one;
 
-        if (rng.random() < nodeAddChance) {
+        if (nodeParams->rng->random() < nodeAddChance) {
             one->mutateAddNode(nodeParams, getRandomNode());
         }
-        if (rng.random() < nodeRemoveChance) {
+        if (nodeParams->rng->random() < nodeRemoveChance) {
             one->mutateRemoveNode(nodeParams);
         }
-        if (rng.random() < nodeMutateChance) {
+        if (nodeParams->rng->random() < nodeMutateChance) {
             one->mutate(nodeParams);
         }
-        if (rng.random() < crossoverChance) {
-            GPNetwork* mom = evaluated[rng.sampleFromDistribution(&fitnessWeights)].first;
+        if (nodeParams->rng->random() < crossoverChance) {
+            GPNetwork* mom = selectFromEvaluated();
             while (dad == mom) {
-                mom = evaluated[rng.sampleFromDistribution(&fitnessWeights)].first;
+                mom = selectFromEvaluated();
             }
             GPNetwork* two = mom->getCopy();
-            if (rng.random() < nodeAddChance) {
+            if (nodeParams->rng->random() < nodeAddChance) {
                 two->mutateAddNode(nodeParams, getRandomNode());
             }
-            if (rng.random() < nodeRemoveChance) {
+            if (nodeParams->rng->random() < nodeRemoveChance) {
                 two->mutateRemoveNode(nodeParams);
             }
-            if (rng.random() < nodeMutateChance) {
+            if (nodeParams->rng->random() < nodeMutateChance) {
                 two->mutate(nodeParams);
             }
             offspring = reproduce(one, two);
@@ -143,6 +144,7 @@ int GPSynth::nextGeneration() {
     }
 
     evaluated.clear();
+    fitnesses.clear();
     generationID++;
     return generationID;
 }
@@ -192,6 +194,10 @@ GPNetwork* GPSynth::selectFromEvaluated() {
     else if (selectionType == 8) {
         // stochastic universal sampling selection (higher better)
         return NULL;
+    }
+    else if (selectionType == 9) {
+        // fitness-unaware random selection
+        return evaluated[(int) (nodeParams->rng->random() * evaluated.size())];
     }
     return NULL;
 }

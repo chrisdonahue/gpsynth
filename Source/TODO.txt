@@ -2,10 +2,8 @@ FIRST VERSION:
 GPExperiment.cpp:
 
 GPNetwork.cpp:
-    Implement mutateAddNode
 
 GPSynth.cpp:
-    Fill in selectFromEvaluated() skeleton code
 
 Node subclasses:
     mutate()
@@ -25,8 +23,10 @@ GPExperiment.cpp:
 
 GPNetwork.cpp:
     Implement mutateRemoveNode (maybe multiple versions)
+    Implement mutateAddNode like typical GP would
     
 GPSynth.cpp:
+    Fill in selectFromEvaluated() skeleton code
     Implement reproduce 3 and 4
     node remove chance
     

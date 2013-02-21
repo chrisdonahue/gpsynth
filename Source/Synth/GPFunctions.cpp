@@ -27,7 +27,7 @@ double divide(double left, double right) {
         return INFINITY;
     }
 }
-double pow(double left, double right) {
+double power(double left, double right) {
     double r;
     if (left < 0) {
         r = int(r);
