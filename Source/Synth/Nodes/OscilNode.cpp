@@ -23,6 +23,8 @@ OscilNode::OscilNode(int p, int vn, GPNode* l, GPNode* r) {
     right = r;
     parent = NULL;
     w = 2.0 * partial * M_PI;
+    isBinary = false;
+    isTerminal = true;
 }
 
 OscilNode::~OscilNode() {

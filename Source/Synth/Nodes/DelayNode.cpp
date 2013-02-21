@@ -25,6 +25,8 @@ DelayNode::DelayNode(int n, GPNode* l, GPNode* r) {
     left = l;
     right = r;
     parent = NULL;
+    isBinary = false;
+    isTerminal = false;
 }
 
 DelayNode::~DelayNode() {

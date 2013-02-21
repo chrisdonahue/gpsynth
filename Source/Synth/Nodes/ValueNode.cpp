@@ -22,6 +22,8 @@ ValueNode::ValueNode(double v, int vn) {
     else
         isVariable = true;
     variableNum = vn - 1;
+    isBinary = false;
+    isTerminal = true;
 }
 
 ValueNode::~ValueNode() {

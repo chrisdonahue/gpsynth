@@ -35,6 +35,10 @@ class GPNode {
         GPNode* left;
         GPNode* right;
 
+        // N-ARY INDICATOR FOR MUTATION
+        bool isBinary;
+        bool isTerminal;
+
         // INHERITED TRACE METHOD FOR RESTORING PARENT LINKS
         void traceLineage(std::vector<GPNode*>* allnodes) {
             allnodes->push_back(this);
