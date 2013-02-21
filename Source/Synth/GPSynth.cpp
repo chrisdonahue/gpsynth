@@ -177,39 +177,39 @@ GPNetwork* GPSynth::getIndividual() {
 
 GPNetwork* GPSynth::selectFromEvaluated() {
     //http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29
-    if (selectType == 0) {
+    if (selectionType == 0) {
         // ranking linear selection (lower better)
         return NULL;
     }
-    else if (selectType == 1) {
+    else if (selectionType == 1) {
         // ranking linear selection (higher better)
         return NULL;
     }
-    else if (selectType == 2) {
+    else if (selectionType == 2) {
         // ranking curved selection (lower better)
         return NULL;
     }
-    else if (selectType == 3) {
+    else if (selectionType == 3) {
         // ranking curved selection (higher better)
         return NULL;
     }
-    else if (selectType == 4) {
+    else if (selectionType == 4) {
         // tournament selection (lower better)
         return NULL;
     }
-    else if (selectType == 5) {
+    else if (selectionType == 5) {
         // tournament selection (higher better)
         return NULL;
     }
-    else if (selectType == 6) {
+    else if (selectionType == 6) {
         // fitness proportionate selection (lower better)
         return NULL;
     }
-    else if (selectType == 7) {
+    else if (selectionType == 7) {
         // fitness proportionate selection (higher better)
         return NULL;
     }
-    else if (selectType == 8) {
+    else if (selectionType == 8) {
         // stochastic universal sampling selection (higher better)
         return NULL;
     }
