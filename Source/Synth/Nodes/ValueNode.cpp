@@ -25,7 +25,6 @@ ValueNode::ValueNode(double v, int vn) {
 }
 
 ValueNode::~ValueNode() {
-    delete value;
 }
 
 ValueNode* ValueNode::getCopy() {
@@ -66,12 +65,16 @@ std::string ValueNode::toString() {
 }
 
 void ValueNode::mutate(GPNodeParams* e) {
-    if (variableNumber == -1) {
-    
+    if (isConstant) {
+        return;
     }
     else if (isTime) {
-    
+        return;
     }
-    else { 
+    else if (isVariable) {
+        return;
+    }
+    else {
+        std::cerr << "ValueNode has no method for evaluation." << std::endl;
     }
 }

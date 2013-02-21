@@ -21,7 +21,7 @@ class GPExperiment {
         ~GPExperiment();
 
         // EVOLUTION CONTROL
-        void evolve();
+        String evolve();
 
     private:
         // EXPERIMENT PARAMETERS
@@ -31,6 +31,7 @@ class GPExperiment {
 
         // EXPERIMENT STATE
         GPSynth* synth;
+        GPNodeParams* nodeParams;
         float minFitnessAchieved;
         int currentGeneration;
 
@@ -40,17 +41,14 @@ class GPExperiment {
         float* targetFrames;
         double* specialValues;
 
-        // EVOLUTION CONTOL
-        String evolve(unsigned numFrames, float* targetData);
-
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
         void loadWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION
-        float* evaluateIndividual(GPNetwork* candidate, unsigned numFrames);
-        double compare(float* dataone, float* datatwo);
+        float* evaluateIndividual(GPNetwork* candidate);
+        double compareToTarget(float* candidateFrames);
 };
 
 #endif
