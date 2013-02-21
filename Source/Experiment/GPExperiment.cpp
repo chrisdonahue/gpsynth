@@ -19,6 +19,7 @@
 GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) :
 wavFormat(new WavAudioFormat())
 {
+    std::cout << "psize from experiment " << psize << std::endl;
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
     nodeParams->partialChance = 0.5;

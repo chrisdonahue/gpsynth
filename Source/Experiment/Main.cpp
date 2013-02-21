@@ -33,6 +33,7 @@ public:
     {
         // This method is where you should put your application's initialisation code..
         StringArray args = getCommandLineParameterArray();
+        std::cout << commandLine << std::endl;
 
         String target("");
         unsigned expnum = 0;
@@ -47,21 +48,27 @@ public:
         unsigned selecttype = 0;
         unsigned crosstype = 0;
         std::vector<double>* values = new std::vector<double>();
+
+        std::cout << "StringArray length " << args.size() << std::endl;
+
         for (String* i = args.begin(); i != args.end(); i++) {
+          std::cout << *i << std::endl;
           if (i->equalsIgnoreCase("--target")) {
-            target = *i;
+            target = *++i;
           }
           else if (i->equalsIgnoreCase("--exp")) {
             expnum = i++->getIntValue();
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             popsize = i++->getIntValue();
+            std::cout << popsize << std::endl;
           }
           else if (i->equalsIgnoreCase("--seed")) {
             seed = i++->getIntValue();
           }
           else if (i->equalsIgnoreCase("--addchance"))  {
             addchance = i++->getDoubleValue();
+            std::cout << addchance << std::endl;
           }
           else if (i->equalsIgnoreCase("--removechance"))  {
             subchance = i++->getDoubleValue();
@@ -86,7 +93,7 @@ public:
           }
           else if (i->equalsIgnoreCase("--values")) {
             String* current = i++;
-            while (!(current->startsWith(String("--")))) {
+            while (!(current->startsWith(String("--"))) && i != args.end()) {
                 values->push_back(current->getDoubleValue());
                 current = i++;
             }

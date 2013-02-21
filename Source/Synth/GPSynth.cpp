@@ -23,6 +23,8 @@ crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
 allNetworks(), upForEvaluation(), evaluated(), fitnesses()
 {
+    std::cout << "Initializing population of size " << populationSize << " with best fitness " << max << std::endl;
+    printGenerationDelim();
     initPopulation();
 }
 
@@ -65,8 +67,10 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
             evaluated.push_back(net);
             fitnesses.push_back(fitness);
             upForEvaluation.erase(upForEvaluation.begin() + i);
+            std::cout << "Individual " << net->ID << " was assigned fitness " << fitness << "." << std::endl;
             currentIndividualNumber++;
             badPointer = false;
+            break;
         }
     }
     if (badPointer) {
@@ -146,7 +150,12 @@ int GPSynth::nextGeneration() {
     evaluated.clear();
     fitnesses.clear();
     generationID++;
+    printGenerationDelim();
     return generationID;
+}
+
+void GPSynth::printGenerationDelim() {
+    std::cout << "--------------- START OF GENERATION " << generationID << " ---------------" << std::endl;
 }
 
 GPNetwork* GPSynth::getIndividual() {
