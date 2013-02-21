@@ -38,6 +38,9 @@ class GPNetwork {
         int ID;
 
     private:
+        // MUTATION
+        GPNode* getRandomNetworkNode(GPNodeParams* p);
+        
         // PRIVATE STATE
         std::string asText;
         GPNode* root;

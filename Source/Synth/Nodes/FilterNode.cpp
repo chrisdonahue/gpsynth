@@ -30,6 +30,8 @@ FilterNode::FilterNode(int x, int y, double* xc, double* yc, GPNode* l, GPNode* 
     left = l;
     right = r;
     parent = NULL;
+    isBinary = false;
+    isTerminal = false;
 }
 
 FilterNode::~FilterNode() {

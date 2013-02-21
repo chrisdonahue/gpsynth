@@ -22,6 +22,11 @@ FunctionNode::FunctionNode(double (*fun)(double, double), std::string sym, GPNod
     left = l;
     right = r;
     parent = NULL;
+    if (function == sine || function == cosine)
+        isBinary = false;
+    else
+        isBinary = true;
+    isTerminal = false;
 }
 
 FunctionNode::~FunctionNode() {
@@ -39,6 +44,10 @@ void FunctionNode::setFunction(double (*fun)(double, double), std::string sym, G
         right = rSub;
     }
     function = fun;
+    if (fun == sine || fun == cosine)
+        isBinary = false;
+    else
+        isBinary = true;
     symbol = sym;
 }
 
