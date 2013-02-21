@@ -21,16 +21,15 @@ wavFormat(new WavAudioFormat())
 {
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
-    nodeParams->numVariables = vals->size();
+    nodeParams->partialChance = 0.5;
+    nodeParams->numPartials = 3;
 
-    nodeParams->valueRange = 1;
+    nodeParams->valueMin = -1;
+    nodeParams->valueMax = 1;
+
     nodeParams->LFORange = 10;
-    nodeParams->numPartials = 10;
 
-    nodeParams->simplifyChance = 0.5;
-    nodeParams->specialChance = 0.5;
-    nodeParams->harmonyChance = 0.5;
-    nodeParams->functionChance = 0.5;
+    nodeParams->numVariables = vals->size();
 
     nodeParams->rng = new GPRandom(s);
     

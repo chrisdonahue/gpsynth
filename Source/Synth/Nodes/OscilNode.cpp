@@ -46,6 +46,12 @@ std::string OscilNode::toString() {
     return std::string(buffer);
 }
 
-void OscilNode::mutate(GPNodeParams* e) {
-
+void OscilNode::mutate(GPNodeParams* p) {
+    if (p->rng->random() < p->partialChance) {
+        partial = (int) (p->rng->random() * p->numPartials);
+        w = 2.0 * partial * M_PI;
+    }
+    else {
+        variableNum = (int) (p->rng->random() * p->numVariables);
+    }
 }
