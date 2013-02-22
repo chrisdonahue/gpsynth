@@ -37,7 +37,7 @@ GPSynth::~GPSynth() {
 }
 
 GPNode* GPSynth::getRandomNode() {
-    return nodeParams->availableNodes->at(nodeParams->rng->sampleFromDistribution(nodeParams->nodeLikelihoods));
+    return (nodeParams->availableNodes->at(nodeParams->rng->sampleFromDistribution(nodeParams->nodeLikelihoods)))->getCopy();
 }
 
 GPNetwork* GPSynth::generateInitialNetwork() {

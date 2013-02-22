@@ -16,29 +16,34 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) :
+GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numgens, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) :
 wavFormat(new WavAudioFormat())
 {
+    // EXPERIMENT PARAMETERS
+    fitnessThreshold = threshold;
+    numGenerations = numgens;
+
+    // EXPERIMENT STATE
+    minFitnessAchieved = INFINITY;
+    currentGeneration = 0;
+
+    // TARGET DATA CONTAINERS
+    sampleRate = 44100.0;
     targetFrames = NULL;
     numTargetFrames = 0;
     specialValues = vals->data();
-    sampleRate = 44100.0;
     loadWavFile(target);
 
+    // SYNTH
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
     nodeParams->partialChance = 0.5;
     nodeParams->numPartials = 3;
-
     nodeParams->valueMin = -1;
     nodeParams->valueMax = 1;
-
     nodeParams->LFORange = 10;
-
     nodeParams->numVariables = vals->size();
-
     nodeParams->rng = new GPRandom(s);
-    
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
     std::vector<double>* nlikelihoods = new std::vector<double>();
     std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
@@ -93,6 +98,7 @@ GPExperiment::~GPExperiment() {
 
 String GPExperiment::evolve() {
     GPNetwork* champ;
+    int numMinimum = 0;
     while (minFitnessAchieved > fitnessThreshold && currentGeneration < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
         std::cout << "Testing network " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
@@ -102,11 +108,15 @@ String GPExperiment::evolve() {
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
-            saveWavFile(String("New Minimum.wav"), String(candidate->toString().c_str()), numTargetFrames, candidateData);
+            char buffer[100];
+            snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
+            //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
         }
         currentGeneration = synth->assignFitness(candidate, fitness);
+        free(candidateData);
     }
-    return String(champ->toString().c_str());
+    if (champ != NULL)
+        return String(champ->toString().c_str());
 }
 
 /*
@@ -132,13 +142,15 @@ void GPExperiment::loadWavFile(String path) {
     
     int64 numRemaining = numTargetFrames;
     int64 numCompleted = 0;
+    float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
         int numToRead = numRemaining > 200 ? 200 : numRemaining;
         afr->read(&asb, 0, numToRead, numCompleted, true, false);
-        float* chanData = asb.getSampleData(0);
-        memcpy(chanData, targetFrames + numCompleted, numToRead);
+        memcpy(targetFrames + numCompleted, chanData, numToRead);
         numRemaining -= numToRead;
+        numCompleted += numToRead;
     }
+    assert (numCompleted == numTargetFrames && numRemaining == 0);
 }
 
 void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
@@ -149,24 +161,17 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
 
     int64 numRemaining = numFrames;
-    int64 numComplete = 0;
+    int64 numCompleted = 0;
+    float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
-        float* chanData = asb.getSampleData(0);
-        if (numRemaining > 200) {
-            for (int samp = 0; samp < 200; samp++, numComplete++) {
-                chanData[samp] = data[numComplete];
-            }
-            afw->writeFromAudioSampleBuffer(asb, 0, 200);
-            numRemaining -= 200;
+        int numToWrite = numRemaining > 200 ? 200 : numRemaining;
+        for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
+            chanData[samp] = data[numCompleted];
         }
-        else {
-            for (int samp = 0; numComplete < numFrames; numComplete++) {
-                chanData[samp] = data[numComplete];
-            }
-            afw->writeFromAudioSampleBuffer(asb, 0, numRemaining);
-            numRemaining -= numRemaining;
-        }
+        afw->writeFromAudioSampleBuffer(asb, 0, numToWrite);
+        numRemaining -= numToWrite;
     }
+    assert (numCompleted == numFrames && numRemaining == 0);
 }
 
 /*
@@ -176,7 +181,13 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
 */
 
 float* GPExperiment::evaluateIndividual(GPNetwork* candidate) {
-    return NULL;
+    float* ret = (float*) malloc(sizeof(float) * numTargetFrames);
+    double time;
+    for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
+        time = frameNum/sampleRate;
+        ret[frameNum] = candidate->evaluate(&time, specialValues);
+    }
+    return ret;
 }
 
 double GPExperiment::compareToTarget(float* candidateFrames) {

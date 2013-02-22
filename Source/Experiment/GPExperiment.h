@@ -17,7 +17,7 @@
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
+        GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numgens, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
         ~GPExperiment();
 
         // EVOLUTION CONTROL
@@ -27,11 +27,8 @@ class GPExperiment {
         // EXPERIMENT PARAMETERS
         float fitnessThreshold;
         int numGenerations;
-        int numMinimum;
 
         // EXPERIMENT STATE
-        GPSynth* synth;
-        GPNodeParams* nodeParams;
         float minFitnessAchieved;
         int currentGeneration;
 
@@ -40,6 +37,10 @@ class GPExperiment {
         int64 numTargetFrames;
         float* targetFrames;
         double* specialValues;
+
+        // SYNTH
+        GPSynth* synth;
+        GPNodeParams* nodeParams;
 
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
