@@ -68,11 +68,14 @@ double FunctionNode::evaluate(double* t, double* v) {
 
 std::string FunctionNode::toString() {
     char buffer[1024];
-    if (right != NULL) {
+    if (left != NULL && right != NULL) {
         snprintf(buffer, 1024, "(%s %s %s)", symbol.c_str(), left->toString().c_str(), right->toString().c_str());
     }
-    else {
+    else if (left != NULL && right == NULL) {
         snprintf(buffer, 1024, "(%s %s)", symbol.c_str(), left->toString().c_str());
+    }
+    else {
+        snprintf(buffer, 1024, "(%s)", symbol.c_str());
     }
     return std::string(buffer);
 }
