@@ -11,6 +11,9 @@
 #include "ValueNode.h"
 
 ValueNode::ValueNode(double v, int vn) {
+    left = NULL;
+    right = NULL;
+    parent = NULL;
     value = v;
     isTime = false;
     isVariable = false;

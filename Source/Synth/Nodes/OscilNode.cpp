@@ -33,7 +33,7 @@ OscilNode::~OscilNode() {
 }
 
 OscilNode* OscilNode::getCopy() {
-    return new OscilNode(partial, variableNum + 1, left->getCopy(), right->getCopy());
+    return new OscilNode(partial, variableNum + 1, left == NULL ? left : left->getCopy(), right == NULL ? right : right->getCopy());
 }
 
 double OscilNode::evaluate(double* t, double* v) {

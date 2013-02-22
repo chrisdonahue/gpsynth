@@ -55,7 +55,7 @@ wavFormat(new WavAudioFormat())
         nodes->push_back(new ValueNode(0, -1));
         nodes->push_back(new ValueNode(-1, 0));
         nodes->push_back(new ValueNode(-1, 1));
-        nodes->push_back(new OscilNode(1, 0, NULL, NULL));
+        nodes->push_back(new OscilNode(1, 1, NULL, NULL));
 
         nlikelihoods->push_back(1);
         nlikelihoods->push_back(1);
@@ -72,8 +72,10 @@ wavFormat(new WavAudioFormat())
     }
     
     nodeParams->availableNodes = nodes;
+    nodeParams->rng->normalizeDistribution(nlikelihoods);
     nodeParams->nodeLikelihoods = nlikelihoods;
     nodeParams->availableFunctions = functions;
+    nodeParams->rng->normalizeDistribution(flikelihoods);
     nodeParams->functionLikelihoods = flikelihoods;
 
     synth = new GPSynth(psize, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
@@ -104,7 +106,6 @@ String GPExperiment::evolve() {
         std::cout << "Testing network " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
         float* candidateData = evaluateIndividual(candidate);
         double fitness = compareToTarget(candidateData);
-        std::cout << "Network " << candidate->ID << " was assigned a fitness of " << fitness;
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;

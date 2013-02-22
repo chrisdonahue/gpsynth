@@ -26,6 +26,7 @@ allNetworks(), upForEvaluation(), evaluated(), fitnesses()
     nodeParams = p;
     std::cout << "Initializing population of size " << populationSize << " with best fitness " << max << std::endl;
     printGenerationDelim();
+    currentIndividualNumber = 0;
     initPopulation();
 }
 
@@ -52,7 +53,6 @@ void GPSynth::initPopulation() {
         allNetworks.push_back(newnet);
         upForEvaluation.push_back(newnet);
     }
-    currentIndividualNumber = 0;
 }
 
 /*
@@ -67,8 +67,8 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
         if (net == upForEvaluation[i]) {
             evaluated.push_back(net);
             fitnesses.push_back(fitness);
-            upForEvaluation.erase(upForEvaluation.begin() + i);
-            std::cout << "Individual " << net->ID << " was assigned fitness " << fitness << "." << std::endl;
+            upForEvaluation.at(i) = NULL;
+            std::cout << "Network " << net->ID << " was assigned fitness " << fitness << "." << std::endl;
             currentIndividualNumber++;
             badPointer = false;
             break;
