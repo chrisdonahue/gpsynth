@@ -18,11 +18,12 @@
 
 GPSynth::GPSynth(unsigned psize, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype) :
 populationSize(psize),
-nextNetworkID(0), generationID(0), maxFitness(max), nodeParams(p),
+nextNetworkID(0), generationID(0), maxFitness(max),
 crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
 allNetworks(), upForEvaluation(), evaluated(), fitnesses()
 {
+    nodeParams = p;
     std::cout << "Initializing population of size " << populationSize << " with best fitness " << max << std::endl;
     printGenerationDelim();
     initPopulation();

@@ -33,7 +33,6 @@ public:
     {
         // This method is where you should put your application's initialisation code..
         StringArray args = getCommandLineParameterArray();
-        std::cout << commandLine << std::endl;
 
         String target("");
         unsigned expnum = 0;
@@ -49,62 +48,60 @@ public:
         unsigned crosstype = 0;
         std::vector<double>* values = new std::vector<double>();
 
-        std::cout << "StringArray length " << args.size() << std::endl;
-
-        for (String* i = args.begin(); i != args.end(); i++) {
-          std::cout << *i << std::endl;
+        for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
-            target = *++i;
+            target = *(++i);
           }
           else if (i->equalsIgnoreCase("--exp")) {
-            expnum = i++->getIntValue();
+            expnum = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--popsize")) {
-            popsize = i++->getIntValue();
-            std::cout << popsize << std::endl;
+            popsize = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--seed")) {
-            seed = i++->getIntValue();
+            seed = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--addchance"))  {
-            addchance = i++->getDoubleValue();
-            std::cout << addchance << std::endl;
+            addchance = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--removechance"))  {
-            subchance = i++->getDoubleValue();
+            subchance = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--mutatechance"))  {
-            mutatechance = i++->getDoubleValue();
+            mutatechance = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--crosschance"))  {
-            crosschance = i++->getDoubleValue();
+            crosschance = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--threshold"))  {
-            threshold = i++->getDoubleValue();
+            threshold = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--numgenerations"))  {
-            numGenerations = i++->getIntValue();
+            numGenerations = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--selection")) {
-            selecttype = i++->getIntValue();
+            selecttype = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--cross")) {
-            crosstype = i++->getIntValue();
+            crosstype = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--values")) {
-            String* current = i++;
-            while (!(current->startsWith(String("--"))) && i != args.end()) {
+            String* current = (++i);
+            while ( (i != args.end())  && !(current->startsWith(String("--"))) ) {
                 values->push_back(current->getDoubleValue());
-                current = i++;
+                current = ++i;
             }
           }
         }
+
         // check all value ranges here
         if (target.equalsIgnoreCase("")) {
             std::cerr << "No target specified. Exiting application." << std::endl;
             quit();
         }
+
         experiment = new GPExperiment(target, expnum, popsize, seed, addchance, subchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
+        experiment->evolve();
         juce::Thread::setCurrentThreadName("experiment");
     }
 

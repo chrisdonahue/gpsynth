@@ -19,7 +19,12 @@
 GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numGenerations, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) :
 wavFormat(new WavAudioFormat())
 {
-    std::cout << "psize from experiment " << psize << std::endl;
+    targetFrames = NULL;
+    numTargetFrames = 0;
+    specialValues = vals->data();
+    sampleRate = 44100.0;
+    loadWavFile(target);
+
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
     nodeParams->partialChance = 0.5;
@@ -59,20 +64,14 @@ wavFormat(new WavAudioFormat())
 
         flikelihoods->push_back(1);
         flikelihoods->push_back(1);
-
-        synth = new GPSynth(psize, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
     }
     
     nodeParams->availableNodes = nodes;
     nodeParams->nodeLikelihoods = nlikelihoods;
     nodeParams->availableFunctions = functions;
     nodeParams->functionLikelihoods = flikelihoods;
-    
-    sampleRate = 44100.0;
-    targetFrames = NULL;
-    numTargetFrames = 0;
-    specialValues = vals->data();
-    loadWavFile(target);
+
+    synth = new GPSynth(psize, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
 }
 
 GPExperiment::~GPExperiment() {
@@ -96,8 +95,10 @@ String GPExperiment::evolve() {
     GPNetwork* champ;
     while (minFitnessAchieved > fitnessThreshold && currentGeneration < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
+        std::cout << "Testing network " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
         float* candidateData = evaluateIndividual(candidate);
         double fitness = compareToTarget(candidateData);
+        std::cout << "Network " << candidate->ID << " was assigned a fitness of " << fitness;
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
@@ -115,6 +116,7 @@ String GPExperiment::evolve() {
 */
 
 void GPExperiment::loadWavFile(String path) {
+    // TODO: check if path exists
     File input(path);
     FileInputStream* fis = input.createInputStream();
     AudioSampleBuffer asb(1, 200);
@@ -122,6 +124,8 @@ void GPExperiment::loadWavFile(String path) {
 
     numTargetFrames = afr->lengthInSamples;
     sampleRate = afr->sampleRate;
+
+    std::cout << "Target file has " << numTargetFrames << " frames at a sample rate of " <<  sampleRate << "." << std::endl;
 
     free(targetFrames);
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
