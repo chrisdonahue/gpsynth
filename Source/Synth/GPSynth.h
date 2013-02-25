@@ -48,7 +48,6 @@ class GPSynth {
 
         // EVOLUTION CONTROL
         GPNetwork* selectFromEvaluated();
-        void printGenerationDelim();
 
         // SYNTH EVOLUTION STATE
         int populationSize;
