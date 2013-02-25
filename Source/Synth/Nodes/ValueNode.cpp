@@ -14,7 +14,10 @@ ValueNode::ValueNode(double v, int vn) {
     left = NULL;
     right = NULL;
     parent = NULL;
+
     value = v;
+    variableNum = vn - 1;
+
     isTime = false;
     isVariable = false;
     isConstant = false;
@@ -24,7 +27,7 @@ ValueNode::ValueNode(double v, int vn) {
         isTime = true;
     else
         isVariable = true;
-    variableNum = vn - 1;
+
     isBinary = false;
     isTerminal = true;
 }

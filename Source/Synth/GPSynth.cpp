@@ -78,7 +78,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
         std::cerr << "Assigned fitness for a pointer not in upForEvaluation. This shouldn't happen." << std::endl;
         return -1;
     }
-    return generationID;
+    return evaluated.size() - populationSize;
 }
 
 int GPSynth::prevGeneration() {
@@ -100,6 +100,7 @@ int GPSynth::prevGeneration() {
 
 int GPSynth::nextGeneration() {
     assert (evaluated.size() == fitnesses.size());
+    upForEvaluation.clear();
     if (evaluated.size() != populationSize) {
         std::cerr << "Attempted to advance generation before evaluating all networks in the generation." << std::endl;
     }
@@ -150,6 +151,7 @@ int GPSynth::nextGeneration() {
 
     evaluated.clear();
     fitnesses.clear();
+    rank.clear();
     generationID++;
     printGenerationDelim();
     return generationID;
