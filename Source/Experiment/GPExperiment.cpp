@@ -97,7 +97,7 @@ GPExperiment::~GPExperiment() {
     =================
 */
 
-String GPExperiment::evolve() {
+GPNetwork* GPExperiment::evolve() {
     GPNetwork* champ;
     int numMinimum = 0;
     int numEvaluated = 0;
@@ -139,8 +139,16 @@ String GPExperiment::evolve() {
 
         free(candidateData);
     }
-    if (champ != NULL)
-        return String(champ->toString().c_str());
+    std::cout << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
+
+    if (minFitnessAchieved <= fitnessThreshold) {
+        std::cout << "Evolution found a network at or below the specified fitness thershold" << std::endl;
+    }
+    std::cout << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
+    if (champ != NULL) {
+        std::cout << "The best synthesis algorithm found was " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
+    }
+    return champ;
 }
 
 /*
