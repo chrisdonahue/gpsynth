@@ -58,13 +58,13 @@ double ValueNode::evaluate(double* t, double* v) {
 std::string ValueNode::toString() {
     char buffer[10];
     if (isConstant) {
-        snprintf(buffer, 10, "%lf", value);
+        snprintf(buffer, 10, "(%lf)", value);
     }
     else if (isTime) {
-        snprintf(buffer, 10, "%s", "time");
+        snprintf(buffer, 10, "(%s)", "time");
     }
     else if (isVariable) {
-        snprintf(buffer, 10, "Variable: %d", variableNum);
+        snprintf(buffer, 10, "(v%d)", variableNum);
     }
     else {
         std::cerr << "ValueNode has no method for evaluation." << std::endl;

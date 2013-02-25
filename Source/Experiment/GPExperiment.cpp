@@ -25,7 +25,7 @@ wavFormat(new WavAudioFormat())
 
     // EXPERIMENT STATE
     minFitnessAchieved = INFINITY;
-    currentGeneration = 0;
+    numEvaluatedGenerations = 0;
 
     // TARGET DATA CONTAINERS
     sampleRate = 44100.0;
@@ -83,7 +83,6 @@ wavFormat(new WavAudioFormat())
 
 GPExperiment::~GPExperiment() {
     free(targetFrames);
-    delete wavFormat;
     delete nodeParams->rng;
     delete nodeParams->availableNodes;
     delete nodeParams->nodeLikelihoods;
@@ -101,16 +100,19 @@ GPExperiment::~GPExperiment() {
 String GPExperiment::evolve() {
     GPNetwork* champ;
     int numMinimum = 0;
-    double cumulativeGenerationFitness = 0;
+    int numEvaluated = 0;
+    double generationCumulativeFitness = 0;
+    double generationAverageFitness = 0;
     double generationMinimumFitness = INFINITY;
 
-    while (minFitnessAchieved > fitnessThreshold && currentGeneration < numGenerations) {
+    while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
         std::cout << "Testing network " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
 
         float* candidateData = evaluateIndividual(candidate);
         double fitness = compareToTarget(candidateData);
-        cumulativeGenerationFitness += fitness;
+        generationCumulativeFitness += fitness;
+        numEvaluated++;
 
         if (fitness < generationMinimumFitness) {
             generationMinimumFitness = fitness;
@@ -126,13 +128,13 @@ String GPExperiment::evolve() {
 
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
 
-        // TODO: test this and change currentGeneration name to numEvaluatedGenerations
         if (numUnevaluatedThisGeneration == 0) {
-            generationAverageFitness = cumulativeGenerationFitness / populationSize;
-            cumuluativeGenerationFitness = 0;
-            std::cout << "Generation " << currentGeneration << " had an average fitness of " << generationAverageFitness << " and a minimum of " << generationMinimumFitness << "." << std::endl;
+            double generationAverageFitness = generationCumulativeFitness / numEvaluated;
+            std::cout << "Generation " << numEvaluatedGenerations << " had an average fitness of " << generationAverageFitness << " and a minimum of " << generationMinimumFitness << std::endl;
+            numEvaluated = 0;
+            generationCumulativeFitness = 0;
             generationMinimumFitness = INFINITY;
-            currentGeneration++;
+            numEvaluatedGenerations++;
         }
 
         free(candidateData);
@@ -157,7 +159,7 @@ void GPExperiment::loadWavFile(String path) {
     numTargetFrames = afr->lengthInSamples;
     sampleRate = afr->sampleRate;
 
-    std::cout << "Target file has " << numTargetFrames << " frames at a sample rate of " <<  sampleRate << "." << std::endl;
+    std::cout << "Target file has " << numTargetFrames << " frames at a sample rate of " <<  sampleRate << std::endl;
 
     free(targetFrames);
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);

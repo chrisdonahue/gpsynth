@@ -30,7 +30,7 @@ class GPExperiment {
 
         // EXPERIMENT STATE
         float minFitnessAchieved;
-        int currentGeneration;
+        int numEvaluatedGenerations;
 
         // TARGET DATA CONTAINERS
         double sampleRate;
