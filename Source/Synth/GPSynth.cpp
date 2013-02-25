@@ -24,8 +24,7 @@ nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatech
 allNetworks(), upForEvaluation(), evaluated(), fitnesses()
 {
     nodeParams = p;
-    std::cout << "Initializing population of size " << populationSize << " with best fitness " << max << std::endl;
-    printGenerationDelim();
+    std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << max << std::endl;
     currentIndividualNumber = 0;
     initPopulation();
 }
@@ -68,14 +67,14 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
             evaluated.push_back(net);
             fitnesses.push_back(fitness);
             upForEvaluation.at(i) = NULL;
-            std::cout << "Network " << net->ID << " was assigned fitness " << fitness << std::endl;
+            std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
             currentIndividualNumber++;
             badPointer = false;
             break;
         }
     }
     if (badPointer) {
-        std::cerr << "Assigned fitness for a pointer not in upForEvaluation. This shouldn't happen." << std::endl;
+        std::cerr << "Assigned fitness for a pointer not in upForEvaluation. This shouldn't happen" << std::endl;
         return -1;
     }
     return evaluated.size() - populationSize;
@@ -102,7 +101,7 @@ int GPSynth::nextGeneration() {
     assert (evaluated.size() == fitnesses.size());
     upForEvaluation.clear();
     if (evaluated.size() != populationSize) {
-        std::cerr << "Attempted to advance generation before evaluating all networks in the generation." << std::endl;
+        std::cerr << "Attempted to advance generation before evaluating all algorithms in the generation" << std::endl;
     }
     for (std::vector<double>::iterator i = fitnesses.begin(); i != fitnesses.end(); i++) {
         if (*i < 0) {
@@ -153,18 +152,16 @@ int GPSynth::nextGeneration() {
     fitnesses.clear();
     rank.clear();
     generationID++;
-    printGenerationDelim();
     return generationID;
-}
-
-void GPSynth::printGenerationDelim() {
-    std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
 }
 
 GPNetwork* GPSynth::getIndividual() {
     if (currentIndividualNumber == populationSize) {
         currentIndividualNumber = 0;
         nextGeneration();
+    }
+    if (currentIndividualNumber == 0) {
+        std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
     }
     return upForEvaluation[currentIndividualNumber];
 }

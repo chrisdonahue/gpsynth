@@ -107,7 +107,7 @@ GPNetwork* GPExperiment::evolve() {
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
-        std::cout << "Testing network " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
+        std::cout << "Testing algorithm " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
 
         float* candidateData = evaluateIndividual(candidate);
         double fitness = compareToTarget(candidateData);
@@ -130,7 +130,7 @@ GPNetwork* GPExperiment::evolve() {
 
         if (numUnevaluatedThisGeneration == 0) {
             double generationAverageFitness = generationCumulativeFitness / numEvaluated;
-            std::cout << "Generation " << numEvaluatedGenerations << " had an average fitness of " << generationAverageFitness << " and a minimum of " << generationMinimumFitness << std::endl;
+            std::cout << "Generation " << numEvaluatedGenerations << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationMinimumFitness << std::endl;
             numEvaluated = 0;
             generationCumulativeFitness = 0;
             generationMinimumFitness = INFINITY;
@@ -142,7 +142,7 @@ GPNetwork* GPExperiment::evolve() {
     std::cout << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
 
     if (minFitnessAchieved <= fitnessThreshold) {
-        std::cout << "Evolution found a network at or below the specified fitness thershold" << std::endl;
+        std::cout << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
     std::cout << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
     if (champ != NULL) {
