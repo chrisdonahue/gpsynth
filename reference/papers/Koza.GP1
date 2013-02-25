@@ -1,0 +1,14 @@
+Overview of GP:
+	GP provides a method to search for a fittest individual computer program
+	Typically the program will be evaluated over a number of different fitness cases so that its fitness is measured as a sum or an average over a variety of different representative situations
+	The programs in generation 0 will have exceedingly poor fitness
+	Garcia's approach was not "GP" by definition. As GP
+Detailed description of GP:
+	GP-protected functions:
+		One can use boolean operators to evolve even more complex computer programs.
+		Operations must be closed on all possible values. Division by zero is suggested to return 1 which I don't necessarily agree with. It could also return undefined and all other operations could handle the symbolic value undefined
+		sqrt suggested as sqrt(abs)
+		rlog suggested as sqrt(log)
+		Boolean operators can be redefined so that numerical-valued logic can be used
+	Universality of selecting primitive functions and terminals:
+		Primitive functions and terminals must include those necessary to solve the problem
