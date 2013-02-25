@@ -102,7 +102,7 @@ public:
 
         juce::Thread::setCurrentThreadName("experiment");
         experiment = new GPExperiment(target, expnum, popsize, seed, addchance, subchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
-        experiment->evolve();
+        GPNetwork* champion = experiment->evolve();
         shutdown();
         quit();
     }

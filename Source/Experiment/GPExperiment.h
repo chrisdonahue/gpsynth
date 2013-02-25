@@ -21,7 +21,7 @@ class GPExperiment {
         ~GPExperiment();
 
         // EVOLUTION CONTROL
-        String evolve();
+        GPNetwork* evolve();
 
     private:
         // EXPERIMENT PARAMETERS
