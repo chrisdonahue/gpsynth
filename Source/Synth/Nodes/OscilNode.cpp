@@ -42,7 +42,7 @@ double OscilNode::evaluate(double* t, double* v) {
 
 std::string OscilNode::toString() {
     char buffer[30];
-    snprintf(buffer, 30, "(SIN WAVE PARTIAL: %d)", partial);
+    snprintf(buffer, 30, "(sin p%d v%d)", partial, variableNum);
     return std::string(buffer);
 }
 

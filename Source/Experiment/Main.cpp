@@ -100,9 +100,11 @@ public:
             quit();
         }
 
+        juce::Thread::setCurrentThreadName("experiment");
         experiment = new GPExperiment(target, expnum, popsize, seed, addchance, subchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
         experiment->evolve();
-        juce::Thread::setCurrentThreadName("experiment");
+        shutdown();
+        quit();
     }
 
     void shutdown()

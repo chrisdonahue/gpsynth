@@ -68,7 +68,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
             evaluated.push_back(net);
             fitnesses.push_back(fitness);
             upForEvaluation.at(i) = NULL;
-            std::cout << "Network " << net->ID << " was assigned fitness " << fitness << "." << std::endl;
+            std::cout << "Network " << net->ID << " was assigned fitness " << fitness << std::endl;
             currentIndividualNumber++;
             badPointer = false;
             break;
@@ -158,7 +158,7 @@ int GPSynth::nextGeneration() {
 }
 
 void GPSynth::printGenerationDelim() {
-    std::cout << "--------------- START OF GENERATION " << generationID << " ---------------" << std::endl;
+    std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
 }
 
 GPNetwork* GPSynth::getIndividual() {
