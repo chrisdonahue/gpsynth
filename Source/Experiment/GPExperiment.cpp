@@ -101,11 +101,21 @@ GPExperiment::~GPExperiment() {
 String GPExperiment::evolve() {
     GPNetwork* champ;
     int numMinimum = 0;
+    double cumulativeGenerationFitness = 0;
+    double generationMinimumFitness = INFINITY;
+
     while (minFitnessAchieved > fitnessThreshold && currentGeneration < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
         std::cout << "Testing network " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
+
         float* candidateData = evaluateIndividual(candidate);
         double fitness = compareToTarget(candidateData);
+        cumulativeGenerationFitness += fitness;
+
+        if (fitness < generationMinimumFitness) {
+            generationMinimumFitness = fitness;
+        }
+
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
@@ -113,7 +123,18 @@ String GPExperiment::evolve() {
             snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
             //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
         }
-        currentGeneration = synth->assignFitness(candidate, fitness);
+
+        int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
+
+        // TODO: test this and change currentGeneration name to numEvaluatedGenerations
+        if (numUnevaluatedThisGeneration == 0) {
+            generationAverageFitness = cumulativeGenerationFitness / populationSize;
+            cumuluativeGenerationFitness = 0;
+            std::cout << "Generation " << currentGeneration << " had an average fitness of " << generationAverageFitness << " and a minimum of " << generationMinimumFitness << "." << std::endl;
+            generationMinimumFitness = INFINITY;
+            currentGeneration++;
+        }
+
         free(candidateData);
     }
     if (champ != NULL)
