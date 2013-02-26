@@ -21,7 +21,7 @@ class GPRandom {
         void normalizeDistribution(std::vector<double>* weights);
         int sampleFromDistribution(std::vector<double>* weights);
         double random();
-        int random(int max);
+        int randomInteger(int max);
 
     private:
         unsigned seed;

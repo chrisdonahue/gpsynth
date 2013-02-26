@@ -25,7 +25,7 @@
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p);
+        GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned reproduceselecttype, unsigned crossselecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p);
         ~GPSynth();
 
         // EVOLUTION CONTROL
@@ -79,7 +79,7 @@ class GPSynth {
 
         // AVAILABLE CONTAINERS
         std::vector<GPNode*>* availableNodes;
-        std::vector<GPNode*> avaibleFunctions;
+        std::vector<GPNode*> availableFunctions;
         std::vector<GPNode*> availableTerminals;
 
         // NETWORK CONTAINERS
