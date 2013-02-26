@@ -20,16 +20,18 @@ GPSynth::GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, un
 nextNetworkID(0), generationID(0), currentIndividualNumber(0),
 populationSize(psize), lowerFitnessIsBetter(lowerbetter), bestPossibleFitness(best), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), reproductionSelectionType(reproduceselecttype), crossoverSelectionType(crossselecttype), crossoverProportion(crosspercent),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance),
-availableNodes(nodes), availableFunctions(), availableTerminals(),
+availableNodes(nodes),
 allNetworks(), upForEvaluation(), evaluated(),
 rawFitnesses(), normalizedFitnesses()
 {
+    availableFunctions = new std::vector<GPNode*>();
+    availableTerminals = new std::vector<GPNode*>();
     for (int i = 0; i < nodes->size(); i++) {
         if (nodes->at(i)->isTerminal) {
-            availableTerminals.push_back(nodes->at(i));
+            availableTerminals->push_back(nodes->at(i));
         }
         else {
-            availableFunctions.push_back(nodes->at(i));
+            availableFunctions->push_back(nodes->at(i));
         }
     }
     nodeParams = p;
@@ -39,16 +41,22 @@ rawFitnesses(), normalizedFitnesses()
 }
 
 GPSynth::~GPSynth() {
+    for (int i = 0; i < allNetworks.size(); i++) {
+        delete allNetworks[i];
+    }
+    delete availableNodes;
+    delete availableFunctions;
+    delete availableTerminals;
 }
 
 GPNode* GPSynth::fullRecursive(unsigned cd, GPNode* p, unsigned d) {
     if (cd == d) {
-        GPNode* term = availableTerminals[rng->random(availableTerminals.size())]->getCopy();
+        GPNode* term = availableTerminals->at(rng->random(availableTerminals->size()))->getCopy();
         term->parent = p;
         return term;
     }
     else {
-        GPNode* ret = availableFunctions[rng->random(availableFunctions.size())]->getCopy();
+        GPNode* ret = availableFunctions->at(rng->random(availableFunctions->size()))->getCopy();
         ret->parent = p;
         ret->left = fullRecursive(cd + 1, ret, d);
         if (ret->isBinary) {
@@ -65,14 +73,14 @@ GPNetwork* GPSynth::full(unsigned d) {
 // TODO: fix this so it doesnt fill the trees....
 GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
     if (cd == m) {
-        GPNode* term = availableTerminals[rng->random(availableTerminals.size())]->getCopy();
+        GPNode* term = availableTerminals->at(rng->random(availableTerminals->size()))->getCopy();
         term->parent = p;
         return term;
     }
     else {
         GPNode* ret;
         if (cd == 0) {
-            ret = availableFunctions[rng->random(availableFunctions.size())]->getCopy();
+            ret = availableFunctions->at(rng->random(availableFunctions->size()))->getCopy();
         }
         else {
             ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
@@ -116,7 +124,7 @@ void GPSynth::initPopulation() {
     for (int j = 0; j < additionalGrow; j++) {
         addNetworkToPopulation(grow(maxInitialDepth));
     }
-    assert(allNetworks.size() == populationSize);
+    assert(upForEvaluation.size() == populationSize);
 }
 
 /*
@@ -137,14 +145,14 @@ GPNetwork* GPSynth::getIndividual() {
         std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
     }
 
-    // complicated logic to deal with reproduced networks and ones that need evaluation
+    // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = upForEvaluation[currentIndividualNumber];
-    while (ret->fitness != NAN && currentIndividualNumber < populationSize - 1) {
-        std::cout << "Algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << " was reproduced from last generation with a fitness of " << ret->fitness << std::endl;
-        ret = upForEvaluation[++currentIndividualNumber];
-    }
     if (ret->fitness != NAN) {
         std::cout << "Algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << " was reproduced from last generation with a fitness of " << ret->fitness << std::endl;
+        evaluated.push_back(ret);
+        rawFitnesses.push_back(ret->fitness);
+        upForEvaluation.at(currentIndividualNumber) = NULL;
+        currentIndividualNumber++;
         return getIndividual();
     }
     else {
@@ -181,11 +189,9 @@ int GPSynth::prevGeneration() {
     clearGenerationState();
     upForEvaluation.clear();
     currentIndividualNumber = 0;
-    // TODO: fix this for assigned fitnesses and NAN and whatnot
-    for (int i = 0; i < populationSize; i++) {
-        upForEvaluation.push_back(allNetworks.back());
-        allNetworks.erase(allNetworks.end() - 1);
-    }
+    /*
+        // TODO: implement this, requires GPNetwork(std::string)
+    */
     generationID--;
     return generationID;
 }
@@ -219,15 +225,13 @@ int GPSynth::nextGeneration() {
     assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize);
     upForEvaluation.clear();
 
-    for (int i = 0; i < evaluated.size(); i++) {
-        evaluated[i]->isAlive = false;
-    }
-
     unsigned numToReproduce = (unsigned) ((1 - crossoverProportion) * populationSize);
 
     for (int i = 0; i < numToReproduce; i++) {
-      GPNetwork* one = selectFromEvaluated(reproductionSelectionType);
-      one->isAlive = true;
+      GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
+      double oldFitness = selected->fitness;
+      GPNetwork* one = selected->getCopy();
+      one->fitness = oldFitness;
       addNetworkToPopulation(one);
     }
     while(upForEvaluation.size() < populationSize) {
@@ -278,11 +282,8 @@ int GPSynth::nextGeneration() {
 */
 
 void GPSynth::addNetworkToPopulation(GPNetwork* net, bool retrace) {
-    if (net->isAlive == false) {
-        net->ID = nextNetworkID++;
-        net->isAlive = true;
-    }
-    allNetworks.push_back(net);
+    net->ID = nextNetworkID++;
+    allNetworks.push_back(new std::string(net->toString()));
     upForEvaluation.push_back(net);
     if (retrace)
         net->traceNetwork();
@@ -292,6 +293,9 @@ void GPSynth::clearGenerationState() {
   rawFitnesses.clear();
   normalizedFitnesses.clear();
   rank.clear();
+  for (int i = 0; i < evaluated.size(); i++) {
+    delete evaluated[i];
+  }
   evaluated.clear();
 }
 

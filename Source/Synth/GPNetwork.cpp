@@ -21,7 +21,6 @@ allNodes()
 {
     ID = -1;
     fitness = NAN;
-    isAlive = false;
     depth = -1;
     asText = "";
     root = r;
@@ -67,6 +66,10 @@ GPNode* GPNetwork::getRoot() {
     return root;
 }
 
+bool GPNetwork::equals(GPNetwork* other) {
+    return false;
+}
+
 /*
     ========
     MUTATION
@@ -94,11 +97,11 @@ void GPNetwork::traceNetwork() {
 */
 void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
     // handle root case
-    if (old == root)
+    if (old == root) {
         root = nu;
-    
-    // replace parent-child links
-    if (old->parent != NULL) {
+    }
+    else {
+        // replace parent-child links
         if (old->parent->left == old)
             old->parent->left = nu;
         else if (old->parent->right == old)

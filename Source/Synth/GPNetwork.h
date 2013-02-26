@@ -26,6 +26,7 @@ class GPNetwork {
         int getDepth();
         std::string toString();
         GPNode* getRoot();
+        bool equals(GPNetwork* other);
 
         // MUTATION
         GPNode* getRandomNetworkNode(GPRandom* r);
@@ -37,7 +38,6 @@ class GPNetwork {
         // PUBLIC STATE
         int ID;
         double fitness;
-        bool isAlive;
 
     private:
         // PRIVATE STATE

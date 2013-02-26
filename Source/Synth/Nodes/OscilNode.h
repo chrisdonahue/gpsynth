@@ -22,6 +22,7 @@ class OscilNode: public GPNode {
 
         double evaluate(double* t, double* v);
         std::string toString();
+        bool equals(GPNode* other);
         void mutate(GPNodeParams* e);
 
     private:

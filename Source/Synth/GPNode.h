@@ -30,6 +30,7 @@ class GPNode {
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
         virtual void mutate(GPNodeParams* e) = 0;
+        virtual bool equals(GPNode* other) = 0;
 
         // HERITAGE POINTERS
         GPNode* parent;
@@ -40,7 +41,7 @@ class GPNode {
         bool isBinary;
         bool isTerminal;
 
-        // INHERITED TRACE METHOD FOR RESTORING PARENT LINKS
+        // INHERITED TRACE METHOD
         void traceLineage(std::vector<GPNode*>* allnodes) {
             allnodes->push_back(this);
             if (left != NULL) {
@@ -53,7 +54,7 @@ class GPNode {
             }
         };
 
-        // INHERITED HEIGHT METHOD FOR EXAMINATION
+        // INHERITED HEIGHT METHOD
         int getHeight(int depth) {
             if (isTerminal) {
                 return depth;
@@ -86,12 +87,11 @@ struct GPNodeParams {
     int LFORange;
 
     // MULTIPLE
+    GPRandom* rng;
     int numVariables;
 
-    GPRandom* rng;
-
-    std::vector<GPNode*>* availableNodes;
-    std::vector<GPFunction*>* availableFunctions;
+    // FUNCTION NODE
+    std::vector<GPFunction*>* availableGPFunctions;
 };
 
 #endif

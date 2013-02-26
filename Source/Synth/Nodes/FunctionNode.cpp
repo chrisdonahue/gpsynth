@@ -80,6 +80,10 @@ std::string FunctionNode::toString() {
     return std::string(buffer);
 }
 
+bool FunctionNode::equals(GPNode* other) {
+    return false;
+}
+
 void FunctionNode::mutate(GPNodeParams* p) {
     return;
 }
