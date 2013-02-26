@@ -74,7 +74,7 @@ public:
             }
           }
           else if (i->equalsIgnoreCase("--popsize")) {
-            popsize = (++i)->getIntValue();
+            psize = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--mid")) {
             mid = (++i)->getIntValue();
