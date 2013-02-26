@@ -42,5 +42,7 @@ double GPRandom::random() {
 }
 
 int GPRandom::random(int max) {
-    return (int) (random() * max)
+    if (max < 0)
+        return -1;
+    return (int) (random() * max);
 }

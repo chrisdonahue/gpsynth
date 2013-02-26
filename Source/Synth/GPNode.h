@@ -66,7 +66,7 @@ class GPNode {
             if (right != NULL) {
                 rightheight = right->getHeight(depth + 1);
             }
-            return max(leftheight, rightheight);
+            return std::max(leftheight, rightheight);
         }
 };
 

@@ -41,7 +41,7 @@ class GPSynth {
         GPNode* fullRecursive(unsigned cd, GPNode* p, unsigned d);
         GPNetwork* full(unsigned d);
         GPNode* growRecursive(unsigned cd, GPNode* p, unsigned m);
-        GPNetworK* grow(unsigned m);
+        GPNetwork* grow(unsigned m);
         void initPopulation();
 
         // EVOLUTION CONTROL
