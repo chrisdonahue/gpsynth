@@ -51,7 +51,7 @@ GPSynth::~GPSynth() {
 
 GPNode* GPSynth::fullRecursive(unsigned cd, GPNode* p, unsigned d) {
     if (cd == d) {
-        GPNode* term = availableTerminals[rng->randomInteger(availableTerminals.size)]->getCopy();
+        GPNode* term = availableTerminals[rng->random(availableTerminals.size())]->getCopy();
         term->parent = p;
         return term;
     }
@@ -72,12 +72,12 @@ GPNetwork* GPSynth::full(unsigned d) {
 
 GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
     if (cd == m) {
-        GPNode* term = availableTerminals[rng->randomInteger(availableTerminals.size)]->getCopy();
+        GPNode* term = availableTerminals[rng->random(availableTerminals.size())]->getCopy();
         term->parent = p;
         return term;
     }
     else {
-        GPNode* ret = availableNodes->at(rng->randomInteger(availableNodes->size()))->getCopy();
+        GPNode* ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
         ret->parent = p;
         if (ret->isTerminal) {
             return ret;
@@ -353,8 +353,8 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
-        GPNode* subtreeone = one->getRandomNetworkNode(nodeParams);
-        GPNode* subtreetwo = two->getRandomNetworkNode(nodeParams);
+        GPNode* subtreeone = one->getRandomNetworkNode(nodeParams->rng);
+        GPNode* subtreetwo = two->getRandomNetworkNode(nodeParams->rng);
         one->replaceSubtree(subtreeone, subtreetwo);
         two->replaceSubtree(subtreetwo, subtreeone);
 
