@@ -28,7 +28,7 @@ class GPNetwork {
         GPNode* getRoot();
 
         // MUTATION
-        GPNode* getRandomNetworkNode(GPNodeParams* p);
+        GPNode* getRandomNetworkNode(GPRandom* r);
         void mutate(GPNodeParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
         void swap(GPNode* one, GPNode* two);

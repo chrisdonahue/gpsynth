@@ -31,7 +31,7 @@ GPNetwork::~GPNetwork() {
 }
 
 GPNetwork* GPNetwork::getCopy() {
-  GPNetwork* copy = net GPNetwork(root->getCopy());
+  GPNetwork* copy = new GPNetwork(root->getCopy());
   copy->fitness = fitness;
   copy->asText = asText;
     return copy;
@@ -72,11 +72,11 @@ GPNode* GPNetwork::getRoot() {
 */
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
-    return allNodes[(int) (r->random() * allNodes.size())];
+    return allNodes[r->random(allNodes.size())];
 }
 
 void GPNetwork::mutate(GPNodeParams* p) {
-    getRandomNetworkNode(p)->mutate(p);
+    getRandomNetworkNode(p->rng)->mutate(p);
 }
 
 void GPNetwork::traceNetwork() {
