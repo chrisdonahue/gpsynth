@@ -16,9 +16,9 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p) :
+GPSynth::GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned reproduceselecttype, unsigned crossselecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p) :
 nextNetworkID(0), generationID(0), currentIndividualNumber(0),
-populationSize(psize), lowerFitnessIsBetter(lowerbetter), bestPossibleFitness(best), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype), crossoverProportion(crosspercent),
+populationSize(psize), lowerFitnessIsBetter(lowerbetter), bestPossibleFitness(best), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), reproductionSelectionType(reproduceselecttype), crossoverSelectionType(crossselecttype), crossoverProportion(crosspercent),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance),
 availableNodes(nodes), availableFunctions(), availableTerminals(),
 allNetworks(), upForEvaluation(), evaluated(),
@@ -34,7 +34,7 @@ rawFitnesses(), normalizedFitnesses()
     }
     nodeParams = p;
     rng = nodeParams->rng;
-    std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << max << std::endl;
+    std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
     initPopulation();
 }
 
@@ -51,7 +51,7 @@ GPSynth::~GPSynth() {
 
 GPNode* GPSynth::fullRecursive(unsigned cd, GPNode* p, unsigned d) {
     if (cd == d) {
-        GPNode* term = availableTerminals[rng->random(availableTerminals.size)]->getCopy();
+        GPNode* term = availableTerminals[rng->randomInteger(availableTerminals.size)]->getCopy();
         term->parent = p;
         return term;
     }
@@ -72,12 +72,12 @@ GPNetwork* GPSynth::full(unsigned d) {
 
 GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
     if (cd == m) {
-        GPNode* term = availableTerminals[rng->random(availableTerminals.size)]->getCopy();
+        GPNode* term = availableTerminals[rng->randomInteger(availableTerminals.size)]->getCopy();
         term->parent = p;
         return term;
     }
     else {
-        GPNode* ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
+        GPNode* ret = availableNodes->at(rng->randomInteger(availableNodes->size()))->getCopy();
         ret->parent = p;
         if (ret->isTerminal) {
             return ret;
@@ -204,7 +204,7 @@ int GPSynth::nextGeneration() {
     double generationAverageFitness = generationCumulativeFitness / populationSize;
     std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationBestFitness << " with structure " << champ->toString() << std::endl;
 
-    unsigned numToReproduce = (unsigned) ((1 - crossoverReproduce) * populationSize);
+    unsigned numToReproduce = (unsigned) ((1 - crossoverProportion) * populationSize);
 
     for (int i = 0; i < numToReproduce; i++) {
       GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
@@ -214,7 +214,7 @@ int GPSynth::nextGeneration() {
       }
       addNetworkToPopulation(one);
     }
-    while(unevaluated.size() < populationSize) {
+    while(upForEvaluation.size() < populationSize) {
       GPNetwork* dad = selectFromEvaluated(reproductionSelectionType);
       GPNetwork* mom = selectFromEvaluated(reproductionSelectionType);
       GPNetwork* one = dad->getCopy();
@@ -236,7 +236,7 @@ int GPSynth::nextGeneration() {
           one = dad->getCopy();
         }
         addNetworkToPopulation(one);
-        if (unevaluated.size() < populationSize) {
+        if (upForEvaluation.size() < populationSize) {
           if (two->getDepth() > maxDepth) {
             delete two;
             two = mom->getCopy();
@@ -285,7 +285,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
         else {
             standardizedFitnesses = new std::vector<double>();
             for (int i = 0; i < rawFitnesses.size(); i++) {
-                standardizedFitnesses.push_back(bestPossibleFitness - rawFitnesses[i]);
+                standardizedFitnesses->push_back(bestPossibleFitness - rawFitnesses[i]);
             }
         }
 
@@ -295,15 +295,15 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
         std::vector<double>* adjustedFitnesses = new std::vector<double>();
         double sum = 0;
         double si = 0;
-        for (int i = 0; i < standardizedFitnesses.size(); i++) {
-            si = 1/(1+standardizedFitnesses[i]);
+        for (int i = 0; i < standardizedFitnesses->size(); i++) {
+            si = 1/(1 + standardizedFitnesses->at(i));
             sum += si;
-            adjustedFitnesses.push_back(si);
+            adjustedFitnesses->push_back(si);
         }
 
         // NORMALIZE FITNESS
-        for (int i = 0; i < standardizedFitnesses.size(); i++) {
-            normalizedFitnesses.push_back(standardizedFitnesses[i]/sum);
+        for (int i = 0; i < standardizedFitnesses->size(); i++) {
+            normalizedFitnesses.push_back((standardizedFitnesses->at(i))/sum);
         }
 
         // DELETE INTERMEDIATE DATA
@@ -315,7 +315,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 
     if (selectionType == 0) {
         // fitness proportionate selection (lower better)
-        return evaluated[nodeParams->rng->sampleFromDistribution(normalizedFitnesses)];
+        return evaluated[nodeParams->rng->sampleFromDistribution(&normalizedFitnesses)];
     }
     else if (selectionType == 1) {
         // ranking linear selection
@@ -353,8 +353,8 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
-        GPNode* subtreeone = one->getRandomNetworkNode();
-        GPNode* subtreetwo = two->getRandomNetworkNode();
+        GPNode* subtreeone = one->getRandomNetworkNode(nodeParams);
+        GPNode* subtreetwo = two->getRandomNetworkNode(nodeParams);
         one->replaceSubtree(subtreeone, subtreetwo);
         two->replaceSubtree(subtreetwo, subtreeone);
 
@@ -369,7 +369,7 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     else if (crossoverType == 3) {
         // AM crossover
         GPNode* newroot = new FunctionNode(multiply, "*", one->getRoot(), two->getRoot());
-        GPNetwork* newnet = new GPNetwork(-1, newroot);
+        GPNetwork* newnet = new GPNetwork(newroot);
         return newnet;
     }
     // experimental array crossover

@@ -16,7 +16,7 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, unsigned s, unsigned expnum, double threshold, unsigned numgens, std::vector<double>* vals, unsigned psize, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance) :
+GPExperiment::GPExperiment(String target, unsigned s, unsigned expnum, double threshold, unsigned numgens, std::vector<double>* vals, unsigned psize, unsigned mid, unsigned md, unsigned crosstype, unsigned rselect, unsigned cselect, double crosspercent, double addchance, double subchance, double mutatechance) :
 wavFormat(new WavAudioFormat())
 {
     // EXPERIMENT PARAMETERS
@@ -66,7 +66,7 @@ wavFormat(new WavAudioFormat())
     nodeParams->availableNodes = nodes;
     nodeParams->availableFunctions = functions;
 
-    synth = new GPSynth(psize, lowerFitnessIsBetter, bestPossibleFitness, mid, md, crosstype, selecttype, crosspercent, addchance, subchance, mutatechance, nodes, nodeParams);
+    synth = new GPSynth(psize, lowerFitnessIsBetter, bestPossibleFitness, mid, md, crosstype, rselect, cselect, crosspercent, addchance, subchance, mutatechance, nodes, nodeParams);
 }
 
 GPExperiment::~GPExperiment() {

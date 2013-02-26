@@ -44,7 +44,8 @@ public:
         unsigned mid = 10;
         unsigned md = 20;
         unsigned crosstype = 0;
-        unsigned selecttype = 0;
+        unsigned rselect = 0;
+        unsigned cselect = 0;
         double crosspercent = 0.5;
         double addchance = 0.5;
         double subchance = 0.5;
@@ -82,11 +83,17 @@ public:
           else if (i->equalsIgnoreCase("--md")) {
             md = (++i)->getIntValue();
           }
+          else if (i->equalsIgnoreCase("--ctype")) {
+            crosstype = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--rselect")) {
+            rselect = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--cselect")) {
+            cselect = (++i)->getIntValue();
+          }
           else if (i->equalsIgnoreCase("--crosspercent")) {
             crosspercent = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--selection")) {
-            selecttype = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--addchance"))  {
             addchance = (++i)->getDoubleValue();
@@ -106,7 +113,7 @@ public:
         }
 
         juce::Thread::setCurrentThreadName("experiment");
-        experiment = new GPExperiment(target, s, expnum, threshold, numgens, vals, psize, mid, md, crosstype, selecttype, crosspercent, addchance, subchance, mutatechance);
+        experiment = new GPExperiment(target, s, expnum, threshold, numgens, vals, psize, mid, md, crosstype, rselect, cselect, crosspercent, addchance, subchance, mutatechance);
         GPNetwork* champion = experiment->evolve();
         shutdown();
         quit();

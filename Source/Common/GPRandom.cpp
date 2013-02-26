@@ -41,7 +41,7 @@ double GPRandom::random() {
     return uni_real(engine);
 }
 
-int GPRandom::random(int max) {
+int GPRandom::randomInteger(int max) {
     if (max < 0)
         return -1;
     return (int) (random() * max);
