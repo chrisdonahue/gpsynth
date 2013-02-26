@@ -74,9 +74,7 @@ struct GPNodeParams {
     GPRandom* rng;
 
     std::vector<GPNode*>* availableNodes;
-    std::vector<double>* nodeLikelihoods;
     std::vector<GPFunction*>* availableFunctions;
-    std::vector<double>* functionLikelihoods;
 };
 
 #endif

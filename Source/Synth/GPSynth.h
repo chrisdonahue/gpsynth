@@ -25,7 +25,7 @@
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype);
+  GPSynth(unsigned psize, double best, bool lowerbetter, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosspercent, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype);
         ~GPSynth();
 
         // EVOLUTION CONTROL
@@ -45,9 +45,10 @@ class GPSynth {
         GPNetwork* full(unsigned d);
         GPNetworK* grow(unsigned m);
         void initPopulation();
-        GPNode* getRandomNode();
 
-        // EVOLUTION CONTROL
+        // PRIVATE HELPERS
+        GPNode* getRandomNode();
+        void addNetworkToPopulation(GPNetwork* net);
         GPNetwork* selectFromEvaluated();
 
         // SYNTH EVOLUTION STATE
@@ -72,7 +73,7 @@ class GPSynth {
         double nodeAddChance;
         double nodeRemoveChance;
         double nodeMutateChance;
-        double crossoverChance;
+        double crossoverProportion;
 
         // NETWORK CONTAINERS
         std::vector<GPNetwork*> allNetworks;
