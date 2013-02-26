@@ -35,31 +35,58 @@ public:
         StringArray args = getCommandLineParameterArray();
 
         String target("");
+        unsigned s = time(NULL);
         unsigned expnum = 0;
-        unsigned popsize = 50;
-        unsigned seed = time(NULL);
+        double threshold = 1.0;
+        unsigned numgens = 50;
+        std::vector<double>* vals = new std::vector<double>();
+        unsigned psize = 500;
+        unsigned mid = 10;
+        unsigned md = 20;
+        unsigned crosstype = 0;
+        unsigned selecttype = 0;
+        double crosspercent = 0.5;
         double addchance = 0.5;
         double subchance = 0.5;
         double mutatechance = 0.5;
-        double crosschance = 0.5;
-        double threshold = 1.0;
-        unsigned numGenerations = 50;
-        unsigned selecttype = 0;
-        unsigned crosstype = 0;
-        std::vector<double>* values = new std::vector<double>();
 
         for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
             target = *(++i);
           }
+          else if (i->equalsIgnoreCase("--seed")) {
+            s = (++i)->getIntValue();
+          }
           else if (i->equalsIgnoreCase("--exp")) {
             expnum = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--threshold"))  {
+            threshold = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--numgenerations"))  {
+            numgens = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--values")) {
+            String* current = (++i);
+            while ( (i != args.end())  && !(current->startsWith(String("--"))) ) {
+                vals->push_back(current->getDoubleValue());
+                current = ++i;
+            }
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             popsize = (++i)->getIntValue();
           }
-          else if (i->equalsIgnoreCase("--seed")) {
-            seed = (++i)->getIntValue();
+          else if (i->equalsIgnoreCase("--mid")) {
+            mid = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--md")) {
+            md = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--crosspercent")) {
+            crosspercent = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--selection")) {
+            selecttype = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--addchance"))  {
             addchance = (++i)->getDoubleValue();
@@ -70,28 +97,6 @@ public:
           else if (i->equalsIgnoreCase("--mutatechance"))  {
             mutatechance = (++i)->getDoubleValue();
           }
-          else if (i->equalsIgnoreCase("--crosschance"))  {
-            crosschance = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--threshold"))  {
-            threshold = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--numgenerations"))  {
-            numGenerations = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--selection")) {
-            selecttype = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--cross")) {
-            crosstype = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--values")) {
-            String* current = (++i);
-            while ( (i != args.end())  && !(current->startsWith(String("--"))) ) {
-                values->push_back(current->getDoubleValue());
-                current = ++i;
-            }
-          }
         }
 
         // check all value ranges here
@@ -101,7 +106,7 @@ public:
         }
 
         juce::Thread::setCurrentThreadName("experiment");
-        experiment = new GPExperiment(target, expnum, popsize, seed, addchance, subchance, mutatechance, crosschance, threshold, numGenerations, selecttype, crosstype, values);
+        experiment = new GPExperiment(target, s, expnum, threshold, numgens, vals, psize, mid, md, crosstype, selecttype, crosspercent, addchance, subchance, mutatechance);
         GPNetwork* champion = experiment->evolve();
         shutdown();
         quit();

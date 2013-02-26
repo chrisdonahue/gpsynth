@@ -16,9 +16,9 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, double best, bool lowerbetter, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p) :
+GPSynth::GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p) :
 nextNetworkID(0), generationID(0), currentIndividualNumber(0),
-populationSize(psize), bestPossibleFitness(best), lowerFitnessIsBetter(lowerbetter), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype), crossoverProportion(crosspercent),
+populationSize(psize), lowerFitnessIsBetter(lowerbetter), bestPossibleFitness(best), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype), crossoverProportion(crosspercent),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance),
 availableNodes(nodes), availableFunctions(), availableTerminals(),
 allNetworks(), upForEvaluation(), evaluated(),
@@ -118,12 +118,6 @@ void GPSynth::initPopulation() {
         addNetworkToPopulation(grow(maxInitialDepth));
     }
     assert(allNetworks.size() == populationSize);
-}
-
-void GPSynth::addNetworkToPopulation(GPNetwork* net) {
-    net->ID = nextNetworkID++;
-    allNetworks.push_back(net);
-    upForEvaluation.push_back(net);
 }
 
 /*
@@ -256,45 +250,21 @@ int GPSynth::nextGeneration() {
       }
     }
 
-    /*
-    for (int i = 0; i < populationSize; i++) {
-        GPNetwork* dad = selectFromEvaluated();
-        GPNetwork* one = dad->getCopy();
-        GPNetwork* offspring = one;
-
-        if (nodeParams->rng->random() < nodeAddChance) {
-            one->mutateAddNode(nodeParams, getRandomNode());
-        }
-        if (nodeParams->rng->random() < nodeRemoveChance) {
-            one->mutateRemoveNode(nodeParams);
-        }
-        if (nodeParams->rng->random() < nodeMutateChance) {
-            one->mutate(nodeParams);
-        }
-        if (nodeParams->rng->random() < crossoverChance) {
-            GPNetwork* mom = selectFromEvaluated();
-            while (dad == mom) {
-                mom = selectFromEvaluated();
-            }
-            GPNetwork* two = mom->getCopy();
-            if (nodeParams->rng->random() < nodeAddChance) {
-                two->mutateAddNode(nodeParams, getRandomNode());
-            }
-            if (nodeParams->rng->random() < nodeRemoveChance) {
-                two->mutateRemoveNode(nodeParams);
-            }
-            if (nodeParams->rng->random() < nodeMutateChance) {
-                two->mutate(nodeParams);
-            }
-            offspring = reproduce(one, two);
-        }
-        addNetworkToPopulation(offspring);
-    }
-    */
-
     clearGenerationState();
     generationID++;
     return generationID;
+}
+
+/*
+   =======
+   HELPERS
+   =======
+*/
+
+void GPSynth::addNetworkToPopulation(GPNetwork* net) {
+    net->ID = nextNetworkID++;
+    allNetworks.push_back(net);
+    upForEvaluation.push_back(net);
 }
 
 void GPSynth::clearGenerationState() {

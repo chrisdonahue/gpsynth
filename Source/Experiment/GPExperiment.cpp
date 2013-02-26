@@ -16,16 +16,12 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numgens, unsigned selecttype, unsigned crosstype, std::vector<double>* vals) :
+GPExperiment::GPExperiment(String target, unsigned s, unsigned expnum, double threshold, unsigned numgens, std::vector<double>* vals, unsigned psize, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance) :
 wavFormat(new WavAudioFormat())
 {
     // EXPERIMENT PARAMETERS
     fitnessThreshold = threshold;
     numGenerations = numgens;
-
-    // EXPERIMENT STATE
-    minFitnessAchieved = INFINITY;
-    numEvaluatedGenerations = 0;
 
     // TARGET DATA CONTAINERS
     sampleRate = 44100.0;
@@ -33,6 +29,10 @@ wavFormat(new WavAudioFormat())
     numTargetFrames = 0;
     specialValues = vals->data();
     loadWavFile(target);
+
+    // EXPERIMENT STATE
+    minFitnessAchieved = INFINITY;
+    numEvaluatedGenerations = 0;
 
     // SYNTH
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
@@ -49,6 +49,9 @@ wavFormat(new WavAudioFormat())
     std::vector<double>* flikelihoods = new std::vector<double>();
 
     if (expnum == 0) {
+        lowerFitnessIsBetter = true;
+        bestPossibleFitness = 0;
+
         nodes->push_back(new FunctionNode(add, "*", NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, "+", NULL, NULL));
         nodes->push_back(new ValueNode(0, -1));
@@ -63,7 +66,7 @@ wavFormat(new WavAudioFormat())
     nodeParams->availableNodes = nodes;
     nodeParams->availableFunctions = functions;
 
-    synth = new GPSynth(psize, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
+    synth = new GPSynth(psize, lowerFitnessIsBetter, bestPossibleFitness, mid, md, crosstype, selecttype, crosspercent, addchance, subchance, mutatechance, nodes, nodeParams);
 }
 
 GPExperiment::~GPExperiment() {
@@ -96,6 +99,8 @@ GPNetwork* GPExperiment::evolve() {
         double fitness = compareToTarget(candidateData);
         generationCumulativeFitness += fitness;
         numEvaluated++;
+
+        //TODO: handle lowerFitnessIsBetter
 
         if (fitness < generationMinimumFitness) {
             generationMinimumFitness = fitness;
