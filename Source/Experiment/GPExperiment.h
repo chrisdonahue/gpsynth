@@ -17,7 +17,7 @@
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, unsigned expnum, unsigned psize, unsigned s, double addchance, double subchance, double mutatechance, double crosschance, double threshold, unsigned numgens, unsigned selecttype, unsigned crosstype, std::vector<double>* vals);
+        GPExperiment(String target, unsigned s, unsigned expnum, double threshold, unsigned numgens, std::vector<double>* vals, unsigned psize, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance);
         ~GPExperiment();
 
         // EVOLUTION CONTROL
@@ -27,16 +27,18 @@ class GPExperiment {
         // EXPERIMENT PARAMETERS
         float fitnessThreshold;
         int numGenerations;
-
-        // EXPERIMENT STATE
-        float minFitnessAchieved;
-        int numEvaluatedGenerations;
+        bool lowerFitnessIsBetter;
+        double bestPossibleFitness;
 
         // TARGET DATA CONTAINERS
         double sampleRate;
         int64 numTargetFrames;
         float* targetFrames;
         double* specialValues;
+
+        // EXPERIMENT STATE
+        float minFitnessAchieved;
+        int numEvaluatedGenerations;
 
         // SYNTH
         GPSynth* synth;

@@ -25,31 +25,35 @@
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, double best, bool lowerbetter, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p);
+        GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p);
         ~GPSynth();
 
         // EVOLUTION CONTROL
+        GPNetwork* getIndividual();
         int assignFitness(GPNetwork* net, double fitness);
         int prevGeneration();
-        int nextGeneration();
-        GPNetwork* getIndividual();
-
-        // CROSSOVER
-        GPNetwork* reproduce(GPNetwork* one, GPNetwork* two);
 
         // NODE MUTATION PARAMS
         GPNodeParams* nodeParams;
 
     private:
         // CONSTRUCTION
+        GPNode* fullRecursive(unsigned cd, GPNode* p, unsigned d);
         GPNetwork* full(unsigned d);
+        GPNode* growRecursive(unsigned cd, GPNode* p, unsigned m);
         GPNetworK* grow(unsigned m);
         void initPopulation();
 
-        // PRIVATE HELPERS
-        GPNode* getRandomNode();
+        // EVOLUTION CONTROL
+        int nextGeneration();
+
+        // HELPERS
         void addNetworkToPopulation(GPNetwork* net);
-        GPNetwork* selectFromEvaluated();
+        void clearGenerationState();
+        GPNetwork* selectFromEvaluated(unsigned selectionType);
+        
+        // CROSSOVER
+        GPNetwork* reproduce(GPNetwork* one, GPNetwork* two);
 
         // SYNTH EVOLUTION STATE
         GPRandom* rng;
@@ -59,8 +63,8 @@ class GPSynth {
 
         // EVOLUTION PARAMS
         int populationSize;
-        double bestPossibleFitness;
         bool lowerFitnessIsBetter;
+        double bestPossibleFitness;
         unsigned maxInitialDepth;
         unsigned maxDepth;
         unsigned crossoverType;
