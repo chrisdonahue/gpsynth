@@ -37,19 +37,19 @@ public:
         String target("");
         unsigned s = time(NULL);
         unsigned expnum = 0;
-        double threshold = 1.0;
+        double threshold = 0.0;
         unsigned numgens = 50;
         std::vector<double>* vals = new std::vector<double>();
         unsigned psize = 500;
-        unsigned mid = 10;
-        unsigned md = 20;
+        unsigned mid = 6;
+        unsigned md = 17;
         unsigned crosstype = 0;
         unsigned rselect = 0;
         unsigned cselect = 0;
-        double crosspercent = 0.5;
-        double addchance = 0.5;
-        double subchance = 0.5;
-        double mutatechance = 0.5;
+        double crosspercent = 0.9;
+        double addchance = 0.0;
+        double subchance = 0.0;
+        double mutatechance = 0.01;
 
         for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
@@ -69,7 +69,7 @@ public:
           }
           else if (i->equalsIgnoreCase("--values")) {
             String* current = (++i);
-            while ( (i != args.end())  && !(current->startsWith(String("--"))) ) {
+            while ( (i != args.end())  && !((current + 1)->startsWith(String("--"))) ) {
                 vals->push_back(current->getDoubleValue());
                 current = ++i;
             }
@@ -93,7 +93,7 @@ public:
             cselect = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--crosspercent")) {
-            crosspercent = (++i)->getIntValue();
+            crosspercent = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--addchance"))  {
             addchance = (++i)->getDoubleValue();
@@ -106,7 +106,7 @@ public:
           }
         }
 
-        // check all value ranges here
+        // TODO: check all value ranges here
         if (target.equalsIgnoreCase("")) {
             std::cerr << "No target specified. Exiting application." << std::endl;
             quit();

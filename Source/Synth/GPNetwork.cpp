@@ -20,8 +20,9 @@ GPNetwork::GPNetwork(GPNode* r) :
 allNodes()
 {
     ID = -1;
-    depth = -1;
     fitness = NAN;
+    isAlive = false;
+    depth = -1;
     asText = "";
     root = r;
 }
@@ -32,8 +33,9 @@ GPNetwork::~GPNetwork() {
 
 GPNetwork* GPNetwork::getCopy() {
   GPNetwork* copy = new GPNetwork(root->getCopy());
-  copy->fitness = fitness;
+  copy->depth = depth;
   copy->asText = asText;
+  copy->traceNetwork();
     return copy;
 }
 
@@ -72,6 +74,8 @@ GPNode* GPNetwork::getRoot() {
 */
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
+    if (allNodes.size() == 0)
+        return NULL;
     return allNodes[r->random(allNodes.size())];
 }
 

@@ -37,7 +37,7 @@ wavFormat(new WavAudioFormat())
     // SYNTH
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
 
-    nodeParams->partialChance = 0.5;
+    nodeParams->partialChance = 0.0;
     nodeParams->numPartials = 3;
     nodeParams->valueMin = -1;
     nodeParams->valueMax = 1;
@@ -54,7 +54,7 @@ wavFormat(new WavAudioFormat())
 
         nodes->push_back(new FunctionNode(add, "*", NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, "+", NULL, NULL));
-        nodes->push_back(new ValueNode(0, -1));
+        //nodes->push_back(new ValueNode(0, -1));
         nodes->push_back(new ValueNode(-1, 0));
         nodes->push_back(new ValueNode(-1, 1));
         nodes->push_back(new OscilNode(1, 1, NULL, NULL));
@@ -117,6 +117,7 @@ GPNetwork* GPExperiment::evolve() {
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
 
         if (numUnevaluatedThisGeneration == 0) {
+            synth->printGenerationSummary();
             generationMinimumFitness = INFINITY;
             numEvaluatedGenerations++;
         }

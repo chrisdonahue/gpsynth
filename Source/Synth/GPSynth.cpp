@@ -39,14 +39,6 @@ rawFitnesses(), normalizedFitnesses()
 }
 
 GPSynth::~GPSynth() {
-    delete availableNodes;
-    delete &availableFunctions;
-    delete &availableTerminals;
-    delete &allNetworks;
-    delete &upForEvaluation;
-    delete &evaluated;
-    delete &rawFitnesses;
-    delete &normalizedFitnesses;
 }
 
 GPNode* GPSynth::fullRecursive(unsigned cd, GPNode* p, unsigned d) {
@@ -70,6 +62,7 @@ GPNetwork* GPSynth::full(unsigned d) {
     return new GPNetwork(fullRecursive(0, NULL, d));
 }
 
+// TODO: fix this so it doesnt fill the trees....
 GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
     if (cd == m) {
         GPNode* term = availableTerminals[rng->random(availableTerminals.size())]->getCopy();
@@ -77,7 +70,13 @@ GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
         return term;
     }
     else {
-        GPNode* ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
+        GPNode* ret;
+        if (cd == 0) {
+            ret = availableFunctions[rng->random(availableFunctions.size())]->getCopy();
+        }
+        else {
+            ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
+        }
         ret->parent = p;
         if (ret->isTerminal) {
             return ret;
@@ -103,8 +102,6 @@ void GPSynth::initPopulation() {
     unsigned additionalFull = additionalLargest / 2;
     unsigned additionalGrow = additionalFull + (additionalLargest % 2);
 
-    std::cout << numPerPart << ", " << numFullPerPart << ", " << numGrowPerPart << ", " << additionalLargest << ", " << additionalFull << ", " << additionalGrow << std::endl;
-
     for (int i = 0; i < maxInitialDepth - 1; i++) {
         for (int j = 0; j < numFullPerPart; j++) {
             addNetworkToPopulation(full(i + 2));
@@ -129,16 +126,31 @@ void GPSynth::initPopulation() {
 */
 
 GPNetwork* GPSynth::getIndividual() {
+    // if no more networks remain advance population
     if (currentIndividualNumber == populationSize) {
         currentIndividualNumber = 0;
         nextGeneration();
     }
+
+    // print generation delimiter
     if (currentIndividualNumber == 0) {
         std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
     }
+
+    // complicated logic to deal with reproduced networks and ones that need evaluation
     GPNetwork* ret = upForEvaluation[currentIndividualNumber];
-    std::cout << "Testing algorithm " << ret->ID << " with structure: " << ret->toString() << std::endl;
-    return upForEvaluation[currentIndividualNumber];
+    while (ret->fitness != NAN && currentIndividualNumber < populationSize - 1) {
+        std::cout << "Algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << " was reproduced from last generation with a fitness of " << ret->fitness << std::endl;
+        ret = upForEvaluation[++currentIndividualNumber];
+    }
+    if (ret->fitness != NAN) {
+        std::cout << "Algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << " was reproduced from last generation with a fitness of " << ret->fitness << std::endl;
+        return getIndividual();
+    }
+    else {
+        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << std::endl;
+        return ret;
+    }
 }
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {
@@ -178,20 +190,16 @@ int GPSynth::prevGeneration() {
     return generationID;
 }
 
-int GPSynth::nextGeneration() {
-    assert (evaluated.size() == rawFitnesses.size());
-    upForEvaluation.clear();
-    if (evaluated.size() != populationSize) {
-        std::cerr << "Attempted to advance generation before evaluating all algorithms in the generation" << std::endl;
-    }
+void GPSynth::printGenerationSummary() {
+    assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize);
     double generationCumulativeFitness = 0;
     double generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
     GPNetwork* champ = NULL;
     for (int i = 0; i < rawFitnesses.size(); i++) {
         double fitness = rawFitnesses[i];
         if (fitness < 0) {
-            std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
-            return generationID;
+            std::cerr << "Negative fitness value detected when summarizing generation" << std::endl;
+            return;
         }
         generationCumulativeFitness += fitness;
         if (lowerFitnessIsBetter && fitness < generationBestFitness) {
@@ -204,21 +212,27 @@ int GPSynth::nextGeneration() {
         }
     }
     double generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationBestFitness << " with structure " << champ->toString() << std::endl;
+    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationBestFitness << " attained by the structure " << champ->toString() << std::endl;
+}
+
+int GPSynth::nextGeneration() {
+    assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize);
+    upForEvaluation.clear();
+
+    for (int i = 0; i < evaluated.size(); i++) {
+        evaluated[i]->isAlive = false;
+    }
 
     unsigned numToReproduce = (unsigned) ((1 - crossoverProportion) * populationSize);
 
     for (int i = 0; i < numToReproduce; i++) {
-      GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
-      GPNetwork* one = selected->getCopy();
-      if (nodeParams->rng->random() < nodeMutateChance) {
-        one->mutate(nodeParams);
-      }
+      GPNetwork* one = selectFromEvaluated(reproductionSelectionType);
+      one->isAlive = true;
       addNetworkToPopulation(one);
     }
     while(upForEvaluation.size() < populationSize) {
-      GPNetwork* dad = selectFromEvaluated(reproductionSelectionType);
-      GPNetwork* mom = selectFromEvaluated(reproductionSelectionType);
+      GPNetwork* dad = selectFromEvaluated(crossoverSelectionType);
+      GPNetwork* mom = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* one = dad->getCopy();
       GPNetwork* two = dad->getCopy();
 
@@ -231,24 +245,24 @@ int GPSynth::nextGeneration() {
 
       GPNetwork* offspring = reproduce(one, two);
 
-      // standard GP
+      // standard GP with two offspring
       if (offspring == NULL) {
         if (one->getDepth() > maxDepth) {
           delete one;
           one = dad->getCopy();
         }
-        addNetworkToPopulation(one);
+        addNetworkToPopulation(one, true);
         if (upForEvaluation.size() < populationSize) {
           if (two->getDepth() > maxDepth) {
             delete two;
             two = mom->getCopy();
           }
-          addNetworkToPopulation(mom);
+          addNetworkToPopulation(two, true);
         }
       }
-      // some other type
+      // some other type with one offspring
       else {
-        addNetworkToPopulation(offspring);
+        addNetworkToPopulation(offspring, true);
       }
     }
 
@@ -263,10 +277,15 @@ int GPSynth::nextGeneration() {
    =======
 */
 
-void GPSynth::addNetworkToPopulation(GPNetwork* net) {
-    net->ID = nextNetworkID++;
+void GPSynth::addNetworkToPopulation(GPNetwork* net, bool retrace) {
+    if (net->isAlive == false) {
+        net->ID = nextNetworkID++;
+        net->isAlive = true;
+    }
     allNetworks.push_back(net);
     upForEvaluation.push_back(net);
+    if (retrace)
+        net->traceNetwork();
 }
 
 void GPSynth::clearGenerationState() {
@@ -304,8 +323,8 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
         }
 
         // NORMALIZE FITNESS
-        for (int i = 0; i < standardizedFitnesses->size(); i++) {
-            normalizedFitnesses.push_back((standardizedFitnesses->at(i))/sum);
+        for (int i = 0; i < adjustedFitnesses->size(); i++) {
+            normalizedFitnesses.push_back(adjustedFitnesses->at(i)/sum);
         }
 
         // DELETE INTERMEDIATE DATA
