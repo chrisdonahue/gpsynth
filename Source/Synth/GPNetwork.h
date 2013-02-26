@@ -17,7 +17,7 @@
 class GPNetwork {
     public:
         // CONSTRUCTION
-        GPNetwork(int id, GPNode* r);
+        GPNetwork(GPNode* r);
         ~GPNetwork();
         GPNetwork* getCopy();
 
@@ -27,6 +27,7 @@ class GPNetwork {
         GPNode* getRoot();
 
         // MUTATION
+        GPNode* getRandomNetworkNode(GPNodeParams* p);
         void mutateAddNode(GPNodeParams* p, GPNode* newnode);
         void mutateRemoveNode(GPNodeParams* p);
         void mutate(GPNodeParams* p);
@@ -36,11 +37,9 @@ class GPNetwork {
 
         // PUBLIC STATE
         int ID;
+        double fitness;
 
     private:
-        // MUTATION
-        GPNode* getRandomNetworkNode(GPNodeParams* p);
-        
         // PRIVATE STATE
         std::string asText;
         GPNode* root;

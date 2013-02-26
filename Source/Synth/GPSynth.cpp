@@ -16,17 +16,18 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, double max, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned crosstype, unsigned selecttype) :
+GPSynth::GPSynth(unsigned psize, double best, bool lowerbetter, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype) :
 populationSize(psize),
-nextNetworkID(0), generationID(0), maxFitness(max),
-crossoverType(crosstype), selectionType(selecttype),
+nextNetworkID(0), generationID(0),
+bestPossibleFitness(best), lowerFitnessIsBetter(lower), currentIndividualNumber(0),
+maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype),
 nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
-allNetworks(), upForEvaluation(), evaluated(), fitnesses()
+allNetworks(), upForEvaluation(), evaluated(),
+rawFitnesses(), normalizedFitnesses()
 {
     nodeParams = p;
     std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << max << std::endl;
-    currentIndividualNumber = 0;
-    initPopulation();
+    initPopulation(maxInitialDepth);
 }
 
 GPSynth::~GPSynth() {
@@ -40,18 +41,45 @@ GPNode* GPSynth::getRandomNode() {
     return (nodeParams->availableNodes->at(nodeParams->rng->sampleFromDistribution(nodeParams->nodeLikelihoods)))->getCopy();
 }
 
-GPNetwork* GPSynth::generateInitialNetwork() {
-    GPNode* init = getRandomNode();
-    return new GPNetwork(nextNetworkID++, init);
+GPNetwork* GPSynth::full(unsigned d) {
+    return NULL;
+}
+
+GPNetwork* GPSynth::grow(unsigned m) {
+    return NULL;
+}
+
+void GPSynth::addNetworkToPopulation(GPNetwork* net) {
+    net->ID = nextNetworkID++;
+    allNetworks.push_back(net);
+    upForEvaluation.push_back(net);
+    net->traceNetwork();
 }
 
 void GPSynth::initPopulation() {
-    GPNetwork* newnet;
-    for (int i = 0; i < populationSize; i++) {
-        newnet = generateInitialNetwork();
-        allNetworks.push_back(newnet);
-        upForEvaluation.push_back(newnet);
+    // implementation of ramped half and half
+    unsigned numPerPart = (unsigned) (populationSize / maxInitialDepth);
+    unsigned numFullPerPart = (unsigned) (numPerPart / 2);
+    unsigned numGrowPerPart = numFullPerPart + (numPerPart % 2);
+    unsigned additionalLargest = populationSize % maxInitialDepth;
+    unsigned additionalFull = (unsigned) (additionalLargest / 2);
+    unsigned additionalGrow = additionalFull + (additionalLargest % 2);
+
+    for (int i = 0; i < maxInitialDepth - 1; i++) {
+        for (int j = 0; j < numFullPerPart; j++) {
+            addNetworkToPopulation(full(i + 2));
+        }
+        for (int j = 0; j < numGrowPerPart; j++) {
+            addNetworkToPopulation(grow(i + 2));
+        }
     }
+    for (int j = 0; j < additionalFull; j++) {
+        addNetworkToPopulation(full(maxInitialDepth));
+    }
+    for (int j = 0; j < additionalGrow; j++) {
+        addNetworkToPopulation(grow(maxInitialDepth));
+    }
+    assert(allNetworks.size() == populationSize);
 }
 
 /*
@@ -65,7 +93,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     for (int i = 0; i < upForEvaluation.size(); i++) {
         if (net == upForEvaluation[i]) {
             evaluated.push_back(net);
-            fitnesses.push_back(fitness);
+            rawFitnesses.push_back(fitness);
             upForEvaluation.at(i) = NULL;
             std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
             currentIndividualNumber++;
@@ -87,8 +115,9 @@ int GPSynth::prevGeneration() {
     }
     upForEvaluation.clear();
     evaluated.clear();
-    fitnesses.clear();
+    rawFitnesses.clear();
     currentIndividualNumber = 0;
+    // TODO: fix this for assigned fitnesses and NAN and whatnot
     for (int i = 0; i < populationSize; i++) {
         upForEvaluation.push_back(allNetworks.back());
         allNetworks.erase(allNetworks.end() - 1);
@@ -98,12 +127,12 @@ int GPSynth::prevGeneration() {
 }
 
 int GPSynth::nextGeneration() {
-    assert (evaluated.size() == fitnesses.size());
+    assert (evaluated.size() == rawFitnesses.size());
     upForEvaluation.clear();
     if (evaluated.size() != populationSize) {
         std::cerr << "Attempted to advance generation before evaluating all algorithms in the generation" << std::endl;
     }
-    for (std::vector<double>::iterator i = fitnesses.begin(); i != fitnesses.end(); i++) {
+    for (std::vector<double>::iterator i = rawFitnesses.begin(); i != rawFitnesses.end(); i++) {
         if (*i < 0) {
             std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
             return generationID;
@@ -141,15 +170,11 @@ int GPSynth::nextGeneration() {
             }
             offspring = reproduce(one, two);
         }
-
-        offspring->ID = nextNetworkID++;
-
-        allNetworks.push_back(offspring);
-        upForEvaluation.push_back(offspring);
+        addNetworkToPopulation(offspring);
     }
 
     evaluated.clear();
-    fitnesses.clear();
+    rawFitnesses.clear();
     rank.clear();
     generationID++;
     return generationID;
@@ -166,45 +191,70 @@ GPNetwork* GPSynth::getIndividual() {
     return upForEvaluation[currentIndividualNumber];
 }
 
-GPNetwork* GPSynth::selectFromEvaluated() {
+GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
     //http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29
+    if (normalizedFitnesses.size() == 0) {
+        // STANDARDIZE FITNESS
+        std::vector<double>* standardizedFitnesses;
+        if (lowerFitnessIsBetter) {
+            standardizedFitnesses = &rawFitnesses;
+        }
+        else {
+            standardizedFitnesses = new std::vector<double>();
+            for (int i = 0; i < rawFitnesses.size(); i++) {
+                standardizedFitnesses.push_back(bestPossibleFitness - rawFitnesses[i]);
+            }
+        }
+
+        // TODO: USE STANDARDIZED FITNESSES TO FILL RANK
+
+        // ADJUST FITNESS
+        std::vector<double>* adjustedFitnesses = new std::vector<double>();
+        double sum = 0;
+        double si = 0;
+        for (int i = 0; i < standardizedFitnesses.size(); i++) {
+            si = 1/(1+standardizedFitnesses[i]);
+            sum += si;
+            adjustedFitnesses.push_back(si);
+        }
+
+        // NORMALIZE FITNESS
+        for (int i = 0; i < standardizedFitnesses.size(); i++) {
+            normalizedFitnesses.push_back(standardizedFitnesses[i]/sum);
+        }
+
+        // DELETE INTERMEDIATE DATA
+        if (!lowerFitnessIsBetter) {
+            delete standardizedFitnesses;
+        }
+        delete adjustedFitnesses;
+    }
+
     if (selectionType == 0) {
-        // ranking linear selection (lower better)
-        return NULL;
+        // fitness proportionate selection (lower better)
+        return evaluated[nodeParams->rng->sampleFromDistribution(normalizedFitnesses)];
     }
     else if (selectionType == 1) {
-        // ranking linear selection (higher better)
+        // ranking linear selection
         return NULL;
     }
     else if (selectionType == 2) {
-        // ranking curved selection (lower better)
+        // ranking curved selection
         return NULL;
     }
     else if (selectionType == 3) {
-        // ranking curved selection (higher better)
+        // tournament selection
         return NULL;
     }
     else if (selectionType == 4) {
-        // tournament selection (lower better)
+        // stochastic universal sampling selection
         return NULL;
     }
     else if (selectionType == 5) {
-        // tournament selection (higher better)
+        // greedy over selection
         return NULL;
     }
     else if (selectionType == 6) {
-        // fitness proportionate selection (lower better)
-        return NULL;
-    }
-    else if (selectionType == 7) {
-        // fitness proportionate selection (higher better)
-        return NULL;
-    }
-    else if (selectionType == 8) {
-        // stochastic universal sampling selection (higher better)
-        return NULL;
-    }
-    else if (selectionType == 9) {
         // fitness-unaware random selection
         return evaluated[(int) (nodeParams->rng->random() * evaluated.size())];
     }
@@ -219,9 +269,13 @@ GPNetwork* GPSynth::selectFromEvaluated() {
 
 GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
-        GPNode* newroot = new FunctionNode(multiply, "*", one->getRoot(), two->getRoot());
-        GPNetwork* newnet = new GPNetwork(-1, newroot);
-        return newnet; 
+        // standard GP crossover
+        GPNode* subtreeone = one->getRandomNetworkNode();
+        GPNode* subtreetwo = two->getRandomNetworkNode();
+        one->replaceSubtree(subtreeone, subtreetwo);
+        two->replaceSubtree(subtreetwo, subtreeone);
+
+        return NULL;
     }
     else if (crossoverType == 1) {
         return one;
@@ -229,15 +283,15 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     else if (crossoverType == 2) {
         return two;
     }
-    // standard GP crossover
     else if (crossoverType == 3) {
-        return NULL;
+        // AM crossover
+        GPNode* newroot = new FunctionNode(multiply, "*", one->getRoot(), two->getRoot());
+        GPNetwork* newnet = new GPNetwork(-1, newroot);
+        return newnet;
     }
-    // array crossover
+    // experimental array crossover
     else if (crossoverType == 4) {
         return NULL;
     }
-    else {
-        return NULL;
-    }
+    return NULL;
 }

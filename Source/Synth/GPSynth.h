@@ -42,7 +42,8 @@ class GPSynth {
 
     private:
         // CONSTRUCTION
-        GPNetwork* generateInitialNetwork();
+        GPNetwork* full(unsigned d);
+        GPNetworK* grow(unsigned m);
         void initPopulation();
         GPNode* getRandomNode();
 
@@ -53,10 +54,19 @@ class GPSynth {
         int populationSize;
         int nextNetworkID;
         int generationID;
-        double maxFitness;
-        int crossoverType;
-        int selectionType;
+
+        // EVOLUTION PARAMS
+        double bestPossibleFitness;
+        bool lowerFitnessIsBetter;
         int currentIndividualNumber;
+
+        // GP OPERATION PARAMS
+        unsigned maxInitialDepth;
+        unsigned maxDepth;
+        unsigned crossoverType;
+        unsigned reproductionSelectionType;
+        unsigned crossoverSelectionType;
+        unsigned selectionType;
 
         // NETWORK MUTATION RATES
         double nodeAddChance;
@@ -68,7 +78,10 @@ class GPSynth {
         std::vector<GPNetwork*> allNetworks;
         std::vector<GPNetwork*> upForEvaluation;
         std::vector<GPNetwork*> evaluated;
-        std::vector<double> fitnesses;
+
+        // SELECTION CONTAINERS
+        std::vector<double> rawFitnesses;
+        std::vector<double> normalizedFitnesses;
         std::vector<int> rank;
 };
 

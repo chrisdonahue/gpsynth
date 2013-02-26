@@ -16,13 +16,13 @@
     ============
 */
 
-GPNetwork::GPNetwork(int id, GPNode* r) :
+GPNetwork::GPNetwork(GPNode* r) :
 allNodes()
 {
-    ID = id;
+    ID = -1;
+    fitness = NAN;
     asText = "";
     root = r;
-    traceNetwork();
 }
 
 GPNetwork::~GPNetwork() {
@@ -60,11 +60,12 @@ GPNode* GPNetwork::getRoot() {
     ========
 */
 
-GPNode* GPNetwork::getRandomNetworkNode(GPNodeParams* p) {
-    return allNodes[(int) (p->rng->random() * allNodes.size())];
+GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
+    return allNodes[(int) (r->random() * allNodes.size())];
 }
 
 void GPNetwork::mutateAddNode(GPNodeParams* p, GPNode* newnode) {
+    /*
     GPNode* random = getRandomNetworkNode(p);
     if (newnode->isTerminal) {
         replaceSubtree(random, newnode);
@@ -89,6 +90,7 @@ void GPNetwork::mutateAddNode(GPNodeParams* p, GPNode* newnode) {
         newnode->parent = random->parent;
         newnode->left = random;
     }
+    */
 }
 
 void GPNetwork::mutateRemoveNode(GPNodeParams* p) {
