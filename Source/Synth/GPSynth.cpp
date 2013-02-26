@@ -96,12 +96,14 @@ GPNetwork* GPSynth::grow(unsigned m) {
 
 void GPSynth::initPopulation() {
     // implementation of ramped half and half
-    unsigned numPerPart = (unsigned) (populationSize / maxInitialDepth);
-    unsigned numFullPerPart = (unsigned) (numPerPart / 2);
+    unsigned numPerPart = populationSize / (maxInitialDepth - 1);
+    unsigned numFullPerPart = numPerPart / 2;
     unsigned numGrowPerPart = numFullPerPart + (numPerPart % 2);
-    unsigned additionalLargest = populationSize % maxInitialDepth;
-    unsigned additionalFull = (unsigned) (additionalLargest / 2);
+    unsigned additionalLargest = populationSize % (maxInitialDepth - 1);
+    unsigned additionalFull = additionalLargest / 2;
     unsigned additionalGrow = additionalFull + (additionalLargest % 2);
+
+    std::cout << numPerPart << ", " << numFullPerPart << ", " << numGrowPerPart << ", " << additionalLargest << ", " << additionalFull << ", " << additionalGrow << std::endl;
 
     for (int i = 0; i < maxInitialDepth - 1; i++) {
         for (int j = 0; j < numFullPerPart; j++) {
