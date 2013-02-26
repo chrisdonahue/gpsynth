@@ -30,7 +30,10 @@ GPNetwork::~GPNetwork() {
 }
 
 GPNetwork* GPNetwork::getCopy() {
-    return new GPNetwork(-1, root->getCopy());
+  GPNetwork* copy = net GPNetwork(root->getCopy());
+  copy->fitness = fitness;
+  copy->asText = asText;
+    return copy;
 }
 
 /*
@@ -62,39 +65,6 @@ GPNode* GPNetwork::getRoot() {
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
     return allNodes[(int) (r->random() * allNodes.size())];
-}
-
-void GPNetwork::mutateAddNode(GPNodeParams* p, GPNode* newnode) {
-    /*
-    GPNode* random = getRandomNetworkNode(p);
-    if (newnode->isTerminal) {
-        replaceSubtree(random, newnode);
-    }
-    else if (random->isBinary && random->right == NULL) {
-        random->right = newnode;
-        newnode->parent = random;
-    }
-    else {
-        if (random == root)
-            root = newnode;
-        
-        if (random->parent != NULL) {
-            if (random->parent->left == random)
-                random->parent->left = newnode;
-            else if (random->parent->right == random)
-                random->parent->right = newnode;
-            else
-                std::cerr << "Bad parent-child links detected during add node mutation." << std::endl;
-        }
-
-        newnode->parent = random->parent;
-        newnode->left = random;
-    }
-    */
-}
-
-void GPNetwork::mutateRemoveNode(GPNodeParams* p) {
-    GPNode* random = getRandomNetworkNode(p);
 }
 
 void GPNetwork::mutate(GPNodeParams* p) {

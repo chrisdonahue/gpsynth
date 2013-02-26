@@ -45,7 +45,6 @@ wavFormat(new WavAudioFormat())
     nodeParams->numVariables = vals->size();
     nodeParams->rng = new GPRandom(s);
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-    std::vector<double>* nlikelihoods = new std::vector<double>();
     std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
     std::vector<double>* flikelihoods = new std::vector<double>();
 
@@ -57,26 +56,12 @@ wavFormat(new WavAudioFormat())
         nodes->push_back(new ValueNode(-1, 1));
         nodes->push_back(new OscilNode(1, 1, NULL, NULL));
 
-        nlikelihoods->push_back(1);
-        nlikelihoods->push_back(1);
-        nlikelihoods->push_back(1);
-        nlikelihoods->push_back(1);
-        nlikelihoods->push_back(1);
-        nlikelihoods->push_back(1);
-      
         functions->push_back(add);
         functions->push_back(multiply);
-
-        flikelihoods->push_back(1);
-        flikelihoods->push_back(1);
     }
-    
+
     nodeParams->availableNodes = nodes;
-    nodeParams->rng->normalizeDistribution(nlikelihoods);
-    nodeParams->nodeLikelihoods = nlikelihoods;
     nodeParams->availableFunctions = functions;
-    nodeParams->rng->normalizeDistribution(flikelihoods);
-    nodeParams->functionLikelihoods = flikelihoods;
 
     synth = new GPSynth(psize, 0, nodeParams, addchance, subchance, mutatechance, crosschance, crosstype, selecttype);
 }
@@ -85,9 +70,7 @@ GPExperiment::~GPExperiment() {
     free(targetFrames);
     delete nodeParams->rng;
     delete nodeParams->availableNodes;
-    delete nodeParams->nodeLikelihoods;
     delete nodeParams->availableFunctions;
-    delete nodeParams->functionLikelihoods;
     free(nodeParams);
 }
 

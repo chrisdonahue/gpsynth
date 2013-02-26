@@ -16,12 +16,12 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, double best, bool lowerbetter, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosschance, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype) :
+GPSynth::GPSynth(unsigned psize, double best, bool lowerbetter, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosspercent, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype) :
 populationSize(psize),
 nextNetworkID(0), generationID(0),
 bestPossibleFitness(best), lowerFitnessIsBetter(lower), currentIndividualNumber(0),
 maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype),
-nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverChance(crosschance),
+nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverProportion(crosspercent),
 allNetworks(), upForEvaluation(), evaluated(),
 rawFitnesses(), normalizedFitnesses()
 {
@@ -35,10 +35,6 @@ GPSynth::~GPSynth() {
     delete &upForEvaluation;
     delete &evaluated;
     free(nodeParams);
-}
-
-GPNode* GPSynth::getRandomNode() {
-    return (nodeParams->availableNodes->at(nodeParams->rng->sampleFromDistribution(nodeParams->nodeLikelihoods)))->getCopy();
 }
 
 GPNetwork* GPSynth::full(unsigned d) {
@@ -102,7 +98,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
         }
     }
     if (badPointer) {
-        std::cerr << "Assigned fitness for a pointer not in upForEvaluation. This shouldn't happen" << std::endl;
+        std::cerr << "Assigned fitness for a pointer not in upForEvaluation. Probably tried to assign fitness twice for the same network. This shouldn't happen" << std::endl;
         return -1;
     }
     return evaluated.size() - populationSize;
@@ -113,9 +109,8 @@ int GPSynth::prevGeneration() {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
         return generationID;
     }
+    clearGenerationState();
     upForEvaluation.clear();
-    evaluated.clear();
-    rawFitnesses.clear();
     currentIndividualNumber = 0;
     // TODO: fix this for assigned fitnesses and NAN and whatnot
     for (int i = 0; i < populationSize; i++) {
@@ -139,6 +134,53 @@ int GPSynth::nextGeneration() {
         }
     }
 
+    unsigned numToReproduce = (unsigned) ((1 - crossoverReproduce) * populationSize);
+
+    for (int i = 0; i < numToReproduce; i++) {
+      GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
+      GPNetwork* one = selected->getCopy();
+      if (nodeParams->rng->random() < nodeMutateChance) {
+        one->mutate(nodeParams);
+      }
+      addNetworkToPopulation(one);
+    }
+    while(unevaluated.size() < populationSize) {
+      GPNetwork* dad = selectFromEvaluated(reproductionSelectionType);
+      GPNetwork* mom = selectFromEvaluated(reproductionSelectionType);
+      GPNetwork* one = dad->getCopy();
+      GPNetwork* two = dad->getCopy();
+
+      if (nodeParams->rng->random() < nodeMutateChance) {
+        one->mutate(nodeParams);
+      }
+      if (nodeParams->rng->random() < nodeMutateChance) {
+        two->mutate(nodeParams);
+      }
+
+      GPNetwork* offspring = reproduce(one, two);
+
+      // standard GP
+      if (offspring == NULL) {
+        if (one->getDepth() > maxDepth) {
+          delete one;
+          one = dad->getCopy();
+        }
+        addNetworkToPopulation(one);
+        if (unevaluated.size() < populationSize) {
+          if (two->getDepth() > maxDepth) {
+            delete two;
+            two = mom->getCopy();
+          }
+          addNetworkToPopulation(mom);
+        }
+      }
+      // some other type
+      else {
+        addNetworkToPopulation(offspring);
+      }
+    }
+
+    /*
     for (int i = 0; i < populationSize; i++) {
         GPNetwork* dad = selectFromEvaluated();
         GPNetwork* one = dad->getCopy();
@@ -172,10 +214,9 @@ int GPSynth::nextGeneration() {
         }
         addNetworkToPopulation(offspring);
     }
+    */
 
-    evaluated.clear();
-    rawFitnesses.clear();
-    rank.clear();
+    clearGenerationState();
     generationID++;
     return generationID;
 }
@@ -189,6 +230,13 @@ GPNetwork* GPSynth::getIndividual() {
         std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
     }
     return upForEvaluation[currentIndividualNumber];
+}
+
+void GPSynth::clearGenerationState() {
+  rawFitnesses.clear();
+  normalizedFitnesses.clear();
+  rank.clear();
+  evaluated.clear();
 }
 
 GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
