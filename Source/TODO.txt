@@ -13,17 +13,29 @@ GPExperiment.cpp:
     add more fitness functions/command line flag/constructor arg
 
 GPNetwork.cpp:
-    Maybe mutateRemoveNode (maybe multiple versions)
-    Maybe mutateAddNode like typical GP would
+    Add command to parse a network from a string
+    Maybe remove mutateRemoveNode (maybe multiple versions)
+    Maybe remove mutateAddNode
     
 GPSynth.cpp:
+    make initial population all unique (equals for GPNetwork and GPNode)
+    make availableFunctions and availableTerminals pointers
     Take out nodeLikelihoods from GPNodeParams
     Fill in selectFromEvaluated() skeleton code
-    Implement reproduce 3 and 4
+    Implement other types of reproduction
     node remove chance
+    do TODOs
+
+    REPRODUCTION:
+        In a rare situation where the root of one parental s-expression is selected as the crossover point and the crossover fragment from the second parent is a snigle terminal, the first parent becomes one offspring and the other offspring will be a LISP S-expression consisting of the single terminal
     
 GPNode.h:
-	Change name of GPNodeParams and move it to somewhere where it makes more sense with an RNG in it
+	Change name of GPNodeParams to GPNodeMutationParams
 
-Node subclasses:
+FunctionNode.cpp:
+    maybe split into unaryFunctionNode.cpp and BinaryFunctionNode.cpp but prolly not
+    change mutationcode to accoutn for types of arity functions
+
+All node subclasses:
     mutate()
+    equals()

@@ -72,6 +72,10 @@ std::string ValueNode::toString() {
     return std::string(buffer);
 }
 
+bool ValueNode::equals(GPNode* other) {
+    return false;
+}
+
 void ValueNode::mutate(GPNodeParams* p) {
     if (isConstant) {
         value = (p->rng->random() * (p->valueMax - p->valueMin) + p->valueMin);

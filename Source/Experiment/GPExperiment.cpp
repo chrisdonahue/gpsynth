@@ -63,8 +63,7 @@ wavFormat(new WavAudioFormat())
         functions->push_back(multiply);
     }
 
-    nodeParams->availableNodes = nodes;
-    nodeParams->availableFunctions = functions;
+    nodeParams->availableGPFunctions = functions;
 
     synth = new GPSynth(psize, lowerFitnessIsBetter, bestPossibleFitness, mid, md, crosstype, rselect, cselect, crosspercent, addchance, subchance, mutatechance, nodes, nodeParams);
 }
@@ -72,8 +71,7 @@ wavFormat(new WavAudioFormat())
 GPExperiment::~GPExperiment() {
     free(targetFrames);
     delete nodeParams->rng;
-    delete nodeParams->availableNodes;
-    delete nodeParams->availableFunctions;
+    delete nodeParams->availableGPFunctions;
     free(nodeParams);
     delete synth;
 }

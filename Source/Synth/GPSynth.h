@@ -80,11 +80,11 @@ class GPSynth {
 
         // AVAILABLE CONTAINERS
         std::vector<GPNode*>* availableNodes;
-        std::vector<GPNode*> availableFunctions;
-        std::vector<GPNode*> availableTerminals;
+        std::vector<GPNode*>* availableFunctions;
+        std::vector<GPNode*>* availableTerminals;
 
         // NETWORK CONTAINERS
-        std::vector<GPNetwork*> allNetworks;
+        std::vector<std::string*> allNetworks;
         std::vector<GPNetwork*> upForEvaluation;
         std::vector<GPNetwork*> evaluated;
 
