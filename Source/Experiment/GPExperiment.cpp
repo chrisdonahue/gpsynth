@@ -72,6 +72,7 @@ GPExperiment::~GPExperiment() {
     delete nodeParams->availableNodes;
     delete nodeParams->availableFunctions;
     free(nodeParams);
+    delete synth;
 }
 
 /*
@@ -90,7 +91,6 @@ GPNetwork* GPExperiment::evolve() {
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
-        std::cout << "Testing algorithm " << candidate->ID << " with structure: " << candidate->toString() << std::endl;
 
         float* candidateData = evaluateIndividual(candidate);
         double fitness = compareToTarget(candidateData);
@@ -112,10 +112,6 @@ GPNetwork* GPExperiment::evolve() {
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
 
         if (numUnevaluatedThisGeneration == 0) {
-            double generationAverageFitness = generationCumulativeFitness / numEvaluated;
-            std::cout << "Generation " << numEvaluatedGenerations << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationMinimumFitness << std::endl;
-            numEvaluated = 0;
-            generationCumulativeFitness = 0;
             generationMinimumFitness = INFINITY;
             numEvaluatedGenerations++;
         }

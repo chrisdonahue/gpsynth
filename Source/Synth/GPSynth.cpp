@@ -16,40 +16,82 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, double best, bool lowerbetter, GPNodeParams* p, double addchance, double subchance, double mutatechance, double crosspercent, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype) :
-populationSize(psize),
-nextNetworkID(0), generationID(0),
-bestPossibleFitness(best), lowerFitnessIsBetter(lower), currentIndividualNumber(0),
-maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype),
-nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance), crossoverProportion(crosspercent),
+GPSynth::GPSynth(unsigned psize, double best, bool lowerbetter, unsigned mid, unsigned md, unsigned crosstype, unsigned selecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p) :
+nextNetworkID(0), generationID(0), currentIndividualNumber(0),
+populationSize(psize), bestPossibleFitness(best), lowerFitnessIsBetter(lowerbetter), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), selectionType(selecttype), crossoverProportion(crosspercent),
+nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance),
+availableNodes(nodes), availableFunctions(), availableTerminals(),
 allNetworks(), upForEvaluation(), evaluated(),
 rawFitnesses(), normalizedFitnesses()
 {
+    for (int i = 0; i < nodes->size(); i++) {
+        if (nodes->at(i)->isTerminal) {
+            availableTerminals.push_back(nodes->at(i));
+        }
+        else {
+            availableFunctions.push_back(nodes->at(i));
+        }
+    }
     nodeParams = p;
+    rng = nodeParams->rng;
     std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << max << std::endl;
-    initPopulation(maxInitialDepth);
+    initPopulation();
 }
 
 GPSynth::~GPSynth() {
+    delete availableNodes;
+    delete &availableFunctions;
+    delete &availableTerminals;
     delete &allNetworks;
     delete &upForEvaluation;
     delete &evaluated;
-    free(nodeParams);
+    delete &rawFitnesses;
+    delete &normalizedFitnesses;
+}
+
+GPNode* GPSynth::fullRecursive(unsigned cd, GPNode* p, unsigned d) {
+    if (cd == d) {
+        GPNode* term = availableTerminals[rng->random(availableTerminals.size)]->getCopy();
+        term->parent = p;
+        return term;
+    }
+    else {
+        GPNode* ret = availableFunctions[rng->random(availableFunctions.size())]->getCopy();
+        ret->parent = p;
+        ret->left = fullRecursive(cd + 1, ret, d);
+        if (ret->isBinary) {
+            ret->right = fullRecursive(cd + 1, ret, d);
+        }
+        return ret;
+    }
 }
 
 GPNetwork* GPSynth::full(unsigned d) {
-    return NULL;
+    return new GPNetwork(fullRecursive(0, NULL, d));
+}
+
+GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
+    if (cd == m) {
+        GPNode* term = availableTerminals[rng->random(availableTerminals.size)]->getCopy();
+        term->parent = p;
+        return term;
+    }
+    else {
+        GPNode* ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
+        ret->parent = p;
+        if (ret->isTerminal) {
+            return ret;
+        }
+        ret->left = fullRecursive(cd + 1, ret, m);
+        if (ret->isBinary) {
+            ret->right = fullRecursive(cd + 1, ret, m);
+        }
+        return ret;
+    }
 }
 
 GPNetwork* GPSynth::grow(unsigned m) {
-    return NULL;
-}
-
-void GPSynth::addNetworkToPopulation(GPNetwork* net) {
-    net->ID = nextNetworkID++;
-    allNetworks.push_back(net);
-    upForEvaluation.push_back(net);
-    net->traceNetwork();
+    return new GPNetwork(growRecursive(0, NULL, m));
 }
 
 void GPSynth::initPopulation() {
@@ -78,11 +120,30 @@ void GPSynth::initPopulation() {
     assert(allNetworks.size() == populationSize);
 }
 
+void GPSynth::addNetworkToPopulation(GPNetwork* net) {
+    net->ID = nextNetworkID++;
+    allNetworks.push_back(net);
+    upForEvaluation.push_back(net);
+}
+
 /*
    =================
    EVOLUTION CONTROL
    =================
 */
+
+GPNetwork* GPSynth::getIndividual() {
+    if (currentIndividualNumber == populationSize) {
+        currentIndividualNumber = 0;
+        nextGeneration();
+    }
+    if (currentIndividualNumber == 0) {
+        std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
+    }
+    GPNetwork* ret = upForEvaluation[currentIndividualNumber];
+    std::cout << "Testing algorithm " << ret->ID << " with structure: " << ret->toString() << std::endl;
+    return upForEvaluation[currentIndividualNumber];
+}
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     bool badPointer = true;
@@ -101,7 +162,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
         std::cerr << "Assigned fitness for a pointer not in upForEvaluation. Probably tried to assign fitness twice for the same network. This shouldn't happen" << std::endl;
         return -1;
     }
-    return evaluated.size() - populationSize;
+    return populationSize - evaluated.size();
 }
 
 int GPSynth::prevGeneration() {
@@ -127,12 +188,27 @@ int GPSynth::nextGeneration() {
     if (evaluated.size() != populationSize) {
         std::cerr << "Attempted to advance generation before evaluating all algorithms in the generation" << std::endl;
     }
-    for (std::vector<double>::iterator i = rawFitnesses.begin(); i != rawFitnesses.end(); i++) {
-        if (*i < 0) {
+    double generationCumulativeFitness = 0;
+    double generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
+    GPNetwork* champ = NULL;
+    for (int i = 0; i < rawFitnesses.size(); i++) {
+        double fitness = rawFitnesses[i];
+        if (fitness < 0) {
             std::cerr << "Negative fitness value detected when attempting to advance generation" << std::endl;
             return generationID;
         }
+        generationCumulativeFitness += fitness;
+        if (lowerFitnessIsBetter && fitness < generationBestFitness) {
+            generationBestFitness = fitness;
+            champ = evaluated[i];
+        }
+        else if (!lowerFitnessIsBetter && fitness > generationBestFitness) {
+            generationBestFitness = fitness;
+            champ = evaluated[i];
+        }
     }
+    double generationAverageFitness = generationCumulativeFitness / populationSize;
+    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationBestFitness << " with structure " << champ->toString() << std::endl;
 
     unsigned numToReproduce = (unsigned) ((1 - crossoverReproduce) * populationSize);
 
@@ -219,17 +295,6 @@ int GPSynth::nextGeneration() {
     clearGenerationState();
     generationID++;
     return generationID;
-}
-
-GPNetwork* GPSynth::getIndividual() {
-    if (currentIndividualNumber == populationSize) {
-        currentIndividualNumber = 0;
-        nextGeneration();
-    }
-    if (currentIndividualNumber == 0) {
-        std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
-    }
-    return upForEvaluation[currentIndividualNumber];
 }
 
 void GPSynth::clearGenerationState() {

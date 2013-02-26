@@ -14,6 +14,7 @@
 #include <string>
 #include "../Common/GPRandom.h"
 #include <vector>
+#include <algorithm>
 
 /*
     Convenient naming convention for GP-safe functions
@@ -51,6 +52,22 @@ class GPNode {
                 right->traceLineage(allnodes);
             }
         };
+
+        // INHERITED HEIGHT METHOD FOR EXAMINATION
+        int getHeight(int depth) {
+            if (isTerminal) {
+                return depth;
+            }
+            int leftheight = 0;
+            int rightheight = 0;
+            if (left != NULL) {
+                leftheight = left->getHeight(depth + 1);
+            }
+            if (right != NULL) {
+                rightheight = right->getHeight(depth + 1);
+            }
+            return max(leftheight, rightheight);
+        }
 };
 
 /*

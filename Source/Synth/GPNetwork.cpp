@@ -20,6 +20,7 @@ GPNetwork::GPNetwork(GPNode* r) :
 allNodes()
 {
     ID = -1;
+    depth = -1;
     fitness = NAN;
     asText = "";
     root = r;
@@ -51,6 +52,13 @@ std::string GPNetwork::toString() {
         asText = root->toString();
     }
     return asText;
+}
+
+int GPNetwork::getDepth() {
+    if (depth == -1) {
+        depth = root->getHeight(0);
+    }
+    return depth;
 }
 
 GPNode* GPNetwork::getRoot() {
