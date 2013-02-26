@@ -37,6 +37,7 @@ class GPNetwork {
         // PUBLIC STATE
         int ID;
         double fitness;
+        bool isAlive;
 
     private:
         // PRIVATE STATE

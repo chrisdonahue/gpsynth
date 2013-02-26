@@ -32,6 +32,7 @@ class GPSynth {
         GPNetwork* getIndividual();
         int assignFitness(GPNetwork* net, double fitness);
         int prevGeneration();
+        void printGenerationSummary();
 
         // NODE MUTATION PARAMS
         GPNodeParams* nodeParams;
@@ -48,7 +49,7 @@ class GPSynth {
         int nextGeneration();
 
         // HELPERS
-        void addNetworkToPopulation(GPNetwork* net);
+        void addNetworkToPopulation(GPNetwork* net, bool retrace=false);
         void clearGenerationState();
         GPNetwork* selectFromEvaluated(unsigned selectionType);
         

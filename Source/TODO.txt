@@ -1,6 +1,5 @@
 Main.cpp:
     Add command line for MIDI stuff
-    Add command line for fitness function type
     Add command line for numPartials/valuemin/valuemax/LFOrange
     --help
 
@@ -10,13 +9,12 @@ GPFunctions.h:
 GPExperiment.cpp:
 	Delete Node subclasses added to nodeParams
     Figure out how to pass time-varying variables to evaluate()
-    do something with max-fitness
     change "200" to constant value, add command line flag, fix saveWavFile logic
     add more fitness functions/command line flag/constructor arg
 
 GPNetwork.cpp:
-    Implement mutateRemoveNode (maybe multiple versions)
-    Implement mutateAddNode like typical GP would
+    Maybe mutateRemoveNode (maybe multiple versions)
+    Maybe mutateAddNode like typical GP would
     
 GPSynth.cpp:
     Take out nodeLikelihoods from GPNodeParams
