@@ -40,3 +40,7 @@ int GPRandom::sampleFromDistribution(std::vector<double>* weights) {
 double GPRandom::random() {
     return uni_real(engine);
 }
+
+int GPRandom::random(int max) {
+    return (int) (random() * max)
+}
