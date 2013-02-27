@@ -42,46 +42,34 @@ class GPNode {
         bool isTerminal;
 
         // INHERITED TRACE METHOD
-        void traceLineage(std::vector<GPNode*>* allnodes) {
+        void traceSubtree(std::vector<GPNode*>* allnodes, GPNode* p, int* rootHeight, int currentDepth) {
+            parent = p;
             allnodes->push_back(this);
-            if (left != NULL) {
-                left->parent = this;
-                left->traceLineage(allnodes);
+            if (isTerminal && currentDepth > *rootHeight) {
+                *rootHeight = currentDepth;
+                return;
             }
-            if (right != NULL) {
-                right->parent = this;
-                right->traceLineage(allnodes);
+            left->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
+            if (isBinary) {
+                right->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
             }
         };
-
-        // INHERITED HEIGHT METHOD
-        int getHeight(int depth) {
-            if (isTerminal) {
-                return depth;
-            }
-            int leftheight = 0;
-            int rightheight = 0;
-            if (left != NULL) {
-                leftheight = left->getHeight(depth + 1);
-            }
-            if (right != NULL) {
-                rightheight = right->getHeight(depth + 1);
-            }
-            return std::max(leftheight, rightheight);
-        }
 };
 
 /*
     Structure passed to a network for mutation at the node level.
 */
 struct GPNodeParams {
-    // OSCILNODE
-    float partialChance;
-    int numPartials;
-
     // VALUENODE
     double valueMin;
     double valueMax;
+
+    // FUNCTION NODE
+    std::vector<GPFunction*>* availableGPFunctions;
+
+    // OSCILNODE
+    float partialChance;
+    int numPartials;
 
     // MODULATION NODE
     int LFORange;
@@ -89,9 +77,6 @@ struct GPNodeParams {
     // MULTIPLE
     GPRandom* rng;
     int numVariables;
-
-    // FUNCTION NODE
-    std::vector<GPFunction*>* availableGPFunctions;
 };
 
 #endif

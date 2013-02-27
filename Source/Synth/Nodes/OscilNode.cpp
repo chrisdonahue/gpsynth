@@ -56,6 +56,6 @@ void OscilNode::mutate(GPNodeParams* p) {
         w = 2.0 * partial * M_PI;
     }
     else {
-        variableNum = (int) (p->rng->random() * p->numVariables);
+        variableNum = p->rng->random(p->numVariables);
     }
 }
