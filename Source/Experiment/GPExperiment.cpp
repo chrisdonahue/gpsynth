@@ -183,15 +183,17 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     File output(path);
     output.create();
     FileOutputStream* fos = output.createOutputStream();
-    StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
+    //StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
     AudioSampleBuffer asb(1, 200);
-    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
+    //ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
+    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, StringPairArray(), 0));
 
     int64 numRemaining = numFrames;
     int64 numCompleted = 0;
     float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
         int numToWrite = numRemaining > 200 ? 200 : numRemaining;
+        std::cout << data[numCompleted] << std::endl;
         for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
             chanData[samp] = data[numCompleted];
         }

@@ -73,6 +73,7 @@ public:
                 vals->push_back(current->getDoubleValue());
                 current = ++i;
             }
+            vals->push_back(current->getDoubleValue());
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             psize = (++i)->getIntValue();
