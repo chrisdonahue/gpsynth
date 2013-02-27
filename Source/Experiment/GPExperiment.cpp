@@ -183,7 +183,10 @@ void GPExperiment::loadWavFile(String path) {
 
 void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
     File output(path);
-    output.create();
+    if (output.existsAsFile()) {
+        output.deleteFile();
+        output.create();
+    }
     FileOutputStream* fos = output.createOutputStream();
     //StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
     AudioSampleBuffer asb(1, 200);
