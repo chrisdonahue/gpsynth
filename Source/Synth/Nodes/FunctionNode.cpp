@@ -36,7 +36,9 @@ FunctionNode::~FunctionNode() {
 }
 
 FunctionNode* FunctionNode::getCopy() {
-    return new FunctionNode(function, symbol, left == NULL ? left : left->getCopy(), right == NULL ? right : right->getCopy());
+    FunctionNode* ret = new FunctionNode(function, symbol, left == NULL ? left : left->getCopy(), right == NULL ? right : right->getCopy());
+    ret->parent = parent;
+    return ret;
 }
 
 void FunctionNode::setFunction(GPFunction* fun, std::string sym, GPNode* rSub) {

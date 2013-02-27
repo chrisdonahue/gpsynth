@@ -20,7 +20,7 @@ GPNetwork::GPNetwork(GPNode* r) :
 allNodes()
 {
     ID = -1;
-    fitness = NAN;
+    fitness = -1;
     depth = -1;
     asText = "";
     root = r;
@@ -32,8 +32,6 @@ GPNetwork::~GPNetwork() {
 
 GPNetwork* GPNetwork::getCopy() {
   GPNetwork* copy = new GPNetwork(root->getCopy());
-  copy->depth = depth;
-  copy->asText = asText;
   copy->traceNetwork();
     return copy;
 }
@@ -83,11 +81,13 @@ GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
 }
 
 void GPNetwork::mutate(GPNodeParams* p) {
+    asText = "";
     getRandomNetworkNode(p->rng)->mutate(p);
 }
 
 void GPNetwork::traceNetwork() {
     allNodes.clear();
+    // TODO: inherently encode toString and getDepth in traceLineage
     root->parent = NULL;
     root->traceLineage(&allNodes);
 }
@@ -112,6 +112,10 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 
     // assign nu pointers
     nu->parent = old->parent;
+    
+    // clear out info
+    depth = -1;
+    asText = "";
 }
 
 /*
