@@ -27,12 +27,12 @@ wavFormat(new WavAudioFormat())
     sampleRate = 44100.0;
     targetFrames = NULL;
     numTargetFrames = 0;
-    specialValues = vals->data();
     loadWavFile(target);
 
     // EXPERIMENT STATE
     minFitnessAchieved = INFINITY;
     numEvaluatedGenerations = 0;
+    specialValues = vals->data();
 
     // SYNTH
     nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
@@ -49,15 +49,25 @@ wavFormat(new WavAudioFormat())
     std::vector<double>* flikelihoods = new std::vector<double>();
 
     if (expnum == 0) {
+        GPNode* ansroot = new FunctionNode(multiply, "*", new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
+        GPNetwork* answer = new GPNetwork(ansroot);
+        answer->traceNetwork();
+        sampleRate = 44100.0;
+        numTargetFrames = 88200;
+        targetFrames = evaluateIndividual(answer);
+        saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
+
         lowerFitnessIsBetter = true;
         bestPossibleFitness = 0;
 
-        nodes->push_back(new FunctionNode(add, "*", NULL, NULL));
-        nodes->push_back(new FunctionNode(multiply, "+", NULL, NULL));
+        //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
+        nodes->push_back(new FunctionNode(multiply, "*", NULL, NULL));
         //nodes->push_back(new ValueNode(0, -1));
-        nodes->push_back(new ValueNode(-1, 0));
-        nodes->push_back(new ValueNode(-1, 1));
+        //nodes->push_back(new ValueNode(-1, 0));
+        //nodes->push_back(new ValueNode(-1, 1));
         nodes->push_back(new OscilNode(1, 1, NULL, NULL));
+        nodes->push_back(new OscilNode(1, 2, NULL, NULL));
+        //nodes->push_back(new OscilNode(1, 3, NULL, NULL));
 
         functions->push_back(add);
         functions->push_back(multiply);
@@ -110,6 +120,7 @@ GPNetwork* GPExperiment::evolve() {
             char buffer[100];
             snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
             //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
+            saveWavFile("./DiscoveredChamp.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
         }
 
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
@@ -170,6 +181,7 @@ void GPExperiment::loadWavFile(String path) {
 
 void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
     File output(path);
+    output.create();
     FileOutputStream* fos = output.createOutputStream();
     StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
     AudioSampleBuffer asb(1, 200);

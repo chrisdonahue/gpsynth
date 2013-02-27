@@ -45,13 +45,14 @@ class GPNode {
         void traceSubtree(std::vector<GPNode*>* allnodes, GPNode* p, int* rootHeight, int currentDepth) {
             parent = p;
             allnodes->push_back(this);
-            if (isTerminal && currentDepth > *rootHeight) {
+            if (currentDepth > *rootHeight) {
                 *rootHeight = currentDepth;
-                return;
             }
-            left->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
-            if (isBinary) {
-                right->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
+            if (!isTerminal) {
+                left->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
+                if (isBinary) {
+                    right->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
+                }
             }
         };
 };
