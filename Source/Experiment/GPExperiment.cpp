@@ -117,10 +117,12 @@ GPNetwork* GPExperiment::evolve() {
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
-            char buffer[100];
-            snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
+            //char buffer[100];
+            //snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
             //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
-            saveWavFile("./DiscoveredChamp.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
+            if (fitness == bestPossibleFitness) {
+                saveWavFile("./DiscoveredChamp.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
+            }
         }
 
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
@@ -193,7 +195,6 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
         int numToWrite = numRemaining > 200 ? 200 : numRemaining;
-        std::cout << data[numCompleted] << std::endl;
         for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
             chanData[samp] = data[numCompleted];
         }
