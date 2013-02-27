@@ -39,9 +39,9 @@ class GPSynth {
 
     private:
         // CONSTRUCTION
-        GPNode* fullRecursive(unsigned cd, GPNode* p, unsigned d);
+        GPNode* fullRecursive(unsigned cd, unsigned d);
         GPNetwork* full(unsigned d);
-        GPNode* growRecursive(unsigned cd, GPNode* p, unsigned m);
+        GPNode* growRecursive(unsigned cd, unsigned m);
         GPNetwork* grow(unsigned m);
         void initPopulation();
 
@@ -49,7 +49,7 @@ class GPSynth {
         int nextGeneration();
 
         // HELPERS
-        void addNetworkToPopulation(GPNetwork* net, bool retrace=false);
+        void addNetworkToPopulation(GPNetwork* net);
         void clearGenerationState();
         GPNetwork* selectFromEvaluated(unsigned selectionType);
         

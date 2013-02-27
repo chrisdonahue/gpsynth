@@ -32,7 +32,6 @@ GPNetwork::~GPNetwork() {
 
 GPNetwork* GPNetwork::getCopy() {
     GPNetwork* copy = new GPNetwork(root->getCopy());
-    copy->traceNetwork();
     return copy;
 }
 
@@ -46,12 +45,12 @@ double GPNetwork::evaluate(double* t, double* v) {
     return root->evaluate(t, v);
 }
 
-std::string GPNetwork::toString() {
-    return asText;
-}
-
 int GPNetwork::getDepth() {
     return depth;
+}
+
+std::string GPNetwork::toString() {
+    return asText;
 }
 
 GPNode* GPNetwork::getRoot() {
@@ -108,8 +107,6 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 
     // assign nu pointers
     nu->parent = old->parent;
-
-    traceNetwork();
 }
 
 /*

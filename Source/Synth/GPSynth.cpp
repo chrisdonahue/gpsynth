@@ -49,32 +49,29 @@ GPSynth::~GPSynth() {
     delete availableTerminals;
 }
 
-GPNode* GPSynth::fullRecursive(unsigned cd, GPNode* p, unsigned d) {
+GPNode* GPSynth::fullRecursive(unsigned cd, unsigned d) {
     if (cd == d) {
         GPNode* term = availableTerminals->at(rng->random(availableTerminals->size()))->getCopy();
-        term->parent = p;
         return term;
     }
     else {
         GPNode* ret = availableFunctions->at(rng->random(availableFunctions->size()))->getCopy();
-        ret->parent = p;
-        ret->left = fullRecursive(cd + 1, ret, d);
+        ret->left = fullRecursive(cd + 1, d);
         if (ret->isBinary) {
-            ret->right = fullRecursive(cd + 1, ret, d);
+            ret->right = fullRecursive(cd + 1, d);
         }
         return ret;
     }
 }
 
 GPNetwork* GPSynth::full(unsigned d) {
-    return new GPNetwork(fullRecursive(0, NULL, d));
+    return new GPNetwork(fullRecursive(0, d));
 }
 
 // TODO: fix this so it doesnt fill the trees....
-GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
+GPNode* GPSynth::growRecursive(unsigned cd, unsigned m) {
     if (cd == m) {
         GPNode* term = availableTerminals->at(rng->random(availableTerminals->size()))->getCopy();
-        term->parent = p;
         return term;
     }
     else {
@@ -85,20 +82,19 @@ GPNode* GPSynth::growRecursive(unsigned cd, GPNode* p, unsigned m) {
         else {
             ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
         }
-        ret->parent = p;
         if (ret->isTerminal) {
             return ret;
         }
-        ret->left = fullRecursive(cd + 1, ret, m);
+        ret->left = growRecursive(cd + 1, m);
         if (ret->isBinary) {
-            ret->right = fullRecursive(cd + 1, ret, m);
+            ret->right = growRecursive(cd + 1, m);
         }
         return ret;
     }
 }
 
 GPNetwork* GPSynth::grow(unsigned m) {
-    return new GPNetwork(growRecursive(0, NULL, m));
+    return new GPNetwork(growRecursive(0, m));
 }
 
 void GPSynth::initPopulation() {
@@ -238,7 +234,11 @@ int GPSynth::nextGeneration() {
       GPNetwork* dad = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* mom = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* one = dad->getCopy();
+      one->traceNetwork();
+      one->ID = dad->ID;
       GPNetwork* two = mom->getCopy();
+      two->traceNetwork();
+      two->ID = mom->ID;
 
       if (nodeParams->rng->random() < nodeMutateChance) {
         one->mutate(nodeParams);
@@ -255,18 +255,18 @@ int GPSynth::nextGeneration() {
           delete one;
           one = dad->getCopy();
         }
-        addNetworkToPopulation(one, true);
+        addNetworkToPopulation(one);
         if (upForEvaluation.size() < populationSize) {
           if (two->getDepth() > maxDepth) {
             delete two;
             two = mom->getCopy();
           }
-          addNetworkToPopulation(two, true);
+          addNetworkToPopulation(two);
         }
       }
       // some other type with one offspring
       else {
-        addNetworkToPopulation(offspring, true);
+        addNetworkToPopulation(offspring);
       }
     }
 
@@ -281,12 +281,11 @@ int GPSynth::nextGeneration() {
    =======
 */
 
-void GPSynth::addNetworkToPopulation(GPNetwork* net, bool retrace) {
+void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     net->ID = nextNetworkID++;
     allNetworks.push_back(new std::string(net->toString()));
     upForEvaluation.push_back(net);
-    if (retrace)
-        net->traceNetwork();
+    net->traceNetwork();
 }
 
 void GPSynth::clearGenerationState() {
@@ -381,14 +380,17 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
         GPNode* subtreeone = one->getRandomNetworkNode(nodeParams->rng);
         GPNode* subtreeonecopy = subtreeone->getCopy();
         GPNode* subtreetwo = two->getRandomNetworkNode(nodeParams->rng);
-        GPNode* subtreetwocopy = subtreeone->getCopy();
+        GPNode* subtreetwocopy = subtreetwo->getCopy();
         std::cout << "-----------------" << std::endl;
-        std::cout << subtreeone->toString() << std::endl;
-        std::cout << subtreetwo->toString() << std::endl;
-        std::cout << one->toString() << std::endl;
-        std::cout << two->toString() << std::endl;
+        std::cout << one->ID << ": " << one->toString() << std::endl;
+        std::cout << two->ID << ": " << two->toString() << std::endl;
+        std::cout << subtreeonecopy->toString() << std::endl;
+        std::cout << subtreetwocopy->toString() << std::endl;
         one->replaceSubtree(subtreeone, subtreetwocopy);
         two->replaceSubtree(subtreetwo, subtreeonecopy);
+        // TODO: remove once right
+        one->traceNetwork();
+        two->traceNetwork();
         std::cout << one->toString() << std::endl;
         std::cout << two->toString() << std::endl;
         delete subtreeone;
