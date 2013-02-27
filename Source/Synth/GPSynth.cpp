@@ -147,7 +147,7 @@ GPNetwork* GPSynth::getIndividual() {
 
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = upForEvaluation[currentIndividualNumber];
-    if (ret->fitness != NAN) {
+    if (ret->fitness != -1) {
         std::cout << "Algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << " was reproduced from last generation with a fitness of " << ret->fitness << std::endl;
         evaluated.push_back(ret);
         rawFitnesses.push_back(ret->fitness);
@@ -238,7 +238,7 @@ int GPSynth::nextGeneration() {
       GPNetwork* dad = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* mom = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* one = dad->getCopy();
-      GPNetwork* two = dad->getCopy();
+      GPNetwork* two = mom->getCopy();
 
       if (nodeParams->rng->random() < nodeMutateChance) {
         one->mutate(nodeParams);
@@ -379,9 +379,20 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
         GPNode* subtreeone = one->getRandomNetworkNode(nodeParams->rng);
+        GPNode* subtreeonecopy = subtreeone->getCopy();
         GPNode* subtreetwo = two->getRandomNetworkNode(nodeParams->rng);
-        one->replaceSubtree(subtreeone, subtreetwo);
-        two->replaceSubtree(subtreetwo, subtreeone);
+        GPNode* subtreetwocopy = subtreeone->getCopy();
+        std::cout << "-----------------" << std::endl;
+        std::cout << subtreeone->toString() << std::endl;
+        std::cout << subtreetwo->toString() << std::endl;
+        std::cout << one->toString() << std::endl;
+        std::cout << two->toString() << std::endl;
+        one->replaceSubtree(subtreeone, subtreetwocopy);
+        two->replaceSubtree(subtreetwo, subtreeonecopy);
+        std::cout << one->toString() << std::endl;
+        std::cout << two->toString() << std::endl;
+        delete subtreeone;
+        delete subtreetwo;
 
         return NULL;
     }
