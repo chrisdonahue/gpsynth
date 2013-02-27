@@ -21,9 +21,9 @@ allNodes()
 {
     ID = -1;
     fitness = NAN;
+    root = r;
     depth = -1;
     asText = "";
-    root = r;
 }
 
 GPNetwork::~GPNetwork() {
@@ -31,10 +31,8 @@ GPNetwork::~GPNetwork() {
 }
 
 GPNetwork* GPNetwork::getCopy() {
-  GPNetwork* copy = new GPNetwork(root->getCopy());
-  copy->depth = depth;
-  copy->asText = asText;
-  copy->traceNetwork();
+    GPNetwork* copy = new GPNetwork(root->getCopy());
+    copy->traceNetwork();
     return copy;
 }
 
@@ -49,16 +47,10 @@ double GPNetwork::evaluate(double* t, double* v) {
 }
 
 std::string GPNetwork::toString() {
-    if (asText.compare("") == 0) {
-        asText = root->toString();
-    }
     return asText;
 }
 
 int GPNetwork::getDepth() {
-    if (depth == -1) {
-        depth = root->getHeight(0);
-    }
     return depth;
 }
 
@@ -77,8 +69,10 @@ bool GPNetwork::equals(GPNetwork* other) {
 */
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
-    if (allNodes.size() == 0)
+    if (allNodes.size() == 0) {
+        std::cerr << "Tried to get a random node of an empty or untraced network. This shouldn't happen" << std::endl;
         return NULL;
+    }
     return allNodes[r->random(allNodes.size())];
 }
 
@@ -88,8 +82,8 @@ void GPNetwork::mutate(GPNodeParams* p) {
 
 void GPNetwork::traceNetwork() {
     allNodes.clear();
-    root->parent = NULL;
-    root->traceLineage(&allNodes);
+    root->traceSubtree(&allNodes, NULL, &depth, 0);
+    asText = root->toString();
 }
 
 /*
@@ -112,12 +106,15 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 
     // assign nu pointers
     nu->parent = old->parent;
+
+    traceNetwork();
 }
 
 /*
     This method swaps node two into node one's spot in the network tree
 */
 void GPNetwork::swap(GPNode* old, GPNode* nu) {
+    /*
     // handle root case
     if (old == root)
         root = nu;
@@ -136,4 +133,5 @@ void GPNetwork::swap(GPNode* old, GPNode* nu) {
     nu->parent = old->parent;
     nu->left = old->left;
     nu->right = old->right;
+    */
 }
