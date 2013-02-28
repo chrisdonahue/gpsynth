@@ -5,11 +5,11 @@
 #include <string>
 
 struct GPFunction {
-    double (function*)(double, double);
-    std::string* symbol;
+    double (*function)(double, double);
+    char symbol[4];
     bool isBinary;
     double identity;
-}
+};
 
 extern GPFunction add;
 extern GPFunction subtract;
@@ -20,13 +20,13 @@ extern GPFunction power;
 extern GPFunction sine;
 extern GPFunction cosine;
 
-extern double add(double, double);
-extern double subtract(double, double);
-extern double multiply(double, double);
-extern double modulo(double, double);
-extern double divide(double, double);
-extern double power(double, double);
-extern double sine(double, double);
-extern double cosine(double, double);
+extern double GPadd(double, double);
+extern double GPsubtract(double, double);
+extern double GPmultiply(double, double);
+extern double GPdivide(double, double);
+extern double GPmodulo(double, double);
+extern double GPpower(double, double);
+extern double GPsine(double, double);
+extern double GPcosine(double, double);
 
 #endif

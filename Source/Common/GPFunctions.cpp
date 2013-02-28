@@ -8,12 +8,12 @@ GPFunction add = { GPadd, "+", true, 0.0 };
 double GPsubtract(double left, double right) {
     return left - right;
 }
-GPFunction add = { GPsubtract, "-", true, 0.0 };
+GPFunction subtract = { GPsubtract, "-", true, 0.0 };
 
 double GPmultiply(double left, double right) {
     return left * right;
 }
-GPFunction multiply = { GPmutiply, "*", true, 0.0 };
+GPFunction multiply = { GPmultiply, "*", true, 0.0 };
 
 double GPdivide(double left, double right) {
     double denom = right;

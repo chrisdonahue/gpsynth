@@ -230,7 +230,7 @@ int GPSynth::nextGeneration() {
     assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize);
     upForEvaluation.clear();
 
-    unsigned numToReproduce = (unsigned) ((1 - crossoverProportion) * populationSize);
+    unsigned numToReproduce = (unsigned) ((1 - proportionOfPopulationFromCrossover) * populationSize);
 
     for (int i = 0; i < numToReproduce; i++) {
       GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
@@ -249,11 +249,11 @@ int GPSynth::nextGeneration() {
       two->traceNetwork();
       two->ID = mom->ID;
 
-      if (nodeParams->rng->random() < nodeMutateChance) {
-        one->mutate(nodeParams);
+      if (params->rng->random() < mutationDuringCrossoverChance) {
+        one->mutate(params);
       }
-      if (nodeParams->rng->random() < nodeMutateChance) {
-        two->mutate(nodeParams);
+      if (params->rng->random() < mutationDuringCrossoverChance) {
+        two->mutate(params);
       }
 
       GPNetwork* offspring = reproduce(one, two);
@@ -348,7 +348,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 
     if (selectionType == 0) {
         // fitness proportionate selection (lower better)
-        return evaluated[nodeParams->rng->sampleFromDistribution(&normalizedFitnesses)];
+        return evaluated[params->rng->sampleFromDistribution(&normalizedFitnesses)];
     }
     else if (selectionType == 1) {
         // ranking linear selection
@@ -372,7 +372,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
     }
     else if (selectionType == 6) {
         // fitness-unaware random selection
-        return evaluated[(int) (nodeParams->rng->random() * evaluated.size())];
+        return evaluated[(int) (params->rng->random() * evaluated.size())];
     }
     return NULL;
 }
@@ -386,9 +386,9 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
-        GPNode* subtreeone = one->getRandomNetworkNode(nodeParams->rng);
+        GPNode* subtreeone = one->getRandomNetworkNode(params->rng);
         GPNode* subtreeonecopy = subtreeone->getCopy();
-        GPNode* subtreetwo = two->getRandomNetworkNode(nodeParams->rng);
+        GPNode* subtreetwo = two->getRandomNetworkNode(params->rng);
         GPNode* subtreetwocopy = subtreetwo->getCopy();
         std::cout << "-----------------" << std::endl;
         std::cout << one->ID << ": " << one->toString() << std::endl;
@@ -415,7 +415,7 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     }
     else if (crossoverType == 3) {
         // AM crossover
-        GPNode* newroot = new FunctionNode(multiply, "*", one->getRoot(), two->getRoot());
+        GPNode* newroot = new FunctionNode(multiply, one->getRoot(), two->getRoot());
         GPNetwork* newnet = new GPNetwork(newroot);
         return newnet;
     }

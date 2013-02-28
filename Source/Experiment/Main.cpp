@@ -39,7 +39,7 @@ public:
         GPParams* params = (GPParams*) malloc(sizeof(GPParams));
         params->waveFileBufferSize = 200;
         params->experimentNumber = 0;
-        params->numberOfGenerations = 100;
+        params->numGenerations = 100;
         params->thresholdFitness = 0.0;
         params->fitnessFunctionType = 0;
         params->populationSize = 500;
@@ -53,12 +53,12 @@ public:
         params->proportionOfPopulationForGreedySelection = 0.0;
         params->mutationDuringCrossoverChance = 0.1;
         params->variableValues = new std::vector<double>();
-        params->LFONodeFrequencyRange = 10;
+        params->modulationNodeFrequencyRange = 10;
         params->oscilNodePartialChance = 0.5;
         params->valueNodeMinimum = -1.0;
         params->valueNodeMaximum = 1.0;
-        params->delayBufferMaxSeconds = 0.1;
-        params->filterBufferMaxSeconds = 0.1;
+        params->delayNodeBufferMaxSeconds = 0.1;
+        params->filterNodeBufferMaxSeconds = 0.1;
 
         for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
@@ -74,7 +74,7 @@ public:
             params->thresholdFitness = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--numgenerations"))  {
-            params->numberOfGenerations = (++i)->getIntValue();
+            params->numGenerations = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--values")) {
             String* current = (++i);
@@ -103,7 +103,7 @@ public:
             params->crossoverSelectionType = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--crosspercent")) {
-            params->percentOfPopulationFromCrossover = (++i)->getDoubleValue();
+            params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--mutatechance"))  {
             params->mutationDuringCrossoverChance = (++i)->getDoubleValue();

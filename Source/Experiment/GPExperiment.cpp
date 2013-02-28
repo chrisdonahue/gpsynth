@@ -37,10 +37,11 @@ wavFormat(new WavAudioFormat())
 
     // SYNTH
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-    std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
+    std::vector<GPFunction>* binaryFunctions = new std::vector<GPFunction>();
+    std::vector<GPFunction>* unaryFunctions = new std::vector<GPFunction>();
 
     if (params->experimentNumber == 0) {
-        GPNode* ansroot = new FunctionNode(multiply, "*", new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
+        GPNode* ansroot = new FunctionNode(multiply, new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
         GPNetwork* answer = new GPNetwork(ansroot);
         answer->traceNetwork();
         sampleRate = 44100.0;
@@ -54,7 +55,7 @@ wavFormat(new WavAudioFormat())
         p->bestPossibleFitness = 0;
 
         //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
-        nodes->push_back(new FunctionNode(multiply, "*", NULL, NULL));
+        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         //nodes->push_back(new ValueNode(0, -1));
         //nodes->push_back(new ValueNode(-1, 0));
         //nodes->push_back(new ValueNode(-1, 1));
@@ -62,18 +63,20 @@ wavFormat(new WavAudioFormat())
         nodes->push_back(new OscilNode(1, 2, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 3, NULL, NULL));
 
-        functions->push_back(add);
-        functions->push_back(multiply);
+        binaryFunctions->push_back(add);
+        binaryFunctions->push_back(multiply);
     }
 
-    p->availableGPFunctions = functions;
+    p->availableUnaryFunctions = unaryFunctions;
+    p->availableBinaryFunctions = binaryFunctions;
 
     synth = new GPSynth(p, nodes);
 }
 
 GPExperiment::~GPExperiment() {
     free(targetFrames);
-    delete params->availableGPFunctions;
+    delete params->availableUnaryFunctions;
+    delete params->availableBinaryFunctions;
     delete synth;
 }
 

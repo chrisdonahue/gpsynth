@@ -16,19 +16,18 @@
 
 class FunctionNode: public GPNode {
     public:
-        FunctionNode(GPFunction fun, std::string sym, GPNode* l, GPNode* r);
+        FunctionNode(GPFunction gpfun, GPNode* l, GPNode* r);
         ~FunctionNode();
         FunctionNode* getCopy();
 
-        void setFunction(GPFunction fun, std::string sym, GPNode* rSub);
+        void setFunction(GPFunction fun, GPNode* rSub);
         double evaluate(double* t, double* v);
         std::string toString();
         bool equals(GPNode* other);
         void mutate(GPParams* e);
 
     private:
-        GPFunction* function;
-        std::string symbol;
+        GPFunction gpfunction;
 };
 
 #endif

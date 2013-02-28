@@ -2,6 +2,7 @@
 #define GPPARAMS_H
 
 #include "GPRandom.h"
+#include "GPFunctions.h"
 
 struct GPParams {
     // auxillary params
@@ -36,7 +37,8 @@ struct GPParams {
     double valueNodeMaximum;
 
     // function node
-    std::vector<GPFunction*>* availableGPFunctions;
+    std::vector<GPFunction>* availableUnaryFunctions;
+    std::vector<GPFunction>* availableBinaryFunctions;
 
     // oscil node
     double oscilNodePartialChance;
