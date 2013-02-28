@@ -37,8 +37,8 @@ wavFormat(new WavAudioFormat())
 
     // SYNTH
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-    std::vector<GPFunction>* binaryFunctions = new std::vector<GPFunction>();
     std::vector<GPFunction>* unaryFunctions = new std::vector<GPFunction>();
+    std::vector<GPFunction>* binaryFunctions = new std::vector<GPFunction>();
 
     if (params->experimentNumber == 0) {
         GPNode* ansroot = new FunctionNode(multiply, new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
@@ -48,7 +48,6 @@ wavFormat(new WavAudioFormat())
         numTargetFrames = 88200;
         targetFrames = evaluateIndividual(answer);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
-        delete ansroot;
         delete answer;
 
         p->lowerFitnessIsBetter = true;
