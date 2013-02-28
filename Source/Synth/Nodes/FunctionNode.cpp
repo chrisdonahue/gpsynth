@@ -16,16 +16,13 @@
     ==============
 */
 
-FunctionNode::FunctionNode(GPFunction* fun, std::string sym, GPNode* l, GPNode* r) {
-    function = fun;
-    symbol = sym;
+FunctionNode::FunctionNode(GPFunction* gpfun, GPNode* l, GPNode* r) {
+    function = gpfun->function;
+    symbol = *(gpfun->symbol);
+    isBinary = gpfun->isBinary;
     left = l;
     right = r;
     parent = NULL;
-    if (function == sine || function == cosine)
-        isBinary = false;
-    else
-        isBinary = true;
     isTerminal = false;
 }
 
@@ -58,10 +55,10 @@ double FunctionNode::evaluate(double* t, double* v) {
         return function(left->evaluate(t, v), right->evaluate(t, v));
     }
     else if (left != NULL && right == NULL) {
-        if (function == add)
-            return function(left->evaluate(t, v), 0.0);
-        if (function == multiply)
-            return function(left->evaluate(t, v), 1.0);
+        if (isBinary)
+            return left->evaluate(t, v);
+        else
+            return function(left->evaluate(t, v), -1.0);
     }
     else {
         return 0.0;
@@ -86,6 +83,6 @@ bool FunctionNode::equals(GPNode* other) {
     return false;
 }
 
-void FunctionNode::mutate(GPNodeParams* p) {
+void FunctionNode::mutate(GPParams* p) {
     return;
 }

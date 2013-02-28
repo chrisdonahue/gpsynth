@@ -16,26 +16,35 @@
    ============
 */
 
-GPSynth::GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned reproduceselecttype, unsigned crossselecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p) :
+GPSynth::GPSynth(GPParams* p, std::vector<GPNode*>* nodes) :
 nextNetworkID(0), generationID(0), currentIndividualNumber(0),
-populationSize(psize), lowerFitnessIsBetter(lowerbetter), bestPossibleFitness(best), maxInitialDepth(mid), maxDepth(md), crossoverType(crosstype), reproductionSelectionType(reproduceselecttype), crossoverSelectionType(crossselecttype), crossoverProportion(crosspercent),
-nodeAddChance(addchance), nodeRemoveChance(subchance), nodeMutateChance(mutatechance),
+populationSize(p->populationSize),
+lowerFitnessIsBetter(p->lowerFitnessIsBetter),
+bestPossibleFitness(p->bestPossibleFitness),
+maxInitialDepth(p->maxInitialDepth),
+maxDepth(p->maxDepth),
+mutationDuringInitializationChance(p->mutationDuringInitializationChance),
+proportionOfPopulationFromCrossover(p->proportionOfPopulationFromCrossover),
+reproductionSelectionType(p->reproductionSelectionType),
+crossoverType(p->crossoverType),
+crossoverSelectionType(p->crossoverSelectionType),
+mutationDuringCrossoverChance(p->mutationDuringCrossoverChance),
 availableNodes(nodes),
 allNetworks(), upForEvaluation(), evaluated(),
 rawFitnesses(), normalizedFitnesses()
 {
+    params = p;
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
-    for (int i = 0; i < nodes->size(); i++) {
-        if (nodes->at(i)->isTerminal) {
+    for (int i = 0; i < availableNodes->size(); i++) {
+        if (availableNodes->at(i)->isTerminal) {
             availableTerminals->push_back(nodes->at(i));
         }
         else {
             availableFunctions->push_back(nodes->at(i));
         }
     }
-    nodeParams = p;
-    rng = nodeParams->rng;
+    rng = params->rng;
     std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
     initPopulation();
 }

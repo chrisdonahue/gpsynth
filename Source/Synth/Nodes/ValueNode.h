@@ -22,7 +22,7 @@ class ValueNode: public GPNode {
         double evaluate(double* t, double* v);
         std::string toString();
         bool equals(GPNode* other);
-        void mutate(GPNodeParams* e);
+        void mutate(GPParams* e);
 
     private:
         double value;

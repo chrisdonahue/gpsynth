@@ -11,13 +11,15 @@
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
+#include "../Common/GPFunctions.h"
+#include "../Common/GPParams.h"
 #include "../Synth/GPSynth.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, unsigned s, unsigned expnum, double threshold, unsigned numgens, std::vector<double>* vals, unsigned psize, unsigned mid, unsigned md, unsigned crosstype, unsigned rselect, unsigned cselect, double crosspercent, double addchance, double subchance, double mutatechance);
+        GPExperiment(String target, GPParams* p);
         ~GPExperiment();
 
         // EVOLUTION CONTROL
@@ -25,6 +27,7 @@ class GPExperiment {
 
     private:
         // EXPERIMENT PARAMETERS
+        GPParams* params;
         float fitnessThreshold;
         int numGenerations;
         bool lowerFitnessIsBetter;
@@ -42,7 +45,6 @@ class GPExperiment {
 
         // SYNTH
         GPSynth* synth;
-        GPNodeParams* nodeParams;
 
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;

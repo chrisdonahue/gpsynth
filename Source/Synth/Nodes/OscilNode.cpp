@@ -50,9 +50,9 @@ bool OscilNode::equals(GPNode* other) {
     return false;
 }
 
-void OscilNode::mutate(GPNodeParams* p) {
-    if (p->rng->random() < p->partialChance) {
-        partial = (int) (p->rng->random() * p->numPartials);
+void OscilNode::mutate(GPParams* p) {
+    if (p->rng->random() < p->oscilNodePartialChance) {
+        partial = (int) (p->rng->random() * p->oscilNodeNumPartials);
         w = 2.0 * partial * M_PI;
     }
     else {

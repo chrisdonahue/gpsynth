@@ -11,17 +11,10 @@
 #ifndef GPNODE_H
 #define GPNODE_H
 
+#include "../Common/GPParams.h"
 #include <string>
-#include "../Common/GPRandom.h"
 #include <vector>
 #include <algorithm>
-
-/*
-    Convenient naming convention for GP-safe functions
-*/
-typedef double (GPFunction)(double, double);
-
-struct GPNodeParams;
 
 class GPNode {
     public:
@@ -29,7 +22,7 @@ class GPNode {
         virtual double evaluate(double* t, double* v) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
-        virtual void mutate(GPNodeParams* e) = 0;
+        virtual void mutate(GPParams* e) = 0;
         virtual bool equals(GPNode* other) = 0;
 
         // HERITAGE POINTERS
@@ -55,29 +48,6 @@ class GPNode {
                 }
             }
         };
-};
-
-/*
-    Structure passed to a network for mutation at the node level.
-*/
-struct GPNodeParams {
-    // VALUENODE
-    double valueMin;
-    double valueMax;
-
-    // FUNCTION NODE
-    std::vector<GPFunction*>* availableGPFunctions;
-
-    // OSCILNODE
-    float partialChance;
-    int numPartials;
-
-    // MODULATION NODE
-    int LFORange;
-
-    // MULTIPLE
-    GPRandom* rng;
-    int numVariables;
 };
 
 #endif

@@ -88,6 +88,6 @@ std::string FilterNode::toString() {
     return std::string(buffer);
 }
 
-void FilterNode::mutate(GPNodeParams* e) {
+void FilterNode::mutate(GPParams* e) {
 
 }

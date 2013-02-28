@@ -1,36 +1,31 @@
 Main.cpp:
     Add command line for MIDI stuff
-    Add command line for numPartials/valuemin/valuemax/LFOrange/greedyOverSelection or maybe keep in experiment
-    command line for buffer size
     --help
     check argument ranges
 
 GPFunctions.h:
-    Define GP function as a class or struct with function, symbol, identity
 
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
-    change "200" to constant value, add command line flag, fix saveWavFile logic
-    add more fitness functions/command line flag/constructor arg
+    change "200" to params->waveFileBufferSize
+    use parms->fitnessFunctionType
 
 GPNetwork.cpp:
-    Add command to parse a network from a string
-    Maybe remove mutateRemoveNode from command line arg as well
-    Maybe remove mutateAddNode from command line arg as well
+    Add constructor to parse a network from a string
     
 GPSynth.cpp:
     make initial population all unique (equals for GPNetwork and GPNode)
-    make availableFunctions and availableTerminals pointers
     Fill in selectFromEvaluated() skeleton code including greedy over
     Implement other types of reproduction
     do TODOs
+    make a map from network ID to GPNetwork*
+    remove fitness containers
+    change evaluated and upForEvaluation to sets for out of order evaluation/multiply fitness assignments
     
 GPNode.h:
-	Change name of GPNodeParams to GPNodeMutationParams
 
 FunctionNode.cpp:
-    maybe split into unaryFunctionNode.cpp and BinaryFunctionNode.cpp but prolly not
-    change mutationcode to accoutn for types of arity functions
+    change mutationcode to account for types of arity functions
 
 All node subclasses:
     mutate()

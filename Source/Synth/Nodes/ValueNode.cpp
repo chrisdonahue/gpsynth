@@ -76,9 +76,9 @@ bool ValueNode::equals(GPNode* other) {
     return false;
 }
 
-void ValueNode::mutate(GPNodeParams* p) {
+void ValueNode::mutate(GPParams* p) {
     if (isConstant) {
-        value = (p->rng->random() * (p->valueMax - p->valueMin) + p->valueMin);
+        value = (p->rng->random() * (p->valueNodeMaximum - p->valueNodeMinimum) + p->valueNodeMinimum);
     }
     else if (isTime) {
         return;

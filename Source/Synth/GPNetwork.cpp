@@ -75,7 +75,7 @@ GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
     return allNodes[r->random(allNodes.size())];
 }
 
-void GPNetwork::mutate(GPNodeParams* p) {
+void GPNetwork::mutate(GPParams* p) {
     asText = "";
     getRandomNetworkNode(p->rng)->mutate(p);
 }

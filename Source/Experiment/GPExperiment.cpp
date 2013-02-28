@@ -16,12 +16,14 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, unsigned s, unsigned expnum, double threshold, unsigned numgens, std::vector<double>* vals, unsigned psize, unsigned mid, unsigned md, unsigned crosstype, unsigned rselect, unsigned cselect, double crosspercent, double addchance, double subchance, double mutatechance) :
+GPExperiment::GPExperiment(String target, GPParams* p) :
 wavFormat(new WavAudioFormat())
 {
     // EXPERIMENT PARAMETERS
-    fitnessThreshold = threshold;
-    numGenerations = numgens;
+    params = p;
+    specialValues = p->variableValues->data();
+    numGenerations = p->numGenerations;
+    fitnessThreshold = p->thresholdFitness;
 
     // TARGET DATA CONTAINERS
     sampleRate = 44100.0;
@@ -32,23 +34,12 @@ wavFormat(new WavAudioFormat())
     // EXPERIMENT STATE
     minFitnessAchieved = INFINITY;
     numEvaluatedGenerations = 0;
-    specialValues = vals->data();
 
     // SYNTH
-    nodeParams = (GPNodeParams*) malloc(sizeof(GPNodeParams));
-
-    nodeParams->partialChance = 0.0;
-    nodeParams->numPartials = 3;
-    nodeParams->valueMin = -1;
-    nodeParams->valueMax = 1;
-    nodeParams->LFORange = 10;
-    nodeParams->numVariables = vals->size();
-    nodeParams->rng = new GPRandom(s);
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
     std::vector<GPFunction*>* functions = new std::vector<GPFunction*>();
-    std::vector<double>* flikelihoods = new std::vector<double>();
 
-    if (expnum == 0) {
+    if (params->experimentNumber == 0) {
         GPNode* ansroot = new FunctionNode(multiply, "*", new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
         GPNetwork* answer = new GPNetwork(ansroot);
         answer->traceNetwork();
@@ -56,9 +47,11 @@ wavFormat(new WavAudioFormat())
         numTargetFrames = 88200;
         targetFrames = evaluateIndividual(answer);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
+        delete ansroot;
+        delete answer;
 
-        lowerFitnessIsBetter = true;
-        bestPossibleFitness = 0;
+        p->lowerFitnessIsBetter = true;
+        p->bestPossibleFitness = 0;
 
         //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, "*", NULL, NULL));
@@ -73,16 +66,14 @@ wavFormat(new WavAudioFormat())
         functions->push_back(multiply);
     }
 
-    nodeParams->availableGPFunctions = functions;
+    p->availableGPFunctions = functions;
 
-    synth = new GPSynth(psize, lowerFitnessIsBetter, bestPossibleFitness, mid, md, crosstype, rselect, cselect, crosspercent, addchance, subchance, mutatechance, nodes, nodeParams);
+    synth = new GPSynth(p, nodes);
 }
 
 GPExperiment::~GPExperiment() {
     free(targetFrames);
-    delete nodeParams->rng;
-    delete nodeParams->availableGPFunctions;
-    free(nodeParams);
+    delete params->availableGPFunctions;
     delete synth;
 }
 

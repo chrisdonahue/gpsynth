@@ -18,14 +18,11 @@
 #include <assert.h>
 #include "GPNetwork.h"
 #include "Nodes/FunctionNode.h"
-#include "Nodes/ValueNode.h"
-#include "Nodes/OscilNode.h"
-#include "GPFunctions.h"
 
 class GPSynth {
     public:
         // CONSTRUCTION
-        GPSynth(unsigned psize, bool lowerbetter, double best, unsigned mid, unsigned md, unsigned crosstype, unsigned reproduceselecttype, unsigned crossselecttype, double crosspercent, double addchance, double subchance, double mutatechance, std::vector<GPNode*>* nodes, GPNodeParams* p);
+        GPSynth(GPParams* p, std::vector<GPNode*>* nodes);
         ~GPSynth();
 
         // EVOLUTION CONTROL
@@ -35,7 +32,7 @@ class GPSynth {
         void printGenerationSummary();
 
         // NODE MUTATION PARAMS
-        GPNodeParams* nodeParams;
+        GPParams* params;
 
     private:
         // CONSTRUCTION
@@ -68,15 +65,14 @@ class GPSynth {
         double bestPossibleFitness;
         unsigned maxInitialDepth;
         unsigned maxDepth;
-        unsigned crossoverType;
-        unsigned reproductionSelectionType;
-        unsigned crossoverSelectionType;
-        double crossoverProportion;
 
-        // NETWORK MUTATION RATES
-        double nodeAddChance;
-        double nodeRemoveChance;
-        double nodeMutateChance;
+        // GENETIC PARAMS
+        double mutationDuringInitializationChance;
+        double proportionOfPopulationFromCrossover;
+        unsigned reproductionSelectionType;
+        unsigned crossoverType;
+        unsigned crossoverSelectionType;
+        double mutationDuringCrossoverChance;
 
         // AVAILABLE CONTAINERS
         std::vector<GPNode*>* availableNodes;

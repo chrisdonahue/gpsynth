@@ -93,7 +93,7 @@ $(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
 	@echo "Compiling GPRandom.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/GPFunctions.o: ../../Source/Synth/GPFunctions.cpp
+$(OBJDIR)/GPFunctions.o: ../../Source/Common/GPFunctions.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPFunctions.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"

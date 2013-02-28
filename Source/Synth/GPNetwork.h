@@ -30,7 +30,7 @@ class GPNetwork {
 
         // MUTATION
         GPNode* getRandomNetworkNode(GPRandom* r);
-        void mutate(GPNodeParams* p);
+        void mutate(GPParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
         void swap(GPNode* one, GPNode* two);
         void traceNetwork();

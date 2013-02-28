@@ -35,77 +35,81 @@ public:
         StringArray args = getCommandLineParameterArray();
 
         String target("");
-        unsigned s = time(NULL);
-        unsigned expnum = 0;
-        double threshold = 0.0;
-        unsigned numgens = 50;
-        std::vector<double>* vals = new std::vector<double>();
-        unsigned psize = 500;
-        unsigned mid = 6;
-        unsigned md = 17;
-        unsigned crosstype = 0;
-        unsigned rselect = 0;
-        unsigned cselect = 0;
-        double crosspercent = 0.9;
-        double addchance = 0.0;
-        double subchance = 0.0;
-        double mutatechance = 0.01;
+        unsigned seed = time(NULL);
+        GPParams* params = (GPParams*) malloc(sizeof(GPParams));
+        params->waveFileBufferSize = 200;
+        params->experimentNumber = 0;
+        params->numberOfGenerations = 100;
+        params->thresholdFitness = 0.0;
+        params->fitnessFunctionType = 0;
+        params->populationSize = 500;
+        params->maxInitialDepth = 6;
+        params->maxDepth = 17;
+        params->mutationDuringInitializationChance = 0.5;
+        params->proportionOfPopulationFromCrossover = 0.9;
+        params->reproductionSelectionType = 0;
+        params->crossoverType = 0;
+        params->crossoverSelectionType = 0;
+        params->proportionOfPopulationForGreedySelection = 0.0;
+        params->mutationDuringCrossoverChance = 0.1;
+        params->variableValues = new std::vector<double>();
+        params->LFONodeFrequencyRange = 10;
+        params->oscilNodePartialChance = 0.5;
+        params->valueNodeMinimum = -1.0;
+        params->valueNodeMaximum = 1.0;
+        params->delayBufferMaxSeconds = 0.1;
+        params->filterBufferMaxSeconds = 0.1;
 
         for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
             target = *(++i);
           }
           else if (i->equalsIgnoreCase("--seed")) {
-            s = (++i)->getIntValue();
+            seed = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--exp")) {
-            expnum = (++i)->getIntValue();
+            params->experimentNumber = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--threshold"))  {
-            threshold = (++i)->getDoubleValue();
+            params->thresholdFitness = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--numgenerations"))  {
-            numgens = (++i)->getIntValue();
+            params->numberOfGenerations = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--values")) {
             String* current = (++i);
             while ( (i != args.end())  && !((current + 1)->startsWith(String("--"))) ) {
-                vals->push_back(current->getDoubleValue());
+                params->variableValues->push_back(current->getDoubleValue());
                 current = ++i;
             }
-            vals->push_back(current->getDoubleValue());
+            params->variableValues->push_back(current->getDoubleValue());
           }
           else if (i->equalsIgnoreCase("--popsize")) {
-            psize = (++i)->getIntValue();
+            params->populationSize = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--mid")) {
-            mid = (++i)->getIntValue();
+            params->maxInitialDepth = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--md")) {
-            md = (++i)->getIntValue();
+            params->maxDepth = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--ctype")) {
-            crosstype = (++i)->getIntValue();
+            params->crossoverType = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--rselect")) {
-            rselect = (++i)->getIntValue();
+            params->reproductionSelectionType = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--cselect")) {
-            cselect = (++i)->getIntValue();
+            params->crossoverSelectionType = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--crosspercent")) {
-            crosspercent = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--addchance"))  {
-            addchance = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--removechance"))  {
-            subchance = (++i)->getDoubleValue();
+            params->percentOfPopulationFromCrossover = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--mutatechance"))  {
-            mutatechance = (++i)->getDoubleValue();
+            params->mutationDuringCrossoverChance = (++i)->getDoubleValue();
           }
         }
+        params->rng = new GPRandom(seed);
 
         // TODO: check all value ranges here
         if (target.equalsIgnoreCase("")) {
@@ -114,7 +118,7 @@ public:
         }
 
         juce::Thread::setCurrentThreadName("experiment");
-        experiment = new GPExperiment(target, s, expnum, threshold, numgens, vals, psize, mid, md, crosstype, rselect, cselect, crosspercent, addchance, subchance, mutatechance);
+        experiment = new GPExperiment(target, params);
         GPNetwork* champion = experiment->evolve();
         shutdown();
         quit();

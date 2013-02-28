@@ -11,7 +11,7 @@
 #ifndef FUNCTIONNODE_H
 #define FUNCTIONNODE_H
 
-#include "../GPFunctions.h"
+#include "../../Common/GPFunctions.h"
 #include "../GPNode.h"
 
 class FunctionNode: public GPNode {
@@ -24,7 +24,7 @@ class FunctionNode: public GPNode {
         double evaluate(double* t, double* v);
         std::string toString();
         bool equals(GPNode* other);
-        void mutate(GPNodeParams* e);
+        void mutate(GPParams* e);
 
     private:
         GPFunction* function;
