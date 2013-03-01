@@ -55,11 +55,13 @@ wavFormat(new WavAudioFormat())
 
         //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+        nodes->push_back(new FunctionNode(sine, NULL, NULL));
+        nodes->push_back(new ValueNode(2*M_PI, -1));
+        nodes->push_back(new ValueNode(-1, 0));
+        nodes->push_back(new ValueNode(-1, 1));
         //nodes->push_back(new ValueNode(0, -1));
-        //nodes->push_back(new ValueNode(-1, 0));
-        //nodes->push_back(new ValueNode(-1, 1));
-        nodes->push_back(new OscilNode(1, 1, NULL, NULL));
-        nodes->push_back(new OscilNode(1, 2, NULL, NULL));
+        //nodes->push_back(new OscilNode(1, 1, NULL, NULL));
+        //nodes->push_back(new OscilNode(1, 2, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 3, NULL, NULL));
 
         binaryFunctions->push_back(add);

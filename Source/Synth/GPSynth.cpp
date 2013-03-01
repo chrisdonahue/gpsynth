@@ -77,7 +77,6 @@ GPNetwork* GPSynth::full(unsigned d) {
     return new GPNetwork(fullRecursive(0, d));
 }
 
-// TODO: fix this so it doesnt fill the trees....
 GPNode* GPSynth::growRecursive(unsigned cd, unsigned m) {
     if (cd == m) {
         GPNode* term = availableTerminals->at(rng->random(availableTerminals->size()))->getCopy();
