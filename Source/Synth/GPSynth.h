@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
@@ -27,6 +28,7 @@ class GPSynth {
 
         // EVOLUTION CONTROL
         GPNetwork* getIndividual();
+        std::vector<GPNetwork*>* getIndividuals(int n);
         int assignFitness(GPNetwork* net, double fitness);
         int prevGeneration();
         void printGenerationSummary();
@@ -57,7 +59,6 @@ class GPSynth {
         GPRandom* rng;
         int nextNetworkID;
         int generationID;
-        int currentIndividualNumber;
 
         // EVOLUTION PARAMS
         int populationSize;
@@ -73,6 +74,7 @@ class GPSynth {
         unsigned crossoverType;
         unsigned crossoverSelectionType;
         double mutationDuringCrossoverChance;
+        unsigned numUndiscoveredReproducedThisGeneration;
 
         // AVAILABLE CONTAINERS
         std::vector<GPNode*>* availableNodes;
@@ -81,8 +83,9 @@ class GPSynth {
 
         // NETWORK CONTAINERS
         std::vector<std::string*> allNetworks;
-        std::vector<GPNetwork*> upForEvaluation;
-        std::vector<GPNetwork*> evaluated;
+        std::set<GPNetwork*> unevaluated;
+        std::set<GPNetwork*> evaluated;
+        std::map<int, GPNetwork*> currentGeneration;
 
         // SELECTION CONTAINERS
         std::vector<double> rawFitnesses;
