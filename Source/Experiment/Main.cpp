@@ -37,7 +37,7 @@ public:
         String target("");
         unsigned seed = time(NULL);
         GPParams* params = (GPParams*) malloc(sizeof(GPParams));
-        params->waveFileBufferSize = 200;
+        params->wavFileBufferSize = 200;
         params->experimentNumber = 0;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
@@ -134,6 +134,7 @@ public:
     {
         // This is called when the app is being asked to quit: you can ignore this
         // request and let the app carry on running, or call quit() to allow the app to close.
+        shutdown();
         quit();
     }
 

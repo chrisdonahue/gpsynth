@@ -114,6 +114,7 @@ void GPSynth::initPopulation() {
     unsigned additionalFull = additionalLargest / 2;
     unsigned additionalGrow = additionalFull + (additionalLargest % 2);
 
+    // TODO: test for equality before adding to population
     for (int i = 0; i < maxInitialDepth - 1; i++) {
         for (int j = 0; j < numFullPerPart; j++) {
             addNetworkToPopulation(full(i + 2));
@@ -140,6 +141,7 @@ void GPSynth::initPopulation() {
 GPNetwork* GPSynth::getIndividual() {
     // if no more networks remain advance population
     if (currentIndividualNumber == populationSize) {
+        printGenerationSummary();
         currentIndividualNumber = 0;
         nextGeneration();
     }
@@ -171,6 +173,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
         if (net == upForEvaluation[i]) {
             evaluated.push_back(net);
             rawFitnesses.push_back(fitness);
+            net->fitness = fitness;
             upForEvaluation.at(i) = NULL;
             std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
             currentIndividualNumber++;
@@ -229,16 +232,9 @@ int GPSynth::nextGeneration() {
     assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize);
     upForEvaluation.clear();
 
-    unsigned numToReproduce = (unsigned) ((1 - proportionOfPopulationFromCrossover) * populationSize);
+    unsigned numToCrossover = (unsigned) (proportionOfPopulationFromCrossover * populationSize);
 
-    for (int i = 0; i < numToReproduce; i++) {
-      GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
-      double oldFitness = selected->fitness;
-      GPNetwork* one = selected->getCopy();
-      one->fitness = oldFitness;
-      addNetworkToPopulation(one);
-    }
-    while(upForEvaluation.size() < populationSize) {
+    while (upForEvaluation.size() < numToCrossover) {
       GPNetwork* dad = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* mom = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* one = dad->getCopy();
@@ -264,7 +260,7 @@ int GPSynth::nextGeneration() {
           one = dad->getCopy();
         }
         addNetworkToPopulation(one);
-        if (upForEvaluation.size() < populationSize) {
+        if (upForEvaluation.size() < numToCrossover) {
           if (two->getDepth() > maxDepth) {
             delete two;
             two = mom->getCopy();
@@ -276,6 +272,15 @@ int GPSynth::nextGeneration() {
       else {
         addNetworkToPopulation(offspring);
       }
+    }
+    std::cout << "----- REPRODUCTION -----" << std::endl;
+    while(upForEvaluation.size() < populationSize) {
+      GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
+      double oldFitness = selected->fitness;
+      GPNetwork* one = selected->getCopy();
+      one->traceNetwork();
+      one->fitness = oldFitness;
+      addNetworkToPopulation(one);
     }
 
     clearGenerationState();

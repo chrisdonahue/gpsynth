@@ -42,6 +42,9 @@ class GPExperiment {
         double sampleRate;
         int64 numTargetFrames;
         float* targetFrames;
+
+        // EVALUATION DATA
+        double* sampleTimes;
         double* specialValues;
 
         // EXPERIMENT STATE
@@ -53,6 +56,7 @@ class GPExperiment {
 
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
+        unsigned wavFileBufferSize;
         void loadWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 

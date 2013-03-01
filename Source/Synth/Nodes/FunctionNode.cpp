@@ -69,5 +69,12 @@ bool FunctionNode::equals(GPNode* other) {
 }
 
 void FunctionNode::mutate(GPParams* p) {
-    return;
+    std::vector<GPFunction>* functionSet;
+    if (isBinary) {
+        functionSet = p->availableBinaryFunctions;
+    }
+    else {
+        functionSet = p->availableUnaryFunctions;
+    }
+    gpfunction = functionSet->at(p->rng->random(p->availableBinaryFunctions->size()));
 }

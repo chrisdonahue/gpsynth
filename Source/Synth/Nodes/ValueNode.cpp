@@ -58,7 +58,12 @@ double ValueNode::evaluate(double* t, double* v) {
 std::string ValueNode::toString() {
     char buffer[10];
     if (isConstant) {
-        snprintf(buffer, 10, "(%.2lf)", value);
+        if (value == M_PI) {
+            snprintf(buffer, 10, "(pi)", value);
+        }
+        else {
+            snprintf(buffer, 10, "(%.2lf)", value);
+        }
     }
     else if (isTime) {
         snprintf(buffer, 10, "(%s)", "time");

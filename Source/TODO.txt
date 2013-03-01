@@ -3,30 +3,32 @@ Main.cpp:
     --help
     check argument ranges
 
-GPFunctions.h:
-
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
-    change "200" to params->waveFileBufferSize
-    use parms->fitnessFunctionType
+    fill and use sampleTimes for efficiency
 
 GPNetwork.cpp:
-    Add constructor to parse a network from a string
+    Fix constructor to parse a network from a string
     
 GPSynth.cpp:
-    make initial population all unique (equals for GPNetwork and GPNode)
     Fill in selectFromEvaluated() skeleton code including greedy over
     Implement other types of reproduction
     do TODOs
     make a map from network ID to GPNetwork*
     remove fitness containers
     change evaluated and upForEvaluation to sets for out of order evaluation/multiply fitness assignments
-    
-GPNode.h:
+    fix printGenerationSummary logic stuff
 
-FunctionNode.cpp:
-    change mutationcode to account for types of arity functions
+Node subclasses:
+    ConditionalNode
+    ValueNode split to ConstantNode and VariableNode
+    fill in virtual methods
 
-All node subclasses:
-    mutate()
-    equals()
+Other things:
+    make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
+
+Tomorrow:
+    Fix container nonsense in most generic way possible for GPSynth. Allow for out of order evaluations, block evaluations, etc. etc.
+    make new fitness function type for interactive
+    implement some cool node subclasses
+    if time, MIDI!

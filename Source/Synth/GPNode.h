@@ -12,7 +12,6 @@
 #define GPNODE_H
 
 #include "../Common/GPParams.h"
-#include <string>
 #include <vector>
 #include <algorithm>
 
@@ -23,7 +22,6 @@ class GPNode {
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
         virtual void mutate(GPParams* e) = 0;
-        virtual bool equals(GPNode* other) = 0;
 
         // HERITAGE POINTERS
         GPNode* parent;

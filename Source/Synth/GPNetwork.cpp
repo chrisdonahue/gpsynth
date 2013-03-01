@@ -26,6 +26,17 @@ allNodes()
     asText = "";
 }
 
+GPNetwork::GPNetwork(std::string netstring) {
+    ID = -1;
+    fitness = -1;
+    char* token;
+    char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
+    std::copy(netstring.begin(), netstring.end(), expr);
+    expr[netstring.size()] = '\0';
+    GPNode* root = createSubtree(strtok(expr, " )("));
+    free(expr);
+}
+
 GPNetwork::~GPNetwork() {
     delete root;
 }
@@ -58,7 +69,7 @@ GPNode* GPNetwork::getRoot() {
 }
 
 bool GPNetwork::equals(GPNetwork* other) {
-    return false;
+    return toString().compare(other->toString()) == 0;
 }
 
 /*
@@ -133,4 +144,40 @@ void GPNetwork::swap(GPNode* old, GPNode* nu) {
     nu->left = old->left;
     nu->right = old->right;
     */
+}
+
+// RECURSIVE CONSTRUCTION
+GPNode* createSubtree(char* tokenized=strtok(NULL, " )(")) {
+    std::cout << "----" << std::endl;
+    char* t = tokenized; 
+    std::cout << t << std::endl;
+    GPNode* ret;
+    if (strcmp(t, "+") == 0) {
+        std::cout << "1" << std::endl;
+        return new FunctionNode(add, createSubtree(), createSubtree());
+    }
+    else if (strcmp(t, "*") == 0) {
+        std::cout << "2" << std::endl;
+        return new FunctionNode(multiply, createSubtree(), createSubtree());
+    }
+    else if (strcmp(t, "sin") == 0) {
+        std::cout << "3" << std::endl;
+        return new FunctionNode(sine, createSubtree(), NULL);
+    }
+    else if (strcmp(t, "pi") == 0) {
+        std::cout << "4" << std::endl;
+        return new ValueNode(M_PI, -1);
+    }
+    else if (strcmp(t, "time") == 0) {
+        std::cout << "5" << std::endl;
+        return new ValueNode(-1, 0);
+    }
+    else if (strncmp(t, "v", 1) == 0) {
+        std::cout << "6" << std::endl;
+        return new ValueNode(-1, std::stoi(t + 1));
+    }
+    else {
+        std::cout << "7" << std::endl;
+        return new ValueNode(std::stod(t), -1);
+    }
 }

@@ -29,6 +29,7 @@ wavFormat(new WavAudioFormat())
     sampleRate = 44100.0;
     targetFrames = NULL;
     numTargetFrames = 0;
+    wavFileBufferSize = p->wavFileBufferSize;
     loadWavFile(target);
 
     // EXPERIMENT STATE
@@ -42,8 +43,10 @@ wavFormat(new WavAudioFormat())
 
     if (params->experimentNumber == 0) {
         GPNode* ansroot = new FunctionNode(multiply, new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
+        //std::string ansroot("(* (sin (* (* (time) (v1) (v2)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
         GPNetwork* answer = new GPNetwork(ansroot);
         answer->traceNetwork();
+        std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
         numTargetFrames = 88200;
         targetFrames = evaluateIndividual(answer);
@@ -123,7 +126,6 @@ GPNetwork* GPExperiment::evolve() {
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
 
         if (numUnevaluatedThisGeneration == 0) {
-            synth->printGenerationSummary();
             generationMinimumFitness = INFINITY;
             numEvaluatedGenerations++;
         }
@@ -152,7 +154,7 @@ void GPExperiment::loadWavFile(String path) {
     // TODO: check if path exists
     File input(path);
     FileInputStream* fis = input.createInputStream();
-    AudioSampleBuffer asb(1, 200);
+    AudioSampleBuffer asb(1, wavFileBufferSize);
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
 
     numTargetFrames = afr->lengthInSamples;
@@ -167,7 +169,7 @@ void GPExperiment::loadWavFile(String path) {
     int64 numCompleted = 0;
     float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
-        int numToRead = numRemaining > 200 ? 200 : numRemaining;
+        int numToRead = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
         afr->read(&asb, 0, numToRead, numCompleted, true, false);
         memcpy(targetFrames + numCompleted, chanData, numToRead);
         numRemaining -= numToRead;
@@ -184,7 +186,7 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     }
     FileOutputStream* fos = output.createOutputStream();
     //StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
-    AudioSampleBuffer asb(1, 200);
+    AudioSampleBuffer asb(1, wavFileBufferSize);
     //ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
     ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, StringPairArray(), 0));
 
@@ -192,7 +194,7 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     int64 numCompleted = 0;
     float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
-        int numToWrite = numRemaining > 200 ? 200 : numRemaining;
+        int numToWrite = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
         for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
             chanData[samp] = data[numCompleted];
         }

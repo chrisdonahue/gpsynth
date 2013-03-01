@@ -12,12 +12,17 @@
 #define GPNETWORK_H
 
 #include <iostream>
+#include <string.h>
 #include "GPNode.h"
+#include "Nodes/ValueNode.h"
+#include "Nodes/FunctionNode.h"
+#include "Nodes/OscilNode.h"
 
 class GPNetwork {
     public:
         // CONSTRUCTION
         GPNetwork(GPNode* r);
+        GPNetwork(std::string netstring);
         ~GPNetwork();
         GPNetwork* getCopy();
 
@@ -46,5 +51,7 @@ class GPNetwork {
         GPNode* root;
         std::vector<GPNode*> allNodes;
 };
+
+extern GPNode* createSubtree(char* tokenized);
 
 #endif
