@@ -23,6 +23,7 @@ Node subclasses:
 
 Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
+    crossover at shallower nodes have different probabilities?
 
 Tomorrow:
     make new fitness function type for interactive
