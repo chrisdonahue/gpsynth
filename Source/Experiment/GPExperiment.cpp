@@ -70,9 +70,8 @@ wavFormat(new WavAudioFormat())
         binaryFunctions->push_back(add);
         binaryFunctions->push_back(multiply);
     }
-    else if (params->experimentNumber == 1) {
-
-    }
+    // TODO: make CLI
+    p->fitnessFunctionType = 1;
 
     p->availableUnaryFunctions = unaryFunctions;
     p->availableBinaryFunctions = binaryFunctions;
@@ -104,8 +103,14 @@ GPNetwork* GPExperiment::evolve() {
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
 
+        double fitness = -1;
         float* candidateData = evaluateIndividual(candidate);
-        double fitness = getFitness(candidateData);
+        if (params->fitnessFunctionType == 0) {
+            fitness = getFitness(candidateData);
+        }
+        else if (params->fitnessFunctionType == 1) {
+            fitness = interactiveFitness(candidate);
+        }
         generationCumulativeFitness += fitness;
         numEvaluated++;
 
@@ -214,22 +219,24 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
 */
 
 float* GPExperiment::evaluateIndividual(GPNetwork* candidate) {
-    if (params->fitnessFunctionType == 0) {
-        float* ret = (float*) malloc(sizeof(float) * numTargetFrames);
-        double time;
-        for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
-            time = frameNum/sampleRate;
-            ret[frameNum] = candidate->evaluate(&time, specialValues);
-        }
-        return ret;
+    float* ret = (float*) malloc(sizeof(float) * numTargetFrames);
+    double time;
+    for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
+        time = frameNum/sampleRate;
+        ret[frameNum] = candidate->evaluate(&time, specialValues);
     }
-    else if (params->fitnessFunctionType == 1) {
-        return ;
-    }
-    return NULL;
+    return ret;
 }
 
-double GPExperiment::getFitness(float* candidateFrames) {
+double GPExperiment::interactiveFitness(GPNetwork* candidate) {
+    InteractiveFilterWindow* interactiveGA = new InteractiveFilterWindow(candidate, sampleRate);
+    //SimpleInteractiveGP* interactiveGA = new SimpleInteractiveGP(candidate, sampleRate);
+    //interactiveGA->setVisible(true);
+    //while(true) {
+    //    }
+}
+
+double GPExperiment::compareToTarget(float* candidateFrames) {
     double sum = 0;
     for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
         sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);

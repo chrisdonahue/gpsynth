@@ -15,7 +15,7 @@
 //===========================================================
 // STANDALONE - CONSTRUCTOR
 //===========================================================
-GPPluginAudioProcessor::GPPluginAudioProcessor()
+GPPluginAudioProcessor::GPPluginAudioProcessor(GPNetwork* net, double sr)
 {
     createGUI();
 }
@@ -35,13 +35,14 @@ GPPluginAudioProcessor::~GPPluginAudioProcessor()
 //===========================================================
 void GPPluginAudioProcessor::createGUI()
 {
+    new SimpleInteractiveComponent(network, sampleRate);
 }
 
 //==============================================================================
 //#ifdef GP_Build_Standalone
-GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter()
+GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter(GPNetwork* net, double sr)
 {
-    return new GPPluginAudioProcessor();
+    return new GPPluginAudioProcessor(net, sr);
 }
 /*
 #else
@@ -106,65 +107,6 @@ void GPPluginAudioProcessor::prepareToPlay (double /*sampleRate*/, int /*samples
     // initialisation that you need..
     printf("preparing to play!\n");
     
-    //cps = (float*) malloc(sizeof(float));
-    //*cps = 220.0;
-    //double* numtwo = (double*) malloc(sizeof(double));
-    //double* numpi = (double*) malloc(sizeof(double));
-    //*numtwo = 2.0;
-    //*numpi = M_PI;
-
-    /*
-    info = new GPInfo();
-    
-    GPNode* leafone = new ValueNode(numtwo);
-    GPNode* leaftwo = new ValueNode(numpi);
-    GPNode* leafthree = new ValueNode(NULL, true, false);
-    GPNode* leaffour = new ValueNode(NULL, false, true);
-    GPNode* connectone = new FunctionNode(GPFunction::multiply, std::string("*"), leafthree, leaffour);
-    GPNode* connecttwo = new FunctionNode(GPFunction::multiply, std::string("*"), leafone, leaftwo);
-    GPNode* connectthree = new FunctionNode(GPFunction::multiply, std::string("*"), connectone, connecttwo);
-    GPNode* root = new FunctionNode(GPFunction::sine, std::string("sin"), connectthree, NULL);
-    */
-
-    cycle = 0;
-    vars = (double*) malloc(sizeof(double) * 4);
-    vars[0] = 220.0;
-    vars[1] = 1.0;
-    vars[2] = 1.0;
-    vars[3] = 2.0*M_PI;
-    GPNode* one = new OscilNode(1, 1, NULL, NULL);
-    GPNode* two = new OscilNode(1, 2, NULL, NULL);
-    GPNode* three = new ValueNode(NULL, 3);
-    GPNode* four = new FunctionNode(GPFunction::multiply, "", two, three);
-    GPNode* root = new FunctionNode(GPFunction::multiply, "", one, four);
-    net = new GPNetwork(0, root);
-
-    ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
-
-    File output(File ("./").getNonexistentChildFile("TestOutput", ".wav", true));
-
-    FileOutputStream *fos = output.createOutputStream();
-
-    //StringPairArray metaData = WavAudioFormat::createBWAVMetadata("","","",Time::getCurrentTime(),0,"");
-
-    AudioSampleBuffer asb(1, 200);
-
-    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, 44100, 1, 32, StringPairArray(), 0));
-
-//    AudioFormatWriter* afw = waveAudioFormat.createWriterFor(&fos, 44100, 1, 32, metaData, 0);
-   
-    double sr = 44100.0;
-    double* manualtime = (double*) malloc(sizeof(double));
-    for (int blocks = 0; blocks < 441; blocks++) {
-        float* chanData = asb.getSampleData(0);
-        for (int samp = 0; samp < 200; samp++, cycle++) {
-            *manualtime = cycle/sr;
-            chanData[samp] = net->evaluate(manualtime, vars);
-        }
-        afw->writeFromAudioSampleBuffer(asb, 0, 200);
-    }
-    free(manualtime);
-
     cycle = 0;
 }
 //==============================================================================
