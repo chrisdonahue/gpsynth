@@ -31,6 +31,7 @@ class GPSynth {
         std::vector<GPNetwork*>* getIndividuals(int n);
         int assignFitness(GPNetwork* net, double fitness);
         int prevGeneration();
+        void printGenerationDelim();
         void printGenerationSummary();
 
         // NODE MUTATION PARAMS
@@ -74,7 +75,6 @@ class GPSynth {
         unsigned crossoverType;
         unsigned crossoverSelectionType;
         double mutationDuringCrossoverChance;
-        unsigned numUndiscoveredReproducedThisGeneration;
 
         // AVAILABLE CONTAINERS
         std::vector<GPNode*>* availableNodes;

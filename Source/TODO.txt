@@ -14,10 +14,7 @@ GPSynth.cpp:
     Fill in selectFromEvaluated() skeleton code including greedy over
     Implement other types of reproduction
     do TODOs
-    make a map from network ID to GPNetwork*
-    remove fitness containers
-    change evaluated and upForEvaluation to sets for out of order evaluation/multiply fitness assignments
-    fix printGenerationSummary logic stuff
+    maybe remove rawFitness container
 
 Node subclasses:
     ConditionalNode
@@ -28,7 +25,6 @@ Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
 
 Tomorrow:
-    make fitness stuff use the map
     make new fitness function type for interactive
     implement some cool node subclasses
     if time, MIDI omg gunna be so cool!

@@ -31,7 +31,7 @@ crossoverSelectionType(p->crossoverSelectionType),
 mutationDuringCrossoverChance(p->mutationDuringCrossoverChance),
 availableNodes(nodes),
 allNetworks(), unevaluated(), evaluated(), currentGeneration(),
-rawFitnesses(populationSize), normalizedFitnesses(populationSize)
+rawFitnesses(populationSize), normalizedFitnesses()
 {
     params = p;
     availableFunctions = new std::vector<GPNode*>();
@@ -47,6 +47,7 @@ rawFitnesses(populationSize), normalizedFitnesses(populationSize)
     rng = params->rng;
     std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
     initPopulation();
+    printGenerationDelim();
 }
 
 GPSynth::~GPSynth() {
@@ -145,30 +146,18 @@ GPNetwork* GPSynth::getIndividual() {
         nextGeneration();
     }
 
-    // print generation delimiter
-    if (unevaluated.size() == populationSize) {
-        std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
-    }
-
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
-    if (ret->fitness != -1) {
-        std::cout << "Algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << " was reproduced from last generation with a fitness of " << ret->fitness << std::endl;
-        assignFitness(ret, ret->fitness);
-        numUndiscoveredReproducedThisGeneration--;
-        return getIndividual();
-    }
-    else {
-        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << std::endl;
-        return ret;
-    }
+    std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << std::endl;
+    return ret;
 }
 
 std::vector<GPNetwork*>* GPSynth::getIndividuals(int n) {
-    if (unevaluated.size() - numUndiscoveredReproducedThisGeneration < n) {
+    if (unevaluated.size() < n) {
         std::cout << "Requested multiple individuals out of population that did not have that many remaining" << std::endl;
         return NULL;
     }
+    return NULL;
 }
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {
@@ -176,7 +165,9 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     unevaluated.erase(net);
     evaluated.insert(net);
     rawFitnesses[net->ID % populationSize] = fitness;
-    return populationSize - evaluated.size();
+    std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
+    int numStillNeedingEvaluation = populationSize - evaluated.size();
+    return numStillNeedingEvaluation;
 }
 
 int GPSynth::prevGeneration() {
@@ -184,7 +175,7 @@ int GPSynth::prevGeneration() {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
         return generationID;
     }
-    clearGenerationState();
+    //clearGenerationState();
     /*
         // TODO: implement this, requires GPNetwork(std::string)
     */
@@ -192,8 +183,13 @@ int GPSynth::prevGeneration() {
     return generationID;
 }
 
+void GPSynth::printGenerationDelim() {
+    std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
+}
+
 void GPSynth::printGenerationSummary() {
-    assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize);
+    assert(evaluated.size() == rawFitnesses.size());
+    assert(evaluated.size() == populationSize);
     double generationCumulativeFitness = 0;
     double generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
     GPNetwork* champ = NULL;
@@ -206,11 +202,11 @@ void GPSynth::printGenerationSummary() {
         generationCumulativeFitness += fitness;
         if (lowerFitnessIsBetter && fitness < generationBestFitness) {
             generationBestFitness = fitness;
-            champ = evaluated[i];
+            champ = currentGeneration[i];
         }
         else if (!lowerFitnessIsBetter && fitness > generationBestFitness) {
             generationBestFitness = fitness;
-            champ = evaluated[i];
+            champ = currentGeneration[i];
         }
     }
     double generationAverageFitness = generationCumulativeFitness / populationSize;
@@ -219,12 +215,12 @@ void GPSynth::printGenerationSummary() {
 
 int GPSynth::nextGeneration() {
     assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize && unevaluated.size() == 0);
-    unevaluated.clear();
+
+    std::vector<GPNetwork*>* nextGeneration = new std::vector<GPNetwork*>();
 
     unsigned numToCrossover = (unsigned) (proportionOfPopulationFromCrossover * populationSize);
-    numUndiscoveredReproducedThisGeneration = populationSize - numToCrossover;
 
-    while (unevaluated.size() < numToCrossover) {
+    while (nextGeneration->size() < numToCrossover) {
       GPNetwork* dad = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* mom = selectFromEvaluated(crossoverSelectionType);
       GPNetwork* one = dad->getCopy();
@@ -249,32 +245,37 @@ int GPSynth::nextGeneration() {
           delete one;
           one = dad->getCopy();
         }
-        addNetworkToPopulation(one);
-        if (unevaluated.size() < numToCrossover) {
+        nextGeneration->push_back(one);
+        if (nextGeneration->size() < numToCrossover) {
           if (two->getDepth() > maxDepth) {
             delete two;
             two = mom->getCopy();
           }
-          addNetworkToPopulation(two);
+         nextGeneration->push_back(two);
         }
       }
       // some other type with one offspring
       else {
-        addNetworkToPopulation(offspring);
+        nextGeneration->push_back(offspring);
       }
     }
-    std::cout << "----- REPRODUCTION -----" << std::endl;
-    while(unevaluated.size() < populationSize) {
+    while(nextGeneration->size() < populationSize) {
       GPNetwork* selected = selectFromEvaluated(reproductionSelectionType);
+      int oldID = selected->ID;
       double oldFitness = selected->fitness;
       GPNetwork* one = selected->getCopy();
-      //one->traceNetwork();
+      one->ID = oldID;
       one->fitness = oldFitness;
-      addNetworkToPopulation(one);
+      nextGeneration->push_back(one);
     }
 
     clearGenerationState();
     generationID++;
+    printGenerationDelim();
+    for (int i = 0; i < nextGeneration->size(); i++) {
+        addNetworkToPopulation(nextGeneration->at(i));
+    }
+
     return generationID;
 }
 
@@ -285,22 +286,37 @@ int GPSynth::nextGeneration() {
 */
 
 void GPSynth::addNetworkToPopulation(GPNetwork* net) {
+    int oldID;
+    if (net->fitness != -1) {
+        oldID = net->ID;
+    }
     net->ID = nextNetworkID++;
+    net->traceNetwork();
     allNetworks.push_back(new std::string(net->toString()));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
-    unevaluated.insert(net);
-    net->traceNetwork();
+    if (net->fitness != -1) {
+        evaluated.insert(net);
+        std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString() << " was reproduced into next generation with new ID " << net->ID << std::endl;
+        assignFitness(net, net->fitness);
+    }
+    else {
+        unevaluated.insert(net);
+    }
 }
 
 void GPSynth::clearGenerationState() {
-  currentGeneration.clear();
-  rawFitnesses.clear();
-  normalizedFitnesses.clear();
-  rank.clear();
   for (std::set<GPNetwork*>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
       delete (*i);
   }
   evaluated.clear();
+  unevaluated.clear();
+  currentGeneration.clear();
+  rawFitnesses.clear();
+  rawFitnesses.resize(populationSize, -1.0);
+  normalizedFitnesses.clear();
+  normalizedFitnesses.resize(populationSize, -1.0);
+  rank.clear();
+  rank.resize(populationSize, -1);
 }
 
 GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
@@ -344,7 +360,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 
     if (selectionType == 0) {
         // fitness proportionate selection (lower better)
-        return evaluated[params->rng->sampleFromDistribution(&normalizedFitnesses)];
+        return currentGeneration[params->rng->sampleFromDistribution(&normalizedFitnesses)];
     }
     else if (selectionType == 1) {
         // ranking linear selection
@@ -368,7 +384,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
     }
     else if (selectionType == 6) {
         // fitness-unaware random selection
-        return evaluated[(int) (params->rng->random() * evaluated.size())];
+        return currentGeneration[(int) (params->rng->random() * evaluated.size())];
     }
     return NULL;
 }
@@ -386,18 +402,18 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
         GPNode* subtreeonecopy = subtreeone->getCopy();
         GPNode* subtreetwo = two->getRandomNetworkNode(params->rng);
         GPNode* subtreetwocopy = subtreetwo->getCopy();
-        std::cout << "-----------------" << std::endl;
-        std::cout << one->ID << ": " << one->toString() << std::endl;
-        std::cout << two->ID << ": " << two->toString() << std::endl;
-        std::cout << subtreeonecopy->toString() << std::endl;
-        std::cout << subtreetwocopy->toString() << std::endl;
+        //std::cout << "-----------------" << std::endl;
+        //std::cout << one->ID << ": " << one->toString() << std::endl;
+        //std::cout << two->ID << ": " << two->toString() << std::endl;
+        //std::cout << subtreeonecopy->toString() << std::endl;
+        //std::cout << subtreetwocopy->toString() << std::endl;
         one->replaceSubtree(subtreeone, subtreetwocopy);
         two->replaceSubtree(subtreetwo, subtreeonecopy);
         // TODO: remove once right
         one->traceNetwork();
         two->traceNetwork();
-        std::cout << one->toString() << std::endl;
-        std::cout << two->toString() << std::endl;
+        //std::cout << one->toString() << std::endl;
+        //std::cout << two->toString() << std::endl;
         delete subtreeone;
         delete subtreetwo;
 
