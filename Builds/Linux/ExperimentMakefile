@@ -43,6 +43,9 @@ endif
 
 OBJECTS := \
   $(OBJDIR)/Main.o \
+  $(OBJDIR)/SimpleInteractiveGUI.o \
+  $(OBJDIR)/GPPluginProcessor.o \
+  $(OBJDIR)/SimpleInteractiveComponent.o \
   $(OBJDIR)/GPRandom.o \
   $(OBJDIR)/GPFunctions.o \
   $(OBJDIR)/GPExperiment.o \
@@ -86,6 +89,21 @@ strip:
 $(OBJDIR)/Main.o: ../../Source/Experiment/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SimpleInteractiveGUI.o: ../../Source/Experiment/SimpleInteractiveGUI.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SimpleInteractiveGUI.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPPluginProcessor.o: ../../Source/Plugin/GPPluginProcessor.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPPluginProcessor.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SimpleInteractiveComponent.o: ../../Source/Plugin/SimpleInteractiveComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SimpleInteractiveComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
