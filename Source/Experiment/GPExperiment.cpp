@@ -70,6 +70,9 @@ wavFormat(new WavAudioFormat())
         binaryFunctions->push_back(add);
         binaryFunctions->push_back(multiply);
     }
+    else if (params->experimentNumber == 1) {
+
+    }
 
     p->availableUnaryFunctions = unaryFunctions;
     p->availableBinaryFunctions = binaryFunctions;
@@ -102,7 +105,7 @@ GPNetwork* GPExperiment::evolve() {
         GPNetwork* candidate = synth->getIndividual();
 
         float* candidateData = evaluateIndividual(candidate);
-        double fitness = compareToTarget(candidateData);
+        double fitness = getFitness(candidateData);
         generationCumulativeFitness += fitness;
         numEvaluated++;
 
@@ -211,16 +214,22 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
 */
 
 float* GPExperiment::evaluateIndividual(GPNetwork* candidate) {
-    float* ret = (float*) malloc(sizeof(float) * numTargetFrames);
-    double time;
-    for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
-        time = frameNum/sampleRate;
-        ret[frameNum] = candidate->evaluate(&time, specialValues);
+    if (params->fitnessFunctionType == 0) {
+        float* ret = (float*) malloc(sizeof(float) * numTargetFrames);
+        double time;
+        for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
+            time = frameNum/sampleRate;
+            ret[frameNum] = candidate->evaluate(&time, specialValues);
+        }
+        return ret;
     }
-    return ret;
+    else if (params->fitnessFunctionType == 1) {
+        return ;
+    }
+    return NULL;
 }
 
-double GPExperiment::compareToTarget(float* candidateFrames) {
+double GPExperiment::getFitness(float* candidateFrames) {
     double sum = 0;
     for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
         sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);

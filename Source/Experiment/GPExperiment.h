@@ -15,6 +15,7 @@
 #include "../Common/GPParams.h"
 #include "../Synth/GPSynth.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "SimpleInteractiveGA.h"
 #include "../Synth/Nodes/ValueNode.h"
 #include "../Synth/Nodes/FunctionNode.h"
 #include "../Synth/Nodes/OscilNode.h"
@@ -62,7 +63,7 @@ class GPExperiment {
 
         // FITNESS FUNCTION
         float* evaluateIndividual(GPNetwork* candidate);
-        double compareToTarget(float* candidateFrames);
+        double getFitness(float* candidateFrames);
 };
 
 #endif
