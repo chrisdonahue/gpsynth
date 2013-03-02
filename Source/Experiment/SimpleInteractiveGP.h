@@ -22,11 +22,8 @@
 #ifndef __JUCER_HEADER_SIMPLEINTERACTIVEGP_SIMPLEINTERACTIVEGP_401095A8__
 #define __JUCER_HEADER_SIMPLEINTERACTIVEGP_SIMPLEINTERACTIVEGP_401095A8__
 
-//[Headers]     -- You can add your own extra header files here --
 #include "juce.h"
-//[/Headers]
-
-
+#include "../Synth/GPNetwork.hh"
 
 //==============================================================================
 /**
@@ -42,7 +39,7 @@ class SimpleInteractiveGP  : public Component,
 {
 public:
     //==============================================================================
-    SimpleInteractiveGP ();
+    SimpleInteractiveGP (GPNetwork* net, double sr);
     ~SimpleInteractiveGP();
 
     //==============================================================================
@@ -60,9 +57,6 @@ public:
     juce_UseDebuggingNewOperator
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
-    //[/UserVariables]
-
     //==============================================================================
     TextButton* playsound;
     Slider* freqslider;
@@ -73,7 +67,11 @@ private:
     Label* fitnessamount;
     TextButton* savebutton;
     TextButton* nextbutton;
-
+    GPNetwork* network;
+    double* frequency;
+    double* time;
+    double sampleRate
+    int cycle;
 
     //==============================================================================
     // (prevent copy constructor and operator= being generated..)

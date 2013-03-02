@@ -19,17 +19,10 @@
   ==============================================================================
 */
 
-//[Headers] You can add your own extra header files here...
-//[/Headers]
-
 #include "SimpleInteractiveGP.h"
 
-
-//[MiscUserDefs] You can add your own user definitions and misc code here...
-//[/MiscUserDefs]
-
 //==============================================================================
-SimpleInteractiveGP::SimpleInteractiveGP ()
+SimpleInteractiveGP::SimpleInteractiveGP (GPNetwork* net, double sr)
     : playsound (0),
       freqslider (0),
       freqlabel (0),
@@ -38,7 +31,10 @@ SimpleInteractiveGP::SimpleInteractiveGP ()
       fitnesslabel (0),
       fitnessamount (0),
       savebutton (0),
-      nextbutton (0)
+      nextbutton (0),
+      network(net),
+      sampleRate(sr),
+      cycle(0)
 {
     addAndMakeVisible (playsound = new TextButton (L"play"));
     playsound->setButtonText (L"play sound");
@@ -88,15 +84,14 @@ SimpleInteractiveGP::SimpleInteractiveGP ()
     addAndMakeVisible (nextbutton = new TextButton (L"next"));
     nextbutton->addListener (this);
 
-
     //[UserPreSize]
     //[/UserPreSize]
 
     setSize (300, 300);
 
-
-    //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
+    *frequency = 20;
+    *time = 0;
+    net->fitness = 0;
 }
 
 SimpleInteractiveGP::~SimpleInteractiveGP()
@@ -142,8 +137,6 @@ void SimpleInteractiveGP::resized()
     fitnessamount->setBounds (208, 78, 30, 30);
     savebutton->setBounds (120, 216, 150, 24);
     nextbutton->setBounds (120, 248, 150, 24);
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
 }
 
 void SimpleInteractiveGP::buttonClicked (Button* buttonThatWasClicked)
@@ -158,13 +151,11 @@ void SimpleInteractiveGP::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == upvote)
     {
-        //[UserButtonCode_upvote] -- add your button handler code here..
-        //[/UserButtonCode_upvote]
+        net->fitness += 1;
     }
     else if (buttonThatWasClicked == downvote)
     {
-        //[UserButtonCode_downvote] -- add your button handler code here..
-        //[/UserButtonCode_downvote]
+        net->fitness -= 1;
     }
     else if (buttonThatWasClicked == savebutton)
     {
@@ -186,10 +177,8 @@ void SimpleInteractiveGP::sliderValueChanged (Slider* sliderThatWasMoved)
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == freqslider)
-    {
-        //[UserSliderCode_freqslider] -- add your slider handling code here..
-        //[/UserSliderCode_freqslider]
+    if (sliderThatWasMoved == freqslider) {
+        *frequency = sliderThatWasMoved->getValue();
     }
 
     //[UsersliderValueChanged_Post]
