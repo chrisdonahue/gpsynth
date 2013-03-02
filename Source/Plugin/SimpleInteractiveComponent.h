@@ -51,7 +51,7 @@ public:
     void buttonClicked (Button* buttonThatWasClicked);
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
-
+    bool userStillEvaluating;
 
     //==============================================================================
     juce_UseDebuggingNewOperator

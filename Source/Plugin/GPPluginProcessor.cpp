@@ -8,7 +8,6 @@
   ==============================================================================
 */
 
-#include "../Synth/GPFunctions.h"
 #include "GPPluginProcessor.h"
 
 #define MAX_BUFFER_SIZE 1024
@@ -35,7 +34,6 @@ GPPluginAudioProcessor::~GPPluginAudioProcessor()
 //===========================================================
 void GPPluginAudioProcessor::createGUI()
 {
-    new SimpleInteractiveComponent(network, sampleRate);
 }
 
 //==============================================================================

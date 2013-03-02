@@ -2,6 +2,7 @@
 #define __JUCE_STANDALONEFILTERWINDOW_JUCEHEADER__
 
 #include "../Plugin/GPPluginProcessor.h"
+#include "../Plugin/SimpleInteractiveComponent.h"
 #include "../Synth/GPNetwork.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
@@ -9,15 +10,13 @@
 // This is the main host window. It gets instatiated in StandaloneFilterApp.cpp
 //==============================================================================
 class InteractiveFilterWindow    : public DocumentWindow,
-    public Button::Listener,
     public ChangeListener,
     public Timer,
     public ActionListener
 {
 public:
     //==============================================================================
-    InteractiveFilterWindow (const String& title,
-                            const Colour& backgroundColour, GPNetwork* net, double sampleRate);
+    InteractiveFilterWindow (const String& title, const Colour& backgroundColour, GPNetwork* net, double sampleRate);
 
     ~InteractiveFilterWindow();
 
@@ -56,9 +55,14 @@ public:
         return currentLine;
     }
 
+    bool userStillEvaluating() {
+        return gui->userStillEvaluating;
+    }
+
 private:
     void timerCallback();
     ScopedPointer<GPPluginAudioProcessor> filter;
+    ScopedPointer<SimpleInteractiveComponent> gui;
     ScopedPointer<AudioDeviceManager> deviceManager;
     AudioProcessorPlayer player;
     TextButton optionsButton;

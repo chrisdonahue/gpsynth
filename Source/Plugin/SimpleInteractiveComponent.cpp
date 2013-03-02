@@ -32,6 +32,7 @@ SimpleInteractiveComponent::SimpleInteractiveComponent (GPNetwork* net, double s
       fitnessamount (0),
       savebutton (0),
       nextbutton (0),
+      userStillEvaluating(true),
       network(net),
       sampleRate(sr),
       cycle(0)
@@ -160,7 +161,7 @@ void SimpleInteractiveComponent::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == downvote)
     {
-        if (fitness > 0)
+        if (network->fitness > 0)
             network->fitness -= 1;
     }
     else if (buttonThatWasClicked == savebutton)

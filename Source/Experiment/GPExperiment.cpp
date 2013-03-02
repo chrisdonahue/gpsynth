@@ -106,7 +106,7 @@ GPNetwork* GPExperiment::evolve() {
         double fitness = -1;
         float* candidateData = evaluateIndividual(candidate);
         if (params->fitnessFunctionType == 0) {
-            fitness = getFitness(candidateData);
+            fitness = compareToTarget(candidateData);
         }
         else if (params->fitnessFunctionType == 1) {
             fitness = interactiveFitness(candidate);
@@ -229,11 +229,12 @@ float* GPExperiment::evaluateIndividual(GPNetwork* candidate) {
 }
 
 double GPExperiment::interactiveFitness(GPNetwork* candidate) {
-    InteractiveFilterWindow* interactiveGA = new InteractiveFilterWindow(candidate, sampleRate);
-    //SimpleInteractiveGP* interactiveGA = new SimpleInteractiveGP(candidate, sampleRate);
-    //interactiveGA->setVisible(true);
-    //while(true) {
-    //    }
+    InteractiveFilterWindow* gui = new InteractiveFilterWindow("Interactive GA", Colours::lightgrey, candidate, sampleRate);
+    while (gui->userStillEvaluating()) {
+        sleep(1);
+    }
+    delete gui;
+    return candidate->fitness;
 }
 
 double GPExperiment::compareToTarget(float* candidateFrames) {

@@ -14,9 +14,6 @@
 #include <cmath>
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPNetwork.h"
-#include "../Synth/ValueNode.h"
-#include "../Synth/FunctionNode.h"
-#include "../Synth/OscilNode.h"
 
 //==============================================================================
 // GPPluginAudioProcessor definition
@@ -33,7 +30,7 @@ class GPPluginAudioProcessor  : public AudioProcessor,
 
 public:
     //==============================================================================
-    GPPluginAudioProcessor();
+    GPPluginAudioProcessor(GPNetwork* net, double sampleRate);
     ~GPPluginAudioProcessor();
 
     bool silenceInProducesSilenceOut() const;

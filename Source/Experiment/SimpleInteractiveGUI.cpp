@@ -1,9 +1,9 @@
-#include "GPStandaloneDialog.h"
+#include "SimpleInteractiveGUI.h"
 
 //==============================================================================
 //  Somewhere in the codebase of your plugin, you need to implement this function
 //  and make it create an instance of the filter subclass that you're building.
-extern GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
+extern GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter(GPNetwork* net, double sampleRate);
 
 
 //==============================================================================
@@ -13,6 +13,12 @@ InteractiveFilterWindow::InteractiveFilterWindow (const String& title,
                       DocumentWindow::minimiseButton
                       | DocumentWindow::closeButton)
 {
+    gui = new SimpleInteractiveComponent(net, sampleRate);
+    setContentOwned(gui, true);
+    centreWithSize(getWidth(), getHeight());
+    setVisible(true);
+
+    // AUDIO STUFF
     JUCE_TRY
     {
         filter = createGPPluginFilter(net, sampleRate);
@@ -101,7 +107,7 @@ void InteractiveFilterWindow::resetFilter()
 {
     deleteFilter();
     deviceManager->closeAudioDevice();
-    filter = createGPPluginFilter();
+    //filter = createGPPluginFilter();
     filter->addChangeListener(this);
     filter->addActionListener(this);
     filter->sendChangeMessage();
@@ -157,16 +163,6 @@ void InteractiveFilterWindow::resized()
 {
     DocumentWindow::resized();
     optionsButton.setBounds (8, 6, 60, getTitleBarHeight() - 8);
-}
-
-
-//==============================================================================
-// Button clicked method
-//==============================================================================
-void InteractiveFilterWindow::buttonClicked (Button*)
-{
-    if (filter == nullptr)
-        return;
 }
 
 /*
