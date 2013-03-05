@@ -122,7 +122,6 @@ GPNetwork* GPExperiment::evolve() {
         }
 
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
-
         if (numUnevaluatedThisGeneration == 0) {
             generationMinimumFitness = INFINITY;
             numEvaluatedGenerations++;

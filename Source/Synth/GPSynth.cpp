@@ -31,7 +31,7 @@ crossoverSelectionType(p->crossoverSelectionType),
 mutationDuringCrossoverChance(p->mutationDuringCrossoverChance),
 availableNodes(nodes),
 allNetworks(), unevaluated(), evaluated(), currentGeneration(),
-rawFitnesses(populationSize), normalizedFitnesses()
+rawFitnesses(populationSize), normalizedFitnesses(populationSize)
 {
     params = p;
     availableFunctions = new std::vector<GPNode*>();
@@ -321,7 +321,8 @@ void GPSynth::clearGenerationState() {
 
 GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
     //http://en.wikipedia.org/wiki/Selection_%28genetic_algorithm%29
-    if (normalizedFitnesses.size() == 0) {
+    assert(rawFitnesses.size() == populationSize && normalizedFitnesses.size() == populationSize);
+    if (normalizedFitnesses[0] == -1) {
         // STANDARDIZE FITNESS
         std::vector<double>* standardizedFitnesses;
         if (lowerFitnessIsBetter) {
@@ -348,7 +349,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 
         // NORMALIZE FITNESS
         for (int i = 0; i < adjustedFitnesses->size(); i++) {
-            normalizedFitnesses.push_back(adjustedFitnesses->at(i)/sum);
+            normalizedFitnesses[i] = (adjustedFitnesses->at(i)/sum);
         }
 
         // DELETE INTERMEDIATE DATA

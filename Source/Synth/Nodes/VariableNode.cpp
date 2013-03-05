@@ -25,7 +25,7 @@ VariableNode::~VariableNode() {
 }
 
 VariableNode* VariableNode::getCopy() {
-    return new VariableNode(variableNum + 1);
+    return new VariableNode(variableNum);
 }
 
 double VariableNode::evaluate(double* t, double* v) {
@@ -34,7 +34,7 @@ double VariableNode::evaluate(double* t, double* v) {
 
 std::string VariableNode::toString() {
     char buffer[10];
-    snprintf(buffer, 10, "(v%d)", variableNum + 1);
+    snprintf(buffer, 10, "(v%d)", variableNum);
     return std::string(buffer);
 }
 

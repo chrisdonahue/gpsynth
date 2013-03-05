@@ -11,7 +11,7 @@ set -e
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --numgenerations 2 --values 220 1 1 --popsize 50 --mid 6 --md 8 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --addchance 0.0 --removechance 0.0 --mutatechance 0.05
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --numgenerations 2 --values 220 1 1 --popsize 50 --mid 4 --md 8 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --numgenerations 1 --values 220 1 --popsize 5 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
-gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --fitnesstype 0 --numgenerations 2 --values 220 1 --popsize 500 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
-
+#gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --fitnesstype 0 --numgenerations 2 --values 220 1 --popsize 50 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
+gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --fitnesstype 0 --numgenerations 3 --values 220 1 --popsize 50 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
 
 set +e
