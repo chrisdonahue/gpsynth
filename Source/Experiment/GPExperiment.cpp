@@ -115,7 +115,7 @@ GPNetwork* GPExperiment::evolve() {
             champ = candidate;
             char buffer[100];
             snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
-            saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
+            //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
             if (fitness == bestPossibleFitness) {
                 saveWavFile("./DiscoveredChamp.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
             }

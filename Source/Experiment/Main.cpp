@@ -73,6 +73,9 @@ public:
           else if (i->equalsIgnoreCase("--threshold"))  {
             params->thresholdFitness = (++i)->getDoubleValue();
           }
+          else if (i->equalsIgnoreCase("--fitnesstype")) {
+            params->fitnessFunctionType = (++i)->getIntValue();
+          }
           else if (i->equalsIgnoreCase("--numgenerations"))  {
             params->numGenerations = (++i)->getIntValue();
           }
