@@ -15,6 +15,7 @@
 #include "../Common/GPParams.h"
 #include "../Synth/GPSynth.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "SimpleInteractiveGUI.h"
 #include "../Synth/Nodes/ValueNode.h"
 #include "../Synth/Nodes/FunctionNode.h"
 #include "../Synth/Nodes/OscilNode.h"
@@ -38,11 +39,6 @@ class GPExperiment {
         bool lowerFitnessIsBetter;
         double bestPossibleFitness;
 
-        // TARGET DATA CONTAINERS
-        double sampleRate;
-        int64 numTargetFrames;
-        float* targetFrames;
-
         // EVALUATION DATA
         double* sampleTimes;
         double* specialValues;
@@ -57,7 +53,6 @@ class GPExperiment {
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
         unsigned wavFileBufferSize;
-        void loadWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION

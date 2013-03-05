@@ -25,15 +25,8 @@ wavFormat(new WavAudioFormat())
     numGenerations = p->numGenerations;
     fitnessThreshold = p->thresholdFitness;
 
-    // TARGET DATA CONTAINERS
-    sampleRate = 44100.0;
-    targetFrames = NULL;
-    numTargetFrames = 0;
-    wavFileBufferSize = p->wavFileBufferSize;
-    loadWavFile(target);
-
     // EXPERIMENT STATE
-    minFitnessAchieved = INFINITY;
+    minFitnessAchieved = -1;
     numEvaluatedGenerations = 0;
 
     // SYNTH
@@ -99,10 +92,16 @@ GPNetwork* GPExperiment::evolve() {
     double generationMinimumFitness = INFINITY;
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
-        GPNetwork* candidate = synth->getIndividual();
+        GPNetwork* candidate = synth->getIndividuals(params->populationSize);
 
+        double fitness = -1;
         float* candidateData = evaluateIndividual(candidate);
-        double fitness = compareToTarget(candidateData);
+        if (params->fitnessFunctionType == 0) {
+            fitness = compareToTarget(candidateData);
+        }
+        else if (params->fitnessFunctionType == 1) {
+            fitness = interactiveFitness(candidate);
+        }
         generationCumulativeFitness += fitness;
         numEvaluated++;
 
@@ -218,6 +217,15 @@ float* GPExperiment::evaluateIndividual(GPNetwork* candidate) {
         ret[frameNum] = candidate->evaluate(&time, specialValues);
     }
     return ret;
+}
+
+double GPExperiment::interactiveFitness(GPNetwork* candidate) {
+    InteractiveFilterWindow* gui = new InteractiveFilterWindow("Interactive GA", Colours::lightgrey, candidate, sampleRate);
+    while (gui->userStillEvaluating()) {
+        sleep(1);
+    }
+    delete gui;
+    return candidate->fitness;
 }
 
 double GPExperiment::compareToTarget(float* candidateFrames) {
