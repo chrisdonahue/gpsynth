@@ -18,8 +18,7 @@ GPSynth.cpp:
 
 Node subclasses:
     ConditionalNode
-    ValueNode split to ConstantNode and VariableNode
-    fill in virtual methods
+    fill in virtual methods for all
 
 Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"

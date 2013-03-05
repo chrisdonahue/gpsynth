@@ -50,7 +50,9 @@ OBJECTS := \
   $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/FunctionNode.o \
-  $(OBJDIR)/ValueNode.o \
+  $(OBJDIR)/ConstantNode.o \
+  $(OBJDIR)/TimeNode.o \
+  $(OBJDIR)/VariableNode.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -123,7 +125,17 @@ $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 	@echo "Compiling FunctionNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ValueNode.o: ../../Source/Synth/Nodes/ValueNode.cpp
+$(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ConstantNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ValueNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/VariableNode.o: ../../Source/Synth/Nodes/VariableNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"

@@ -42,7 +42,7 @@ wavFormat(new WavAudioFormat())
     std::vector<GPFunction>* binaryFunctions = new std::vector<GPFunction>();
 
     if (params->experimentNumber == 0) {
-        std::string AMstring("(* (sin (* (* (time) (v1)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
+        std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
         GPNetwork* answer = new GPNetwork(AMstring);
         answer->traceNetwork();
         std::cout << "Target network: " << answer->toString() << std::endl;
@@ -58,10 +58,9 @@ wavFormat(new WavAudioFormat())
         //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new FunctionNode(sine, NULL, NULL));
-        nodes->push_back(new ValueNode(2*M_PI, -1));
-        nodes->push_back(new ValueNode(-1, 0));
-        nodes->push_back(new ValueNode(-1, 1));
-        //nodes->push_back(new ValueNode(0, -1));
+        nodes->push_back(new ConstantNode(2*M_PI));
+        nodes->push_back(new TimeNode());
+        nodes->push_back(new VariableNode(0));
         //nodes->push_back(new OscilNode(1, 1, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 2, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 3, NULL, NULL));

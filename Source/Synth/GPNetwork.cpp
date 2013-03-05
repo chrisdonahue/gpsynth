@@ -161,15 +161,15 @@ GPNode* createSubtree(char* tokenized=strtok(NULL, " )(")) {
         return new FunctionNode(sine, createSubtree(), NULL);
     }
     else if (strcmp(t, "pi") == 0) {
-        return new ValueNode(M_PI, -1);
+        return new ConstantNode(M_PI);
     }
     else if (strcmp(t, "time") == 0) {
-        return new ValueNode(-1, 0);
+        return new TimeNode();
     }
     else if (strncmp(t, "v", 1) == 0) {
-        return new ValueNode(-1, std::stoi(t + 1) + 1);
+        return new VariableNode(std::stoi(t + 1));
     }
     else {
-        return new ValueNode(std::stod(t), -1);
+        return new ConstantNode(std::stod(t));
     }
 }

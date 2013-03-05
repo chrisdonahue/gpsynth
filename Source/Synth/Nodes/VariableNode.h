@@ -15,7 +15,7 @@
 
 class VariableNode: public GPNode {
     public:
-        VariableNode(double v, int p);
+        VariableNode(int vn);
         ~VariableNode();
         VariableNode* getCopy();
 

@@ -14,7 +14,9 @@
 #include <iostream>
 #include <string.h>
 #include "GPNode.h"
-#include "Nodes/ValueNode.h"
+#include "Nodes/ConstantNode.h"
+#include "Nodes/TimeNode.h"
+#include "Nodes/VariableNode.h"
 #include "Nodes/FunctionNode.h"
 #include "Nodes/OscilNode.h"
 
