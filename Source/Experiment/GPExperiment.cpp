@@ -42,9 +42,8 @@ wavFormat(new WavAudioFormat())
     std::vector<GPFunction>* binaryFunctions = new std::vector<GPFunction>();
 
     if (params->experimentNumber == 0) {
-        GPNode* ansroot = new FunctionNode(multiply, new OscilNode(1, 1, NULL, NULL), new OscilNode(1, 2, NULL, NULL));
-        //std::string ansroot("(* (sin (* (* (time) (v1) (v2)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
-        GPNetwork* answer = new GPNetwork(ansroot);
+        std::string AMstring("(* (sin (* (* (time) (v1)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
+        GPNetwork* answer = new GPNetwork(AMstring);
         answer->traceNetwork();
         std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
@@ -115,9 +114,9 @@ GPNetwork* GPExperiment::evolve() {
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
             champ = candidate;
-            //char buffer[100];
-            //snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
-            //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
+            char buffer[100];
+            snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
+            saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
             if (fitness == bestPossibleFitness) {
                 saveWavFile("./DiscoveredChamp.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
             }
@@ -221,9 +220,12 @@ float* GPExperiment::evaluateIndividual(GPNetwork* candidate) {
 }
 
 double GPExperiment::compareToTarget(float* candidateFrames) {
-    double sum = 0;
-    for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
-        sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
+    if (params->fitnessFunctionType == 0) {
+        double sum = 0;
+        for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
+            sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
+        }
+        return sqrt(sum);
     }
-    return sqrt(sum);
+    return -1;
 }

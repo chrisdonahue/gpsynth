@@ -1,35 +1,30 @@
 /*
   ==============================================================================
 
-    ValueNode.h
+    ConstantNode.h
     Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef VALUENODE_H
-#define VALUENODE_H
+#ifndef CONSTANTNODE_H
+#define CONSTANTNODE_H
 
 #include "../GPNode.h"
 
-class ValueNode: public GPNode {
+class ConstantNode: public GPNode {
     public:
-        ValueNode(double v, int p);
-        ~ValueNode();
-        ValueNode* getCopy();
+        ConstantNode(double v);
+        ~ConstantNode();
+        ConstantNode* getCopy();
 
         double evaluate(double* t, double* v);
         std::string toString();
-        bool equals(GPNode* other);
         void mutate(GPParams* e);
 
     private:
         double value;
-        bool isTime;
-        bool isVariable;
-        bool isConstant;
-        int variableNum;
 };
 
 #endif
