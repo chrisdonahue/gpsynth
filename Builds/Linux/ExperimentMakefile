@@ -53,6 +53,8 @@ OBJECTS := \
   $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
+  $(OBJDIR)/kiss_fft.o \
+  $(OBJDIR)/kiss_fftr.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -138,6 +140,16 @@ $(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp
 $(OBJDIR)/VariableNode.o: ../../Source/Synth/Nodes/VariableNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/kiss_fft.o: ../../Source/Dependencies/kissfft/kiss_fft.c
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling kiss_fft.c"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/kiss_fftr.o: ../../Source/Dependencies/kissfft/kiss_fftr.c
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling kiss_fftr.c"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
