@@ -228,6 +228,7 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
         }
         return sqrt(sum);
     }
+<<<<<<< HEAD
     if (params->fitnessFunctionType == 1) {
         unsigned n = params->fftSize;
 
@@ -256,6 +257,10 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
         free(spectrum);
         exit(0);
         return -1;
+=======
+    else if (params->fitnessFunctionType == 1) {
+
+>>>>>>> c6597275ea388c9a616c4e2362e24ba69baab0ea
     }
     return -1;
 }
