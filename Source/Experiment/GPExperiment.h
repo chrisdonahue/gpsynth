@@ -24,7 +24,7 @@
 //#include "../Synth/Nodes/FilterNode.h"
 //#include "../Synth/Nodes/NoiseNode.h"
 
-#include "../Dependencies/kiss_fft.h"
+#include "../Dependencies/kissfft/kiss_fft.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 class GPExperiment {
