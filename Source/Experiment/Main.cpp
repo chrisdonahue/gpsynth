@@ -38,6 +38,7 @@ public:
         unsigned seed = time(NULL);
         GPParams* params = (GPParams*) malloc(sizeof(GPParams));
         params->wavFileBufferSize = 200;
+        params->fftSize = 1024;
         params->experimentNumber = 0;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
@@ -66,6 +67,9 @@ public:
           }
           else if (i->equalsIgnoreCase("--seed")) {
             seed = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--fft")) {
+            params->fftSize = (++i)->getIntValue();
           }
           else if (i->equalsIgnoreCase("--exp")) {
             params->experimentNumber = (++i)->getIntValue();

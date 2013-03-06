@@ -17,7 +17,7 @@
 */
 
 GPExperiment::GPExperiment(String target, GPParams* p) :
-wavFormat(new WavAudioFormat())
+    wavFormat(new WavAudioFormat())
 {
     // EXPERIMENT PARAMETERS
     params = p;
@@ -30,7 +30,7 @@ wavFormat(new WavAudioFormat())
     targetFrames = NULL;
     numTargetFrames = 0;
     wavFileBufferSize = p->wavFileBufferSize;
-    loadWavFile(target);
+    loadTargetWavFile(target);
     // TODO: fill in filterNodeMaxBufferSize/delayNodeMaxBufferSize from sample rate
 
     // EXPERIMENT STATE
@@ -80,6 +80,7 @@ wavFormat(new WavAudioFormat())
 
 GPExperiment::~GPExperiment() {
     free(targetFrames);
+    free(targetSpectrum);
     delete params->availableUnaryFunctions;
     delete params->availableBinaryFunctions;
     delete synth;
@@ -150,21 +151,23 @@ GPNetwork* GPExperiment::evolve() {
     =============
 */
 
-void GPExperiment::loadWavFile(String path) {
+void GPExperiment::loadTargetWavFile(String path) {
     // TODO: check if path exists
     File input(path);
     FileInputStream* fis = input.createInputStream();
     AudioSampleBuffer asb(1, wavFileBufferSize);
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
 
+    // get info on target
     numTargetFrames = afr->lengthInSamples;
     sampleRate = afr->sampleRate;
 
     std::cout << "Target file has " << numTargetFrames << " frames at a sample rate of " <<  sampleRate << std::endl;
 
+    // get waveform of target
     free(targetFrames);
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-    
+
     int64 numRemaining = numTargetFrames;
     int64 numCompleted = 0;
     float* chanData = asb.getSampleData(0);
@@ -176,6 +179,26 @@ void GPExperiment::loadWavFile(String path) {
         numCompleted += numToRead;
     }
     assert (numCompleted == numTargetFrames && numRemaining == 0);
+
+    // get frequency spectrum of target
+    unsigned n = params->fftSize;
+    kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+    unsigned numFftCalls = numTargetFrames / n;
+    if (numTargetFrames % n > 0)
+        numFftCalls++;
+    targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * (numFftCalls) * (n/2 + 1));
+    numRemaining = numTargetFrames;
+    numCompleted = 0;
+    while (numRemaining > 0) {
+        unsigned numToTransform = numRemaining > n ? n : numRemaining;
+        for (size_t i = 0; i < numToTransform; i++) {
+            in[i] = targetFrames[numCompleted];
+            numCompleted++;
+            numRemaining--;
+        }
+        TestFftReal(n, in, targetSpectrum + (numCompleted - numToTransform));
+    }
+    free(in);
 }
 
 void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
@@ -231,31 +254,61 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
     else if (params->fitnessFunctionType == 1) {
         unsigned n = params->fftSize;
 
-        kiss_fftr_cfg config;
-        kiss_fft_cpx* spectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * numTargetFrames);
+        kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+        kiss_fft_cpx* out = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * (n/2 + 1));
 
-        if (config = kiss_fftr_alloc(n, 0, NULL, NULL) != NULL)
-        {
-            // put kth sample in cx_in[k].r and cx_in[k].i
-            kiss_fftr(config, (kiss_fft_scalar*) candidateFrames, spectrum);
-            // transformed. DC is in cx_out[0].r and cs_out[0].i
-            //float re = scale(spectrum[i].r) * numTargetFrames;
-            for (i = 0; i < N; i++)
-            {
-                printf(" in[%2zu] = %+f    ",i, in[i]);
-                if (i < N / 2 + 1)
-                    printf("out[%2zu] = %+f , %+f"i, out[i].r, out[i].i);
-                printf("\n");
+        double MSEmag = 0;
+        double MSEph = 0;
+        int64 numCompared = 0;
+        int64 numCompleted = 0;
+        int64 numRemaining = numTargetFrames;
+        while (numRemaining > 0) {
+            unsigned numToTransform = numRemaining > n ? n : numRemaining;
+            for (size_t i = 0; i < numToTransform; i++) {
+                in[i] = candidateFrames[numCompleted];
+                numCompleted++;
+                numRemaining--;
+            }
+            TestFftReal(n, in, out);
+            for (size_t i = 0; i < (n/2 + 1); i++) {
+                double MAGXIJ = sqrt(pow(out[i].r, 2) + pow(out[i].i, 2));
+                double MAGTIJ = sqrt(pow(targetSpectrum[i].r, 2) + pow(targetSpectrum[i].i, 2));
+                double angXIJ = atan(out[i].i / out[i].r);
+                double angTIJ = atan(targetSpectrum[i].i / targetSpectrum[i].r);
+                MSEmag += pow(MAGXIJ - MAGTIJ, 2);
+                MSEph += pow(angXIJ - angTIJ, 2); 
             }
         }
-        else
-        {
-            printf("not enough memory?\n");
-            exit(-1);
-        }
-        free(spectrum);
-        exit(0);
-        return -1;
+        free(in);
+        free(out);
+        return MSEmag + MSEph;
     }
     return -1;
 }
+
+void GPExperiment::TestFftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out)
+{
+    kiss_fftr_cfg cfg;
+
+    if ((cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL)) != NULL)
+    {
+        size_t i;
+
+        kiss_fftr(cfg, in, out);
+        free(cfg);
+
+        for (i = 0; i < n; i++)
+        {
+            //printf(" in[%2zu] = %+f    ", i, in[i]);
+            //if (i < n / 2 + 1)
+            //    printf("out[%2zu] = %+f , %+f", i, out[i].r, out[i].i);
+            //printf("\n");
+        }
+    }
+    else
+    {
+        printf("not enough memory?\n");
+        exit(-1);
+    }
+}
+

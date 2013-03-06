@@ -25,6 +25,7 @@
 //#include "../Synth/Nodes/NoiseNode.h"
 
 #include "../Dependencies/kissfft/kiss_fft.h"
+#include "../Dependencies/kissfft/kiss_fftr.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 class GPExperiment {
@@ -48,6 +49,7 @@ class GPExperiment {
         double sampleRate;
         int64 numTargetFrames;
         float* targetFrames;
+        kiss_fft_cpx* targetSpectrum;
 
         // EVALUATION DATA
         double* sampleTimes;
@@ -63,13 +65,14 @@ class GPExperiment {
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
         unsigned wavFileBufferSize;
-        void loadWavFile(String path);
+        void loadTargetWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION
         float* evaluateIndividual(GPNetwork* candidate);
         double interactiveFitness(GPNetwork* candidate);
         double compareToTarget(float* candidateFrames);
+        void TestFftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out);
 };
 
 #endif

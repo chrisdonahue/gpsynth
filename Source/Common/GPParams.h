@@ -7,6 +7,7 @@
 struct GPParams {
     // auxillary params
     unsigned wavFileBufferSize;
+    unsigned fftSize;
     GPRandom* rng;
 
     // experiment parameters
