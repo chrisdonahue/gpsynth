@@ -48,9 +48,11 @@ struct GPParams {
     unsigned modulationNodeFrequencyRange;
 
     // delay node
+    unsigned delayNodeMaxBufferSize;
     double delayNodeBufferMaxSeconds;
 
     // filter node
+    unsigned filterNodeMaxBufferSize;
     double filterNodeBufferMaxSeconds;
 
     // multiple nodes

@@ -20,7 +20,7 @@ class DelayNode: public GPNode {
         ~DelayNode();
         DelayNode* getCopy();
 
-        void setMemoryConstants(int x, int y);
+        void setMemoryConstant(int n);
         double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPParams* e);

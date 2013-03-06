@@ -31,9 +31,11 @@ crossoverSelectionType(p->crossoverSelectionType),
 mutationDuringCrossoverChance(p->mutationDuringCrossoverChance),
 availableNodes(nodes),
 allNetworks(), unevaluated(), evaluated(), currentGeneration(),
-rawFitnesses(populationSize), normalizedFitnesses(populationSize)
+rawFitnesses(), normalizedFitnesses(), rank()
 {
     params = p;
+    rng = params->rng;
+
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
     for (int i = 0; i < availableNodes->size(); i++) {
@@ -44,9 +46,12 @@ rawFitnesses(populationSize), normalizedFitnesses(populationSize)
             availableFunctions->push_back(nodes->at(i));
         }
     }
-    rng = params->rng;
+
+    clearGenerationState();
+
     std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
     initPopulation();
+
     printGenerationDelim();
 }
 
@@ -230,10 +235,10 @@ int GPSynth::nextGeneration() {
       two->traceNetwork();
       two->ID = mom->ID;
 
-      if (params->rng->random() < mutationDuringCrossoverChance) {
+      if (rng->random() < mutationDuringCrossoverChance) {
         one->mutate(params);
       }
-      if (params->rng->random() < mutationDuringCrossoverChance) {
+      if (rng->random() < mutationDuringCrossoverChance) {
         two->mutate(params);
       }
 
@@ -361,7 +366,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 
     if (selectionType == 0) {
         // fitness proportionate selection (lower better)
-        return currentGeneration[params->rng->sampleFromDistribution(&normalizedFitnesses)];
+        return currentGeneration[rng->sampleFromDistribution(&normalizedFitnesses)];
     }
     else if (selectionType == 1) {
         // ranking linear selection
@@ -385,7 +390,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
     }
     else if (selectionType == 6) {
         // fitness-unaware random selection
-        return currentGeneration[(int) (params->rng->random() * evaluated.size())];
+        return currentGeneration[(int) (rng->random() * evaluated.size())];
     }
     return NULL;
 }
@@ -399,9 +404,9 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType) {
 GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
-        GPNode* subtreeone = one->getRandomNetworkNode(params->rng);
+        GPNode* subtreeone = one->getRandomNetworkNode(rng);
         GPNode* subtreeonecopy = subtreeone->getCopy();
-        GPNode* subtreetwo = two->getRandomNetworkNode(params->rng);
+        GPNode* subtreetwo = two->getRandomNetworkNode(rng);
         GPNode* subtreetwocopy = subtreetwo->getCopy();
         //std::cout << "-----------------" << std::endl;
         //std::cout << one->ID << ": " << one->toString() << std::endl;
