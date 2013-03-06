@@ -13,15 +13,19 @@
 
 #include "../Common/GPFunctions.h"
 #include "../Common/GPParams.h"
+
 #include "../Synth/GPSynth.h"
-#include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/Nodes/ConstantNode.h"
 #include "../Synth/Nodes/TimeNode.h"
 #include "../Synth/Nodes/VariableNode.h"
 #include "../Synth/Nodes/FunctionNode.h"
 #include "../Synth/Nodes/OscilNode.h"
-//#include "../Nodes/DelayNode.h"
-//#include "../Nodes/FilterNode.h"
+//#include "../Synth/Nodes/DelayNode.h"
+//#include "../Synth/Nodes/FilterNode.h"
+//#include "../Synth/Nodes/NoiseNode.h"
+
+#include "../Dependencies/kiss_fft.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 class GPExperiment {
     public:

@@ -228,5 +228,8 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
         }
         return sqrt(sum);
     }
+    else if (params->fitnessFunctionType == 1) {
+
+    }
     return -1;
 }
