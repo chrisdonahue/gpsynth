@@ -228,5 +228,34 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
         }
         return sqrt(sum);
     }
+    if (params->fitnessFunctionType == 1) {
+        unsigned n = params->fftSize;
+
+        kiss_fftr_cfg config;
+        kiss_fft_cpx* spectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * numTargetFrames);
+
+        if (config = kiss_fftr_alloc(n, 0, NULL, NULL) != NULL)
+        {
+            // put kth sample in cx_in[k].r and cx_in[k].i
+            kiss_fftr(config, (kiss_fft_scalar*) candidateFrames, spectrum);
+            // transformed. DC is in cx_out[0].r and cs_out[0].i
+            //float re = scale(spectrum[i].r) * numTargetFrames;
+            for (i = 0; i < N; i++)
+            {
+                printf(" in[%2zu] = %+f    ",i, in[i]);
+                if (i < N / 2 + 1)
+                    printf("out[%2zu] = %+f , %+f"i, out[i].r, out[i].i);
+                printf("\n");
+            }
+        }
+        else
+        {
+            printf("not enough memory?\n");
+            exit(-1);
+        }
+        free(spectrum);
+        exit(0);
+        return -1;
+    }
     return -1;
 }
