@@ -127,7 +127,7 @@ GPNetwork* GPExperiment::evolve() {
             snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
             //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
             if (fitness == bestPossibleFitness) {
-                saveWavFile("./DiscoveredChamp.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
+                saveWavFile("./Perfect.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
             }
         }
 
@@ -148,6 +148,7 @@ GPNetwork* GPExperiment::evolve() {
     if (champ != NULL) {
         champ->traceNetwork();
         std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
+        saveWavFile("./DiscoveredChampion.wav", String(champ->toString().c_str()), numTargetFrames, evaluateIndividual(champ));
     }
     return champ;
 }

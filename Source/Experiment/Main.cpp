@@ -38,7 +38,7 @@ public:
         unsigned seed = time(NULL);
         GPParams* params = (GPParams*) malloc(sizeof(GPParams));
         params->wavFileBufferSize = 200;
-        params->fftSize = 1024;
+        params->fftSize = 16;
         params->experimentNumber = 0;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
