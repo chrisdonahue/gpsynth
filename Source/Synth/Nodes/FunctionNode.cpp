@@ -54,12 +54,12 @@ double FunctionNode::evaluate(double* t, double* v) {
 }
 
 std::string FunctionNode::toString() {
-    char buffer[1024];
+    char buffer[2048];
     if (isBinary) {
-        snprintf(buffer, 1024, "(%s %s %s)", gpfunction.symbol, left->toString().c_str(), right->toString().c_str());
+        snprintf(buffer, 2048, "(%s %s %s)", gpfunction.symbol, left->toString().c_str(), right->toString().c_str());
     }
     else {
-        snprintf(buffer, 1024, "(%s %s)", gpfunction.symbol, left->toString().c_str());
+        snprintf(buffer, 2048, "(%s %s)", gpfunction.symbol, left->toString().c_str());
     }
     return std::string(buffer);
 }

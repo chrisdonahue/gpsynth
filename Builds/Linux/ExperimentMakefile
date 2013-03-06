@@ -134,12 +134,12 @@ $(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
 
 $(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ValueNode.cpp"
+	@echo "Compiling TimeNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/VariableNode.o: ../../Source/Synth/Nodes/VariableNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ValueNode.cpp"
+	@echo "Compiling VariableNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/kiss_fft.o: ../../Source/Dependencies/kissfft/kiss_fft.c

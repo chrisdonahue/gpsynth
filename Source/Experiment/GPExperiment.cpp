@@ -49,7 +49,8 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         answer->traceNetwork();
         std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
-        numTargetFrames = 88200;
+        //numTargetFrames = 88200;
+        numTargetFrames = 128;
         targetFrames = evaluateIndividual(answer);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
         delete answer;
@@ -116,7 +117,12 @@ GPNetwork* GPExperiment::evolve() {
 
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
-            champ = candidate;
+
+            int backupID = candidate->ID;
+            champ = candidate->getCopy();
+            champ->ID = backupID;
+            champ->fitness = minFitnessAchieved;
+
             char buffer[100];
             snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
             //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
@@ -140,7 +146,8 @@ GPNetwork* GPExperiment::evolve() {
     }
     std::cout << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
     if (champ != NULL) {
-        std::cout << "The best synthesis algorithm found was " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
+        champ->traceNetwork();
+        std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
     }
     return champ;
 }
@@ -273,8 +280,16 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
             for (size_t i = 0; i < (n/2 + 1); i++) {
                 double MAGXIJ = sqrt(pow(out[i].r, 2) + pow(out[i].i, 2));
                 double MAGTIJ = sqrt(pow(targetSpectrum[i].r, 2) + pow(targetSpectrum[i].i, 2));
-                double angXIJ = atan(out[i].i / out[i].r);
+                double angXIJ;
+                //std::cout << out[i].i << ", " << out[i].r << std::endl;
                 double angTIJ = atan(targetSpectrum[i].i / targetSpectrum[i].r);
+                if (out[i].i == 0 && out[i].r == 0) {
+                    angXIJ = 0;
+                }
+                else {
+                    angXIJ = atan(out[i].i / out[i].r);
+                }
+                //std::cout << MAGXIJ << ", " << MAGTIJ << ", " << angXIJ << ", " << angTIJ << std::endl;
                 MSEmag += pow(MAGXIJ - MAGTIJ, 2);
                 MSEph += pow(angXIJ - angTIJ, 2); 
             }
