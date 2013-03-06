@@ -39,6 +39,7 @@ public:
         GPParams* params = (GPParams*) malloc(sizeof(GPParams));
         params->wavFileBufferSize = 200;
         params->fftSize = 16;
+        params->verbose = false;
         params->experimentNumber = 0;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
@@ -67,6 +68,9 @@ public:
           }
           else if (i->equalsIgnoreCase("--seed")) {
             seed = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--verbose")) {
+            params->verbose = true;
           }
           else if (i->equalsIgnoreCase("--fft")) {
             params->fftSize = (++i)->getIntValue();

@@ -11,6 +11,7 @@ struct GPParams {
     GPRandom* rng;
 
     // experiment parameters
+    bool verbose;
     unsigned experimentNumber;
     std::vector<double>* variableValues;
     unsigned numGenerations;

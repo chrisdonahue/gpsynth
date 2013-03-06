@@ -153,7 +153,8 @@ GPNetwork* GPSynth::getIndividual() {
 
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
-    std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << std::endl;
+    if (params->verbose)
+        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << std::endl;
     return ret;
 }
 
@@ -170,7 +171,8 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     unevaluated.erase(net);
     evaluated.insert(net);
     rawFitnesses[net->ID % populationSize] = fitness;
-    std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
+    if (params->verbose)
+        std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
     int numStillNeedingEvaluation = populationSize - evaluated.size();
     return numStillNeedingEvaluation;
 }
