@@ -33,7 +33,7 @@ FunctionNode::~FunctionNode() {
 }
 
 FunctionNode* FunctionNode::getCopy() {
-    FunctionNode* ret = new FunctionNode(gpfunction, left == NULL ? left : left->getCopy(), right == NULL ? right : right->getCopy());
+    FunctionNode* ret = new FunctionNode(gpfunction, left == NULL ? NULL : left->getCopy(), right == NULL ? NULL : right->getCopy());
     ret->parent = parent;
     return ret;
 }
@@ -64,11 +64,8 @@ std::string FunctionNode::toString() {
     return std::string(buffer);
 }
 
-bool FunctionNode::equals(GPNode* other) {
-    return false;
-}
-
 void FunctionNode::mutate(GPParams* p) {
+    /*
     std::vector<GPFunction>* functionSet;
     if (isBinary) {
         functionSet = p->availableBinaryFunctions;
@@ -77,4 +74,11 @@ void FunctionNode::mutate(GPParams* p) {
         functionSet = p->availableUnaryFunctions;
     }
     gpfunction = functionSet->at(p->rng->random(p->availableBinaryFunctions->size()));
+    */
+    if (isBinary && p->rng->random() < p->mutateRight()) {
+        right->mutate();
+    }
+    else {
+        left->mutate();
+    }
 }

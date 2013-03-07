@@ -59,6 +59,7 @@ struct GPParams {
 
     // multiple nodes
     unsigned numVariables;
+    double mutateRight;
 };
 
 #endif

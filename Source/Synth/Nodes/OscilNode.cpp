@@ -16,7 +16,7 @@
     ==============
 */
 
-OscilNode::OscilNode(int p, int vn, GPNode* l, GPNode* r) {
+OscilNode::OscilNode(int p, int vn) {
     partial = p;
     variableNum = vn;
     left = l;
@@ -28,12 +28,10 @@ OscilNode::OscilNode(int p, int vn, GPNode* l, GPNode* r) {
 }
 
 OscilNode::~OscilNode() {
-    delete left;
-    delete right;
 }
 
 OscilNode* OscilNode::getCopy() {
-    return new OscilNode(partial, variableNum, left == NULL ? left : left->getCopy(), right == NULL ? right : right->getCopy());
+    return new OscilNode(partial, variableNum);
 }
 
 double OscilNode::evaluate(double* t, double* v) {
@@ -42,12 +40,8 @@ double OscilNode::evaluate(double* t, double* v) {
 
 std::string OscilNode::toString() {
     char buffer[30];
-    snprintf(buffer, 30, "(sin p%d v%d)", partial, variableNum);
+    snprintf(buffer, 30, "(osc p%d v%d)", partial, variableNum);
     return std::string(buffer);
-}
-
-bool OscilNode::equals(GPNode* other) {
-    return false;
 }
 
 void OscilNode::mutate(GPParams* p) {

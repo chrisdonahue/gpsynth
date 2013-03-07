@@ -23,7 +23,6 @@ class FunctionNode: public GPNode {
         void setFunction(GPFunction fun, GPNode* rSub);
         double evaluate(double* t, double* v);
         std::string toString();
-        bool equals(GPNode* other);
         void mutate(GPParams* e);
 
     private:
