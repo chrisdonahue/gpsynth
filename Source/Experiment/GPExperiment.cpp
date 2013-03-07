@@ -49,8 +49,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         answer->traceNetwork();
         std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
-        //numTargetFrames = 88200;
-        numTargetFrames = 128;
+        numTargetFrames = 88200;
         targetFrames = evaluateIndividual(answer);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
         delete answer;

@@ -94,6 +94,7 @@ public:
                 current = ++i;
             }
             params->variableValues->push_back(current->getDoubleValue());
+            params->numVariables = params->variableValues->size();
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             params->populationSize = (++i)->getIntValue();
