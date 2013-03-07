@@ -28,6 +28,8 @@
 #include "../Dependencies/kissfft/kiss_fftr.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+#include <limits>
+
 class GPExperiment {
     public:
         // CONSTUCTION
@@ -43,13 +45,17 @@ class GPExperiment {
         float fitnessThreshold;
         int numGenerations;
         bool lowerFitnessIsBetter;
+        double silenceFitness;
         double bestPossibleFitness;
+        double worstFitness;
 
         // TARGET DATA CONTAINERS
         double sampleRate;
         int64 numTargetFrames;
         float* targetFrames;
         kiss_fft_cpx* targetSpectrum;
+        double* targetSpectrumMagnitudes;
+        double* targetSpectrumPhases;
 
         // EVALUATION DATA
         double* sampleTimes;
@@ -69,10 +75,10 @@ class GPExperiment {
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION
-        float* evaluateIndividual(GPNetwork* candidate);
+        float* renderIndividual(GPNetwork* candidate);
         double interactiveFitness(GPNetwork* candidate);
         double compareToTarget(float* candidateFrames);
-        void TestFftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out);
+        void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
 };
 
 #endif

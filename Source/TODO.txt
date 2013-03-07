@@ -6,6 +6,7 @@ Main.cpp:
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
     fill and use sampleTimes for efficiency
+    change evaluateIndividual to accept (float*) for better malloc symantics
 
 GPNetwork.cpp:
     Fix constructor to parse a network from a string
@@ -28,3 +29,9 @@ Tomorrow:
     make new fitness function type for interactive
     implement some cool node subclasses
     if time, MIDI omg gunna be so cool!
+
+Thoughts and Ideas:
+    Punish silence-producing networks maximally
+    Read Horner et al!
+    novelty search of new spectrum elements
+    OscilNode's left overrides modulates oscillator
