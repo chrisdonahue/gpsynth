@@ -53,6 +53,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         numTargetFrames = 88200;
         targetFrames = renderIndividual(answer);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
+        loadTargetWavFile("./Answer.wav");
         delete answer;
 
         // ASSIGN SPECIAL FITNESS VALUES
@@ -66,19 +67,18 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         float* silence = renderIndividual(silent);
         silenceFitness = -1;
         silenceFitness = compareToTarget(silence);
-        std::cout << silenceFitness << std::endl;
         delete silent;
 
         // SUPPLY AVAILABLE NODES
         //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        //nodes->push_back(new FunctionNode(sine, NULL, NULL));
-        //nodes->push_back(new ConstantNode(2));
-        //nodes->push_back(new ConstantNode(M_PI));
-        //nodes->push_back(new TimeNode());
-        //nodes->push_back(new VariableNode(0));
-        nodes->push_back(new OscilNode(1, 0, NULL, NULL));
-        nodes->push_back(new OscilNode(1, 1, NULL, NULL));
+        nodes->push_back(new FunctionNode(sine, NULL, NULL));
+        nodes->push_back(new ConstantNode(2));
+        nodes->push_back(new ConstantNode(M_PI));
+        nodes->push_back(new TimeNode());
+        nodes->push_back(new VariableNode(0));
+        //nodes->push_back(new OscilNode(1, 0, NULL, NULL));
+        //nodes->push_back(new OscilNode(1, 1, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 1, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 2, NULL, NULL));
         //nodes->push_back(new OscilNode(1, 3, NULL, NULL));
@@ -100,11 +100,11 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
 
         GPNetwork* equivalent = new GPNetwork(new FunctionNode(multiply, new OscilNode(1, 0, NULL, NULL), new OscilNode(1, 1, NULL, NULL)));
 
-        //float* equivalentFrames = renderIndividual(equivalent);
-        //saveWavFile("./EquivalentNetwork.wav", String(equivalent->toString().c_str()), numTargetFrames, equivalentFrames);
+        float* equivalentFrames = renderIndividual(equivalent);
+        saveWavFile("./EquivalentNetwork.wav", String(equivalent->toString().c_str()), numTargetFrames, equivalentFrames);
 
-        float* equivalentFrames = renderIndividual(answer);
-        saveWavFile("./SameNetwork.wav", String(answer->toString().c_str()), numTargetFrames, equivalentFrames);
+        //float* equivalentFrames = renderIndividual(answer);
+        //saveWavFile("./SameNetwork.wav", String(answer->toString().c_str()), numTargetFrames, equivalentFrames);
 
         p->fitnessFunctionType = 0;
         std::cout << "Amplitude fitness: " << compareToTarget(equivalentFrames) << std::endl;
@@ -213,7 +213,7 @@ void GPExperiment::loadTargetWavFile(String path) {
     // TODO: check if path exists
     File input(path);
     FileInputStream* fis = input.createInputStream();
-    AudioSampleBuffer asb(1, wavFileBufferSize);
+    //AudioSampleBuffer asb(1, wavFileBufferSize);
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
 
     // get info on target
@@ -228,7 +228,11 @@ void GPExperiment::loadTargetWavFile(String path) {
 
     int64 numRemaining = numTargetFrames;
     int64 numCompleted = 0;
+    AudioSampleBuffer asb(1, numTargetFrames);
+    afr->read(&asb, 0, numTargetFrames, 0, false, true);
     float* chanData = asb.getSampleData(0);
+    memcpy(targetFrames, chanData, numTargetFrames);
+    /*
     while (numRemaining > 0) {
         int numToRead = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
         afr->read(&asb, 0, numToRead, numCompleted, true, false);
@@ -237,6 +241,7 @@ void GPExperiment::loadTargetWavFile(String path) {
         numCompleted += numToRead;
     }
     assert (numCompleted == numTargetFrames && numRemaining == 0);
+    */
 
     // get frequency spectrum of target
     if (params->fitnessFunctionType == 1) {
@@ -323,7 +328,12 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
         double sum = 0;
         for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
             sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
-            std::cout << "sum: " << sum << " frameNum: " << frameNum << std::endl;
+            /*
+            if (frameNum % 128 == 0) {
+                std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
+                std::cout << " sum: " << sum << " frameNum: " << frameNum << std::endl;
+            }
+            */
         }
         ret = sqrt(sum);
     }
