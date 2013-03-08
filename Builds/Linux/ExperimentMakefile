@@ -49,6 +49,9 @@ OBJECTS := \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/OscilNode.o \
+  $(OBJDIR)/ModOscilNode.o \
+  $(OBJDIR)/FilterNode.o \
+  $(OBJDIR)/NoiseNode.o \
   $(OBJDIR)/FunctionNode.o \
   $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/TimeNode.o \
@@ -120,6 +123,21 @@ $(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
 $(OBJDIR)/OscilNode.o: ../../Source/Synth/Nodes/OscilNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling OscilNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ModOscilNode.o: ../../Source/Synth/Nodes/ModOscilNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ModOscilNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FilterNode.o: ../../Source/Synth/Nodes/FilterNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FilterNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/NoiseNode.o: ../../Source/Synth/Nodes/NoiseNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NoiseNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp

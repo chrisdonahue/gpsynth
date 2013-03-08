@@ -16,8 +16,8 @@
     ==============
 */
 
-NoiseNode::NoiseNode(GPParams* p) {
-    bufferSize = p->noiseNodeMaxBufferSize;
+NoiseNode::NoiseNode(unsigned buffersize) {
+    bufferSize = buffersize;
     currentBufferIndex = 0;
     buffer = (double*) malloc(sizeof(double) * bufferSize);
 
@@ -37,7 +37,7 @@ NoiseNode::~NoiseNode() {
 }
 
 NoiseNode* NoiseNode::getCopy() {
-    return new NoiseNode(function, symbol, left->getCopy(), right->getCopy());
+    return new NoiseNode(bufferSize);
 }
 
 double NoiseNode::evaluate(double* t, double* v) {
