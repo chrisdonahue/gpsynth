@@ -98,7 +98,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         saveWavFile("./AnswerString.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
         loadTargetWavFile("./AnswerString.wav");
 
-        GPNetwork* equivalent = new GPNetwork(new FunctionNode(multiply, new OscilNode(1, 0, NULL, NULL), new OscilNode(1, 1, NULL, NULL)));
+        GPNetwork* equivalent = new GPNetwork(new FunctionNode(multiply, new OscilNode(1, 0), new OscilNode(1, 1)));
 
         float* equivalentFrames = renderIndividual(equivalent);
         saveWavFile("./EquivalentNetwork.wav", String(equivalent->toString().c_str()), numTargetFrames, equivalentFrames);

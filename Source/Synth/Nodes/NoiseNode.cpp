@@ -54,6 +54,6 @@ std::string NoiseNode::toString() {
 
 void NoiseNode::mutate(GPParams* e) {
     for (int i = 0; i < bufferSize; i++) {
-        buffer[i] = p->rng->noise();
+        buffer[i] = p->rng->whitenoise();
     }
 }

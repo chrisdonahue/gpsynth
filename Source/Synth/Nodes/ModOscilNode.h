@@ -16,7 +16,7 @@
 
 class ModOscilNode: public GPNode {
     public:
-        ModOscilNode(int p, GPNode* l, GPNode* r);
+        ModOscilNode(GPNode* l, GPNode* r);
         ~ModOscilNode();
         ModOscilNode* getCopy();
 
@@ -25,7 +25,7 @@ class ModOscilNode: public GPNode {
         void mutate(GPParams* e);
 
     private:
-        int partial;
+        //int partial;
         double w;
 };
 

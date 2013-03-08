@@ -41,7 +41,7 @@ double GPRandom::random() {
     return uni_real(engine);
 }
 
-double GPRandom::noise() {
+double GPRandom::whitenoise() {
     return noise(engine);
 }
 

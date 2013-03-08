@@ -21,6 +21,7 @@ class GPRandom {
         void normalizeDistribution(std::vector<double>* weights);
         int sampleFromDistribution(std::vector<double>* weights);
         double random();
+        double whitenoise();
         int random(int m);
 
     private:

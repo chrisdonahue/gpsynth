@@ -17,7 +17,6 @@
 */
 
 ModOscilNode::ModOscilNode(GPNode* l, GPNode* r) {
-    partial = p;
     left = l;
     right = r;
     parent = NULL;
@@ -47,9 +46,9 @@ std::string ModOscilNode::toString() {
 
 void ModOscilNode::mutate(GPParams* p) {
     if (p->rng->random() < p->mutateRight) {
-        right->mutate();
+        right->mutate(p);
     }
     else {
-        left->mutate();
+        left->mutate(p);
     }
 }
