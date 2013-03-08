@@ -16,7 +16,10 @@
     ==============
 */
 
-FilterNode::FilterNode(int x, int y, double* xc, double* yc, GPNode* l, GPNode* r) {
+FilterNode::FilterNode(int x, int y, double* xc, double* yc, GPNode* l, GPNode* r) 
+xMem(x),
+yMem(y)
+{
     numFilled = 0;
 
     numX = x;
@@ -37,8 +40,6 @@ FilterNode::FilterNode(int x, int y, double* xc, double* yc, GPNode* l, GPNode* 
 FilterNode::~FilterNode() {
     delete left;
     delete right;
-    delete xMem;
-    delete yMem;
     free(xCoefficients);
     free(yCoefficients);
 }

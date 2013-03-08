@@ -16,14 +16,13 @@
     ==============
 */
 
-DelayNode::DelayNode(int n, GPNode* l, GPNode* r) {
+DelayNode::DelayNode(int n, GPNode* l)
+delayLine(n)
+{
     numFilled = 0;
-
     numSamples = n;
-    delayLine();
 
     left = l;
-    right = r;
     parent = NULL;
     isBinary = false;
     isTerminal = false;
@@ -31,24 +30,24 @@ DelayNode::DelayNode(int n, GPNode* l, GPNode* r) {
 
 DelayNode::~DelayNode() {
     delete left;
-    delete right;
-    delete delayLine;
 }
 
 DelayNode* DelayNode::getCopy() {
-    return new DelayNode(n, left->getCopy(), right->getCopy());
+    return new DelayNode(n, left->getCopy());
 }
 
 void DelayNode::setMemoryConstants(int n) {
     numSamples = n;
     delayLine.clear();
+    delayLine.resize(n);
 }
 
 double DelayNode::evaluate(double* t, double* v) {
+
 }
 
 std::string DelayNode::toString() {
-    char buffer[100];
-    snprintf(buffer, 100, "(DELAY %d)", numSamples);
+    char buffer[1024];
+    snprintf(buffer, 1024, "(delay %d %s)", numSamples, left->toString().c_str());
     return std::string(buffer);
 }

@@ -27,7 +27,6 @@ class DelayNode: public GPNode {
 
     private:
         int numFilled;
-
         int numSamples;
         std::list<double> delayLine;
 };
