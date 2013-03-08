@@ -9,7 +9,7 @@ GPExperiment.cpp:
     change evaluateIndividual to accept (float*) for better malloc symantics
 
 GPNetwork.cpp:
-    Fix constructor to parse a network from a string
+    Add new syntax parsing to string parser
     
 GPSynth.cpp:
     Fill in selectFromEvaluated() skeleton code including greedy over
@@ -18,8 +18,10 @@ GPSynth.cpp:
     maybe remove rawFitness container
 
 Node subclasses:
+    DelayNode
+    FilterNode
+    ADSRNode
     ConditionalNode
-    fill in virtual methods for all
 
 Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
@@ -31,7 +33,4 @@ Tomorrow:
     if time, MIDI omg gunna be so cool!
 
 Thoughts and Ideas:
-    Punish silence-producing networks maximally
-    Read Horner et al!
     novelty search of new spectrum elements
-    OscilNode's left overrides modulates oscillator
