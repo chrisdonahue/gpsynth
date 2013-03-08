@@ -57,6 +57,10 @@ struct GPParams {
     unsigned filterNodeMaxBufferSize;
     double filterNodeBufferMaxSeconds;
 
+    // noise node
+    unsigned noiseNodeMaxBufferSize;
+    double noiseNodeBufferMaxSeconds;
+
     // multiple nodes
     unsigned numVariables;
     double mutateRight;

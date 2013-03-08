@@ -11,7 +11,7 @@
 #include "GPRandom.h"
 
 GPRandom::GPRandom(unsigned s) :
-seed(s), engine(seed), uni_real(0, 1)
+seed(s), engine(seed), uni_real(0, 1), noise(-1, 1)
 {}
 
 void GPRandom::normalizeDistribution(std::vector<double>* weights) {
@@ -39,6 +39,10 @@ int GPRandom::sampleFromDistribution(std::vector<double>* weights) {
 
 double GPRandom::random() {
     return uni_real(engine);
+}
+
+double GPRandom::noise() {
+    return noise(engine);
 }
 
 int GPRandom::random(int m) {

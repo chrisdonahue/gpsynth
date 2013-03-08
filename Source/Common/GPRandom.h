@@ -27,6 +27,7 @@ class GPRandom {
         unsigned seed;
         std::mt19937 engine;
         std::uniform_real_distribution<double> uni_real;
+        std::uniform_real_distribution<double> noise;
 };
 
 #endif

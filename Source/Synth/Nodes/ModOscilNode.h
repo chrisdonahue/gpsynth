@@ -1,33 +1,32 @@
 /*
   ==============================================================================
 
-    NoiseNode.h
+    ModOscilNode.h
     Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef NOISENODE_H
-#define NOISENODE_H
+#ifndef MODOSCILNODE_H
+#define MODOSCILNODE_H
 
+#include <cmath>
 #include "../GPNode.h"
-#include <list>
 
-class NoiseNode: public GPNode {
+class ModOscilNode: public GPNode {
     public:
-        NoiseNode(GPParams* p);
-        ~NoiseNode();
-        NoiseNode* getCopy();
+        ModOscilNode(int p, GPNode* l, GPNode* r);
+        ~ModOscilNode();
+        ModOscilNode* getCopy();
 
         double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPParams* e);
 
     private:
-        unsigned bufferSize;
-        unsigned currentBufferIndex;
-        double* buffer;
+        int partial;
+        double w;
 };
 
 #endif
