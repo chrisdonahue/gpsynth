@@ -58,6 +58,10 @@ OBJECTS := \
   $(OBJDIR)/VariableNode.o \
   $(OBJDIR)/kiss_fft.o \
   $(OBJDIR)/kiss_fftr.o \
+  $(OBJDIR)/Param.o \
+  $(OBJDIR)/Filter.o \
+  $(OBJDIR)/Biquad.o \
+  $(OBJDIR)/RBJ.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -168,6 +172,26 @@ $(OBJDIR)/kiss_fft.o: ../../Source/Dependencies/kissfft/kiss_fft.c
 $(OBJDIR)/kiss_fftr.o: ../../Source/Dependencies/kissfft/kiss_fftr.c
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling kiss_fftr.c"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Param.o: ../../Source/Dependencies/DSPFilters/Param.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Param.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Filter.o: ../../Source/Dependencies/DSPFilters/Filter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Filter.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Biquad.o: ../../Source/Dependencies/DSPFilters/Biquad.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Biquad.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/RBJ.o: ../../Source/Dependencies/DSPFilters/RBJ.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling RBJ.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
