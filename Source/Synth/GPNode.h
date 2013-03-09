@@ -12,11 +12,19 @@
 #define GPNODE_H
 
 #include "../Common/GPParams.h"
+#include "../Common/GPMutatableParam.h"
 #include <vector>
 #include <algorithm>
 
 class GPNode {
     public:
+        GPNode()
+            : parent(NULL), left(NULL), right(NULL), 
+                isBinary(false), isTerminal(false),
+                mutatableParams()
+            {
+            }
+
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
         virtual double evaluate(double* t, double* v) = 0;
         virtual std::string toString() = 0;
@@ -34,17 +42,23 @@ class GPNode {
         bool isBinary;
         bool isTerminal;
 
+        // MUTATABLE PARAMS
+        std::vector<GPMutatableParam*> mutatableParams;
+
         // INHERITED TRACE METHOD
-        void traceSubtree(std::vector<GPNode*>* allnodes, GPNode* p, int* rootHeight, int currentDepth) {
+        void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allparams, GPNode* p, int* rootHeight, int currentDepth) {
             parent = p;
             allnodes->push_back(this);
+            for (int i = 0; i < mutatableParams.size(); i++) {
+                allparams->push_back(mutatableParams[i]);
+            }
             if (currentDepth > *rootHeight) {
                 *rootHeight = currentDepth;
             }
             if (!isTerminal) {
-                left->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
+                left->traceSubtree(allnodes, allparams, this, rootHeight, currentDepth + 1);
                 if (isBinary) {
-                    right->traceSubtree(allnodes, this, rootHeight, currentDepth + 1);
+                    right->traceSubtree(allnodes, allparams, this, rootHeight, currentDepth + 1);
                 }
             }
         };

@@ -37,6 +37,7 @@ class GPNetwork {
 
         // MUTATION
         GPNode* getRandomNetworkNode(GPRandom* r);
+        std::vector<GPMutatableParam*>* getAllMutatableParams();
         void mutate(GPParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
         void swap(GPNode* one, GPNode* two);
@@ -52,6 +53,7 @@ class GPNetwork {
         std::string asText;
         GPNode* root;
         std::vector<GPNode*> allNodes;
+        std::vector<GPMutatableParam*> allParams;
 };
 
 extern GPNode* createSubtree(char* tokenized);

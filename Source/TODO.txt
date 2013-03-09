@@ -6,7 +6,6 @@ Main.cpp:
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
     fill and use sampleTimes for efficiency
-    change evaluateIndividual to accept (float*) for better malloc symantics
 
 GPNetwork.cpp:
     Add new syntax parsing to string parser
@@ -23,15 +22,21 @@ Node subclasses:
     ADSRNode
     ConditionalNode
     add evaluateBlock(*t, *v, n samples) to all subclasses :(
+    maybe extend parity possibilities to make for better time-varying filters
 
 Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
     crossover at shallower nodes have different probabilities?
 
+Interactive:
+    10 networks, 4 or 5 faders, one keyboard
+    Button to interactively suboptimize constants
+    Introduce Novelty button
+    Buttons to step backwards through evolution
+    button to run random evolution for a while
+
 Tomorrow:
-    make new fitness function type for interactive
-    implement some cool node subclasses
-    if time, MIDI omg gunna be so cool!
+    Node subclass stuff :/
 
 Thoughts and Ideas:
     novelty search of new spectrum elements
