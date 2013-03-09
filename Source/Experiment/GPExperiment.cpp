@@ -51,7 +51,8 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
         numTargetFrames = 88200;
-        targetFrames = renderIndividual(answer);
+        targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
+        renderIndividual(answer, numTargetFrames, targetFrames);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
         loadTargetWavFile("./Answer.wav");
         delete answer;
@@ -61,13 +62,10 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         p->bestPossibleFitness = 0;
         worstFitness = std::numeric_limits<float>::max();
 
-        std::string silentstring("(0)");
-        GPNetwork* silent = new GPNetwork(silentstring);
-        silent->traceNetwork();
-        float* silence = renderIndividual(silent);
+        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
         silenceFitness = -1;
-        silenceFitness = compareToTarget(silence);
-        delete silent;
+        silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
+        free(silence);
 
         // SUPPLY AVAILABLE NODES
         //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
@@ -87,6 +85,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         binaryFunctions->push_back(multiply);
     }
     if (params->experimentNumber == 10) {
+        /*
         // EVALUATE TARGET STRING
         std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
         GPNetwork* answer = new GPNetwork(AMstring);
@@ -94,27 +93,26 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
         numTargetFrames = 88200;
-        targetFrames = renderIndividual(answer);
+        //targetFrames = renderIndividual(answer);
         saveWavFile("./AnswerString.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
         loadTargetWavFile("./AnswerString.wav");
 
         GPNetwork* equivalent = new GPNetwork(new FunctionNode(multiply, new OscilNode(1, 0), new OscilNode(1, 1)));
 
-        float* equivalentFrames = renderIndividual(equivalent);
+        //float* equivalentFrames = renderIndividual(equivalent);
         saveWavFile("./EquivalentNetwork.wav", String(equivalent->toString().c_str()), numTargetFrames, equivalentFrames);
 
         //float* equivalentFrames = renderIndividual(answer);
         //saveWavFile("./SameNetwork.wav", String(answer->toString().c_str()), numTargetFrames, equivalentFrames);
 
-        p->fitnessFunctionType = 0;
-        std::cout << "Amplitude fitness: " << compareToTarget(equivalentFrames) << std::endl;
-        p->fitnessFunctionType = 1;
-        std::cout << "Frequency fitness: " << compareToTarget(equivalentFrames) << std::endl;
+        std::cout << "Amplitude fitness: " << compareToTarget(0, equivalentFrames) << std::endl;
+        std::cout << "Frequency fitness: " << compareToTarget(1, equivalentFrames) << std::endl;
 
         delete answer;
         delete equivalent;
 
         exit(0);
+        */
     }
 
     p->availableUnaryFunctions = unaryFunctions;
@@ -149,9 +147,11 @@ GPNetwork* GPExperiment::evolve() {
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
-
-        float* candidateData = renderIndividual(candidate);
-        double fitness = compareToTarget(candidateData);
+        
+        float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
+        //renderIndividual(candidate, numTargetFrames, candidateData);
+        //double fitness = compareToTarget(params->fitnessFunctionType, candidateData);
+        double fitness = suboptimize(candidate, numTargetFrames, candidateData);
         generationCumulativeFitness += fitness;
         numEvaluated++;
 
@@ -196,9 +196,12 @@ GPNetwork* GPExperiment::evolve() {
     }
     std::cout << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
     if (champ != NULL) {
+        float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
+        renderIndividual(champ, numTargetFrames, champbuffer);
         std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
-        saveWavFile("./DiscoveredChampion.wav", String(champ->toString().c_str()), numTargetFrames, renderIndividual(champ));
+        saveWavFile("./DiscoveredChampion.wav", String(champ->toString().c_str()), numTargetFrames, champbuffer);
+        free(champbuffer);
     }
     return champ;
 }
@@ -312,19 +315,22 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
     ================
 */
 
-float* GPExperiment::renderIndividual(GPNetwork* candidate) {
-    float* ret = (float*) malloc(sizeof(float) * numTargetFrames);
-    double time;
-    for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
-        time = frameNum/sampleRate;
-        ret[frameNum] = candidate->evaluate(&time, specialValues);
-    }
-    return ret;
+double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
+    renderIndividual(candidate, numSamples, buffer);
+    return compareToTarget(params->fitnessFunctionType, buffer);
 }
 
-double GPExperiment::compareToTarget(float* candidateFrames) {
+void GPExperiment::renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer) {
+    double time;
+    for (int frameNum = 0; frameNum < numSamples; frameNum++) {
+        time = frameNum/sampleRate;
+        buffer[frameNum] = candidate->evaluate(&time, specialValues);
+    }
+}
+
+double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
     double ret = -1;
-    if (params->fitnessFunctionType == 0) {
+    if (type == 0) {
         double sum = 0;
         for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
             sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
@@ -337,7 +343,7 @@ double GPExperiment::compareToTarget(float* candidateFrames) {
         }
         ret = sqrt(sum);
     }
-    else if (params->fitnessFunctionType == 1) {
+    else if (type == 1) {
         unsigned n = params->fftSize;
 
         kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);

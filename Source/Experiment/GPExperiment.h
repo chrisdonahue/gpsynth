@@ -75,9 +75,9 @@ class GPExperiment {
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION
-        float* renderIndividual(GPNetwork* candidate);
-        double interactiveFitness(GPNetwork* candidate);
-        double compareToTarget(float* candidateFrames);
+        double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
+        void renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer);
+        double compareToTarget(unsigned type, float* candidateFrames);
         void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
 };
 
