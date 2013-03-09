@@ -22,6 +22,7 @@ Node subclasses:
     FilterNode
     ADSRNode
     ConditionalNode
+    add evaluateBlock(*t, *v, n samples) to all subclasses :(
 
 Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"

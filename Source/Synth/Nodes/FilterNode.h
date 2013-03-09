@@ -12,29 +12,29 @@
 #define FILTERNODE_H
 
 #include "../GPNode.h"
-#include <list>
+#include "../../Dependencies/DSPFilters/Dsp.h" 
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(int x, int y, GPNode* l, GPNode* r);
+        FilterNode(int t, int o, int fpc, double sr, double cf, double wf, double q, GPNode* l);
         ~FilterNode();
         FilterNode* getCopy();
 
-        void setMemoryConstants(int x, int y);
         double evaluate(double* t, double* v);
         std::string toString();
         void mutate(GPParams* e);
 
     private:
-        int numFilled;
-
-        int numX;
-        std::list<double> xMem;
-        double* xCoefficients;
-
-        int numY;
-        std::list<double> yMem;
-        double* yCoefficients;
+        int type;
+        int order;
+        int fadeParameterChanges;
+        double sampleRate;
+        double centerFrequency;
+        double bandwidth;
+        double gainDb;
+        double quality;
+        Dsp::Filter* filter;
+        Dsp::Params params;
 };
 
 #endif

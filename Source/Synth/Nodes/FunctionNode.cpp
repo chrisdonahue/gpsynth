@@ -75,10 +75,10 @@ void FunctionNode::mutate(GPParams* p) {
     }
     gpfunction = functionSet->at(p->rng->random(p->availableBinaryFunctions->size()));
     */
-    if (isBinary && p->rng->random() < p->mutateRight()) {
-        right->mutate();
+    if (isBinary && p->rng->random() < p->mutateRight) {
+        right->mutate(p);
     }
     else {
-        left->mutate();
+        left->mutate(p);
     }
 }

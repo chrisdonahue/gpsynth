@@ -22,13 +22,15 @@ class GPNode {
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
         virtual void mutate(GPParams* e) = 0;
+        // EVALUATE BLOCK
+        // GET MUTABLE COEFFICIENTS
 
         // HERITAGE POINTERS
         GPNode* parent;
         GPNode* left;
         GPNode* right;
 
-        // N-ARY INDICATOR FOR MUTATION
+        // INDICATORS ABOUT TYPE
         bool isBinary;
         bool isTerminal;
 

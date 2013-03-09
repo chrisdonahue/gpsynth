@@ -16,22 +16,47 @@
     ==============
 */
 
-FilterNode::FilterNode(int x, int y, double* xc, double* yc, GPNode* l, GPNode* r) 
-xMem(x),
-yMem(y)
+FilterNode::FilterNode(int t, int o, int fpc, double sr, double cf, double bw, double q, GPNode* l) :
+params()
 {
-    numFilled = 0;
+    type = t;
+    order = o;
+    fadeParameterChanges = fpc;
+    sampleRate = sr;
+    centerFrequency = cf;
+    bandwidth = bw;
+    quality = q;
 
-    numX = x;
-    xMem();
-    xCoefficients = xc;
-
-    numY = y;
-    yMem();
-    yCoefficients = yc;
+    if (type == 0) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = quality;
+    }
+    /*
+    else if (type == 1) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = quality;
+    }
+    else if (type == 2) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandPass2, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = bandwidth;
+    }
+    else if (type == 3) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = bandwidth;
+    }
+    */
+    filter->setParams(params);
 
     left = l;
-    right = r;
+    right = NULL;
     parent = NULL;
     isBinary = false;
     isTerminal = false;
@@ -40,52 +65,31 @@ yMem(y)
 FilterNode::~FilterNode() {
     delete left;
     delete right;
-    free(xCoefficients);
-    free(yCoefficients);
+    delete filter;
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(function, symbol, left->getCopy(), right->getCopy());
-}
-
-void FilterNode::setMemoryConstants(int x, int y) {
-    numX = x;
-    numY = y;
-    xMem.clear();
-    yMem.clear();
-}
-
-void FilterNode::setXCoefficient(int x, double c) {
-    if (x < numX)
-        xCoefficients[x] = c;
-}
-
-void FilterNode::setYCoefficient(int y, double c) {
-    if (y < numY)
-        yCoefficients[y] = c;
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, centerFrequency, bandwidth, quality, left->getCopy());
 }
 
 double FilterNode::evaluate(double* t, double* v) {
-    double xn = left->evaluate();
-    xMem.push_front(xn);
-    numFilled++;
-    double yn = 0.0;
-
-    int i = 0;
-    while (i < numFilled) {
-        yn += xCoefficients[i] * xMem[i];
-        if (i != numFilled - 1) {
-            yn -= yCoefficients[i] * yMem[i];
-        }
-        i++;
-    }
-    yMem.push_front(yn);
-    return yn;
+    double* audioData[1];
+    audioData[0] = new double[1];
+    audioData[0][0] = left->evaluate(t, v);
+    filter->process(1, audioData);
+    return audioData[0][0];
 }
 
 std::string FilterNode::toString() {
-    char buffer[100];
-    snprintf(buffer, 100, "(FILTER %d %d)", numX, numY);
+    char buffer[1024];
+    if (type == 0)
+        snprintf(buffer, 1024, "(lowpass %lf %lf %s)", centerFrequency, quality, left->toString().c_str());
+    else if (type == 1)
+        snprintf(buffer, 1024, "(highpass %lf %lf %s)", centerFrequency, quality, left->toString().c_str());
+    else if (type == 2)
+        snprintf(buffer, 1024, "(bandpass %lf %lf %s)", centerFrequency, bandwidth, left->toString().c_str());
+    else if (type == 3)
+        snprintf(buffer, 1024, "(bandstop %lf %lf %s)", centerFrequency, bandwidth, left->toString().c_str());
     return std::string(buffer);
 }
 
