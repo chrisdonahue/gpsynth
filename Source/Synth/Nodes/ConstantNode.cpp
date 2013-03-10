@@ -32,6 +32,10 @@ double ConstantNode::evaluate(double* t, double* v) {
     return value;
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string ConstantNode::toString() {
     char buffer[10];
     if (value == M_PI) {

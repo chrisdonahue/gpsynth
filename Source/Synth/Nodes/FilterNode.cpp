@@ -80,6 +80,10 @@ double FilterNode::evaluate(double* t, double* v) {
     return audioData[0][0];
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string FilterNode::toString() {
     char buffer[1024];
     if (type == 0)

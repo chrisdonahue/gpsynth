@@ -27,6 +27,7 @@ class GPNode {
 
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
         virtual double evaluate(double* t, double* v) = 0;
+        virtual void evaluateBlock(double* t, double** v, unsigned n, float* buffer) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
         virtual void mutate(GPParams* e) = 0;

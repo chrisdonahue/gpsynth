@@ -38,6 +38,10 @@ double ModOscilNode::evaluate(double* t, double* v) {
     return sin(w*(*t)*(left->evaluate(t, v)) + right->evaluate(t, v));
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string ModOscilNode::toString() {
     char buffer[2048];
     snprintf(buffer, 30, "(modosc %s %s)", left->toString().c_str(), right->toString().c_str());

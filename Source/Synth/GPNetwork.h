@@ -30,6 +30,7 @@ class GPNetwork {
 
         // EXAMINATION
         double evaluate(double* t, double* v);
+        void evaluateBlock(double* t, double** v, unsigned n, float* buffer);
         int getDepth();
         std::string toString();
         GPNode* getRoot();

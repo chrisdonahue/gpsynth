@@ -30,6 +30,10 @@ double TimeNode::evaluate(double* t, double* v) {
     return *t;
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string TimeNode::toString() {
     char buffer[10];
     snprintf(buffer, 10, "(%s)", "time");

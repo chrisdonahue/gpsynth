@@ -38,6 +38,10 @@ double OscilNode::evaluate(double* t, double* v) {
     return sin(w*(*t)*(v[variableNum]));
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string OscilNode::toString() {
     char buffer[30];
     snprintf(buffer, 30, "(osc p%d v%d)", partial, variableNum);

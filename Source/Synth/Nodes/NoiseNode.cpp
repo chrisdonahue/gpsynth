@@ -47,6 +47,10 @@ double NoiseNode::evaluate(double* t, double* v) {
     return buffer[currentBufferIndex++];
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string NoiseNode::toString() {
     char buffer[20];
     snprintf(buffer, 20, "(white noise)");

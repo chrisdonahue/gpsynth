@@ -46,6 +46,10 @@ double DelayNode::evaluate(double* t, double* v) {
 
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string DelayNode::toString() {
     char buffer[1024];
     snprintf(buffer, 1024, "(delay %d %s)", numSamples, left->toString().c_str());

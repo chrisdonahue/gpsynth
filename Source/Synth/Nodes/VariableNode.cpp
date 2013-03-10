@@ -32,6 +32,10 @@ double VariableNode::evaluate(double* t, double* v) {
     return v[variableNum];
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string VariableNode::toString() {
     char buffer[10];
     snprintf(buffer, 10, "(v%d)", variableNum);

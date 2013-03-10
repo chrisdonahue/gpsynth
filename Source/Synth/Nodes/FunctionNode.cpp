@@ -53,6 +53,10 @@ double FunctionNode::evaluate(double* t, double* v) {
     } 
 }
 
+void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+	return;
+}
+
 std::string FunctionNode::toString() {
     char buffer[2048];
     if (isBinary) {
