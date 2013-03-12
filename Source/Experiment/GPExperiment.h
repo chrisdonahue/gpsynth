@@ -20,9 +20,9 @@
 #include "../Synth/Nodes/VariableNode.h"
 #include "../Synth/Nodes/FunctionNode.h"
 #include "../Synth/Nodes/OscilNode.h"
-//#include "../Synth/Nodes/DelayNode.h"
-//#include "../Synth/Nodes/FilterNode.h"
-//#include "../Synth/Nodes/NoiseNode.h"
+#include "../Synth/Nodes/ModOscilNode.h"
+#include "../Synth/Nodes/FilterNode.h"
+#include "../Synth/Nodes/NoiseNode.h"
 
 #include "../Dependencies/kissfft/kiss_fft.h"
 #include "../Dependencies/kissfft/kiss_fftr.h"
@@ -45,7 +45,6 @@ class GPExperiment {
         float fitnessThreshold;
         int numGenerations;
         bool lowerFitnessIsBetter;
-        double silenceFitness;
         double bestPossibleFitness;
         double worstFitness;
 

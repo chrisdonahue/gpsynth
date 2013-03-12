@@ -171,8 +171,14 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     unevaluated.erase(net);
     evaluated.insert(net);
     rawFitnesses[net->ID % populationSize] = fitness;
-    if (params->verbose)
-        std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
+    if (params->verbose) {
+        if (fitness == params->silenceFitness) {
+            std::cout << "Algorithm " << net->ID << " was silent and was assigned a penalty fitness of " << fitness << std::endl;
+        }
+        else {
+            std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
+        }
+    }
     int numStillNeedingEvaluation = populationSize - evaluated.size();
     return numStillNeedingEvaluation;
 }

@@ -7,6 +7,7 @@
 struct GPParams {
     // auxillary params
     unsigned wavFileBufferSize;
+    unsigned evaluationBlockSize;
     unsigned fftSize;
     GPRandom* rng;
 
@@ -21,7 +22,8 @@ struct GPParams {
     // synth evolution parameters
     unsigned populationSize;
     bool lowerFitnessIsBetter;
-    unsigned bestPossibleFitness;
+    double bestPossibleFitness;
+    double silenceFitness;
     unsigned maxInitialDepth;
     unsigned maxDepth;
 
@@ -37,10 +39,6 @@ struct GPParams {
     // value node
     double valueNodeMinimum;
     double valueNodeMaximum;
-
-    // function node
-    std::vector<GPFunction>* availableUnaryFunctions;
-    std::vector<GPFunction>* availableBinaryFunctions;
 
     // oscil node
     double oscilNodePartialChance;

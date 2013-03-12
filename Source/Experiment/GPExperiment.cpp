@@ -39,8 +39,6 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
 
     // SYNTH
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-    std::vector<GPFunction>* unaryFunctions = new std::vector<GPFunction>();
-    std::vector<GPFunction>* binaryFunctions = new std::vector<GPFunction>();
 
     if (params->experimentNumber == 0) {
         // TODO remove once done with AM testing or make command line param
@@ -64,26 +62,79 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
 
         // CALCULATE SILENCE FITNESS
         float* silence = (float*) calloc(numTargetFrames, sizeof(float));
-        silenceFitness = -1;
-        silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
+        p->silenceFitness = -1;
+        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
         free(silence);
 
         // SUPPLY AVAILABLE NODES
-        //nodes->push_back(new FunctionNode(add, "+", NULL, NULL));
+        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+        nodes->push_back(new OscilNode(1, 0));
+        nodes->push_back(new OscilNode(1, 1));
+    }
+    // AM 440 hz experiment easy
+    if (params->experimentNumber == 1) {
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->lowerFitnessIsBetter = true;
+        p->bestPossibleFitness = 0;
+        worstFitness = std::numeric_limits<float>::max();
+
+        // CALCULATE SILENCE FITNESS
+        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
+        p->silenceFitness = -1;
+        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
+        free(silence);
+
+        // SUPPLY AVAILABLE NODES
+        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+        nodes->push_back(new OscilNode(1, 0));
+        nodes->push_back(new OscilNode(1, 1));
+    }
+    // AM 440 hz experiment hard
+    if (params->experimentNumber == 2) {
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->lowerFitnessIsBetter = true;
+        p->bestPossibleFitness = 0;
+        worstFitness = std::numeric_limits<float>::max();
+
+        // CALCULATE SILENCE FITNESS
+        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
+        p->silenceFitness = -1;
+        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
+        free(silence);
+
+        // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new FunctionNode(sine, NULL, NULL));
         nodes->push_back(new ConstantNode(2));
         nodes->push_back(new ConstantNode(M_PI));
         nodes->push_back(new TimeNode());
         nodes->push_back(new VariableNode(0));
-        //nodes->push_back(new OscilNode(1, 0, NULL, NULL));
-        //nodes->push_back(new OscilNode(1, 1, NULL, NULL));
-        //nodes->push_back(new OscilNode(1, 1, NULL, NULL));
-        //nodes->push_back(new OscilNode(1, 2, NULL, NULL));
-        //nodes->push_back(new OscilNode(1, 3, NULL, NULL));
+    }
+    // C4 Piano experiment hard
+    if (params->experimentNumber == 3) {
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->lowerFitnessIsBetter = true;
+        p->bestPossibleFitness = 0;
+        worstFitness = std::numeric_limits<float>::max();
 
-        binaryFunctions->push_back(add);
-        binaryFunctions->push_back(multiply);
+        // CALCULATE SILENCE FITNESS
+        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
+        p->silenceFitness = -1;
+        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
+        free(silence);
+
+        // SUPPLY AVAILABLE NODES
+        nodes->push_back(new FunctionNode(add, NULL, NULL));
+        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+        nodes->push_back(new TimeNode());
+        nodes->push_back(new VariableNode(0));
+        nodes->push_back(new ConstantNode(0));
+        nodes->push_back(new ModOscilNode(NULL, NULL));
+        nodes->push_back(new NoiseNode(1024, params->rng));
+        nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 0, 0, 0, NULL));
     }
     if (params->experimentNumber == 10) {
         /*
@@ -116,19 +167,16 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         */
     }
 
-    p->availableUnaryFunctions = unaryFunctions;
-    p->availableBinaryFunctions = binaryFunctions;
-
     synth = new GPSynth(p, nodes);
 }
 
 GPExperiment::~GPExperiment() {
     free(targetFrames);
-    free(targetSpectrum);
-    free(targetSpectrumMagnitudes);
-    free(targetSpectrumPhases);
-    delete params->availableUnaryFunctions;
-    delete params->availableBinaryFunctions;
+    if (params->fitnessFunctionType == 1) {
+        free(targetSpectrum);
+        free(targetSpectrumMagnitudes);
+        free(targetSpectrumPhases);
+    }
     delete synth;
 }
 
@@ -278,6 +326,11 @@ void GPExperiment::loadTargetWavFile(String path) {
             }
             unsigned targetSpectrumIndex = numFftCompleted * (n/2 + 1);
             FftReal(n, in, targetSpectrum + targetSpectrumIndex, targetSpectrumMagnitudes + targetSpectrumIndex, targetSpectrumPhases + targetSpectrumIndex);
+            if (numRemaining < 100) {
+                for (int i = 0; i < (n/2 + 1); i++) {
+                    std::cout << targetSpectrumMagnitudes[targetSpectrumIndex + i] << ", " << targetSpectrumPhases[targetSpectrumIndex + i] << std::endl;
+                }
+            }
             numFftCompleted++;
         }
         free(in);
@@ -382,7 +435,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         free(phase);
         ret = MSEmag + MSEph;
     }
-    if (ret == silenceFitness)
+    if (ret == params->silenceFitness)
         return worstFitness;
     else
         return ret;
