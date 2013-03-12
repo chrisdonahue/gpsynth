@@ -32,7 +32,7 @@ double ConstantNode::evaluate(double* t, double* v) {
     return value;
 }
 
-void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void ConstantNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
 	for (int i = 0; i < n; i++) {
         buffer[i] = value;
     }

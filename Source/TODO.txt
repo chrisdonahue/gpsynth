@@ -23,10 +23,11 @@ Node subclasses:
     ConditionalNode
     add evaluateBlock(*t, *v, n samples) to all subclasses :(
     maybe extend parity possibilities to make for better time-varying filters
+    consider changing evaluate to work on floats as well as all GPFUNCTIONS
 
 Other things:
     make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
-    crossover at shallower nodes have different probabilities?
+    crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
@@ -35,8 +36,8 @@ Interactive:
     Buttons to step backwards through evolution
     button to run random evolution for a while
 
-Tomorrow:
-    Node subclass stuff :/
-
 Thoughts and Ideas:
     novelty search of new spectrum elements
+
+Next time:
+    

@@ -38,9 +38,9 @@ double OscilNode::evaluate(double* t, double* v) {
     return sin(w*(*t)*(v[variableNum]));
 }
 
-void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void OscilNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
 	for (int i = 0; i < n; i++) {
-        buffer[i] = sin((w)*(t[i])*(v[variableNum][i]));
+        buffer[i] = sin(w*(t[i])*(v[variableNum][i]));
     }
 }
 

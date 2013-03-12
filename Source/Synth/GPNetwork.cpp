@@ -101,6 +101,7 @@ void GPNetwork::mutate(GPParams* p) {
 
 void GPNetwork::traceNetwork() {
     allNodes.clear();
+    allParams.clear();
     depth = 0;
     root->traceSubtree(&allNodes, &allParams, NULL, &depth, 0);
     asText = root->toString();

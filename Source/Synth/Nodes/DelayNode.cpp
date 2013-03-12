@@ -46,7 +46,7 @@ double DelayNode::evaluate(double* t, double* v) {
 
 }
 
-void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void DelayNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
 	return;
 }
 

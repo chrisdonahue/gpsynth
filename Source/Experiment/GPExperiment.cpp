@@ -62,6 +62,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         p->bestPossibleFitness = 0;
         worstFitness = std::numeric_limits<float>::max();
 
+        // CALCULATE SILENCE FITNESS
         float* silence = (float*) calloc(numTargetFrames, sizeof(float));
         silenceFitness = -1;
         silenceFitness = compareToTarget(params->fitnessFunctionType, silence);

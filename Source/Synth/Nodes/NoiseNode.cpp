@@ -47,7 +47,7 @@ double NoiseNode::evaluate(double* t, double* v) {
     return buffer[currentBufferIndex++];
 }
 
-void evaluateBlock(double* t, double** v, unsigned n, float* b) {
+void NoiseNode::evaluateBlock(double* t, double** v, unsigned n, float* b) {
     for (int i = 0; i < n; i++) {
         if (currentBufferIndex == bufferSize)
             currentBufferIndex = 0;

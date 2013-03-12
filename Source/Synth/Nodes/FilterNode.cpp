@@ -80,7 +80,7 @@ double FilterNode::evaluate(double* t, double* v) {
     return audioData[0][0];
 }
 
-void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void FilterNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
     float* audioData[1];
     audioData[0] = buffer;
     left->evaluateBlock(t, v, n, audioData[0]);

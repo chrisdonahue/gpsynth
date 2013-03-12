@@ -53,7 +53,7 @@ double FunctionNode::evaluate(double* t, double* v) {
     } 
 }
 
-void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void FunctionNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
     float* leftBlock = (float*) malloc(sizeof(float) * n);
     left->evaluateBlock(t, v, n, leftBlock);
     if (isBinary) {
