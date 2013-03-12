@@ -81,7 +81,10 @@ double FilterNode::evaluate(double* t, double* v) {
 }
 
 void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
-	return;
+    float* audioData[1];
+    audioData[0] = buffer;
+    left->evaluateBlock(t, v, n, audioData[0]);
+    filter->process(n, audioData);
 }
 
 std::string FilterNode::toString() {

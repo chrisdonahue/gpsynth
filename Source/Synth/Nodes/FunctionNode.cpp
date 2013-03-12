@@ -54,7 +54,22 @@ double FunctionNode::evaluate(double* t, double* v) {
 }
 
 void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
-	return;
+    float* leftBlock = (float*) malloc(sizeof(float) * n);
+    left->evaluateBlock(t, v, n, leftBlock);
+    if (isBinary) {
+        float* rightBlock = (float*) malloc(sizeof(float) * n);
+        right->evaluateBlock(t, v, n, rightBlock);
+        for (int i = 0; i < n; i++) {
+            buffer[i] = gpfunction.function(leftBlock[i], rightBlock[i]);
+        }
+        free(rightBlock);
+    }
+    else {
+        for (int i = 0; i < n; i++) {
+            buffer[i] = gpfunction.function(leftBlock[i], 0.0);
+        }
+    }
+    free(leftBlock);
 }
 
 std::string FunctionNode::toString() {

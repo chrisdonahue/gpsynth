@@ -39,7 +39,15 @@ double ModOscilNode::evaluate(double* t, double* v) {
 }
 
 void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
-	return;
+    float* leftBlock = (float*) malloc(sizeof(float) * n);
+    float* rightBlock = (float*) malloc(sizeof(float) * n);
+    for (int i = 0; i < n; i++) {
+        buffer[i] = sin(w * (t[i]) * (leftBlock[i]) + rightBlock[i])
+    }
+    free(rightBlock);
+    free(leftBlock);
+    return;
+
 }
 
 std::string ModOscilNode::toString() {

@@ -33,7 +33,9 @@ double ConstantNode::evaluate(double* t, double* v) {
 }
 
 void evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
-	return;
+	for (int i = 0; i < n; i++) {
+        buffer[i] = value;
+    }
 }
 
 std::string ConstantNode::toString() {
