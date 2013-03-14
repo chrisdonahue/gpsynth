@@ -33,7 +33,6 @@ params()
         params[1] = centerFrequency;
         params[2] = quality;
     }
-    /*
     else if (type == 1) {
         filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
         params[0] = sampleRate;
@@ -52,7 +51,6 @@ params()
         params[1] = centerFrequency;
         params[2] = bandwidth;
     }
-    */
     filter->setParams(params);
 
     left = l;

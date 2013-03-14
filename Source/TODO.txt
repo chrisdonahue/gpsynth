@@ -41,7 +41,6 @@ Thoughts and Ideas:
     novelty search of new spectrum elements
 
 Next time:
-    figure out why loading Answer.wav is empty but saving it then loading it it's not
     test evaluateBlock once that is fixed
     test GPMutatableParams stuff
     add in OPEN BEAGLE stuff

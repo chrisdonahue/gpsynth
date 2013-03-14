@@ -132,9 +132,9 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(1024, params->rng));
         nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        //nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        //nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        //nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 0, 0, 0, NULL));
     }
     if (params->experimentNumber == 10) {
         /*
@@ -264,6 +264,7 @@ GPNetwork* GPExperiment::evolve() {
 void GPExperiment::loadTargetWavFile(String path) {
     // TODO: check if path exists
     File input(path);
+    assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
     //AudioSampleBuffer asb(1, wavFileBufferSize);
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
@@ -278,12 +279,12 @@ void GPExperiment::loadTargetWavFile(String path) {
     free(targetFrames);
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
 
-    int64 numRemaining = numTargetFrames;
-    int64 numCompleted = 0;
     AudioSampleBuffer asb(1, numTargetFrames);
     afr->read(&asb, 0, numTargetFrames, 0, false, true);
     float* chanData = asb.getSampleData(0);
-    memcpy(targetFrames, chanData, numTargetFrames);
+    memcpy(targetFrames, chanData, sizeof(float) * numTargetFrames);
+    int64 numRemaining = numTargetFrames;
+    int64 numCompleted = 0;
     /*
     while (numRemaining > 0) {
         int numToRead = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
@@ -326,11 +327,13 @@ void GPExperiment::loadTargetWavFile(String path) {
             }
             unsigned targetSpectrumIndex = numFftCompleted * (n/2 + 1);
             FftReal(n, in, targetSpectrum + targetSpectrumIndex, targetSpectrumMagnitudes + targetSpectrumIndex, targetSpectrumPhases + targetSpectrumIndex);
+           /* 
             if (numRemaining < 100) {
                 for (int i = 0; i < (n/2 + 1); i++) {
                     std::cout << targetSpectrumMagnitudes[targetSpectrumIndex + i] << ", " << targetSpectrumPhases[targetSpectrumIndex + i] << std::endl;
                 }
             }
+            */
             numFftCompleted++;
         }
         free(in);
