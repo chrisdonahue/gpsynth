@@ -59,6 +59,9 @@ class GPExperiment {
         // EVALUATION DATA
         double* sampleTimes;
         double* specialValues;
+        // TODO: replace specialValues with specialValuesByTime
+        double* specialValuesByFrame;
+        unsigned numSpecialValues;
 
         // EXPERIMENT STATE
         float minFitnessAchieved;
@@ -67,15 +70,20 @@ class GPExperiment {
         // SYNTH
         GPSynth* synth;
 
+        // FILL EVALUATION BUFFERS
+        void fillEvaluationBuffers(int64 numFrames, double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
+
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
         unsigned wavFileBufferSize;
+        // TODO: move targetBuffer stuff from loadTargetWavFile to fillEvaluationBuffers
         void loadTargetWavFile(String path);
         void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
 
         // FITNESS FUNCTION
         double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
         void renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer);
+        void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
         double compareToTarget(unsigned type, float* candidateFrames);
         void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
 };

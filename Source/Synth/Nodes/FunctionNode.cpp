@@ -53,11 +53,11 @@ double FunctionNode::evaluate(double* t, double* v) {
     } 
 }
 
-void FunctionNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
-    left->evaluateBlock(t, v, n, buffer);
+void FunctionNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+    left->evaluateBlock(t, nv, v, n, buffer);
     if (isBinary) {
         float* rightBlock = (float*) malloc(sizeof(float) * n);
-        right->evaluateBlock(t, v, n, rightBlock);
+        right->evaluateBlock(t, nv, v, n, rightBlock);
         for (int i = 0; i < n; i++) {
             buffer[i] = gpfunction.function(buffer[i], rightBlock[i]);
         }

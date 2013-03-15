@@ -21,7 +21,7 @@ class FilterNode: public GPNode {
         FilterNode* getCopy();
 
         double evaluate(double* t, double* v);
-        void evaluateBlock(double* t, double** v, unsigned n, float* buffer);
+        void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         std::string toString();
         void mutate(GPParams* e);
 

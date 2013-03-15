@@ -31,6 +31,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
     numTargetFrames = 0;
     wavFileBufferSize = p->wavFileBufferSize;
     loadTargetWavFile(target);
+    fillEvaluationBuffers(numTargetFrames, specialValues, NULL, p->numVariables, 0);
     // TODO: fill in filterNodeMaxBufferSize/delayNodeMaxBufferSize from sample rate
 
     // EXPERIMENT STATE
@@ -177,6 +178,8 @@ GPExperiment::~GPExperiment() {
         free(targetSpectrumMagnitudes);
         free(targetSpectrumPhases);
     }
+    free(sampleTimes);
+    free(specialValuesByFrame);
     delete synth;
 }
 
@@ -253,6 +256,27 @@ GPNetwork* GPExperiment::evolve() {
         free(champbuffer);
     }
     return champ;
+}
+
+/*
+    =======================
+    FILL EVALUATION BUFFERS
+    =======================
+*/
+
+void GPExperiment::fillEvaluationBuffers(int64 numFrames, double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
+    numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
+    specialValuesByFrame = (double*) malloc(sizeof(double) * numFrames * numSpecialValues);
+    sampleTimes = (double*) malloc(sizeof(double) * numFrames);
+    for (int frame = 0; frame < numFrames; frame++) {
+        sampleTimes[frame] = frame/sampleRate;
+        for (int val = 0; val < numConstantSpecialValues; val++) {
+            *(specialValuesByFrame + (frame * numSpecialValues) + val) = constantSpecialValues[val];
+        }
+        for (int val = 0; val < numVariableSpecialValues; val++) {
+            *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
+        }
+    }
 }
 
 /*
@@ -385,6 +409,19 @@ void GPExperiment::renderIndividual(GPNetwork* candidate, int64 numSamples, floa
     }
 }
 
+void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer) {
+    int64 numRemaining = numSamples;
+    int64 numCompleted = 0;
+    int64 bufferIndex = 0;
+    unsigned numToRender;
+    while (numRemaining > 0) {
+        numToRender = n > numRemaining ? n : numRemaining;
+        candidate->evaluateBlock(sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
+        numRemaining -= numToRender;
+        numCompleted += numToRender;
+    }
+}
+
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
     double ret = -1;
     if (type == 0) {
@@ -467,5 +504,4 @@ void GPExperiment::FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* 
         magnitude[bin] = binmag;
         phase[bin] = binphase;
     }
-
 }

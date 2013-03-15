@@ -7,7 +7,7 @@
 struct GPParams {
     // auxillary params
     unsigned wavFileBufferSize;
-    unsigned evaluationBlockSize;
+    unsigned renderBlockSize;
     unsigned fftSize;
     GPRandom* rng;
 

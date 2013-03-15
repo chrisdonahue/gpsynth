@@ -21,7 +21,7 @@ class NoiseNode: public GPNode {
         NoiseNode* getCopy();
 
         double evaluate(double* t, double* v);
-        void evaluateBlock(double* t, double** v, unsigned n, float* b);
+        void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         std::string toString();
         void mutate(GPParams* e);
 
@@ -29,7 +29,7 @@ class NoiseNode: public GPNode {
         GPRandom* rng;
         unsigned bufferSize;
         unsigned currentBufferIndex;
-        double* buffer;
+        double* noiseBuffer;
 };
 
 #endif

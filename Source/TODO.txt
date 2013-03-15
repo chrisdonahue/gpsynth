@@ -22,7 +22,6 @@ Node subclasses:
     ADSRNode
     ConditionalNode
     FunctionNode and ModOscilNode remove left, right ptrs from constructor
-    add evaluateBlock(*t, *v, n samples) to all subclasses :(
     maybe extend parity possibilities to make for better time-varying filters
     consider changing evaluate to work on floats as well as all GPFUNCTIONS
 
@@ -41,6 +40,6 @@ Thoughts and Ideas:
     novelty search of new spectrum elements
 
 Next time:
-    test evaluateBlock once that is fixed
+    test evaluateBlock
     test GPMutatableParams stuff
     add in OPEN BEAGLE stuff

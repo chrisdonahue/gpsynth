@@ -30,7 +30,7 @@ double TimeNode::evaluate(double* t, double* v) {
     return *t;
 }
 
-void TimeNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void TimeNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
     for (int i = 0; i < n; i++) {
         buffer[i] = t[i];
     }

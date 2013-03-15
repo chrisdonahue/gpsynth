@@ -38,10 +38,10 @@ double ModOscilNode::evaluate(double* t, double* v) {
     return sin(w*(*t)*(left->evaluate(t, v)) + right->evaluate(t, v));
 }
 
-void ModOscilNode::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
+void ModOscilNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
     float* rightBlock = (float*) malloc(sizeof(float) * n);
-    left->evaluateBlock(t, v, n, buffer);
-    right->evaluateBlock(t, v, n, rightBlock);
+    left->evaluateBlock(t, nv, v, n, buffer);
+    right->evaluateBlock(t, nv, v, n, rightBlock);
     for (int i = 0; i < n; i++) {
         buffer[i] = sin(w * (t[i]) * (buffer[i]) + rightBlock[i]);
     }

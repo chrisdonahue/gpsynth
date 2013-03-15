@@ -56,8 +56,8 @@ double GPNetwork::evaluate(double* t, double* v) {
     return root->evaluate(t, v);
 }
 
-void GPNetwork::evaluateBlock(double* t, double** v, unsigned n, float* buffer) {
-    root->evaluateBlock(t, v, n, buffer);
+void GPNetwork::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+    root->evaluateBlock(t, nv, v, n, buffer);
 }
 
 int GPNetwork::getDepth() {
