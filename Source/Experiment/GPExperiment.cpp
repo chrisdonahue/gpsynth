@@ -246,6 +246,7 @@ GPNetwork* GPExperiment::evolve() {
     if (minFitnessAchieved <= fitnessThreshold) {
         std::cout << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
+    // TODO: add decimal precision to numEvaluatedGeneratinos
     std::cout << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
@@ -397,7 +398,12 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
 */
 
 double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
-    renderIndividual(candidate, numSamples, buffer);
+    if (params->experimentNumber == 1) {
+        renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
+    }
+    else {
+        renderIndividual(candidate, numSamples, buffer);
+    }
     return compareToTarget(params->fitnessFunctionType, buffer);
 }
 

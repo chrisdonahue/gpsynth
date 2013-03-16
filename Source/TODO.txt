@@ -32,6 +32,7 @@ Other things:
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
     Button to interactively suboptimize constants
+    Ability to edit network and add things like PITCHBEND
     Introduce Novelty button
     Buttons to step backwards through evolution
     button to run random evolution for a while
@@ -41,5 +42,6 @@ Thoughts and Ideas:
 
 Next time:
     test evaluateBlock
-    test GPMutatableParams stuff
+        seems to work, test more rigurously
+    test and finish implementing GPMutatableParams stuff
     add in OPEN BEAGLE stuff
