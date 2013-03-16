@@ -17,14 +17,10 @@
 */
 
 GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
+    params(p),
+    specialValues(constants),
     wavFormat(new WavAudioFormat())
 {
-    // EXPERIMENT PARAMETERS
-    params = p;
-    specialValues = constants;
-    numGenerations = p->numGenerations;
-    fitnessThreshold = p->thresholdFitness;
-
     // TARGET DATA CONTAINERS
     sampleRate = 44100.0;
     targetFrames = NULL;
@@ -32,9 +28,15 @@ GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
     wavFileBufferSize = p->wavFileBufferSize;
     loadTargetWavFile(target);
     fillEvaluationBuffers(numTargetFrames, specialValues, NULL, p->numVariables, 0);
-    // TODO: fill in delayNodeMaxBufferSize/noiseNodeMaxBufferSize etc from sample rate
+
+    // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
+    params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * sampleRate;
+    params->filterNodeMaxBufferSize = params->filterNodeBufferMaxSeconds * sampleRate;
+    params->noiseNodeMaxBufferSize = params->noiseNodeBufferMaxSeconds * sampleRate;
 
     // EXPERIMENT STATE
+    numGenerations = p->numGenerations;
+    fitnessThreshold = p->thresholdFitness;
     minFitnessAchieved = INFINITY;
     numEvaluatedGenerations = 0;
 
@@ -42,7 +44,6 @@ GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
 
     if (params->experimentNumber == 0) {
-        // TODO remove once done with AM testing or make command line param
         // EVALUATE TARGET STRING
         std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
         GPNetwork* answer = new GPNetwork(AMstring);
@@ -144,6 +145,7 @@ GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
         */
     }
 
+    // EXPERIMENT PARAMS THAT VARY BY EXPERIMENT NUMBER
     bestPossibleFitness = params->bestPossibleFitness;
     penaltyFitness = params->penaltyFitness;
     lowerFitnessIsBetter = params->lowerFitnessIsBetter;
@@ -228,6 +230,7 @@ GPNetwork* GPExperiment::evolve() {
 
         free(candidateData);
     }
+
     std::cout << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
 
     if (minFitnessAchieved <= fitnessThreshold) {

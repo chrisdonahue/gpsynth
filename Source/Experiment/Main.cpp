@@ -62,6 +62,7 @@ public:
         params->valueNodeMaximum = 1.0;
         params->delayNodeBufferMaxSeconds = 0.1;
         params->filterNodeBufferMaxSeconds = 0.1;
+        params->noiseNodeBufferMaxSeconds = 0.1;
 
         for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {

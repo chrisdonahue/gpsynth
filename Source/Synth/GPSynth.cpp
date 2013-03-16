@@ -56,6 +56,7 @@ rawFitnesses(), normalizedFitnesses(), rank()
 }
 
 GPSynth::~GPSynth() {
+    clearGenerationState();
     for (int i = 0; i < allNetworks.size(); i++) {
         delete allNetworks[i];
     }
@@ -319,6 +320,9 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
 }
 
 void GPSynth::clearGenerationState() {
+  for (std::set<GPNetwork*>::iterator i = unevaluated.begin(); i != unevaluated.end(); i++) {
+      delete (*i);
+  }
   for (std::set<GPNetwork*>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
       delete (*i);
   }
