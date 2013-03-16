@@ -34,7 +34,6 @@ FunctionNode::~FunctionNode() {
 
 FunctionNode* FunctionNode::getCopy() {
     FunctionNode* ret = new FunctionNode(gpfunction, left == NULL ? NULL : left->getCopy(), right == NULL ? NULL : right->getCopy());
-    ret->parent = parent;
     return ret;
 }
 

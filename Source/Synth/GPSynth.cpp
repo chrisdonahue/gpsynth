@@ -59,6 +59,9 @@ GPSynth::~GPSynth() {
     for (int i = 0; i < allNetworks.size(); i++) {
         delete allNetworks[i];
     }
+    for (int i = 0; i < availableNodes->size(); i++) {
+        delete availableNodes->at(i);
+    }
     delete availableNodes;
     delete availableFunctions;
     delete availableTerminals;
@@ -243,13 +246,6 @@ int GPSynth::nextGeneration() {
       two->traceNetwork();
       two->ID = mom->ID;
 
-      if (rng->random() < mutationDuringCrossoverChance) {
-        one->mutate(params);
-      }
-      if (rng->random() < mutationDuringCrossoverChance) {
-        two->mutate(params);
-      }
-
       GPNetwork* offspring = reproduce(one, two);
 
       // standard GP with two offspring
@@ -265,6 +261,9 @@ int GPSynth::nextGeneration() {
             two = mom->getCopy();
           }
          nextGeneration->push_back(two);
+        }
+        else {
+            delete two;
         }
       }
       // some other type with one offspring
@@ -288,6 +287,7 @@ int GPSynth::nextGeneration() {
     for (int i = 0; i < nextGeneration->size(); i++) {
         addNetworkToPopulation(nextGeneration->at(i));
     }
+    delete nextGeneration;
 
     return generationID;
 }
