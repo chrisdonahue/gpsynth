@@ -172,11 +172,9 @@ GPExperiment::~GPExperiment() {
 */
 
 GPNetwork* GPExperiment::evolve() {
-    GPNetwork* champ;
-    GPNetwork* generationChamp;
+    GPNetwork* champ = NULL;
+    GPNetwork* generationChamp = NULL;
     int numEvaluated = 0;
-    double generationCumulativeFitness = 0;
-    double generationAverageFitness = 0;
     double generationMinimumFitness = INFINITY;
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
@@ -184,14 +182,18 @@ GPNetwork* GPExperiment::evolve() {
         
         float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
         double fitness = suboptimize(candidate, numTargetFrames, candidateData);
-        generationCumulativeFitness += fitness;
         numEvaluated++;
 
         //TODO: handle lowerFitnessIsBetter
 
         if (fitness < generationMinimumFitness) {
             generationMinimumFitness = fitness;
+            delete generationChamp;
+
+            int backupID = candidate->ID;
             generationChamp = candidate->getCopy();
+            generationChamp->ID = backupID;
+            generationChamp->fitness = fitness;
         }
         
         if (fitness > penaltyFitness) {
@@ -201,6 +203,7 @@ GPNetwork* GPExperiment::evolve() {
 
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
+            delete champ;
 
             int backupID = candidate->ID;
             champ = candidate->getCopy();
@@ -224,6 +227,7 @@ GPNetwork* GPExperiment::evolve() {
             saveWavFile(String(buffer), String(generationChamp->toString().c_str()), numTargetFrames, genchampbuffer);
             free(genchampbuffer);
             delete generationChamp;
+            generationChamp = NULL;
 
             numEvaluatedGenerations++;
         }

@@ -421,18 +421,10 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
         GPNode* subtreeonecopy = subtreeone->getCopy();
         GPNode* subtreetwo = two->getRandomNetworkNode(rng);
         GPNode* subtreetwocopy = subtreetwo->getCopy();
-        //std::cout << "-----------------" << std::endl;
-        //std::cout << one->ID << ": " << one->toString() << std::endl;
-        //std::cout << two->ID << ": " << two->toString() << std::endl;
-        //std::cout << subtreeonecopy->toString() << std::endl;
-        //std::cout << subtreetwocopy->toString() << std::endl;
         one->replaceSubtree(subtreeone, subtreetwocopy);
         two->replaceSubtree(subtreetwo, subtreeonecopy);
-        // TODO: remove once right
         one->traceNetwork();
         two->traceNetwork();
-        //std::cout << one->toString() << std::endl;
-        //std::cout << two->toString() << std::endl;
         delete subtreeone;
         delete subtreetwo;
 
