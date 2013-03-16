@@ -51,7 +51,7 @@ void ModOscilNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, 
 
 std::string ModOscilNode::toString() {
     char buffer[2048];
-    snprintf(buffer, 30, "(modosc %s %s)", left->toString().c_str(), right->toString().c_str());
+    snprintf(buffer, 2048, "(modosc %s %s)", left->toString().c_str(), right->toString().c_str());
     return std::string(buffer);
 }
 

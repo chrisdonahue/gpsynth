@@ -35,6 +35,7 @@ public:
         StringArray args = getCommandLineParameterArray();
 
         String target("");
+        std::vector<double> constants(0);
         unsigned seed = time(NULL);
         GPParams* params = (GPParams*) malloc(sizeof(GPParams));
         params->wavFileBufferSize = 256;
@@ -55,7 +56,6 @@ public:
         params->crossoverSelectionType = 0;
         params->proportionOfPopulationForGreedySelection = 0.0;
         params->mutationDuringCrossoverChance = 0.1;
-        params->variableValues = new std::vector<double>();
         params->modulationNodeFrequencyRange = 10;
         params->oscilNodePartialChance = 0.5;
         params->valueNodeMinimum = -1.0;
@@ -91,11 +91,11 @@ public:
           else if (i->equalsIgnoreCase("--values")) {
             String* current = (++i);
             while ( (i != args.end())  && !((current + 1)->startsWith(String("--"))) ) {
-                params->variableValues->push_back(current->getDoubleValue());
+                constants.push_back(current->getDoubleValue());
                 current = ++i;
             }
-            params->variableValues->push_back(current->getDoubleValue());
-            params->numVariables = params->variableValues->size();
+            constants.push_back(current->getDoubleValue());
+            params->numVariables = constants.size();
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             params->populationSize = (++i)->getIntValue();
@@ -131,8 +131,9 @@ public:
         }
 
         juce::Thread::setCurrentThreadName("experiment");
-        experiment = new GPExperiment(target, params);
+        experiment = new GPExperiment(target, params, constants.data());
         GPNetwork* champion = experiment->evolve();
+        delete champion;
         shutdown();
         quit();
     }

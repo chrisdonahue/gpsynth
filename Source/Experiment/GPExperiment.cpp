@@ -16,12 +16,12 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, GPParams* p) :
+GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
     wavFormat(new WavAudioFormat())
 {
     // EXPERIMENT PARAMETERS
     params = p;
-    specialValues = p->variableValues->data();
+    specialValues = constants;
     numGenerations = p->numGenerations;
     fitnessThreshold = p->thresholdFitness;
 
@@ -32,7 +32,7 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
     wavFileBufferSize = p->wavFileBufferSize;
     loadTargetWavFile(target);
     fillEvaluationBuffers(numTargetFrames, specialValues, NULL, p->numVariables, 0);
-    // TODO: fill in filterNodeMaxBufferSize/delayNodeMaxBufferSize from sample rate
+    // TODO: fill in delayNodeMaxBufferSize/noiseNodeMaxBufferSize etc from sample rate
 
     // EXPERIMENT STATE
     minFitnessAchieved = INFINITY;
@@ -57,15 +57,9 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         delete answer;
 
         // ASSIGN SPECIAL FITNESS VALUES
-        p->lowerFitnessIsBetter = true;
         p->bestPossibleFitness = 0;
-        worstFitness = std::numeric_limits<float>::max();
-
-        // CALCULATE SILENCE FITNESS
-        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
-        p->silenceFitness = -1;
-        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
-        free(silence);
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
@@ -75,15 +69,9 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
     // AM 440 hz experiment easy
     if (params->experimentNumber == 1) {
         // ASSIGN SPECIAL FITNESS VALUES
-        p->lowerFitnessIsBetter = true;
         p->bestPossibleFitness = 0;
-        worstFitness = std::numeric_limits<float>::max();
-
-        // CALCULATE SILENCE FITNESS
-        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
-        p->silenceFitness = -1;
-        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
-        free(silence);
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
@@ -93,15 +81,9 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
     // AM 440 hz experiment hard
     if (params->experimentNumber == 2) {
         // ASSIGN SPECIAL FITNESS VALUES
-        p->lowerFitnessIsBetter = true;
         p->bestPossibleFitness = 0;
-        worstFitness = std::numeric_limits<float>::max();
-
-        // CALCULATE SILENCE FITNESS
-        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
-        p->silenceFitness = -1;
-        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
-        free(silence);
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
@@ -114,15 +96,9 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
     // C4 Piano experiment hard
     if (params->experimentNumber == 3) {
         // ASSIGN SPECIAL FITNESS VALUES
-        p->lowerFitnessIsBetter = true;
         p->bestPossibleFitness = 0;
-        worstFitness = std::numeric_limits<float>::max();
-
-        // CALCULATE SILENCE FITNESS
-        float* silence = (float*) calloc(numTargetFrames, sizeof(float));
-        p->silenceFitness = -1;
-        p->silenceFitness = compareToTarget(params->fitnessFunctionType, silence);
-        free(silence);
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(add, NULL, NULL));
@@ -132,10 +108,10 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         nodes->push_back(new ConstantNode(0));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(1024, params->rng));
-        nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        //nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 1, 1, 1, NULL));
+        //nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 1, 1, 1, NULL));
+        //nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 1, 1, 1, NULL));
+        //nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 1, 1, 1, NULL));
     }
     if (params->experimentNumber == 10) {
         /*
@@ -168,6 +144,10 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         */
     }
 
+    bestPossibleFitness = params->bestPossibleFitness;
+    penaltyFitness = params->penaltyFitness;
+    lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+
     synth = new GPSynth(p, nodes);
 }
 
@@ -191,7 +171,7 @@ GPExperiment::~GPExperiment() {
 
 GPNetwork* GPExperiment::evolve() {
     GPNetwork* champ;
-    int numMinimum = 0;
+    GPNetwork* generationChamp;
     int numEvaluated = 0;
     double generationCumulativeFitness = 0;
     double generationAverageFitness = 0;
@@ -201,8 +181,6 @@ GPNetwork* GPExperiment::evolve() {
         GPNetwork* candidate = synth->getIndividual();
         
         float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
-        //renderIndividual(candidate, numTargetFrames, candidateData);
-        //double fitness = compareToTarget(params->fitnessFunctionType, candidateData);
         double fitness = suboptimize(candidate, numTargetFrames, candidateData);
         generationCumulativeFitness += fitness;
         numEvaluated++;
@@ -211,10 +189,12 @@ GPNetwork* GPExperiment::evolve() {
 
         if (fitness < generationMinimumFitness) {
             generationMinimumFitness = fitness;
+            generationChamp = candidate->getCopy();
         }
         
-        if (fitness > worstFitness) {
-            worstFitness = fitness;
+        if (fitness > penaltyFitness) {
+            penaltyFitness = fitness;
+            params->penaltyFitness = penaltyFitness;
         }
 
         if (fitness < minFitnessAchieved) {
@@ -225,17 +205,24 @@ GPNetwork* GPExperiment::evolve() {
             champ->ID = backupID;
             champ->fitness = minFitnessAchieved;
 
-            char buffer[100];
-            snprintf(buffer, 100, "New Minimum (%d).wav", ++numMinimum);
-            //saveWavFile(String(buffer), String(candidate->toString().c_str()), numTargetFrames, candidateData);
-            if (fitness == bestPossibleFitness) {
-                saveWavFile("./Perfect.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
+            if (fitness == params->bestPossibleFitness) {
+                saveWavFile("./perfect.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
             }
         }
 
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
         if (numUnevaluatedThisGeneration == 0) {
             generationMinimumFitness = INFINITY;
+
+            float* genchampbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+            generationChamp->traceNetwork();
+            renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
+            char buffer[100];
+            snprintf(buffer, 100, "./gen.%d.best.wav", numEvaluatedGenerations);
+            saveWavFile(String(buffer), String(generationChamp->toString().c_str()), numTargetFrames, genchampbuffer);
+            free(genchampbuffer);
+            delete generationChamp;
+
             numEvaluatedGenerations++;
         }
 
@@ -253,7 +240,7 @@ GPNetwork* GPExperiment::evolve() {
         champ->traceNetwork();
         renderIndividual(champ, numTargetFrames, champbuffer);
         std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
-        saveWavFile("./DiscoveredChampion.wav", String(champ->toString().c_str()), numTargetFrames, champbuffer);
+        saveWavFile("./champion.wav", String(champ->toString().c_str()), numTargetFrames, champbuffer);
         free(champbuffer);
     }
     return champ;
@@ -287,7 +274,6 @@ void GPExperiment::fillEvaluationBuffers(int64 numFrames, double* constantSpecia
 */
 
 void GPExperiment::loadTargetWavFile(String path) {
-    // TODO: check if path exists
     File input(path);
     assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
@@ -365,20 +351,23 @@ void GPExperiment::loadTargetWavFile(String path) {
     }
 }
 
-void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames, float* data) {
+void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, float* data) {
     File output(path);
     if (output.existsAsFile()) {
         output.deleteFile();
-        output.create();
     }
+    output.create();
     FileOutputStream* fos = output.createOutputStream();
-    //StringPairArray metaData = WavAudioFormat::createBWAVMetadata(metadata, "", "", Time::getCurrentTime(), 0, "");
-    AudioSampleBuffer asb(1, wavFileBufferSize);
-    //ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
-    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, StringPairArray(), 0));
+
+    StringPairArray metaData(true);
+    // TODO: gpsynth 0.1 replace with some controlled version string
+    metaData = WavAudioFormat::createBWAVMetadata(desc, "gpsynth 0.1", "", Time::getCurrentTime(), int64(sampleRate), "JUCE");
+
+    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
 
     int64 numRemaining = numFrames;
     int64 numCompleted = 0;
+    AudioSampleBuffer asb(1, wavFileBufferSize);
     float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
         int numToWrite = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
@@ -430,10 +419,12 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
 
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
     double ret = -1;
+    double silenceTest = 0;
     if (type == 0) {
         double sum = 0;
         for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
             sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
+            silenceTest += candidateFrames[frameNum];
             /*
             if (frameNum % 128 == 0) {
                 std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
@@ -473,6 +464,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
                 numFftOutputUsed++;
                 MSEmag += pow(MAGXIJ - MAGTIJ, 2);
                 MSEph += pow(angXIJ - angTIJ, 2); 
+                silenceTest += MAGXIJ + angXIJ;
             }
         }
         free(in);
@@ -481,8 +473,8 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         free(phase);
         ret = MSEmag + MSEph;
     }
-    if (ret == params->silenceFitness)
-        return worstFitness;
+    if (silenceTest == 0)
+        return penaltyFitness;
     else
         return ret;
 }

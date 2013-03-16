@@ -67,7 +67,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, order, fadeParameterChanges, sampleRate, centerFrequency, bandwidth, quality, left->getCopy());
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, centerFrequency, bandwidth, quality, left == NULL ? NULL : left->getCopy());
 }
 
 double FilterNode::evaluate(double* t, double* v) {

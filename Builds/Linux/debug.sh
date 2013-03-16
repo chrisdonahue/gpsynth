@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# WARNING: This is not a makefile! It is provided only to give a sense of the commands
-# necessary to build this whole project. 
-
 set -e
 
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --popsize 5 --seed 0 --addchance 0.3 --removechance 0 --mutatechance 0.2 --crosschance 0.2 --threshold 10 --numgenerations 2 --selection 9 --cross 0 --values 220.0 1.0 1.0
@@ -13,6 +10,8 @@ set -e
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --numgenerations 1 --values 220 1 --popsize 5 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --fitnesstype 0 --numgenerations 2 --values 220 1 --popsize 50 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
 #gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --exp 0 --threshold 0 --fitnesstype 0 --numgenerations 3 --values 220 1 --popsize 50 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0
-gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --fft 16 --exp 0 --threshold 0 --fitnesstype 1 --numgenerations 10 --values 220 1 --popsize 500 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0 --seed 3
+#gdb --args ./build/GeneticProgrammingSynthesizer --target ./build/AMExample.wav --fft 16 --exp 0 --threshold 0 --fitnesstype 1 --numgenerations 10 --values 220 1 --popsize 500 --mid 4 --md 6 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0 --seed 3
+gdb --args ./build/GeneticProgrammingSynthesizer --target ./samples/PianoC5.wav --fft 256 --exp 3 --threshold 0.1 --fitnesstype 1 --numgenerations 100 --values 440 1 --popsize 500 --mid 4 --md 12 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0 --verbose
+
 
 set +e

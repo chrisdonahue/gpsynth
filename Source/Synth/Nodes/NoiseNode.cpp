@@ -57,7 +57,7 @@ void NoiseNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, flo
 
 std::string NoiseNode::toString() {
     char buffer[20];
-    snprintf(buffer, 20, "(white noise)");
+    snprintf(buffer, 20, "(noise)");
     return std::string(buffer);
 }
 

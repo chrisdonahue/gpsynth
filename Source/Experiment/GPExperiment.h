@@ -33,7 +33,7 @@
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, GPParams* p);
+        GPExperiment(String target, GPParams* p, double* constants);
         ~GPExperiment();
 
         // EVOLUTION CONTROL
@@ -46,7 +46,7 @@ class GPExperiment {
         int numGenerations;
         bool lowerFitnessIsBetter;
         double bestPossibleFitness;
-        double worstFitness;
+        double penaltyFitness;
 
         // TARGET DATA CONTAINERS
         double sampleRate;

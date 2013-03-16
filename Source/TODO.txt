@@ -41,7 +41,8 @@ Thoughts and Ideas:
     novelty search of new spectrum elements
 
 Next time:
-    test evaluateBlock
-        seems to work, test more rigurously
+    Valgrind to find memoryleaks. Always deleting after network->getCopy in GPsynth?
+    Save metadata with generation champs/discovered champ
+    Add weight calculation to spectrum fitness function
     test and finish implementing GPMutatableParams stuff
     add in OPEN BEAGLE stuff

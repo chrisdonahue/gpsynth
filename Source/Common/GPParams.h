@@ -14,7 +14,6 @@ struct GPParams {
     // experiment parameters
     bool verbose;
     unsigned experimentNumber;
-    std::vector<double>* variableValues;
     unsigned numGenerations;
     double thresholdFitness;
     unsigned fitnessFunctionType;
@@ -23,7 +22,7 @@ struct GPParams {
     unsigned populationSize;
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;
-    double silenceFitness;
+    double penaltyFitness;
     unsigned maxInitialDepth;
     unsigned maxDepth;
 
