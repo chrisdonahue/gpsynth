@@ -133,9 +133,9 @@ GPExperiment::GPExperiment(String target, GPParams* p) :
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(1024, params->rng));
         nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        //nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        //nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 0, 0, 0, NULL));
-        //nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 0, 0, 0, NULL));
+        nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 0, 0, 0, NULL));
     }
     if (params->experimentNumber == 10) {
         /*
@@ -398,7 +398,7 @@ void GPExperiment::saveWavFile(String path, String metadata, unsigned numFrames,
 */
 
 double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
-    if (params->experimentNumber == 1) {
+    if (params->experimentNumber == 1 || params->experimentNumber == 3) {
         renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
     }
     else {
