@@ -15,17 +15,15 @@
 
 class ConstantNode: public GPNode {
     public:
-        ConstantNode(double v);
+        ConstantNode(double v, double min, double max);
         ~ConstantNode();
         ConstantNode* getCopy();
 
         double evaluate(double* t, double* v);
         void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         std::string toString();
-        void mutate(GPParams* e);
 
     private:
-        double value;
 };
 
 #endif

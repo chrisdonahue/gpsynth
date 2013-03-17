@@ -51,8 +51,12 @@ struct GPParams {
     double delayNodeBufferMaxSeconds;
 
     // filter node
-    unsigned filterNodeMaxBufferSize;
-    double filterNodeBufferMaxSeconds;
+    double centerFrequencyMinimum;
+    double centerFrequencyMaximum;
+    double qualityMinimum;
+    double qualityMaximum;
+    double bandwidthMinimum;
+    double bandwidthMaximum;
 
     // noise node
     unsigned noiseNodeMaxBufferSize;

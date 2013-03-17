@@ -10,8 +10,8 @@
 
 #include "ConstantNode.h"
 
-ConstantNode::ConstantNode(double v) {
-    value = v;
+ConstantNode::ConstantNode(GPMutatableParam* value) {
+    mutatableParams.push_back(value);
 
     isBinary = false;
     isTerminal = true;
@@ -21,37 +21,28 @@ ConstantNode::~ConstantNode() {
 }
 
 ConstantNode* ConstantNode::getCopy() {
-    return new ConstantNode(value);
+    return new ConstantNode(mutatableParams[0].getCopy());
 }
 
 double ConstantNode::evaluate(double* t, double* v) {
-    return value;
+    return mutatableParams[0].getValue();
 }
 
 void ConstantNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+    double value = mutatableParams[0].getValue();
 	for (int i = 0; i < n; i++) {
         buffer[i] = value;
     }
 }
 
 std::string ConstantNode::toString() {
+    double value = mutatableParams[0].getValue();
     char buffer[10];
     if (value == M_PI) {
-        snprintf(buffer, 10, "(pi)", value);
+        snprintf(buffer, 10, "(pi)");
     }
     else {
         snprintf(buffer, 10, "(%.2lf)", value);
     }
     return std::string(buffer);
-}
-
-void ConstantNode::mutate(GPParams* p) {
-    // TODO += instead of = then wrap values around
-    value = (p->rng->random() * (p->valueNodeMaximum - p->valueNodeMinimum) + p->valueNodeMinimum);
-    if (value > p->valueNodeMaximum) {
-        // TODO: wrap values around
-    }
-    else if (value < p->valueNodeMinimum) {
-        // TODO: wrap values aroud
-    }
 }

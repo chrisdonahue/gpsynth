@@ -17,7 +17,7 @@
 */
 
 GPNetwork::GPNetwork(GPNode* r) :
-allNodes(), allParams()
+allNodes(), allMutatableParams()
 {
     ID = -1;
     fitness = -1;
@@ -91,7 +91,7 @@ GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
 }
 
 std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
-    return &allParams;
+    return &allMutatableParams;
 }
 
 void GPNetwork::mutate(GPParams* p) {
@@ -101,9 +101,9 @@ void GPNetwork::mutate(GPParams* p) {
 
 void GPNetwork::traceNetwork() {
     allNodes.clear();
-    allParams.clear();
+    allMutatableParams.clear();
     depth = 0;
-    root->traceSubtree(&allNodes, &allParams, NULL, &depth, 0);
+    root->traceSubtree(&allNodes, &allMutatableParams, NULL, &depth, 0);
     asText = root->toString();
 }
 

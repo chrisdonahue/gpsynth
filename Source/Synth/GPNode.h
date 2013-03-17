@@ -21,11 +21,14 @@ class GPNode {
         GPNode()
             : parent(NULL), left(NULL), right(NULL), 
                 isBinary(false), isTerminal(false),
-                mutatableParams() {
+                mutatableParams(0) {
         }
         ~GPNode() {
             delete left;
             delete right;
+            for (int i = 0; i < mutatableParams.size(); i++) {
+                delete mutatableParams[i];
+            }
         }
 
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
@@ -50,19 +53,20 @@ class GPNode {
         std::vector<GPMutatableParam*> mutatableParams;
 
         // INHERITED TRACE METHOD
-        void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allparams, GPNode* p, int* rootHeight, int currentDepth) {
+        void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* rootHeight, int currentDepth) {
             parent = p;
             allnodes->push_back(this);
             for (int i = 0; i < mutatableParams.size(); i++) {
-                allparams->push_back(mutatableParams[i]);
+                if (mutatableParams[i].isMutatable)
+                    allmutatableparams->push_back(mutatableParams[i]);
             }
             if (currentDepth > *rootHeight) {
                 *rootHeight = currentDepth;
             }
             if (!isTerminal) {
-                left->traceSubtree(allnodes, allparams, this, rootHeight, currentDepth + 1);
+                left->traceSubtree(allnodes, allmutatableparams, this, rootHeight, currentDepth + 1);
                 if (isBinary) {
-                    right->traceSubtree(allnodes, allparams, this, rootHeight, currentDepth + 1);
+                    right->traceSubtree(allnodes, allmutatableparams, this, rootHeight, currentDepth + 1);
                 }
             }
         };

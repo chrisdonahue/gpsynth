@@ -54,7 +54,7 @@ class GPNetwork {
         std::string asText;
         GPNode* root;
         std::vector<GPNode*> allNodes;
-        std::vector<GPMutatableParam*> allParams;
+        std::vector<GPMutatableParam*> allMutatableParams;
 };
 
 extern GPNode* createSubtree(char* tokenized);
