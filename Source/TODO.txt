@@ -6,6 +6,7 @@ Main.cpp:
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
     fill and use sampleTimes for efficiency
+    do TODOs
 
 GPNetwork.cpp:
     Add new syntax parsing to string parser
@@ -21,26 +22,23 @@ Node subclasses:
     FilterNode
     ADSRNode
     ConditionalNode
-    FunctionNode and ModOscilNode remove left, right ptrs from constructor
     maybe extend parity possibilities to make for better time-varying filters
-    consider changing evaluate to work on floats as well as all GPFUNCTIONS
-
-Other things:
-    make new fitnessFunctionType that spawns an interactive plugin and two buttons for "like/not"
-    crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
+    consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
     Button to interactively suboptimize constants
-    Ability to edit network and add things like PITCHBEND
+    Ability to edit network test and add things like PITCHBEND
     Introduce Novelty button
     Buttons to step backwards through evolution
     button to run random evolution for a while
 
 Thoughts and Ideas:
+    crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     novelty search of new spectrum elements
 
-Next time:
+TODO Soon:
+    GPParams could use some cleaning, filterNodeBuffer/noiseNodeBuffer/etc?
     Add weight calculation to spectrum fitness function
     test and finish implementing GPMutatableParams stuff
-    add in OPEN BEAGLE stuff
+    add in OPEN BEAGLE stuff or self made GA for suboptimization
