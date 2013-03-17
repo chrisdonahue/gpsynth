@@ -11,10 +11,6 @@
 #include "VariableNode.h"
 
 VariableNode::VariableNode(int vn) {
-    left = NULL;
-    right = NULL;
-    parent = NULL;
-
     variableNum = vn;
 
     isBinary = false;

@@ -19,10 +19,6 @@
 NoiseNode::NoiseNode(GPRandom* r) {
     rng = r;
 
-    left = NULL;
-    right = NULL;
-    parent = NULL;
-
     isBinary = false;
     isTerminal = true;
 }

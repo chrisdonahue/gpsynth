@@ -19,10 +19,8 @@
 OscilNode::OscilNode(int p, int vn) {
     partial = p;
     variableNum = vn;
-    left = NULL;
-    right = NULL;
-    parent = NULL;
     w = 2.0 * partial * M_PI;
+
     isBinary = false;
     isTerminal = true;
 }

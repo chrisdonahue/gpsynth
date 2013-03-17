@@ -137,7 +137,6 @@ public:
 
         GPNetwork* champion = experiment->evolve();
         delete champion;
-        shutdown();
         quit();
     }
 

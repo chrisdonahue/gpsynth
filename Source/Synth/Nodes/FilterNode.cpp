@@ -54,8 +54,7 @@ params()
     filter->setParams(params);
 
     left = l;
-    right = NULL;
-    parent = NULL;
+
     isBinary = false;
     isTerminal = false;
 }

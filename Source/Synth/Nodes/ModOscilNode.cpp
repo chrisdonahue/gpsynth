@@ -17,10 +17,11 @@
 */
 
 ModOscilNode::ModOscilNode(GPNode* l, GPNode* r) {
+    w = 2.0 * M_PI;
+
     left = l;
     right = r;
-    parent = NULL;
-    w = 2.0 * M_PI;
+
     isBinary = true;
     isTerminal = false;
 }

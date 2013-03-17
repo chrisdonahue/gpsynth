@@ -24,6 +24,7 @@ allNodes(), allParams()
     root = r;
     depth = -1;
     asText = "";
+    std::cout << "created network at address " << this << std::endl;
 }
 
 GPNetwork::GPNetwork(std::string netstring) {
@@ -38,6 +39,7 @@ GPNetwork::GPNetwork(std::string netstring) {
 }
 
 GPNetwork::~GPNetwork() {
+    std::cout << "deleted network at address " << this << std::endl;
     delete root;
 }
 

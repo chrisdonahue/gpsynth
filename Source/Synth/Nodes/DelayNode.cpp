@@ -23,7 +23,6 @@ delayLine(n)
     numSamples = n;
 
     left = l;
-    parent = NULL;
     isBinary = false;
     isTerminal = false;
 }

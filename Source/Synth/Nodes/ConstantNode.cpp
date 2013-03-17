@@ -11,10 +11,6 @@
 #include "ConstantNode.h"
 
 ConstantNode::ConstantNode(double v) {
-    left = NULL;
-    right = NULL;
-    parent = NULL;
-
     value = v;
 
     isBinary = false;

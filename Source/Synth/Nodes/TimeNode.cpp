@@ -11,10 +11,6 @@
 #include "TimeNode.h"
 
 TimeNode::TimeNode() {
-    left = NULL;
-    right = NULL;
-    parent = NULL;
-
     isBinary = false;
     isTerminal = true;
 }
