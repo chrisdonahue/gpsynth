@@ -229,7 +229,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     double generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and minimum fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString() << std::endl;
+    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString() << std::endl;
 }
 
 int GPSynth::nextGeneration() {

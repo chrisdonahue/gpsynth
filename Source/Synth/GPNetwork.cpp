@@ -24,7 +24,6 @@ allNodes(), allParams()
     root = r;
     depth = -1;
     asText = "";
-    std::cout << "created network at address " << this << std::endl;
 }
 
 GPNetwork::GPNetwork(std::string netstring) {
@@ -39,7 +38,6 @@ GPNetwork::GPNetwork(std::string netstring) {
 }
 
 GPNetwork::~GPNetwork() {
-    std::cout << "deleted network at address " << this << std::endl;
     delete root;
 }
 
@@ -127,7 +125,7 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
             std::cerr << "Bad parent-child links detected during subtree replacement." << std::endl;
     }
 
-    // assign nu pointers
+    // assign nu parent pointer
     nu->parent = old->parent;
 }
 

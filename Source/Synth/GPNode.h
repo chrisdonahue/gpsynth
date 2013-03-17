@@ -21,9 +21,12 @@ class GPNode {
         GPNode()
             : parent(NULL), left(NULL), right(NULL), 
                 isBinary(false), isTerminal(false),
-                mutatableParams()
-            {
-            }
+                mutatableParams() {
+        }
+        ~GPNode() {
+            delete left;
+            delete right;
+        }
 
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
         virtual double evaluate(double* t, double* v) = 0;

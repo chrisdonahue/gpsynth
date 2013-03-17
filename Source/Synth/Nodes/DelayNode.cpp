@@ -28,7 +28,6 @@ delayLine(n)
 }
 
 DelayNode::~DelayNode() {
-    delete left;
 }
 
 DelayNode* DelayNode::getCopy() {

@@ -21,15 +21,12 @@ FunctionNode::FunctionNode(GPFunction gpfun, GPNode* l, GPNode* r) {
 
     left = l;
     right = r;
-    parent = NULL;
 
     isBinary = gpfunction.isBinary;
     isTerminal = false;
 }
 
 FunctionNode::~FunctionNode() {
-    delete left;
-    delete right;
 }
 
 FunctionNode* FunctionNode::getCopy() {

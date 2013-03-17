@@ -60,8 +60,6 @@ params()
 }
 
 FilterNode::~FilterNode() {
-    delete left;
-    delete right;
     delete filter;
 }
 

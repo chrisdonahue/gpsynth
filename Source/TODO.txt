@@ -41,8 +41,6 @@ Thoughts and Ideas:
     novelty search of new spectrum elements
 
 Next time:
-    Valgrind to find memoryleaks
-    Fix NoiseNode buffer determining pitch
     Add weight calculation to spectrum fitness function
     test and finish implementing GPMutatableParams stuff
     add in OPEN BEAGLE stuff

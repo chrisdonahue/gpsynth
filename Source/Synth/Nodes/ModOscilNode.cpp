@@ -27,8 +27,6 @@ ModOscilNode::ModOscilNode(GPNode* l, GPNode* r) {
 }
 
 ModOscilNode::~ModOscilNode() {
-    delete left;
-    delete right;
 }
 
 ModOscilNode* ModOscilNode::getCopy() {
