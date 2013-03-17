@@ -11,7 +11,7 @@
 #include "GPRandom.h"
 
 GPRandom::GPRandom(unsigned s) :
-seed(s), engine(seed), uni_real(0, 1), noise(-1, 1)
+seed(s), engine(seed), uni_real(0, 1), noise(-1, 1), s(0)
 {}
 
 void GPRandom::normalizeDistribution(std::vector<double>* weights) {
@@ -39,6 +39,28 @@ int GPRandom::sampleFromDistribution(std::vector<double>* weights) {
 
 double GPRandom::random() {
     return uni_real(engine);
+}
+
+double GPRandom::gauss() {
+    /*
+        Copyright Tony Kirke from the Signal Processing Using C++ (SPUC) library
+        GNU GPL don't distribute with this code!
+    */
+    if (s == 0) {
+        do {
+            v1 = (2.0 * random()) - 1.0;
+            v2 = (2.0 * random()) - 1.0;
+            r = (v1*v1) + (v2*v2);
+        } while (r >= 1.0);
+        fac = sqrt(-2.0 * log(r) / r);
+        x = v1 * fac;
+        s = 1;
+        return (v2*fac);
+    }
+    else {
+        s = 0;
+        return x;
+    }
 }
 
 double GPRandom::whitenoise() {

@@ -16,7 +16,7 @@
 
 class NoiseNode: public GPNode {
     public:
-        NoiseNode(unsigned buffersize, GPRandom* r);
+        NoiseNode(GPRandom* r);
         ~NoiseNode();
         NoiseNode* getCopy();
 
@@ -27,9 +27,6 @@ class NoiseNode: public GPNode {
 
     private:
         GPRandom* rng;
-        unsigned bufferSize;
-        unsigned currentBufferIndex;
-        double* noiseBuffer;
 };
 
 #endif

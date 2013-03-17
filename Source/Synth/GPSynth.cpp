@@ -151,7 +151,6 @@ void GPSynth::initPopulation() {
 GPNetwork* GPSynth::getIndividual() {
     // if no more networks remain advance population
     if (unevaluated.empty()) {
-        printGenerationSummary();
         nextGeneration();
     }
 
@@ -184,6 +183,9 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
         }
     }
     int numStillNeedingEvaluation = populationSize - evaluated.size();
+    if (numStillNeedingEvaluation == 0) {
+        printGenerationSummary();
+    }
     return numStillNeedingEvaluation;
 }
 

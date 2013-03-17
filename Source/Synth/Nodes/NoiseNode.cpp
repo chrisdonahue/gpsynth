@@ -16,42 +16,31 @@
     ==============
 */
 
-NoiseNode::NoiseNode(unsigned buffersize, GPRandom* r) {
-    bufferSize = buffersize;
+NoiseNode::NoiseNode(GPRandom* r) {
     rng = r;
-    currentBufferIndex = 0;
-    noiseBuffer = (double*) malloc(sizeof(double) * bufferSize);
-
-    for (int i = 0; i < bufferSize; i++) {
-        noiseBuffer[i] = rng->whitenoise();
-    }
 
     left = NULL;
     right = NULL;
     parent = NULL;
+
     isBinary = false;
     isTerminal = true;
 }
 
 NoiseNode::~NoiseNode() {
-    free(noiseBuffer);
 }
 
 NoiseNode* NoiseNode::getCopy() {
-    return new NoiseNode(bufferSize, rng);
+    return new NoiseNode(rng);
 }
 
 double NoiseNode::evaluate(double* t, double* v) {
-    if (currentBufferIndex == bufferSize)
-        currentBufferIndex = 0;
-    return noiseBuffer[currentBufferIndex++];
+    return rng->gauss();
 }
 
 void NoiseNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
     for (int i = 0; i < n; i++) {
-        if (currentBufferIndex == bufferSize)
-            currentBufferIndex = 0;
-        buffer[i] = noiseBuffer[currentBufferIndex++];
+        buffer[i] = rng->gauss();
     }
 }
 
@@ -62,7 +51,4 @@ std::string NoiseNode::toString() {
 }
 
 void NoiseNode::mutate(GPParams* e) {
-    for (int i = 0; i < bufferSize; i++) {
-        noiseBuffer[i] = rng->whitenoise();
-    }
 }

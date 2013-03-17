@@ -108,7 +108,7 @@ GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
         nodes->push_back(new VariableNode(0));
         nodes->push_back(new ConstantNode(0));
         nodes->push_back(new ModOscilNode(NULL, NULL));
-        nodes->push_back(new NoiseNode(1024, params->rng));
+        nodes->push_back(new NoiseNode(params->rng));
         //nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 1, 1, 1, NULL));
         //nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 1, 1, 1, NULL));
         //nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 1, 1, 1, NULL));

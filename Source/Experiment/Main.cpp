@@ -31,13 +31,15 @@ public:
     //==============================================================================
     void initialise (const String& commandLine)
     {
+        juce::Thread::setCurrentThreadName("experiment");
+
         // This method is where you should put your application's initialisation code..
         StringArray args = getCommandLineParameterArray();
 
         String target("");
         std::vector<double> constants(0);
         unsigned seed = time(NULL);
-        GPParams* params = (GPParams*) malloc(sizeof(GPParams));
+        params = (GPParams*) malloc(sizeof(GPParams));
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 1024;
         params->fftSize = 16;
@@ -123,7 +125,6 @@ public:
             params->mutationDuringCrossoverChance = (++i)->getDoubleValue();
           }
         }
-        params->rng = new GPRandom(seed);
 
         // TODO: check all value ranges here
         if (target.equalsIgnoreCase("")) {
@@ -131,8 +132,9 @@ public:
             quit();
         }
 
-        juce::Thread::setCurrentThreadName("experiment");
+        params->rng = new GPRandom(seed);
         experiment = new GPExperiment(target, params, constants.data());
+
         GPNetwork* champion = experiment->evolve();
         delete champion;
         shutdown();
@@ -141,7 +143,9 @@ public:
 
     void shutdown()
     {
-        experiment = 0;// = nullptr;
+        delete experiment;
+        delete params->rng;
+        free(params);
     }
 
     //==============================================================================
@@ -149,7 +153,6 @@ public:
     {
         // This is called when the app is being asked to quit: you can ignore this
         // request and let the app carry on running, or call quit() to allow the app to close.
-        shutdown();
         quit();
     }
 
@@ -161,7 +164,8 @@ public:
     }
 
 private:
-    ScopedPointer<GPExperiment> experiment;
+    GPExperiment* experiment;
+    GPParams* params;
 };
 
 //==============================================================================
