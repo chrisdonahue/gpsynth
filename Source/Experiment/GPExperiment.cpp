@@ -41,10 +41,19 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     // SYNTH
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
 
+    // MUTATABLE PARAMS
+    GPMutatableParam* constantValue = new GPMutatableParam("constantValue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
+    GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
+    GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
+    GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
+    GPMutatableParam* filterCenterFrequency = new GPMutatableParam("filtercenterfrequency", true, 10000.0, params->filterNodeCenterFrequencyMinimum, params->filterNodeCenterFrequencyMaximum);
+    GPMutatableParam* filterQuality = new GPMutatableParam("filterquality", true, 1.0, params->filterNodeQualityMinimum, params->filterNodeQualityMaximum);
+    GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidth", true, 1.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
+
     if (params->experimentNumber == 0) {
         // EVALUATE TARGET STRING
         std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
-        GPNetwork* answer = new GPNetwork(AMstring);
+        GPNetwork* answer = new GPNetwork(params, AMstring);
         answer->traceNetwork();
         std::cout << "Target network: " << answer->toString() << std::endl;
         sampleRate = 44100.0;
@@ -62,8 +71,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new OscilNode(1, 0));
-        nodes->push_back(new OscilNode(1, 1));
+        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
+        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
     }
     // AM 440 hz experiment easy
     if (params->experimentNumber == 1) {
@@ -74,8 +83,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new OscilNode(1, 0));
-        nodes->push_back(new OscilNode(1, 1));
+        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
+        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
     }
     // AM 440 hz experiment hard
     if (params->experimentNumber == 2) {
@@ -87,8 +96,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new FunctionNode(sine, NULL, NULL));
-        nodes->push_back(new ConstantNode(2));
-        nodes->push_back(new ConstantNode(M_PI));
+        nodes->push_back(new ConstantNode(constantTwo->getCopy()));
+        nodes->push_back(new ConstantNode(constantPi->getCopy()));
         nodes->push_back(new TimeNode());
         nodes->push_back(new VariableNode(0));
     }
@@ -104,7 +113,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new TimeNode());
         nodes->push_back(new VariableNode(0));
-        nodes->push_back(new ConstantNode(0));
+        nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 1, 1, 1, NULL));
@@ -148,7 +157,17 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     penaltyFitness = params->penaltyFitness;
     lowerFitnessIsBetter = params->lowerFitnessIsBetter;
 
+    // INITIALIZE SYNTH
     synth = new GPSynth(rng, p, nodes);
+
+    // DELETE ORIGIN GPMUTATABLEPARAMS
+    delete constantValue;
+    delete constantTwo;
+    delete constantPi;
+    delete oscilPartial;
+    delete filterCenterFrequency;
+    delete filterQuality;
+    delete filterBandwidth;
 }
 
 GPExperiment::~GPExperiment() {

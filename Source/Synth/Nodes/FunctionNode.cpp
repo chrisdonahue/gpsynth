@@ -78,7 +78,7 @@ std::string FunctionNode::toString() {
 }
 
 void FunctionNode::updateMutatedParams() {
-    left->updateMutatedParams()
+    left->updateMutatedParams();
     if (isBinary)
         right->updateMutatedParams();
 }

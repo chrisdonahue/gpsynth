@@ -17,7 +17,7 @@
 */
 
 OscilNode::OscilNode(GPMutatableParam* p, int vn) {
-    partial = p->getValue;
+    partial = p->getDValue();
     variableNum = vn;
     w = 2.0 * partial * M_PI;
 
@@ -31,7 +31,7 @@ OscilNode::~OscilNode() {
 }
 
 OscilNode* OscilNode::getCopy() {
-    return new OscilNode(partial, variableNum);
+    return new OscilNode(mutatableParams[0]->getCopy(), variableNum);
 }
 
 double OscilNode::evaluate(double* t, double* v) {
@@ -53,5 +53,5 @@ std::string OscilNode::toString() {
 }
 
 void OscilNode::updateMutatedParams() {
-    partial = mutatableParams[0]->getValue();
+    partial = mutatableParams[0]->getDValue();
 }

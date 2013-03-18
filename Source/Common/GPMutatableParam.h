@@ -2,12 +2,13 @@
 #define GPMUTATABLEPARAM_H
 
 #include <assert.h>
+#include <string>
 
 class GPMutatableParam {
     public:
         // discrete constructor
-        GPMutatableParam(char* t, bool mutatable, int val, int min, int max) {
-            assert(min <= val && val <= max);
+        GPMutatableParam(std::string t, bool mutatable, int val, int min, int max) {
+            assert(!mutatable || (min <= val && val <= max));
             type = t;
             isContinuous = false;
             isMutatable = mutatable;
@@ -17,8 +18,8 @@ class GPMutatableParam {
         }
 
         // continuous constructor
-        GPMutatableParam(char* t, bool mutatable, double val, double min, double max) {
-            assert(min <= val && val <= max);
+        GPMutatableParam(std::string t, bool mutatable, double val, double min, double max) {
+            assert(!mutatable || (min <= val && val <= max));
             type = t;
             isContinuous = true;
             isMutatable = mutatable;
@@ -60,7 +61,7 @@ class GPMutatableParam {
         }
 
         // type accessor
-        char* getType() {
+        std::string getType() {
             return type;
         }
 
@@ -108,7 +109,7 @@ class GPMutatableParam {
         bool isMutatable;
 
     private:
-        char* type;
+        std::string type;
         int dvalue;
         int dminimum;
         int dmaximum;

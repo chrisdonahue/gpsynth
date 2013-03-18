@@ -15,7 +15,7 @@
 
 class ConstantNode: public GPNode {
     public:
-        ConstantNode(double v, double min, double max);
+        ConstantNode(GPMutatableParam* v);
         ~ConstantNode();
         ConstantNode* getCopy();
 

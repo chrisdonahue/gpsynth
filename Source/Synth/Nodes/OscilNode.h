@@ -16,7 +16,7 @@
 
 class OscilNode: public GPNode {
     public:
-        OscilNode(int p, int vn);
+        OscilNode(GPMutatableParam* p, int vn);
         ~OscilNode();
         OscilNode* getCopy();
 

@@ -104,13 +104,13 @@ void FilterNode::updateMutatedParams() {
     centerFrequency = mutatableParams[0]->getValue();
     params[1] = centerFrequency;
     if (type < 2) {
-        quality = bwq->getValue();
+        quality = mutatableParams[1]->getValue();
         params[2] = quality;
     }
     else {
-        bandwidth = bwq->getValue();
+        bandwidth = mutatableParams[1]->getValue();
         params[1] = bandwidth;
     }
-    left->updateMutatedParams()
+    left->updateMutatedParams();
     //filter->setParams(params);
 }

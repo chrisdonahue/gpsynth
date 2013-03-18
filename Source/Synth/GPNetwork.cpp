@@ -26,14 +26,14 @@ allNodes(), allMutatableParams()
     asText = "";
 }
 
-GPNetwork::GPNetwork(std::string netstring) {
+GPNetwork::GPNetwork(GPParams* p, std::string netstring) {
     ID = -1;
     fitness = -1;
     char* token;
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
     std::copy(netstring.begin(), netstring.end(), expr);
     expr[netstring.size()] = '\0';
-    root = createSubtree(strtok(expr, " )("));
+    root = createSubtree(p, strtok(expr, " )("));
     free(expr);
 }
 
@@ -94,11 +94,6 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
     return &allMutatableParams;
 }
 
-void GPNetwork::mutate(GPParams* p) {
-    asText = "";
-    getRandomNetworkNode(p->rng)->mutate(p);
-}
-
 void GPNetwork::traceNetwork() {
     allNodes.clear();
     allMutatableParams.clear();
@@ -135,21 +130,21 @@ void GPNetwork::updateMutatedParams() {
 }
 
 // RECURSIVE CONSTRUCTION
-GPNode* createSubtree(char* tokenized=strtok(NULL, " )(")) {
+GPNode* createSubtree(GPParams* p, char* tokenized=strtok(NULL, " )(")) {
     //std::cout << "----" << std::endl;
     char* t = tokenized; 
     //std::cout << t << std::endl;
     if (strcmp(t, "+") == 0) {
-        return new FunctionNode(add, createSubtree(), createSubtree());
+        return new FunctionNode(add, createSubtree(p), createSubtree(p));
     }
     else if (strcmp(t, "*") == 0) {
-        return new FunctionNode(multiply, createSubtree(), createSubtree());
+        return new FunctionNode(multiply, createSubtree(p), createSubtree(p));
     }
     else if (strcmp(t, "sin") == 0) {
-        return new FunctionNode(sine, createSubtree(), NULL);
+        return new FunctionNode(sine, createSubtree(p), NULL);
     }
     else if (strcmp(t, "pi") == 0) {
-        return new ConstantNode(M_PI);
+        return new ConstantNode(new GPMutatableParam("pi", false, M_PI, 0.0, 0.0));
     }
     else if (strcmp(t, "time") == 0) {
         return new TimeNode();
@@ -158,6 +153,6 @@ GPNode* createSubtree(char* tokenized=strtok(NULL, " )(")) {
         return new VariableNode(std::stoi(t + 1));
     }
     else {
-        return new ConstantNode(std::stod(t));
+        return new ConstantNode(new GPMutatableParam("constantvalue", true, std::stod(t), p->valueNodeMinimum, p->valueNodeMaximum));
     }
 }
