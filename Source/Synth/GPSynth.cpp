@@ -310,6 +310,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     allNetworks.push_back(new std::string(net->toString()));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
+        // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
             std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString() << " was reproduced into next generation with new ID " << net->ID << std::endl;
