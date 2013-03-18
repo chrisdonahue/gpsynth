@@ -16,16 +16,21 @@
     ==============
 */
 
-FilterNode::FilterNode(int t, int o, int fpc, double sr, double cf, double bw, double q, GPNode* l) :
+FilterNode::FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* l) :
 params()
 {
     type = t;
     order = o;
     fadeParameterChanges = fpc;
     sampleRate = sr;
-    centerFrequency = cf;
-    bandwidth = bw;
-    quality = q;
+    centerFrequency = cf->getValue();
+    if (type < 2)
+        quality = bwq->getValue();
+    else
+        bandwidth = bwq->getValue();
+
+    mutatableParams.push_back(cf);
+    mutatableParams.push_back(bwq);
 
     if (type == 0) {
         filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
@@ -95,6 +100,41 @@ std::string FilterNode::toString() {
     return std::string(buffer);
 }
 
-void FilterNode::mutate(GPParams* e) {
+void FilterNode::mutate(GPParams* p) {
+    centerFrequency = mutatableParams[0]->getValue();
+    bandwidth = mutatableParams[1]->getValue();
+    quality = mutatableParams[2]->getValue();
+
+    mutatableParams.push_back(cf);
+    mutatableParams.push_back(bw);
+    mutatableParams.push_back(q);
+
+    if (type == 0) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = quality;
+    }
+    else if (type == 1) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = quality;
+    }
+    else if (type == 2) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandPass2, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = bandwidth;
+    }
+    else if (type == 3) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
+        params[0] = sampleRate;
+        params[1] = centerFrequency;
+        params[2] = bandwidth;
+    }
+    filter->setParams(params);
+
+    left = l;
 
 }

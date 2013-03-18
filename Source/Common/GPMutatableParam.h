@@ -5,11 +5,6 @@
 
 class GPMutatableParam {
     public:
-        virtual GPMutatableParam* getCopy() = 0;
-};
-
-class GPMutatableParam {
-    public:
         // discrete constructor
         GPMutatableParam(char* t, bool mutatable, int val, int min, int max) {
             assert(min <= val && val <= max);
@@ -120,57 +115,6 @@ class GPMutatableParam {
         double cvalue;
         double cminimum;
         double cmaximum;
-};
-
-class GPDiscreteParam : GPMutatableParam {
-    public:
-        GPDiscreteParam(int* val, int min, int max) {
-            assert(min <= val && val <= max);
-            continuous = false;
-            value = val;
-            minimum = min;
-            maximum = max;
-        }
-
-        getCopy() {
-            
-        }
-
-        void setValue(int val) {
-            assert(minimum <= val && val <= maximum);
-            *value = val;
-        }
-
-        void setRange(int min, int max) {
-            assert(min <= value && value <= max);
-            minimum = min;
-            maximum = max;
-        }
-
-        void setAll(int val, int min, int max) {
-            assert(min <= val && val <= max);
-            *value = val;
-            minimum = min;
-            maximum = max;
-        }
-
-        int getValue() {
-            return *value;
-        }
-
-        int getMin() {
-            return minimum;
-        }
-
-        int getMax() {
-            return maximum;
-        }
-
-    private:
-        char* type;
-        int* value;
-        int minimum;
-        int maximum;
 };
 
 #endif

@@ -16,14 +16,14 @@
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(int t, int o, int fpc, double sr, double cf, double wf, double q, GPNode* l);
+        FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatbleParam* bw, GPNode* l);
         ~FilterNode();
         FilterNode* getCopy();
 
         double evaluate(double* t, double* v);
         void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         std::string toString();
-        void mutate(GPParams* e);
+        void mutate(GPParams* p);
 
     private:
         int type;
