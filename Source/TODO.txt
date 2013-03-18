@@ -22,7 +22,6 @@ Node subclasses:
     FilterNode
     ADSRNode
     ConditionalNode
-    maybe extend parity possibilities to make for better time-varying filters
     consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
 
 Interactive:
@@ -38,7 +37,7 @@ Thoughts and Ideas:
     novelty search of new spectrum elements
 
 TODO Soon:
-    GPParams could use some cleaning, filterNodeBuffer/noiseNodeBuffer/etc?
+    maybe extend parity possibilities to make for better time-varying filters
+    test FilterNode 
     Add weight calculation to spectrum fitness function
-    test and finish implementing GPMutatableParams stuff
     add in OPEN BEAGLE stuff or self made GA for suboptimization
