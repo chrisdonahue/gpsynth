@@ -46,7 +46,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
     GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
-    GPMutatableParam* filterCenterFrequency = new GPMutatableParam("filtercenterfrequency", true, 10000.0, params->filterNodeCenterFrequencyMinimum, params->filterNodeCenterFrequencyMaximum);
+    GPMutatableParam* filterCenterFrequency = new GPMutatableParam("filtercenterfrequency", true, 1000.0, params->filterNodeCenterFrequencyMinimum, params->filterNodeCenterFrequencyMaximum);
     GPMutatableParam* filterQuality = new GPMutatableParam("filterquality", true, 1.0, params->filterNodeQualityMinimum, params->filterNodeQualityMaximum);
     GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidth", true, 1.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
 
@@ -116,40 +116,45 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(rng));
-        //nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 1, 1, 1, NULL));
-        //nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 1, 1, 1, NULL));
-        //nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 1, 1, 1, NULL));
-        //nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, 1, 1, 1, NULL));
+        nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
+        nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
+        nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+        nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
     }
     if (params->experimentNumber == 10) {
-        /*
-        // EVALUATE TARGET STRING
-        std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
-        GPNetwork* answer = new GPNetwork(AMstring);
-        answer->traceNetwork();
-        std::cout << "Target network: " << answer->toString() << std::endl;
-        sampleRate = 44100.0;
-        numTargetFrames = 88200;
-        //targetFrames = renderIndividual(answer);
-        saveWavFile("./AnswerString.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
-        loadTargetWavFile("./AnswerString.wav");
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->bestPossibleFitness = 0;
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
 
-        GPNetwork* equivalent = new GPNetwork(new FunctionNode(multiply, new OscilNode(1, 0), new OscilNode(1, 1)));
+        GPNode* noiseNode = new NoiseNode(rng);
+        GPNode* constantNode = new ConstantNode(constantValue->getCopy());
+        GPNode* filterNoiseNode = new FilterNode(0, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), noiseNode);
+        GPNode* filterSilenceNode = new FilterNode(0, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), constantNode);
 
-        //float* equivalentFrames = renderIndividual(equivalent);
-        saveWavFile("./EquivalentNetwork.wav", String(equivalent->toString().c_str()), numTargetFrames, equivalentFrames);
+        GPNetwork* noiseNetwork = new GPNetwork(noiseNode);
+        noiseNetwork->traceNetwork();
+        GPNetwork* filteredNoiseNetwork = new GPNetwork(filterNoiseNode);
+        filteredNoiseNetwork->traceNetwork();
+        GPNetwork* filteredSilenceNetwork = new GPNetwork(filterSilenceNode);
+        filteredSilenceNetwork->traceNetwork();
 
-        //float* equivalentFrames = renderIndividual(answer);
-        //saveWavFile("./SameNetwork.wav", String(answer->toString().c_str()), numTargetFrames, equivalentFrames);
+        float* noise = (float*) malloc(sizeof(float) * 88200);
+        float* filtNoise = (float*) malloc(sizeof(float) * 88200);
+        float* filtSilence = (float*) malloc(sizeof(float) * 88200);
+        renderIndividualByBlock(noiseNetwork, 88200, params->renderBlockSize, noise);
+        renderIndividualByBlock(filteredNoiseNetwork, 88200, params->renderBlockSize, filtNoise);
+        renderIndividualByBlock(filteredSilenceNetwork, 88200, params->renderBlockSize, filtSilence);
 
-        std::cout << "Amplitude fitness: " << compareToTarget(0, equivalentFrames) << std::endl;
-        std::cout << "Frequency fitness: " << compareToTarget(1, equivalentFrames) << std::endl;
+        saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), 88200, noise);
+        saveWavFile("./lowpassnoise.wav", String(filteredNoiseNetwork->toString().c_str()), 88200, filtNoise);
+        saveWavFile("./lowpasssilence.wav", String(filteredSilenceNetwork->toString().c_str()), 88200, filtSilence);
 
-        delete answer;
-        delete equivalent;
+        free(filtSilence);
+        free(filtNoise);
+        free(noise);
 
         exit(0);
-        */
     }
 
     // EXPERIMENT PARAMS THAT VARY BY EXPERIMENT NUMBER
@@ -176,6 +181,7 @@ GPExperiment::~GPExperiment() {
         free(targetSpectrum);
         free(targetSpectrumMagnitudes);
         free(targetSpectrumPhases);
+        free(weightMatrix);
     }
     free(sampleTimes);
     free(specialValuesByFrame);
@@ -262,7 +268,7 @@ GPNetwork* GPExperiment::evolve() {
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
-        renderIndividual(champ, numTargetFrames, champbuffer);
+        renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
         std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
         saveWavFile("./champion.wav", String(champ->toString().c_str()), numTargetFrames, champbuffer);
         free(champbuffer);
@@ -347,6 +353,7 @@ void GPExperiment::loadTargetWavFile(String path) {
         targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputDataArraySize);
         targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputDataArraySize);
         targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputDataArraySize);
+        weightMatrix = (double*) malloc(sizeof(double) * fftOutputDataArraySize);
 
         // take fft of target data
         numRemaining = numTargetFrames;
@@ -362,6 +369,7 @@ void GPExperiment::loadTargetWavFile(String path) {
             }
             unsigned targetSpectrumIndex = numFftCompleted * (n/2 + 1);
             FftReal(n, in, targetSpectrum + targetSpectrumIndex, targetSpectrumMagnitudes + targetSpectrumIndex, targetSpectrumPhases + targetSpectrumIndex);
+            // TODO: calculate weight matrix;
            /* 
             if (numRemaining < 100) {
                 for (int i = 0; i < (n/2 + 1); i++) {
@@ -411,13 +419,13 @@ void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, flo
 */
 
 double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
-    if (params->experimentNumber == 1 || params->experimentNumber == 3) {
-        renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
+    if (params->suboptimize) {
+        std::vector<GPMutatableParam*>* candidateParams = candidate->getAllMutatableParams();
     }
     else {
-        renderIndividual(candidate, numSamples, buffer);
+        renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
+        return compareToTarget(params->fitnessFunctionType, buffer);
     }
-    return compareToTarget(params->fitnessFunctionType, buffer);
 }
 
 void GPExperiment::renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer) {
@@ -434,7 +442,7 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
     int64 bufferIndex = 0;
     unsigned numToRender;
     while (numRemaining > 0) {
-        numToRender = n > numRemaining ? n : numRemaining;
+        numToRender = n < numRemaining ? n : numRemaining;
         candidate->evaluateBlock(sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
         numRemaining -= numToRender;
         numCompleted += numToRender;
@@ -497,6 +505,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         free(phase);
         ret = MSEmag + MSEph;
     }
+    //std::cout << "SILENCE TEST: " << silenceTest << std::endl;
     if (silenceTest == 0)
         return penaltyFitness;
     else

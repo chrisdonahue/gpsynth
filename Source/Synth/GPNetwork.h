@@ -42,6 +42,7 @@ class GPNetwork {
         void mutate(GPParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
         void traceNetwork();
+        void ephemeralRandom(GPRandom* r);
         void updateMutatedParams();
 
         // PUBLIC STATE

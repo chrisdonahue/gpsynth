@@ -52,6 +52,19 @@ class GPNode {
         // MUTATABLE PARAMS
         std::vector<GPMutatableParam*> mutatableParams;
 
+        void ephemeralRandom(GPRandom* r) {
+            for (int i = 0; i < mutatableParams.size(); i++) {
+                mutatableParams[i]->ephemeralRandom(r);
+            }
+            updateMutatedParams();
+            if (left != NULL) {
+                left->ephemeralRandom(r);
+            }
+            if (right != NULL) {
+                right->ephemeralRandom(r);
+            }
+        }
+
         // INHERITED TRACE METHOD
         void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* rootHeight, int currentDepth) {
             parent = p;
