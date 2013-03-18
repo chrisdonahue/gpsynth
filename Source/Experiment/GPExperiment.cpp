@@ -31,8 +31,6 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
     // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
     params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * sampleRate;
-    params->filterNodeMaxBufferSize = params->filterNodeBufferMaxSeconds * sampleRate;
-    params->noiseNodeMaxBufferSize = params->noiseNodeBufferMaxSeconds * sampleRate;
 
     // EXPERIMENT STATE
     numGenerations = p->numGenerations;

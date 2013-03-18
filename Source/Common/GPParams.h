@@ -5,7 +5,7 @@
 #include "GPFunctions.h"
 
 struct GPParams {
-    // auxillary params
+    // auxillary parameters
     bool verbose;
     unsigned wavFileBufferSize;
     unsigned renderBlockSize;

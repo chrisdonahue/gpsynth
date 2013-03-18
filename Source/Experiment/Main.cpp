@@ -36,35 +36,61 @@ public:
         // This method is where you should put your application's initialisation code..
         StringArray args = getCommandLineParameterArray();
 
+        // temp fields
         String target("");
-        std::vector<double> constants(0);
         unsigned seed = time(NULL);
+        std::vector<double> constants(0);
+
         params = (GPParams*) malloc(sizeof(GPParams));
+
+        // auxillary params
+        params->verbose = false;
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 1024;
-        params->fftSize = 16;
-        params->verbose = false;
+        params->fftSize = 256;
+
+        // experiment params
         params->experimentNumber = 0;
+        params->fitnessFunctionType = 1;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
-        params->fitnessFunctionType = 0;
+
+        // synth evolution params
         params->populationSize = 500;
-        params->maxInitialDepth = 6;
-        params->maxDepth = 17;
-        params->mutationDuringInitializationChance = 0.5;
+        params->lowerFitnessIsBetter = true;
+        params->bestPossibleFitness = 0;
+        params->penaltyFitness = std::numeric_limits<float>::max();
+        params->maxInitialDepth = 5;
+        params->maxDepth = 12;
+
+        // synth genetic params
         params->proportionOfPopulationFromCrossover = 0.9;
+        params->proportionOfPopulationForGreedySelection = 0.0;
         params->reproductionSelectionType = 0;
         params->crossoverType = 0;
         params->crossoverSelectionType = 0;
-        params->proportionOfPopulationForGreedySelection = 0.0;
-        params->mutationDuringCrossoverChance = 0.1;
-        params->modulationNodeFrequencyRange = 10;
-        params->oscilNodePartialChance = 0.5;
+
+        // value node params
         params->valueNodeMinimum = -1.0;
         params->valueNodeMaximum = 1.0;
-        params->delayNodeBufferMaxSeconds = 0.1;
-        params->filterNodeBufferMaxSeconds = 0.1;
-        params->noiseNodeBufferMaxSeconds = 0.1;
+
+        // oscil node params
+        params->oscilNodeMaxPartial = 10;
+
+        // delay node
+        params->delayNodeBufferMaxSeconds = 1.0;
+
+        // filter node
+        params->filterNodeCenterFrequencyMinimum = 20;
+        params->filterNodeCenterFrequencyMaximum = 20000;
+        params->filterNodeQualityMinimum = 0.1;
+        params->filterNodeQualityMaximum = 10.0;
+        params->filterNodeBandwidthMinimum = 0;
+        params->filterNodeBandwidthMaximum = 10000;
+
+        // modulation node
+        params->modulationNodeFrequencyRange = 10;
+        params->numVariables = 0;
 
         for (String* i = args.begin(); i < args.end(); i++) {
           if (i->equalsIgnoreCase("--target")) {
@@ -121,9 +147,6 @@ public:
           else if (i->equalsIgnoreCase("--crosspercent")) {
             params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
           }
-          else if (i->equalsIgnoreCase("--mutatechance"))  {
-            params->mutationDuringCrossoverChance = (++i)->getDoubleValue();
-          }
         }
 
         // TODO: check all value ranges here
@@ -142,7 +165,6 @@ public:
     void shutdown()
     {
         delete experiment;
-        delete params->rng;
         free(params);
     }
 

@@ -57,7 +57,7 @@ class GPNode {
             parent = p;
             allnodes->push_back(this);
             for (int i = 0; i < mutatableParams.size(); i++) {
-                if (mutatableParams[i].isMutatable)
+                if (mutatableParams[i]->isMutatable)
                     allmutatableparams->push_back(mutatableParams[i]);
             }
             if (currentDepth > *rootHeight) {
