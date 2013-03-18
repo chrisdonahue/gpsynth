@@ -420,7 +420,9 @@ void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, flo
 
 double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
     if (params->suboptimize) {
+        // TODO: this
         std::vector<GPMutatableParam*>* candidateParams = candidate->getAllMutatableParams();
+        return -1;
     }
     else {
         renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
