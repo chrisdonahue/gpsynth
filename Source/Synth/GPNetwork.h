@@ -35,14 +35,14 @@ class GPNetwork {
         std::string toString();
         GPNode* getRoot();
         bool equals(GPNetwork* other);
-
-        // MUTATION
         GPNode* getRandomNetworkNode(GPRandom* r);
         std::vector<GPMutatableParam*>* getAllMutatableParams();
+
+        // HELPERS
         void mutate(GPParams* p);
         void replaceSubtree(GPNode* one, GPNode* two);
-        void swap(GPNode* one, GPNode* two);
         void traceNetwork();
+        void updateMutatedParams();
 
         // PUBLIC STATE
         int ID;

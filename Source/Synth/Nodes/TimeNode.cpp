@@ -38,6 +38,5 @@ std::string TimeNode::toString() {
     return std::string(buffer);
 }
 
-void TimeNode::mutate(GPParams* p) {
-    return;
+void TimeNode::updateMutatedParams() {
 }

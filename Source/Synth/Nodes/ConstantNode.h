@@ -22,7 +22,7 @@ class ConstantNode: public GPNode {
         double evaluate(double* t, double* v);
         void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         std::string toString();
-        void mutate(GPParams* p);
+        void updateMutatedParams();
 
     private:
         double value;

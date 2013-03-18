@@ -77,21 +77,8 @@ std::string FunctionNode::toString() {
     return std::string(buffer);
 }
 
-void FunctionNode::mutate(GPParams* p) {
-    /*
-    std::vector<GPFunction>* functionSet;
-    if (isBinary) {
-        functionSet = p->availableBinaryFunctions;
-    }
-    else {
-        functionSet = p->availableUnaryFunctions;
-    }
-    gpfunction = functionSet->at(p->rng->random(p->availableBinaryFunctions->size()));
-    */
-    if (isBinary && p->rng->random() < p->mutateRight) {
-        right->mutate(p);
-    }
-    else {
-        left->mutate(p);
-    }
+void FunctionNode::updateMutatedParams() {
+    left->updateMutatedParams()
+    if (isBinary)
+        right->updateMutatedParams();
 }

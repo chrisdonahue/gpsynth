@@ -129,30 +129,9 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
     nu->parent = old->parent;
 }
 
-/*
-    This method swaps node two into node one's spot in the network tree
-*/
-void GPNetwork::swap(GPNode* old, GPNode* nu) {
-    /*
-    // handle root case
-    if (old == root)
-        root = nu;
-    
-    // replace parent-child links
-    if (old->parent != NULL) {
-        if (old->parent->left == old)
-            old->parent->left = nu;
-        else if (old->parent->right == old)
-            old->parent->right = nu;
-        else
-            std::cerr << "Bad parent-child links detected during node swap." << std::endl;
-    }
-
-    // assign nu pointers
-    nu->parent = old->parent;
-    nu->left = old->left;
-    nu->right = old->right;
-    */
+void GPNetwork::updateMutatedParams() {
+    root->updateMutatedParams();
+    asText = root->toString();
 }
 
 // RECURSIVE CONSTRUCTION

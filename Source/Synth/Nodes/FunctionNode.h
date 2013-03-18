@@ -24,7 +24,7 @@ class FunctionNode: public GPNode {
         double evaluate(double* t, double* v);
         void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         std::string toString();
-        void mutate(GPParams* e);
+        void updateMutatedParams();
 
     private:
         GPFunction gpfunction;

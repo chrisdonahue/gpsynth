@@ -6,17 +6,16 @@
 
 struct GPParams {
     // auxillary params
+    bool verbose;
     unsigned wavFileBufferSize;
     unsigned renderBlockSize;
     unsigned fftSize;
-    GPRandom* rng;
 
     // experiment parameters
-    bool verbose;
     unsigned experimentNumber;
+    unsigned fitnessFunctionType;
     unsigned numGenerations;
     double thresholdFitness;
-    unsigned fitnessFunctionType;
 
     // synth evolution parameters
     unsigned populationSize;
@@ -27,21 +26,18 @@ struct GPParams {
     unsigned maxDepth;
 
     // synth genetic parameters
-    double mutationDuringInitializationChance;
     double proportionOfPopulationFromCrossover;
+    double proportionOfPopulationForGreedySelection;
     unsigned reproductionSelectionType;
     unsigned crossoverType;
     unsigned crossoverSelectionType;
-    double proportionOfPopulationForGreedySelection;
-    double mutationDuringCrossoverChance;
 
     // value node
     double valueNodeMinimum;
     double valueNodeMaximum;
 
     // oscil node
-    double oscilNodePartialChance;
-    unsigned oscilNodeNumPartials;
+    unsigned oscilNodeMaxPartial;
 
     // modulation node
     unsigned modulationNodeFrequencyRange;
@@ -51,20 +47,15 @@ struct GPParams {
     double delayNodeBufferMaxSeconds;
 
     // filter node
-    double centerFrequencyMinimum;
-    double centerFrequencyMaximum;
-    double qualityMinimum;
-    double qualityMaximum;
-    double bandwidthMinimum;
-    double bandwidthMaximum;
-
-    // noise node
-    unsigned noiseNodeMaxBufferSize;
-    double noiseNodeBufferMaxSeconds;
+    double filterNodeCenterFrequencyMinimum;
+    double filterNodeCenterFrequencyMaximum;
+    double filterNodeQualityMinimum;
+    double filterNodeQualityMaximum;
+    double filterNodeBandwidthMinimum;
+    double filterNodeBandwidthMaximum;
 
     // multiple nodes
     unsigned numVariables;
-    double mutateRight;
 };
 
 #endif

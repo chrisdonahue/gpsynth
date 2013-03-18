@@ -16,7 +16,7 @@
    ============
 */
 
-GPSynth::GPSynth(GPParams* p, std::vector<GPNode*>* nodes) :
+GPSynth::GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes) :
 nextNetworkID(0), generationID(0),
 populationSize(p->populationSize),
 lowerFitnessIsBetter(p->lowerFitnessIsBetter),
@@ -34,7 +34,7 @@ allNetworks(), unevaluated(), evaluated(), currentGeneration(),
 rawFitnesses(), normalizedFitnesses(), rank()
 {
     params = p;
-    rng = params->rng;
+    rng = r;
 
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
@@ -66,6 +66,7 @@ GPSynth::~GPSynth() {
     delete availableNodes;
     delete availableFunctions;
     delete availableTerminals;
+    delete rng;
 }
 
 GPNode* GPSynth::fullRecursive(unsigned cd, unsigned d) {

@@ -16,10 +16,12 @@
     ==============
 */
 
-OscilNode::OscilNode(int p, int vn) {
-    partial = p;
+OscilNode::OscilNode(GPMutatableParam* p, int vn) {
+    partial = p->getValue;
     variableNum = vn;
     w = 2.0 * partial * M_PI;
+
+    mutatableParams.push_back(p);
 
     isBinary = false;
     isTerminal = true;
@@ -50,12 +52,6 @@ std::string OscilNode::toString() {
     return std::string(buffer);
 }
 
-void OscilNode::mutate(GPParams* p) {
-    if (p->rng->random() < p->oscilNodePartialChance) {
-        partial = (int) (p->rng->random() * p->oscilNodeNumPartials);
-        w = 2.0 * partial * M_PI;
-    }
-    else {
-        variableNum = p->rng->random(p->numVariables);
-    }
+void OscilNode::updateMutatedParams() {
+    partial = mutatableParams[0]->getValue();
 }

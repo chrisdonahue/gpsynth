@@ -46,5 +46,5 @@ std::string NoiseNode::toString() {
     return std::string(buffer);
 }
 
-void NoiseNode::mutate(GPParams* e) {
+void NoiseNode::updateMutatedParams() {
 }

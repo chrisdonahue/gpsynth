@@ -46,6 +46,6 @@ std::string ConstantNode::toString() {
     return std::string(buffer);
 }
 
-void ConstantNode::mutate(GPParams* p) {
+void ConstantNode::updateMutatedParams() {
     value = mutatableParams[0]->getValue();
 }

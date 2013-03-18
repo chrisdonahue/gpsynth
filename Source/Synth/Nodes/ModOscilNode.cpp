@@ -54,11 +54,7 @@ std::string ModOscilNode::toString() {
     return std::string(buffer);
 }
 
-void ModOscilNode::mutate(GPParams* p) {
-    if (p->rng->random() < p->mutateRight) {
-        right->mutate(p);
-    }
-    else {
-        left->mutate(p);
-    }
+void ModOscilNode::updateMutatedParams() {
+    left->updateMutatedParams();
+    right->updateMutatedParams();
 }

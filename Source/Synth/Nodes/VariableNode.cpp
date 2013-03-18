@@ -42,6 +42,5 @@ std::string VariableNode::toString() {
     return std::string(buffer);
 }
 
-void VariableNode::mutate(GPParams* p) {
-        variableNum = (int) (p->rng->random() * p->numVariables);
+void VariableNode::updateMutatedParams() {
 }

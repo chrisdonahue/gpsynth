@@ -33,7 +33,7 @@
 class GPExperiment {
     public:
         // CONSTUCTION
-        GPExperiment(String target, GPParams* p, double* constants);
+        GPExperiment(GPRandom* r, String target, GPParams* p, double* constants);
         ~GPExperiment();
 
         // EVOLUTION CONTROL

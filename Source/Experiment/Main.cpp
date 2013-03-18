@@ -132,8 +132,7 @@ public:
             quit();
         }
 
-        params->rng = new GPRandom(seed);
-        experiment = new GPExperiment(target, params, constants.data());
+        experiment = new GPExperiment(new GPRandom(seed), target, params, constants.data());
 
         GPNetwork* champion = experiment->evolve();
         delete champion;

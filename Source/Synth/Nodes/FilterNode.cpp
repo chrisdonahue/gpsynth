@@ -69,7 +69,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, order, fadeParameterChanges, sampleRate, centerFrequency, bandwidth, quality, left == NULL ? NULL : left->getCopy());
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), left == NULL ? NULL : left->getCopy());
 }
 
 double FilterNode::evaluate(double* t, double* v) {
@@ -100,41 +100,17 @@ std::string FilterNode::toString() {
     return std::string(buffer);
 }
 
-void FilterNode::mutate(GPParams* p) {
+void FilterNode::updateMutatedParams() {
     centerFrequency = mutatableParams[0]->getValue();
-    bandwidth = mutatableParams[1]->getValue();
-    quality = mutatableParams[2]->getValue();
-
-    mutatableParams.push_back(cf);
-    mutatableParams.push_back(bw);
-    mutatableParams.push_back(q);
-
-    if (type == 0) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
-        params[0] = sampleRate;
-        params[1] = centerFrequency;
+    params[1] = centerFrequency;
+    if (type < 2) {
+        quality = bwq->getValue();
         params[2] = quality;
     }
-    else if (type == 1) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
-        params[0] = sampleRate;
-        params[1] = centerFrequency;
-        params[2] = quality;
+    else {
+        bandwidth = bwq->getValue();
+        params[1] = bandwidth;
     }
-    else if (type == 2) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandPass2, 1> (fadeParameterChanges);
-        params[0] = sampleRate;
-        params[1] = centerFrequency;
-        params[2] = bandwidth;
-    }
-    else if (type == 3) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
-        params[0] = sampleRate;
-        params[1] = centerFrequency;
-        params[2] = bandwidth;
-    }
-    filter->setParams(params);
-
-    left = l;
-
+    left->updateMutatedParams()
+    //filter->setParams(params);
 }

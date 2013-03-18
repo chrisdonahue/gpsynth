@@ -16,7 +16,7 @@
     ============
 */
 
-GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
+GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* constants) :
     params(p),
     specialValues(constants),
     wavFormat(new WavAudioFormat())
@@ -108,7 +108,7 @@ GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
         nodes->push_back(new VariableNode(0));
         nodes->push_back(new ConstantNode(0));
         nodes->push_back(new ModOscilNode(NULL, NULL));
-        nodes->push_back(new NoiseNode(params->rng));
+        nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, 1, 1, 1, NULL));
         //nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, 1, 1, 1, NULL));
         //nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, 1, 1, 1, NULL));
@@ -150,7 +150,7 @@ GPExperiment::GPExperiment(String target, GPParams* p, double* constants) :
     penaltyFitness = params->penaltyFitness;
     lowerFitnessIsBetter = params->lowerFitnessIsBetter;
 
-    synth = new GPSynth(p, nodes);
+    synth = new GPSynth(rng, p, nodes);
 }
 
 GPExperiment::~GPExperiment() {

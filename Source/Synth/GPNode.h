@@ -36,7 +36,7 @@ class GPNode {
         virtual void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
-        virtual void mutate(GPParams* e) = 0;
+        virtual void updateMutatedParams() = 0;
         // EVALUATE BLOCK
         // GET MUTABLE COEFFICIENTS
 
