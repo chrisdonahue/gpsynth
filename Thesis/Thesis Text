@@ -1,20 +1,106 @@
 Title: Using Genetic Programming to Evolve Algorithms for Audio Synthesis
 Author: Chris Donahue
-Advisors: Peter Stone, Russell Pinkston, Joel Lehman
+Advisors: Peter Stone, Russell Pinkston
 
 Abstract:
 	This paper presents a system for evolving sound synthesis algorithms using the technique of genetic programming. The investigation has multiple goals. The first goal is to determine if genetic programming can be used to evolve synthesis algorithms whose output resembles a target sound. Typically this task involves many hours of labor by a human to determine an efficient way to mimic a given sound. The second goal is to determine if the synthesis algorithm search can be used interactively by musicians to help them create and discover new timbres.
 	
 Introduction:
-	Musical timbres are the aspects of sounds that allow us to distinguish and identify the origin of a sound. On a physical level, the perceived timbre of a sound is largely determined by the sound's spectrum (frequency content) and envelope (how the spectrum changes over time). Timbre cognition allows us to recognize some sounds without any other knowledge of their source. Timbre allows musicians to distinguish between a trumpet and a violin playing the same note. However, timbre itself is ignored by many if not most musicians today. Composers usually restrict themselves to given sounds, such as the instruments in a band or orchestra. Electronic musicians have a wider pallette to work with but most lack core understanding of the algorithms used to produce the sounds they use and usually restrict themselves to working within the confines of available synthesizers and samples. Wishart said in his 1994 book Audible Design "The spectral characteristics of sound have, for so long, been inaccesible to the composer that we have become accustomed to lumping together all aspect of the spectral structure under the catch all term "timbre"...
+	Musical timbres are the aspects of sounds that allow us to distinguish and identify the origin of a sound. On a physical level, the perceived timbre of a sound is largely determined by the sound's spectrum (frequency content) and envelope (how the spectrum changes over time). Timbre cognition allows us to recognize some sounds without any other knowledge of their source. Timbre allows musicians to distinguish between a trumpet and a violin playing the same note. However, timbre itself is ignored by many if not most musicians today. Composers usually restrict themselves to given sounds, such as the instruments in a band or orchestra. Electronic musicians have a wider pallette to work with but most lack core understanding of the algorithms used to produce the sounds they use and usually restrict themselves to working within the confines of available synthesizers and samples. Wishart said in his 1994 book Audible Design "The spectral characteristics of sound have, for so long, been inaccesible to the composer that we have become accustomed to lumping together all aspect of the spectral structure under the catch all term "timbre"... [2]
 	 
-	These factors suggest the need for alternative and accesible methods of timbre investigation for musicians and researchers. This paper will demonstrate a system that allows musicians and researchers to supply a target sound and create a synthesis algorithm that mimics its tonal characteristics. It will also allow the user to examine and adjust these discovered algorithms to improve their timbre characteristics. Many electronic musicians utilize the technique of FM Synthesis discovered by John Chowning to create sounds. I will also present an interactive genetic algorithm for searching the space of sound synthesis algorithms, of which traditional techniques like additive, AM and FM synthesis are reduced to a miniscule subset of the algorithms the user will have access to.
+	These factors suggest the need for alternative and accesible methods of timbre investigation for musicians and researchers. This paper will demonstrate a system that allows musicians and researchers to supply a target sound and create a synthesis algorithm that mimics its tonal characteristics. It will also allow the user to examine and adjust these discovered algorithms to improve their timbre characteristics. Many electronic musicians utilize the technique of FM Synthesis discovered by John Chowning [1] to create sounds. I will also present an interactive genetic algorithm for searching the space of sound synthesis algorithms, of which traditional techniques like additive, AM and FM synthesis are a miniscule subset of the algorithms the user will have access to.
+
+Mimicking Acoustic Instruments: (roughly chronological)
+	Early Work: 
+		Sound synthesis algorithms are a well studied aspect of computer music, and for as long as there have been soudn syntehsis algorithms people have been trying to use them to mimic recognizable acoustic timbres. Max Mathews created the first widely used computer program for sound synthesis in 1957 called MUSIC. MUSIC and its descendants in the MUSIC-N family of programs utilize wrapper functions around common synthesis routines called unit generators. In his 1963 paper he wrote that "there are no theoretical limitations to the performance of the computer as a source of musical sounds, in contrast to the performance of ordinary instruments." [4] While this statement can be challenged due to a computer's lack of ability to produce continuous signals, it holds perceptually. Jean-Claude Risset worked with Mathews in the late 1960's to attempt to produce with a computer sounds that mimicked acoustic instruments. They were successful in creating brass-like and string-tone sounds by analyzing the spectral content of recordings of these tones. TODO: BUT....
+
+	FM Synthesis:
+		In 1973 John Chowning introduced a method for utilizing frequency modulation to efficiently synthesize tones with rich harmonic spectra. [1] The task of efficiently producing spectrally complex tones had presented a major hurdle to mimicking spectrally complex acoustic instruments as computer performance was limited. Chowning himself used the method to mimic brass, woodwind, percussive sounds, and later a singing voice [5] with impressive subjective results considering the efficiency of the algorithm. Morrill [6] also contributed parameters for trumpet tones using FM synthesis in 1977.
+		Work in the 1980's on mimicking acoustic timbres was mostly commercial after Stanford licensed Chowning's discovery of FM audio synthesis to Yamaha. Audio researchers at Yamaha spent a great deal of time and effort to mimic tones of acoustic instruments by modifying the parameters and general structure of FM synthesis.
 	
-Sound Synthesis Algorithms
-	Sound synthesis algorithms are a well studied aspect of computer music. Between 1951 and 
-	The human search for sound synthesis algorithms that mimic real-world sounds is a well investigated problem. As long as there have been
-	Sound synthesis algorithms are ignored by most computer-based musicians. 
+	Genetic Algorithms:
+		Genetic algorithms were only popularized in the 1980's despite previous decades of theoretical study. A genetic algorithm is... (EXPLAIN GENETIC ALGORITHM)
+		In 1993, Horner et al. demonstrated an automation of this task using a genetic algorithm. Horner succesfully demonstrated a system for optimizing the parameters of a fixed FM synthesis structure with a single modulator and multiple parallel carriers. Johnson [8] used an interactive genetic algorithm to control parameters for other synthesis algorithms and When [9] used ideas from natural selection to explore the parameter space and more in a more limited sense the connection space of FM-like synthesizers.... TODO: read these papers lol
+		
+	Genetic Programming:
+		John Koza's 1994 book demonstrated a new class of genetic algorithms altogether. He introduced the idea of genetic programming which uses the principles of genetic algorithms to evolve computer programs. These "programs" typically consist of expression trees. An expression tree is a tree representation of a program which can be a simple mathematical expression but could also be a more complicated algorithm involving logic operators and domain-specific tree nodes. (EXPLAIN GENETIC PROGRAMMING)
+		The domain-specific applications of genetic programming are particularly intriguing for sound synthesis as nodes of the expression tree could represent things like sin wave oscillators and time-varying signal filters. In 2000, Ricardo Garcia demonstrated the technique of genetic programming in the domain of synthesis algorithm generation for target sound matching.
+		Garcia's approach involved evolving expression trees that represented a set of instructions for building sound synthesis algorithms. This indirect encoding was inspired by the fact that synthesis algorithm topologies can be cyclical and expression trees evolved by genetic programming cannot be. However, these non-cyclical instruction trees could map to a cyclical synthesis topology and therefore allow genetic programming to be utilized to create cyclical topologies.
+		Garcia makes the statement in his 2002 paper that "every [instruction] tree maps into a single topology... but a topology can be represented by many different trees." This leads me to believe that this approach is not the ideal way to apply genetic programming to sound synthesis as Garcia is searching through a much larger space of expression trees that map into a much smaller space of topologies. I have also not encountered any examples of hand-designed sound synthesis algorithms that utilize cyclic topologies to mimic acoustic timbres. This cyclic behavior could also be represented non-cyclically by the use of a delay buffer primitive if necessary. Additionally, Garcia uses suboptimization of a known number of constants once a topology has been produced. This is an interesting strategy but could theoretically be encoded into GP itself by using ephemeral random constants.
 	
+Target-Matching GP for Sound Synthesis Algorithms:
+	Method:
+		I will be using my own implementation of genetic programming to evolve synthesis algorithms directly utilizing a set of primitives identified as essential components for mimicking timbres. The inputs to this system are a recorded target sound represented by a WAV file and the fundamental frequency of the target sound. This method differs from Garcia's who treated the system as a black box whose input was a WAV file and whose output was a synthesis topology. I argue that providing the fundamental frequency is a good addition to this black box as it prevents the algorithm from having to waste search time to find the fundamental and allows the experimenter to also test how well the discovered algorithm maps to other pitches.
+		
+	The primitives:
+		Binary Addition operator
+		Binary Multiplication operator
+		FM and Phase modulation oscillators
+		Sin Wave Oscillator
+		Triangle Wave Oscillator
+		Square Wave Oscillator
+		Time-varying filters
+		ADSR envelope
+		White noise
+		Time-varying numbers
+		Constants
+	
+	The loop:
+		The process of this experiment will involve the following main loop:
+			Initial sound synthesis algorithm population
+			LOOP START:
+			Run each algorithm to render sound
+			Evaluate the sound in comparison to the target by means of a fitness function
+			If fitness < threshold || number of generations >= limit, FINISH and return champion
+			otherwise create a new population using traditional genetic programming techniques and return to LOOP START
+		
+		Initial sound synthesis algorithm population:
+			The random population of the initial generation is an unmodified implementation of Koza's Ramped Half and Half method to generate great diversity from the outset. [10]. The only difference is that I do not check for duplicate expression trees as the amount of primitives I am utilizing is large and will not likely produce that many duplicate trees. (TODO: maybe change this). I am using the technique of Ephemeral Random Constants to propogate random constants throughout the population.
+			
+		Fitness function:
+			The fitness function I am using is a variation of the fitness function that Garcia used for his system. There are two broad types of fitness functions that could apply in this domain, strictly analytical fitness functions or fitness functions that take human perception into account. Garcia uses the following fitness function: F_LSE_FREQ_MAG, F_LSE_FREQ_PHASE, F_LSE_FREQ = F_LSE_FREQ_MAG + F_LSE_FREQ_PHASE as an analytical fitness function. In his masters thesis he also presents a perceptual fitness technique called Simultaneous Frequency Masking that am currently not utilizing. Algorithms that produce silence are assigned a penalty fitness.
+		
+		Genetic operations:
+			The genetic operations I am utilizing are those typically associated with genetic programming. Individuals are selected proportionally to their assigned fitnesses (where lower is better due to the fact that fitness is a calculation of error). During the reproduction stage, part of the next generation is produced by selecting two parents, swapping two randomly selected subtrees from within them and adding both resultant trees to the next generation. This method is very powerful as the depths of the resultant children can range from 0 to the sum of the depths of the parents. The remaining part of the generation is produced by selecting one parent in the same fitness-proportional manner and cloning it without mutation into the next generation.
+			
+	Identified Limitations:
+			The limitations of this system are mainly in the area of computational complexity. Because of the nature of expression trees, a given node cannot have multiple parents. This theoretically does not limit the capabilities of the sound synthesis algorithms produced by the described technique because an expression tree can have identical terminals. However, this greatly increases computation time and search complexity for basic algorithms such as FM synthesis using a single modulator and multiple carriers (such as the algorithm that Horner et. al optimized with genetic algorithms). Another limitation is lack of support for cyclic algorithms however I hypothesize that this is not a limitation that should be of too much concern for target matching.
+		
+		Results:
+		
+Interactive Evolution of Sound Synthesis Algorithms:
+	Method:
+
+	Parameters:
+	
+	Identified Limitations:
+	
+	Results:
+	
+Implementation:
+	An early prototype for this system was built using Cabbage, Csound and Python. After I encountered several performance limitations I switched to C++ and utilized the JUCE audio/GUI library. JUCE is a popular open-source library for developing audio plugins and was used as the core audio engine of my implementation as well as the graphics toolkit for the interactive GA. This project could not have been possible without JUCE and author Jules' unrelenting demand for a quality library. Filter primitives were developed using the DSPFilters Library written and maintained by Vinnie Falco. Fast Fourier transform calculations for the fitness function were provided by kissfft, a fast, lightweight implementation.
+	Target-matching tests were run on the UT Condor Computing Cluster with ___SPECS___ and each test between ___MIN HOURS___ and __MAX HOURS___ to complete. Interactive evolution tests were run on my own personal machine with __SPECS__ by myself and a variety of users.
+
+Conclusion:
+
+Acknowledgements:
+	The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for helping with the genetic algorithm aspects of this project and Ashvin Bashyam for offering sound advice in the implementation of the Fourier transform-based fitness function. Thanks to __TESTERS__ for kindly offering to test the interactive genetic algorithm. Finally, the author wishes to express gratitude to the testers of the interactive genetic algorithm and to the co-authors who were incredibly helpful throughout the process.
+
 Cited Sources:
-	The Synthesis of Complex Audio Spectra by Means of Frequency Modulation, Chowning 1973
-	Jean Claude Risset 
+	1. John Chowning, The Synthesis of Complex Audio Spectra by Means of Frequency Modulation (1973)
+	2. Wishart, Audible Design (1994)
+	3. Jean Claude Risset, Analysis of Musical Instrument Tones (1969)
+	4. Max Mathews, The Digital Computer as a Musical Instrument (1963)
+	5. Chowning, Computer Synthesis of the Singing Voice (1980)
+	6. Morrill, D, Trumpet Algorithms for Computer composition (1977)
+	7. Andrew Horner, Genetic Algorithms and Their Application to FM Matching Synthesis (1993)
+	8. Johnson, Soudn Space of Synthesis using GA (1999)
+	9. When, Using Ideas from Natural Selection to Evolve Synthesized Sounds (1998)
+	10. Koza, GP 1 (1994)
+	11. Walker, Introduction to GP
+	12. Garcia 2000
+	13. Garcia 2002
+	14. Garcia 2001 MIT Thesis
+	
+Bibliography:
+	http://composers21.com/compdocs/rissetjc.htm
