@@ -85,6 +85,10 @@ Conclusion:
 
 Acknowledgements:
 	The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for helping with the genetic algorithm aspects of this project and Ashvin Bashyam for offering sound advice in the implementation of the Fourier transform-based fitness function. Thanks to __TESTERS__ for kindly offering to test the interactive genetic algorithm. Finally, the author wishes to express gratitude to the testers of the interactive genetic algorithm and to the co-authors who were incredibly helpful throughout the process.
+	
+More Information:
+	cs.utexas.edu/~cdonahue/GPSynth.html (audio samples)
+	github.com/cdonahue/gpsynth (source and downloadable/plugin versions of the interactive GA)
 
 Cited Sources:
 	1. John Chowning, The Synthesis of Complex Audio Spectra by Means of Frequency Modulation (1973)
