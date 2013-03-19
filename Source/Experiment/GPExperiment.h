@@ -55,6 +55,7 @@ class GPExperiment {
         kiss_fft_cpx* targetSpectrum;
         double* targetSpectrumMagnitudes;
         double* targetSpectrumPhases;
+        double* weightMatrix;
 
         // EVALUATION DATA
         double* sampleTimes;

@@ -129,6 +129,10 @@ void GPNetwork::updateMutatedParams() {
     asText = root->toString();
 }
 
+void GPNetwork::ephemeralRandom(GPRandom* r) {
+    root->ephemeralRandom(r);
+}
+
 // RECURSIVE CONSTRUCTION
 GPNode* createSubtree(GPParams* p, char* tokenized=strtok(NULL, " )(")) {
     //std::cout << "----" << std::endl;

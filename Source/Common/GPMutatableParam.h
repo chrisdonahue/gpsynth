@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <string>
+#include "GPRandom.h"
 
 class GPMutatableParam {
     public:
@@ -103,6 +104,13 @@ class GPMutatableParam {
                 return cvalue;
             else
                 return dvalue;
+        }
+
+        void ephemeralRandom(GPRandom* rng) {
+            if (isContinuous)
+                cvalue = (rng->random() * (cmaximum - cminimum)) + cminimum;
+            else
+                dvalue = (rng->random((dmaximum - dminimum) + 1)) + dminimum; 
         }
 
         bool isContinuous;

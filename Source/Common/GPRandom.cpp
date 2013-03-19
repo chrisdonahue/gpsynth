@@ -67,6 +67,7 @@ double GPRandom::whitenoise() {
     return noise(engine);
 }
 
+// m cannot be returned
 int GPRandom::random(int m) {
     if (m < 0) {
         return -1;

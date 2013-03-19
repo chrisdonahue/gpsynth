@@ -124,19 +124,32 @@ void GPSynth::initPopulation() {
     unsigned additionalGrow = additionalFull + (additionalLargest % 2);
 
     // TODO: test for equality before adding to population
+    GPNetwork* newnet;
     for (int i = 0; i < maxInitialDepth - 1; i++) {
         for (int j = 0; j < numFullPerPart; j++) {
-            addNetworkToPopulation(full(i + 2));
+            newnet = full(i + 2);
+            if (params->ephemeralRandomConstants);
+                newnet->ephemeralRandom(rng);
+            addNetworkToPopulation(newnet);
         }
         for (int j = 0; j < numGrowPerPart; j++) {
-            addNetworkToPopulation(grow(i + 2));
+            newnet = grow(i + 2);
+            if (params->ephemeralRandomConstants);
+                newnet->ephemeralRandom(rng);
+            addNetworkToPopulation(newnet);
         }
     }
     for (int j = 0; j < additionalFull; j++) {
-        addNetworkToPopulation(full(maxInitialDepth));
+        newnet = full(maxInitialDepth);
+        if (params->ephemeralRandomConstants);
+            newnet->ephemeralRandom(rng);
+        addNetworkToPopulation(newnet);
     }
     for (int j = 0; j < additionalGrow; j++) {
-        addNetworkToPopulation(grow(maxInitialDepth));
+        newnet = grow(maxInitialDepth);
+        if (params->ephemeralRandomConstants);
+            newnet->ephemeralRandom(rng);
+        addNetworkToPopulation(newnet);
     }
     assert(unevaluated.size() == populationSize);
 }

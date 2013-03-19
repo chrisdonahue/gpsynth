@@ -90,13 +90,13 @@ void FilterNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, fl
 std::string FilterNode::toString() {
     char buffer[1024];
     if (type == 0)
-        snprintf(buffer, 1024, "(lowpass %lf %lf %s)", centerFrequency, quality, left->toString().c_str());
+        snprintf(buffer, 1024, "(lowpass %.2lf %.2lf %s)", centerFrequency, quality, left->toString().c_str());
     else if (type == 1)
-        snprintf(buffer, 1024, "(highpass %lf %lf %s)", centerFrequency, quality, left->toString().c_str());
+        snprintf(buffer, 1024, "(highpass %.2lf %.2lf %s)", centerFrequency, quality, left->toString().c_str());
     else if (type == 2)
-        snprintf(buffer, 1024, "(bandpass %lf %lf %s)", centerFrequency, bandwidth, left->toString().c_str());
+        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s)", centerFrequency, bandwidth, left->toString().c_str());
     else if (type == 3)
-        snprintf(buffer, 1024, "(bandstop %lf %lf %s)", centerFrequency, bandwidth, left->toString().c_str());
+        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s)", centerFrequency, bandwidth, left->toString().c_str());
     return std::string(buffer);
 }
 

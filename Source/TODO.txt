@@ -35,9 +35,11 @@ Interactive:
 Thoughts and Ideas:
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     novelty search of new spectrum elements
+    better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
 
 TODO Soon:
-    maybe extend parity possibilities to make for better time-varying filters
-    test FilterNode 
+    find a filter that produces silence for silence input
+    extend parity possibilities to make for better time-varying filters
+    evaluateBlock scale constant for ADSR?
     Add weight calculation to spectrum fitness function
     add in OPEN BEAGLE stuff or self made GA for suboptimization
