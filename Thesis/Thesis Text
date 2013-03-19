@@ -1,0 +1,18 @@
+Title: Using Genetic Programming to Evolve Algorithms for Audio Synthesis
+Author: Chris Donahue
+Advisors: Peter Stone, Russell Pinkston, Joel Lehman
+
+Abstract:
+	This paper presents a system for evolving sound synthesis algorithms using the technique of genetic programming. The investigation has multiple goals. The first goal is to determine if genetic programming can be used to evolve synthesis algorithms whose output resembles a target sound. Typically this task involves many hours of labor by a human to determine an efficient way to mimic a given sound. The second goal is to determine if the synthesis algorithm search can be used interactively by musicians to help them create and discover new timbres.
+	
+Introduction:
+	Musical timbres are the aspects of sounds that allow us to distinguish and identify the origin of a sound. On a physical level, the perceived timbre of a sound is largely determined by the sound's spectrum (frequency content) and envelope (how the spectrum changes over time). Timbre cognition allows us to recognize some sounds without any other knowledge of their source. Timbre allows musicians to distinguish between a trumpet and a violin playing the same note. However, timbre itself is ignored by many if not most musicians today. Composers usually restrict themselves to given sounds, such as the instruments in a band or orchestra. Electronic musicians have a wider pallette to work with but most lack core understanding of the algorithms used to produce the sounds they use and usually restrict themselves to working within the confines of available synthesizers and samples. Wishart said in his 1994 book Audible Design "The spectral characteristics of sound have, for so long, been inaccesible to the composer that we have become accustomed to lumping together all aspect of the spectral structure under the catch all term "timbre"...
+	 
+	These factors suggest the need for an alternative  
+	
+	The human search for sound synthesis algorithms that mimic real-world sounds is a well investigated problem. As long as there have been
+	Sound synthesis algorithms are ignored by most computer-based musicians. 
+	
+Cited Sources:
+	The Synthesis of Complex Audio Spectra by Means of Frequency Modulation, Chowning 1973
+	Jean Claude Risset 
