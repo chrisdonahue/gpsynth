@@ -11,8 +11,6 @@
 #include "TimeNode.h"
 
 TimeNode::TimeNode() {
-    isBinary = false;
-    isTerminal = true;
 }
 
 TimeNode::~TimeNode() {

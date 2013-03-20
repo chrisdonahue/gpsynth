@@ -12,9 +12,6 @@
 
 VariableNode::VariableNode(int vn) {
     variableNum = vn;
-
-    isBinary = false;
-    isTerminal = true;
 }
 
 VariableNode::~VariableNode() {

@@ -112,11 +112,14 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
     }
     else {
         // replace parent-child links
-        if (old->parent->left == old)
-            old->parent->left = nu;
-        else if (old->parent->right == old)
-            old->parent->right = nu;
-        else
+        bool replacedLink = false;
+        for (int i = 0; i < old->parent->arity; i++) {
+            if (old->parent->descendants[i] == old) {
+                old->parent->descendants[i] = nu;
+                replacedLink = true;
+            }
+        }
+        if (!replacedLink)
             std::cerr << "Bad parent-child links detected during subtree replacement." << std::endl;
     }
 

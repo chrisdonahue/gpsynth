@@ -16,7 +16,7 @@
 
 class ModOscilNode: public GPNode {
     public:
-        ModOscilNode(GPNode* l, GPNode* r);
+        ModOscilNode(GPNode* zero, GPNode* one);
         ~ModOscilNode();
         ModOscilNode* getCopy();
 

@@ -19,13 +19,13 @@
 class GPNode {
     public:
         GPNode()
-            : parent(NULL), left(NULL), right(NULL), 
-                isBinary(false), isTerminal(false),
+            : parent(NULL), descendants(0), arity(0),
                 mutatableParams(0) {
         }
         virtual ~GPNode() {
-            delete left;
-            delete right;
+            for (int i = 0; i < descendants.size(); i++) {
+                delete descendants[i];
+            }
             for (int i = 0; i < mutatableParams.size(); i++) {
                 delete mutatableParams[i];
             }
@@ -37,16 +37,13 @@ class GPNode {
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
         virtual void updateMutatedParams() = 0;
-        // EVALUATE BLOCK
-        // GET MUTABLE COEFFICIENTS
 
         // HERITAGE POINTERS
         GPNode* parent;
-        GPNode* left;
-        GPNode* right;
+        std::vector<GPNode*> descendants;
 
         // INDICATORS ABOUT TYPE
-        bool isBinary;
+        unsigned arity;
         bool isTerminal;
 
         // MUTATABLE PARAMS
@@ -57,11 +54,8 @@ class GPNode {
                 mutatableParams[i]->ephemeralRandom(r);
             }
             updateMutatedParams();
-            if (left != NULL) {
-                left->ephemeralRandom(r);
-            }
-            if (right != NULL) {
-                right->ephemeralRandom(r);
+            for (int i = 0; i < arity; i++) {
+                descendants[i]->ephemeralRandom(r);
             }
         }
 
@@ -76,11 +70,8 @@ class GPNode {
             if (currentDepth > *rootHeight) {
                 *rootHeight = currentDepth;
             }
-            if (!isTerminal) {
-                left->traceSubtree(allnodes, allmutatableparams, this, rootHeight, currentDepth + 1);
-                if (isBinary) {
-                    right->traceSubtree(allnodes, allmutatableparams, this, rootHeight, currentDepth + 1);
-                }
+            for (int i = 0; i < arity; i++) {
+                descendants[i]->traceSubtree(allnodes, allmutatableparams, this, rootHeight, currentDepth + 1);
             }
         };
 };

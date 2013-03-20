@@ -22,9 +22,6 @@ OscilNode::OscilNode(GPMutatableParam* p, int vn) {
     w = 2.0 * partial * M_PI;
 
     mutatableParams.push_back(p);
-
-    isBinary = false;
-    isTerminal = true;
 }
 
 OscilNode::~OscilNode() {

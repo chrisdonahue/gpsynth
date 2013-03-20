@@ -18,9 +18,6 @@
 
 NoiseNode::NoiseNode(GPRandom* r) {
     rng = r;
-
-    isBinary = false;
-    isTerminal = true;
 }
 
 NoiseNode::~NoiseNode() {

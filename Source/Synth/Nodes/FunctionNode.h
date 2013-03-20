@@ -16,7 +16,7 @@
 
 class FunctionNode: public GPNode {
     public:
-        FunctionNode(GPFunction gpfun, GPNode* l, GPNode* r);
+        FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one);
         ~FunctionNode();
         FunctionNode* getCopy();
 

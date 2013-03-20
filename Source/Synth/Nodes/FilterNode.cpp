@@ -16,7 +16,7 @@
     ==============
 */
 
-FilterNode::FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* l) :
+FilterNode::FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* zero) :
 params()
 {
     type = t;
@@ -58,10 +58,8 @@ params()
     }
     filter->setParams(params);
 
-    left = l;
-
-    isBinary = false;
-    isTerminal = false;
+    descendants.push_back(zero);
+    arity = 1;
 }
 
 FilterNode::~FilterNode() {
@@ -69,13 +67,13 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), left == NULL ? NULL : left->getCopy());
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0]->getCopy());
 }
 
 double FilterNode::evaluate(double* t, double* v) {
     double* audioData[1];
     audioData[0] = new double[1];
-    audioData[0][0] = left->evaluate(t, v);
+    audioData[0][0] = descendants[0]->evaluate(t, v);
     filter->process(1, audioData);
     return audioData[0][0];
 }
@@ -83,20 +81,20 @@ double FilterNode::evaluate(double* t, double* v) {
 void FilterNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
     float* audioData[1];
     audioData[0] = buffer;
-    left->evaluateBlock(t, nv, v, n, audioData[0]);
+    descendants[0]->evaluateBlock(t, nv, v, n, audioData[0]);
     filter->process(n, audioData);
 }
 
 std::string FilterNode::toString() {
     char buffer[1024];
     if (type == 0)
-        snprintf(buffer, 1024, "(lowpass %.2lf %.2lf %s)", centerFrequency, quality, left->toString().c_str());
+        snprintf(buffer, 1024, "(lowpass %.2lf %.2lf %s)", centerFrequency, quality, descendants[0]->toString().c_str());
     else if (type == 1)
-        snprintf(buffer, 1024, "(highpass %.2lf %.2lf %s)", centerFrequency, quality, left->toString().c_str());
+        snprintf(buffer, 1024, "(highpass %.2lf %.2lf %s)", centerFrequency, quality, descendants[0]->toString().c_str());
     else if (type == 2)
-        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s)", centerFrequency, bandwidth, left->toString().c_str());
+        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s)", centerFrequency, bandwidth, descendants[0]->toString().c_str());
     else if (type == 3)
-        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s)", centerFrequency, bandwidth, left->toString().c_str());
+        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s)", centerFrequency, bandwidth, descendants[0]->toString().c_str());
     return std::string(buffer);
 }
 
@@ -112,5 +110,5 @@ void FilterNode::updateMutatedParams() {
         params[1] = bandwidth;
     }
     filter->setParams(params);
-    left->updateMutatedParams();
+    descendants[0]->updateMutatedParams();
 }

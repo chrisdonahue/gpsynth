@@ -13,9 +13,6 @@
 ConstantNode::ConstantNode(GPMutatableParam* v) {
     value = v->getValue();
     mutatableParams.push_back(v);
-
-    isBinary = false;
-    isTerminal = true;
 }
 
 ConstantNode::~ConstantNode() {

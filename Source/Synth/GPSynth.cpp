@@ -37,7 +37,7 @@ rawFitnesses(), normalizedFitnesses(), rank()
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
     for (int i = 0; i < availableNodes->size(); i++) {
-        if (availableNodes->at(i)->isTerminal) {
+        if (availableNodes->at(i)->arity == 0) {
             availableTerminals->push_back(nodes->at(i));
         }
         else {
@@ -74,9 +74,8 @@ GPNode* GPSynth::fullRecursive(unsigned cd, unsigned d) {
     }
     else {
         GPNode* ret = availableFunctions->at(rng->random(availableFunctions->size()))->getCopy();
-        ret->left = fullRecursive(cd + 1, d);
-        if (ret->isBinary) {
-            ret->right = fullRecursive(cd + 1, d);
+        for (int i = 0; i < ret->arity; i++) {
+            ret->descendants[i] = fullRecursive(cd + 1, d);
         }
         return ret;
     }
@@ -99,12 +98,11 @@ GPNode* GPSynth::growRecursive(unsigned cd, unsigned m) {
         else {
             ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
         }
-        if (ret->isTerminal) {
+        if (ret->arity == 0) {
             return ret;
         }
-        ret->left = growRecursive(cd + 1, m);
-        if (ret->isBinary) {
-            ret->right = growRecursive(cd + 1, m);
+        for (int i = 0; i < ret->arity; i++) {
+            ret->descendants[i] = growRecursive(cd + 1, m);
         }
         return ret;
     }
