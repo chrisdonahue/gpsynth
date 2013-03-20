@@ -1,5 +1,6 @@
 Main.cpp:
     Add command line for MIDI stuff
+    Add command line for all GPParams
     --help
     check argument ranges
 
@@ -19,7 +20,6 @@ GPSynth.cpp:
 
 Node subclasses:
     DelayNode
-    FilterNode
     ADSRNode
     ConditionalNode
     consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
@@ -36,10 +36,9 @@ Thoughts and Ideas:
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     novelty search of new spectrum elements
     better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
+    evaluateBlock scale constant for nodes that produce guaranteed envelopes (ADSR, OscilNodes)?
+    add in OPEN BEAGLE stuff or self made GA for suboptimization
 
 TODO Soon:
-    find a filter that produces silence for silence input
     extend parity possibilities to make for better time-varying filters
-    evaluateBlock scale constant for ADSR?
-    Add weight calculation to spectrum fitness function
-    add in OPEN BEAGLE stuff or self made GA for suboptimization
+    Add weight calculation to spectrum fitness function/improve fitness function
