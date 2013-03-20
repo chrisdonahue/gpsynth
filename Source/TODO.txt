@@ -38,6 +38,7 @@ Thoughts and Ideas:
     better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
     evaluateBlock scale constant for nodes that produce guaranteed envelopes (ADSR, OscilNodes)?
     add in OPEN BEAGLE stuff or self made GA for suboptimization
+    human readable toString vs full detail toString
 
 TODO Soon:
     extend parity possibilities to make for better time-varying filters
