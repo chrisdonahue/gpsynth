@@ -41,4 +41,4 @@ Thoughts and Ideas:
 
 TODO Soon:
     extend parity possibilities to make for better time-varying filters
-    Add weight calculation to spectrum fitness function/improve fitness function
+    Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset
