@@ -21,16 +21,55 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     specialValues(constants),
     wavFormat(new WavAudioFormat())
 {
+    if (params->experimentNumber == 9) {
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->bestPossibleFitness = 0;
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
+
+        unsigned numSinSamples;
+        unsigned numPianoSamples;
+        double sinsr;
+        double pnosr;
+        String sinwave("./samples/SinWaveC51024.wav");
+        String piano("./samples/PianoC51024.wav");
+        getWavFileInfo(sinwave, &numSinSamples, &sinsr);
+        getWavFileInfo(piano, &numPianoSamples, &pnosr);
+        std::cout << "Sin sound has " << numSinSamples << " samples at a rate of " << sinsr << std::endl;
+        std::cout << "Piano sound has " << numPianoSamples << " samples at a rate of " << pnosr << std::endl;
+
+        float* sinFrames = (float*) malloc(sizeof(float) * numSinSamples);
+        float* pnoFrames = (float*) malloc(sizeof(float) * numPianoSamples);
+        loadWavFile(sinwave, numSinSamples, sinFrames);
+        loadWavFile(piano, numPianoSamples, pnoFrames);
+
+        unsigned fftOutputBufferSize = calculateFftBufferSize(numSinSamples, 1024);
+        kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+
+        std::cout << "SIN FFT:" << std::endl;
+        FftReal(numSinSamples, sinFrames, 1024, output, magnitude, phase);
+        std::cout << "PNO FFT:" << std::endl;
+        FftReal(numPianoSamples, pnoFrames, 1024, output, magnitude, phase);
+
+        free(phase);
+        free(magnitude);
+        free(output);
+        free(pnoFrames);
+        free(sinFrames);
+        exit(-1);
+    }
+
     // TARGET DATA CONTAINERS
-    sampleRate = 44100.0;
-    targetFrames = NULL;
-    numTargetFrames = 0;
     wavFileBufferSize = p->wavFileBufferSize;
-    loadTargetWavFile(target);
-    fillEvaluationBuffers(numTargetFrames, specialValues, NULL, p->numVariables, 0);
+    getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
+    targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
+    loadWavFile(target, numTargetFrames, targetFrames);
+    fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
 
     // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
-    params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * sampleRate;
+    params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * targetSampleRate;
 
     // EXPERIMENT STATE
     numGenerations = p->numGenerations;
@@ -56,12 +95,12 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         GPNetwork* answer = new GPNetwork(params, AMstring);
         answer->traceNetwork();
         std::cout << "Target network: " << answer->toString() << std::endl;
-        sampleRate = 44100.0;
+        double sampleRate = 44100.0;
         numTargetFrames = 88200;
         targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
         renderIndividual(answer, numTargetFrames, targetFrames);
-        saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, targetFrames);
-        loadTargetWavFile("./Answer.wav");
+        saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, sampleRate, targetFrames);
+        //loadTargetWavFile("./Answer.wav");
         delete answer;
 
         // ASSIGN SPECIAL FITNESS VALUES
@@ -116,10 +155,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(rng));
-        nodes->push_back(new FilterNode(0, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
-        nodes->push_back(new FilterNode(1, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
-        nodes->push_back(new FilterNode(2, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
-        nodes->push_back(new FilterNode(3, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+        nodes->push_back(new FilterNode(0, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
+        nodes->push_back(new FilterNode(1, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
+        nodes->push_back(new FilterNode(2, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+        nodes->push_back(new FilterNode(3, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
     }
     if (params->experimentNumber == 10) {
         // ASSIGN SPECIAL FITNESS VALUES
@@ -129,8 +168,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
         GPNode* noiseNode = new NoiseNode(rng);
         GPNode* constantNode = new ConstantNode(constantValue->getCopy());
-        GPNode* filterNoiseNode = new FilterNode(0, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), noiseNode);
-        GPNode* filterSilenceNode = new FilterNode(0, 1, 1024, sampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), constantNode);
+        GPNode* filterNoiseNode = new FilterNode(0, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), noiseNode);
+        GPNode* filterSilenceNode = new FilterNode(0, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), constantNode);
 
         GPNetwork* noiseNetwork = new GPNetwork(noiseNode);
         noiseNetwork->traceNetwork();
@@ -146,9 +185,9 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         renderIndividualByBlock(filteredNoiseNetwork, 88200, params->renderBlockSize, filtNoise);
         renderIndividualByBlock(filteredSilenceNetwork, 88200, params->renderBlockSize, filtSilence);
 
-        saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), 88200, noise);
-        saveWavFile("./lowpassnoise.wav", String(filteredNoiseNetwork->toString().c_str()), 88200, filtNoise);
-        saveWavFile("./lowpasssilence.wav", String(filteredSilenceNetwork->toString().c_str()), 88200, filtSilence);
+        saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), 88200, 44100, noise);
+        saveWavFile("./lowpassnoise.wav", String(filteredNoiseNetwork->toString().c_str()), 88200, 44100, filtNoise);
+        saveWavFile("./lowpasssilence.wav", String(filteredSilenceNetwork->toString().c_str()), 88200, 44100, filtSilence);
 
         free(filtSilence);
         free(filtNoise);
@@ -234,7 +273,7 @@ GPNetwork* GPExperiment::evolve() {
             champ->fitness = minFitnessAchieved;
 
             if (fitness == params->bestPossibleFitness) {
-                saveWavFile("./perfect.wav", String(champ->toString().c_str()), numTargetFrames, candidateData);
+                saveWavFile("./perfect.wav", String(champ->toString().c_str()), numTargetFrames, targetSampleRate, candidateData);
             }
         }
 
@@ -247,7 +286,7 @@ GPNetwork* GPExperiment::evolve() {
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
             char buffer[100];
             snprintf(buffer, 100, "./gen.%d.best.wav", numEvaluatedGenerations);
-            saveWavFile(String(buffer), String(generationChamp->toString().c_str()), numTargetFrames, genchampbuffer);
+            saveWavFile(String(buffer), String(generationChamp->toString().c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
             free(genchampbuffer);
             delete generationChamp;
             generationChamp = NULL;
@@ -270,7 +309,7 @@ GPNetwork* GPExperiment::evolve() {
         champ->traceNetwork();
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
         std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
-        saveWavFile("./champion.wav", String(champ->toString().c_str()), numTargetFrames, champbuffer);
+        saveWavFile("./champion.wav", String(champ->toString().c_str()), numTargetFrames, targetSampleRate, champbuffer);
         free(champbuffer);
     }
     return champ;
@@ -282,18 +321,37 @@ GPNetwork* GPExperiment::evolve() {
     =======================
 */
 
-void GPExperiment::fillEvaluationBuffers(int64 numFrames, double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
+// PRECONDITIONS:
+// NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
+void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
+    // FILL BUFFERS WITH SPECIAL VALUES
     numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
-    specialValuesByFrame = (double*) malloc(sizeof(double) * numFrames * numSpecialValues);
-    sampleTimes = (double*) malloc(sizeof(double) * numFrames);
-    for (int frame = 0; frame < numFrames; frame++) {
-        sampleTimes[frame] = frame/sampleRate;
+    specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
+    sampleTimes = (double*) malloc(sizeof(double) * numTargetFrames);
+    for (int frame = 0; frame < numTargetFrames; frame++) {
+        sampleTimes[frame] = frame/targetSampleRate;
         for (int val = 0; val < numConstantSpecialValues; val++) {
             *(specialValuesByFrame + (frame * numSpecialValues) + val) = constantSpecialValues[val];
         }
         for (int val = 0; val < numVariableSpecialValues; val++) {
             *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
         }
+    }
+
+    // FILL FREQUENCY SPECTRUM OF TARGET
+    if (params->fitnessFunctionType > 0) {
+        // calculate with fft window size
+        unsigned n = params->fftSize;
+        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
+        
+        // allocate output buffers
+        targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        weightMatrix = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+
+        // take fft of target data
+        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, targetSpectrumMagnitudes, targetSpectrumPhases);
     }
 }
 
@@ -303,87 +361,31 @@ void GPExperiment::fillEvaluationBuffers(int64 numFrames, double* constantSpecia
     =============
 */
 
-void GPExperiment::loadTargetWavFile(String path) {
+void GPExperiment::getWavFileInfo(String path, unsigned* numFrames, double* sampleRate) {
     File input(path);
     assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
-    //AudioSampleBuffer asb(1, wavFileBufferSize);
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
 
     // get info on target
-    numTargetFrames = afr->lengthInSamples;
-    sampleRate = afr->sampleRate;
-
-    std::cout << "Target file has " << numTargetFrames << " frames at a sample rate of " <<  sampleRate << std::endl;
-
-    // get waveform of target
-    free(targetFrames);
-    targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-
-    AudioSampleBuffer asb(1, numTargetFrames);
-    afr->read(&asb, 0, numTargetFrames, 0, false, true);
-    float* chanData = asb.getSampleData(0);
-    memcpy(targetFrames, chanData, sizeof(float) * numTargetFrames);
-    int64 numRemaining = numTargetFrames;
-    int64 numCompleted = 0;
-    /*
-    while (numRemaining > 0) {
-        int numToRead = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
-        afr->read(&asb, 0, numToRead, numCompleted, true, false);
-        memcpy(targetFrames + numCompleted, chanData, numToRead);
-        numRemaining -= numToRead;
-        numCompleted += numToRead;
-    }
-    assert (numCompleted == numTargetFrames && numRemaining == 0);
-    */
-
-    // get frequency spectrum of target
-    if (params->fitnessFunctionType == 1) {
-        // calculate data concerning fft window size
-        unsigned n = params->fftSize;
-        unsigned numFftCalls = numTargetFrames / n;
-        if (numTargetFrames % n > 0)
-            numFftCalls++;
-        
-        // allocate input buffer
-        kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-
-        // allocate output buffers
-        unsigned fftOutputDataArraySize = numFftCalls * (n/2 + 1);
-        targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputDataArraySize);
-        targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputDataArraySize);
-        targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputDataArraySize);
-        weightMatrix = (double*) malloc(sizeof(double) * fftOutputDataArraySize);
-
-        // take fft of target data
-        numRemaining = numTargetFrames;
-        numCompleted = 0;
-        unsigned numFftCompleted = 0;
-        unsigned numFftOutputUsed = 0;
-        while (numRemaining > 0) {
-            unsigned numToTransform = numRemaining > n ? n : numRemaining;
-            for (size_t i = 0; i < numToTransform; i++) {
-                in[i] = targetFrames[numCompleted];
-                numCompleted++;
-                numRemaining--;
-            }
-            unsigned targetSpectrumIndex = numFftCompleted * (n/2 + 1);
-            FftReal(n, in, targetSpectrum + targetSpectrumIndex, targetSpectrumMagnitudes + targetSpectrumIndex, targetSpectrumPhases + targetSpectrumIndex);
-            // TODO: calculate weight matrix;
-           /* 
-            if (numRemaining < 100) {
-                for (int i = 0; i < (n/2 + 1); i++) {
-                    std::cout << targetSpectrumMagnitudes[targetSpectrumIndex + i] << ", " << targetSpectrumPhases[targetSpectrumIndex + i] << std::endl;
-                }
-            }
-            */
-            numFftCompleted++;
-        }
-        free(in);
-    }
+    *numFrames = afr->lengthInSamples;
+    *sampleRate = afr->sampleRate;
 }
 
-void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, float* data) {
+void GPExperiment::loadWavFile(String path, unsigned n, float* buffer) {
+    File input(path);
+    assert(input.existsAsFile());
+    FileInputStream* fis = input.createInputStream();
+    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
+
+    // get waveform of target
+    AudioSampleBuffer asb(1, n);
+    afr->read(&asb, 0, n, 0, false, true);
+    float* chanData = asb.getSampleData(0);
+    memcpy(buffer, chanData, sizeof(float) * n);
+}
+
+void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, double sampleRate, float* data) {
     File output(path);
     if (output.existsAsFile()) {
         output.deleteFile();
@@ -433,7 +435,7 @@ double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* 
 void GPExperiment::renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer) {
     double time;
     for (int frameNum = 0; frameNum < numSamples; frameNum++) {
-        time = frameNum/sampleRate;
+        sampleTimes[frameNum];
         buffer[frameNum] = candidate->evaluate(&time, specialValues);
     }
 }
@@ -514,13 +516,63 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         return ret;
 }
 
+unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n) {
+    unsigned numFftCalls = numFrames / n;
+    if (numFrames % n > 0)
+        numFftCalls++;
+    return numFftCalls * ((n/2) + 1);
+}
+
+void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, double* magnitude, double* phase) {
+    kiss_fftr_cfg cfg;
+    cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
+    kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+
+    unsigned fftOutputSize = (n/2 + 1);
+    int64 numCompleted = 0;
+    int64 numRemaining = numFrames;
+    int64 numFftOutputUsed = 0;
+    while (numRemaining > 0) {
+        // fill the input buffer
+        unsigned numToTransform = numRemaining > n ? n : numRemaining;
+        for (size_t i = 0; i < numToTransform; i++) {
+            in[i] = input[numCompleted];
+            numCompleted++;
+            numRemaining--;
+        }
+        // 0 out rest of input buffer if we're out of frames
+        for (size_t i = numToTransform; i < n; i++) {
+            in[i] = 0;
+        }
+
+        // perform fft
+        kiss_fftr(cfg, in, out + numFftOutputUsed);
+        
+        // analyze output
+        printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
+        for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
+            magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
+            if (out[bin].r == 0 && out[bin].i == 0) {
+                phase[bin] = 0;
+            }
+            else {
+                phase[bin] = atan(out[bin].i / out[bin].r);
+            }
+            printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", 22050.0 / bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
+            //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
+        }
+        numFftOutputUsed += fftOutputSize;
+    }
+    free(in);
+    free(cfg);
+}
+
 void GPExperiment::FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase)
 {
     kiss_fftr_cfg cfg;
 
     // take FFT of input data and put it in output
     cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-    size_t i;
     kiss_fftr(cfg, in, out);
     free(cfg);
 

@@ -49,8 +49,8 @@ class GPExperiment {
         double penaltyFitness;
 
         // TARGET DATA CONTAINERS
-        double sampleRate;
-        int64 numTargetFrames;
+        double targetSampleRate;
+        unsigned numTargetFrames;
         float* targetFrames;
         kiss_fft_cpx* targetSpectrum;
         double* targetSpectrumMagnitudes;
@@ -72,21 +72,26 @@ class GPExperiment {
         GPSynth* synth;
 
         // FILL EVALUATION BUFFERS
-        void fillEvaluationBuffers(int64 numFrames, double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
+        void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
 
         // WAV INTERFACE
         ScopedPointer<WavAudioFormat> wavFormat;
         unsigned wavFileBufferSize;
+        void getWavFileInfo(String path, unsigned* numFrames, double* sampleRate);
+        void loadWavFile(String path, unsigned n, float* buffer);
         // TODO: move targetBuffer stuff from loadTargetWavFile to fillEvaluationBuffers
-        void loadTargetWavFile(String path);
-        void saveWavFile(String path, String metadata, unsigned numFrames, float* data);
+        void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
 
         // FITNESS FUNCTION
         double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
         void renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer);
         void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
         double compareToTarget(unsigned type, float* candidateFrames);
+
+        // FOURIER TRANSFORM
+        unsigned calculateFftBufferSize(unsigned numFrames, unsigned n);
         void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
+        void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, double* magnitude, double* phase);
 };
 
 #endif
