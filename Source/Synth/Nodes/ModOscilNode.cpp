@@ -28,7 +28,7 @@ ModOscilNode::~ModOscilNode() {
 }
 
 ModOscilNode* ModOscilNode::getCopy() {
-    return new ModOscilNode(descendants[0]->getCopy(), descendants[1]->getCopy());
+    return new ModOscilNode(descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy());
 }
 
 double ModOscilNode::evaluate(double* t, double* v) {

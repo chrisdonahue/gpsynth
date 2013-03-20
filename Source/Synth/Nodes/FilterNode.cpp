@@ -67,7 +67,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0]->getCopy());
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
 double FilterNode::evaluate(double* t, double* v) {
