@@ -84,7 +84,6 @@ class GPExperiment {
 
         // FITNESS FUNCTION
         double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
-        void renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer);
         void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
         double compareToTarget(unsigned type, float* candidateFrames);
 

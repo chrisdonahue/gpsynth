@@ -31,14 +31,14 @@ ModOscilNode* ModOscilNode::getCopy() {
     return new ModOscilNode(descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy());
 }
 
-double ModOscilNode::evaluate(double* t, double* v) {
-    return sin(w*(*t)*(descendants[0]->evaluate(t, v)) + descendants[1]->evaluate(t, v));
-}
-
-void ModOscilNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+void ModOscilNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     float* oneBlock = (float*) malloc(sizeof(float) * n);
-    descendants[0]->evaluateBlock(t, nv, v, n, buffer);
-    descendants[1]->evaluateBlock(t, nv, v, n, oneBlock);
+    double onemin;
+    double onemax;
+    descendants[0]->evaluateBlock(t, nv, v, min, max, n, buffer);
+    descendants[1]->evaluateBlock(t, nv, v, &onemin, &onemax, n, oneBlock);
+    *min = -1;
+    *max = 1;
     for (int i = 0; i < n; i++) {
         buffer[i] = sin(w * (t[i]) * (buffer[i]) + oneBlock[i]);
     }

@@ -21,12 +21,11 @@ VariableNode* VariableNode::getCopy() {
     return new VariableNode(variableNum);
 }
 
-double VariableNode::evaluate(double* t, double* v) {
-    return v[variableNum];
-}
-
-void VariableNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+void VariableNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     double* currentIndex = v + variableNum;
+    // TODO: support variable nodes instead of just constants
+    *min = *currentIndex;
+    *max = *currentIndex;
     for (int i = 0; i < n; i++) {
         buffer[i] = *currentIndex;
         currentIndex += nv;

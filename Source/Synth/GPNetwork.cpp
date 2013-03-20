@@ -52,12 +52,10 @@ GPNetwork* GPNetwork::getCopy() {
     ===========
 */
 
-double GPNetwork::evaluate(double* t, double* v) {
-    return root->evaluate(t, v);
-}
-
 void GPNetwork::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
-    root->evaluateBlock(t, nv, v, n, buffer);
+    double min;
+    double max;
+    root->evaluateBlock(t, nv, v, &min, &max, n, buffer);
 }
 
 int GPNetwork::getDepth() {

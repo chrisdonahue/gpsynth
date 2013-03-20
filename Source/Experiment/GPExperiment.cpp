@@ -100,7 +100,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         double sampleRate = 44100.0;
         numTargetFrames = 88200;
         targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-        renderIndividual(answer, numTargetFrames, targetFrames);
+        //renderIndividual(answer, numTargetFrames, targetFrames);
         saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, sampleRate, targetFrames);
         //loadTargetWavFile("./Answer.wav");
         delete answer;
@@ -442,14 +442,6 @@ double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* 
     else {
         renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
         return compareToTarget(params->fitnessFunctionType, buffer);
-    }
-}
-
-void GPExperiment::renderIndividual(GPNetwork* candidate, int64 numSamples, float* buffer) {
-    double time;
-    for (int frameNum = 0; frameNum < numSamples; frameNum++) {
-        sampleTimes[frameNum];
-        buffer[frameNum] = candidate->evaluate(&time, specialValues);
     }
 }
 

@@ -27,11 +27,9 @@ NoiseNode* NoiseNode::getCopy() {
     return new NoiseNode(rng);
 }
 
-double NoiseNode::evaluate(double* t, double* v) {
-    return rng->gauss();
-}
-
-void NoiseNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+void NoiseNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+    *min = -1;
+    *max = 1;
     for (int i = 0; i < n; i++) {
         buffer[i] = rng->gauss();
     }

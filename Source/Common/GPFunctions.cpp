@@ -1,20 +1,53 @@
 #include "GPFunctions.h"
 
+/*
+    +
+*/
+double GPaddCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+    *min = zeromin + onemin;
+    *max = zeromax + onemax;
+}
 double GPadd(double left, double right) {
     return left + right;
 }
-GPFunction add = { GPadd, "+", true, 0.0 };
+GPFunction add = { GPadd, GPaddCalculateRange, "+", true, 0.0 };
 
+/*
+    *
+*/
+double GPmultiplyCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+    *min = zeromin * onemin;
+    *max = zeromax * onemax;
+}
+double GPmultiply(double left, double right) {
+    return left * right;
+}
+GPFunction multiply = { GPmultiply, GPmultiplyCalculateRange, "*", true, 0.0 };
+
+/*
+    sin
+*/
+double GPsineCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+    *min = zeromin + onemin;
+    *max = zeromax + onemax;
+}
+double GPsine(double left, double right) {
+    return sin(left);
+}
+GPFunction sine = { GPsine, GPsineCalculateRange, "sin", false, 0.0 };
+
+
+
+
+
+/*
 double GPsubtract(double left, double right) {
     return left - right;
 }
 GPFunction subtract = { GPsubtract, "-", true, 0.0 };
+*/
 
-double GPmultiply(double left, double right) {
-    return left * right;
-}
-GPFunction multiply = { GPmultiply, "*", true, 0.0 };
-
+/*
 double GPdivide(double left, double right) {
     double denom = right;
     if (denom != 0) {
@@ -25,11 +58,7 @@ double GPdivide(double left, double right) {
     }
 }
 GPFunction divide = { GPdivide, "/", true, 0.0 };
-
-double GPsine(double left, double right) {
-    return sin(left);
-}
-GPFunction sine = { GPsine, "sin", false, 0.0 };
+*/
 
 /*
 double GPmodulo(double left, double right) {

@@ -70,18 +70,13 @@ FilterNode* FilterNode::getCopy() {
     return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
-double FilterNode::evaluate(double* t, double* v) {
-    double* audioData[1];
-    audioData[0] = new double[1];
-    audioData[0][0] = descendants[0]->evaluate(t, v);
-    filter->process(1, audioData);
-    return audioData[0][0];
-}
-
-void FilterNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+void FilterNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+    // TODO: is this possible to calculate?...
     float* audioData[1];
     audioData[0] = buffer;
-    descendants[0]->evaluateBlock(t, nv, v, n, audioData[0]);
+    descendants[0]->evaluateBlock(t, nv, v, min, max, n, audioData[0]);
+    *min = -INFINITY;
+    *max = INFINITY;
     filter->process(n, audioData);
 }
 

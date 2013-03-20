@@ -38,26 +38,23 @@ FunctionNode* FunctionNode::getCopy() {
     return ret;
 }
 
-double FunctionNode::evaluate(double* t, double* v) {
+void FunctionNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+    double zeromin;
+    double zeromax;
+    descendants[0]->evaluateBlock(t, nv, v, &zeromin, &zeromax, n, buffer);
     if (arity == 2) {
-        return gpfunction.function(descendants[0]->evaluate(t, v), descendants[1]->evaluate(t, v));
-    }
-    else {
-        return gpfunction.function(descendants[0]->evaluate(t, v), 0.0);
-    } 
-}
-
-void FunctionNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
-    descendants[0]->evaluateBlock(t, nv, v, n, buffer);
-    if (arity == 2) {
+        double onemin;
+        double onemax;
         float* oneBlock = (float*) malloc(sizeof(float) * n);
-        descendants[1]->evaluateBlock(t, nv, v, n, oneBlock);
+        descendants[1]->evaluateBlock(t, nv, v, &onemin, &onemax, n, oneBlock);
+        gpfunction.calculateRange(min, max, zeromin, zeromax, onemin, onemax);
         for (int i = 0; i < n; i++) {
             buffer[i] = gpfunction.function(buffer[i], oneBlock[i]);
         }
         free(oneBlock);
     }
     else {
+        gpfunction.calculateRange(min, max, zeromin, zeromax, 0.0, 0.0);
         for (int i = 0; i < n; i++) {
             buffer[i] = gpfunction.function(buffer[i], 0.0);
         }

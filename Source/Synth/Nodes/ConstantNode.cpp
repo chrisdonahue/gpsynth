@@ -22,11 +22,9 @@ ConstantNode* ConstantNode::getCopy() {
     return new ConstantNode(mutatableParams[0]->getCopy());
 }
 
-double ConstantNode::evaluate(double* t, double* v) {
-    return value;
-}
-
-void ConstantNode::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+void ConstantNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+    *min = value;
+    *max = value;
 	for (int i = 0; i < n; i++) {
         buffer[i] = value;
     }

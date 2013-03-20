@@ -29,7 +29,6 @@ class GPNetwork {
         GPNetwork* getCopy();
 
         // EXAMINATION
-        double evaluate(double* t, double* v);
         void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
         int getDepth();
         std::string toString();
