@@ -11,9 +11,15 @@ struct GPParams {
     unsigned renderBlockSize;
     unsigned fftSize;
 
+    // fitness function parameters
+    unsigned fitnessFunctionType;
+    unsigned penalizeBadMagnitude;
+    unsigned penalizeBadPhase;
+    double magnitudeWeight;
+    double phaseWeight;
+
     // experiment parameters
     unsigned experimentNumber;
-    unsigned fitnessFunctionType;
     unsigned numGenerations;
     double thresholdFitness;
     bool ephemeralRandomConstants;

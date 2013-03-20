@@ -48,10 +48,16 @@ public:
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 1024;
         params->fftSize = 256;
+        
+        // fitness function params
+        params->fitnessFunctionType = 1;
+        params->penalizeBadMagnitude = 5;
+        params->penalizeBadPhase = 2;
+        params->magnitudeWeight = 1.0;
+        params->phaseWeight = 0.2;
 
         // experiment params
         params->experimentNumber = 0;
-        params->fitnessFunctionType = 1;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
         params->ephemeralRandomConstants = true;

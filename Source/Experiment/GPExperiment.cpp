@@ -27,6 +27,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         p->penaltyFitness = std::numeric_limits<float>::max();
         p->lowerFitnessIsBetter = true;
 
+        unsigned fftSize = 1024;
+
         unsigned numSinSamples;
         unsigned numPianoSamples;
         double sinsr;
@@ -160,6 +162,20 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FilterNode(2, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
         nodes->push_back(new FilterNode(3, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
     }
+    // Eb5 Trumpet Additive Experiment
+    if (params->experimentNumber == 4) {
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->bestPossibleFitness = 0;
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
+
+        // SUPPLY AVAILABLE NODES
+        nodes->push_back(new FunctionNode(add, NULL, NULL));
+        //nodes->push_back(new ConstantNode(constantValue->getCopy()));
+        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
+        //nodes->push_back(new FilterNode(2, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+        //nodes->push_back(new FilterNode(3, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+    }
     if (params->experimentNumber == 10) {
         // ASSIGN SPECIAL FITNESS VALUES
         p->bestPossibleFitness = 0;
@@ -271,10 +287,6 @@ GPNetwork* GPExperiment::evolve() {
             champ = candidate->getCopy();
             champ->ID = backupID;
             champ->fitness = minFitnessAchieved;
-
-            if (fitness == params->bestPossibleFitness) {
-                saveWavFile("./perfect.wav", String(champ->toString().c_str()), numTargetFrames, targetSampleRate, candidateData);
-            }
         }
 
         int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
@@ -473,47 +485,31 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
     else if (type == 1) {
         unsigned n = params->fftSize;
 
-        kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-        kiss_fft_cpx* out = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * (n/2 + 1));
-        double* magnitude = (double*) malloc(sizeof(double) * (n/2 + 1));
-        double* phase = (double*) malloc(sizeof(double) * (n/2 + 1));
+        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
+        kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+
+        FftReal(numTargetFrames, candidateFrames, n, output, magnitude, phase);
 
         double MSEmag = 0;
         double MSEph = 0;
-        int64 numCompared = 0;
-        int64 numCompleted = 0;
-        int64 numRemaining = numTargetFrames;
-        int64 numFftOutputUsed = 0;
-        while (numRemaining > 0) {
-            unsigned numToTransform = numRemaining > n ? n : numRemaining;
-            for (size_t i = 0; i < numToTransform; i++) {
-                in[i] = candidateFrames[numCompleted];
-                numCompleted++;
-                numRemaining--;
-            }
-            FftReal(n, in, out, magnitude, phase);
-            for (size_t i = 0; i < (n/2 + 1); i++) {
-                double MAGXIJ = magnitude[i];
-                double MAGTIJ = targetSpectrumMagnitudes[numFftOutputUsed];
-                double angXIJ = phase[i];
-                double angTIJ = targetSpectrumPhases[numFftOutputUsed];
-                numFftOutputUsed++;
-                MSEmag += pow(MAGXIJ - MAGTIJ, 2);
-                MSEph += pow(angXIJ - angTIJ, 2); 
-                silenceTest += MAGXIJ + angXIJ;
-            }
+        for (int i = 0; i < fftOutputBufferSize; i++) {
+            MSEmag += pow(abs(magnitude[i] - targetSpectrumMagnitudes[i]), params->penalizeBadMagnitude);
+            MSEph += pow(abs(phase[i] - targetSpectrumPhases[i]), params->penalizeBadPhase);
         }
-        free(in);
-        free(out);
-        free(magnitude);
+        ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
         free(phase);
-        ret = MSEmag + MSEph;
+        free(magnitude);
+        free(output);
     }
+    /*
     //std::cout << "SILENCE TEST: " << silenceTest << std::endl;
     if (silenceTest == 0)
         return penaltyFitness;
     else
-        return ret;
+        */
+    return ret;
 }
 
 unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n) {
@@ -549,7 +545,7 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
         kiss_fftr(cfg, in, out + numFftOutputUsed);
         
         // analyze output
-        printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
+        //printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
         for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
             magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
             if (out[bin].r == 0 && out[bin].i == 0) {
@@ -558,7 +554,7 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
             else {
                 phase[bin] = atan(out[bin].i / out[bin].r);
             }
-            printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", 22050.0 / bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
+            //printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
             //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
         }
         numFftOutputUsed += fftOutputSize;

@@ -54,4 +54,5 @@ std::string OscilNode::toString() {
 
 void OscilNode::updateMutatedParams() {
     partial = mutatableParams[0]->getDValue();
+    w = 2.0 * partial * M_PI;
 }
