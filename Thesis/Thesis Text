@@ -80,6 +80,7 @@ Target-Matching GP for Sound Synthesis Algorithms:
 		
 Interactive Evolution of Sound Synthesis Algorithms:
 	Method:
+		This experiment will use genetic programming to evolve synthesis algorithms directly, utilizing any set of primitives that the user chooses. The inputs to this system will be the selected primatives and the output will be multiple SSA's for the user to modify and evaluate. A MIDI keyboard or virtual MIDI keyboard may be used to audition the generated SSA's. The user may manipulate any variable constants of the produced SSA. The user may opt to input an audio file and let the synthesizer attempt to evolve towards it. The user may also let evolution experiment randomly for a while with new harmony ratios as the novelty goal.
 
 	Parameters:
 	
@@ -88,10 +89,12 @@ Interactive Evolution of Sound Synthesis Algorithms:
 	Results:
 	
 Implementation:
-	An early prototype for this system was built using Cabbage, Csound and Python. After I encountered several performance limitations with this setup I switched to C++ and utilized the JUCE audio/GUI library. JUCE is a popular open-source library for developing audio plugins and was used as the core audio engine of my implementation as well as the graphics toolkit for the interactive GA. This project could not have been possible without JUCE and author Jules's unrelenting demand for quality. Filter primitives were developed using the DSPFilters Library written and maintained by Vinnie Falco. Fast Fourier transform calculations for the fitness function were provided by kissfft, a relatively fast and extremely lightweight implementation.
+	An early prototype for the interactive system was built using Cabbage, Csound and Python. After several performance limitations with this setup were encountered the implementation was switched to C++ and utilized the JUCE audio/GUI library. JUCE is a popular open-source library for developing audio plugins and was used as the core audio engine of my implementation as well as the graphics toolkit for the interactive GA. This project could not have been possible without JUCE and author/maintainer Jules's unrelenting demand for quality. Filter primitives were developed using the DSPFilters Library written and maintained by Vinnie Falco. Fast Fourier transform calculations for the fitness function were provided by kissfft, a relatively fast and extremely lightweight implementation.
 	Target-matching tests were run on the UT Condor Computing Cluster with ___SPECS___ and each test between ___MIN HOURS___ and __MAX HOURS___ to complete. Interactive evolution tests were run on my own personal machine with __SPECS__ by myself and a variety of users.
 
 Conclusion:
+
+Future Work:
 
 Acknowledgements:
 	The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for advice on the genetic algorithm aspects of this project. Thanks to Ashvin Bashyam for his help on my implementation of the Fourier transform-based fitness function. Thanks to __TESTERS__ for kindly agreeing to test the interactive genetic algorithm. Finally, the author wishes to express gratitude to all co-authors who were incredibly helpful throughout the process.
