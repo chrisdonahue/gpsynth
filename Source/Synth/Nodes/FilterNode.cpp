@@ -111,6 +111,6 @@ void FilterNode::updateMutatedParams() {
         bandwidth = mutatableParams[1]->getValue();
         params[1] = bandwidth;
     }
+    filter->setParams(params);
     left->updateMutatedParams();
-    //filter->setParams(params);
 }

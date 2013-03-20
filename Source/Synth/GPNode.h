@@ -23,7 +23,7 @@ class GPNode {
                 isBinary(false), isTerminal(false),
                 mutatableParams(0) {
         }
-        ~GPNode() {
+        virtual ~GPNode() {
             delete left;
             delete right;
             for (int i = 0; i < mutatableParams.size(); i++) {
