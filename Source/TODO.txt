@@ -42,5 +42,4 @@ Thoughts and Ideas:
 
 TODO Soon:
     Numeric mutation
-    GPFunctions fix SINE CALCULATE RANGE
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset
