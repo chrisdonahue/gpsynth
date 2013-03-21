@@ -10,11 +10,11 @@ GPExperiment.cpp:
     do TODOs
 
 GPNetwork.cpp:
-    Add new syntax parsing to string parser
+    Add new syntax parsing to string parser once node subclasses finalized
     
 GPSynth.cpp:
     Fill in selectFromEvaluated() skeleton code including greedy over
-    Implement other types of reproduction
+    Maybe implement other types of reproduction
     do TODOs
     maybe remove rawFitness container
 
@@ -32,14 +32,26 @@ Interactive:
     Buttons to step backwards through evolution
     button to run random evolution for a while
 
-Thoughts and Ideas:
+Ideas:
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     novelty search of new spectrum elements/spectral peak ratios
-    better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
     evaluateBlock scale constant for nodes that produce guaranteed envelopes (ADSR, OscilNodes)?
     add in OPEN BEAGLE stuff or self made GA for suboptimization
     human readable toString vs full detail toString
+    introduce textbook GP mutation
 
-TODO Soon:
+Thoughts:
+    better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
+    is ModOscilNode actually capable of FM synthesis? should it have an oscillator as well?
+    reverse way min, max calculation happens by passing desired range down? think about this hard. might be more efficient also maybe its possible to work in ADSR this way
+
+TODO TOMORROW:
+    FINISH THESIS DRAFT
+    SEE PINKSTON
+
+TODO FOR NEXT EXPERIMENT:
+    finish ADSR node
+    fix filter node do stuff with new descendants/min max stuff
+    consider if modoscilnode is not functioning as anticipated
     Numeric mutation
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset

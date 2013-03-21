@@ -56,6 +56,7 @@ void GPNetwork::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, flo
     double min;
     double max;
     root->evaluateBlock(t, nv, v, &min, &max, n, buffer);
+    printf("min: %.2lf max: %.2lf\n", min, max);
 }
 
 int GPNetwork::getDepth() {

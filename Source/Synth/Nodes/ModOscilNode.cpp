@@ -16,11 +16,11 @@
     ==============
 */
 
-ModOscilNode::ModOscilNode(GPNode* zero, GPNode* one) {
+ModOscilNode::ModOscilNode(GPNode* freq, GPNode* phase) {
     w = 2.0 * M_PI;
 
-    descendants.push_back(zero);
-    descendants.push_back(one);
+    descendants.push_back(freq);
+    descendants.push_back(phase);
     arity = 2;
 }
 
@@ -32,17 +32,17 @@ ModOscilNode* ModOscilNode::getCopy() {
 }
 
 void ModOscilNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-    float* oneBlock = (float*) malloc(sizeof(float) * n);
+    float* phaseBlock = (float*) malloc(sizeof(float) * n);
     double onemin;
     double onemax;
     descendants[0]->evaluateBlock(t, nv, v, min, max, n, buffer);
-    descendants[1]->evaluateBlock(t, nv, v, &onemin, &onemax, n, oneBlock);
+    descendants[1]->evaluateBlock(t, nv, v, &onemin, &onemax, n, phaseBlock);
     *min = -1;
     *max = 1;
     for (int i = 0; i < n; i++) {
-        buffer[i] = sin(w * (t[i]) * (buffer[i]) + oneBlock[i]);
+        buffer[i] = sin(w * (t[i]) * (buffer[i]) + phaseBlock[i]);
     }
-    free(oneBlock);
+    free(phaseBlock);
     return;
 }
 

@@ -15,6 +15,7 @@
 #include "../Common/GPMutatableParam.h"
 #include <vector>
 #include <algorithm>
+#include <limits>
 
 class GPNode {
     public:

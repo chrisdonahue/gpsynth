@@ -16,7 +16,7 @@
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* zero);
+        FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth);
         ~FilterNode();
         FilterNode* getCopy();
 

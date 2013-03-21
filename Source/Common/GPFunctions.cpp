@@ -16,8 +16,17 @@ GPFunction add = { GPadd, GPaddCalculateRange, "+", true, 0.0 };
     *
 */
 double GPmultiplyCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
-    *min = zeromin * onemin;
-    *max = zeromax * onemax;
+    double products[4];
+    products[0] = zeromin * onemin;
+    products[1] = zeromin * onemax;
+    products[2] = zeromax * onemin;
+    products[3] = zeromax * onemax;
+    for (int i = 0; i < 4; i++) {
+       if (products[i] < *min)
+            *min = products[i];
+        if (products[i] > *max)
+            *max = products[i];
+    }
 }
 double GPmultiply(double left, double right) {
     return left * right;

@@ -16,7 +16,7 @@
     ==============
 */
 
-FilterNode::FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* zero) :
+FilterNode::FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth) :
 params()
 {
     type = t;
@@ -58,8 +58,10 @@ params()
     }
     filter->setParams(params);
 
-    descendants.push_back(zero);
-    arity = 1;
+    descendants.push_back(signal);
+    descendants.push_back(center);
+    descendants.push_back(bandwidth);
+    arity = 3;
 }
 
 FilterNode::~FilterNode() {
@@ -67,7 +69,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), descendants[2] == NULL ? NULL : descendants[2]->getCopy());
 }
 
 void FilterNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -75,8 +77,9 @@ void FilterNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, d
     float* audioData[1];
     audioData[0] = buffer;
     descendants[0]->evaluateBlock(t, nv, v, min, max, n, audioData[0]);
-    *min = -INFINITY;
-    *max = INFINITY;
+    // TODO: calculate this
+    *min = std::numeric_limits<double>::infinity() * -1; 
+    *max = std::numeric_limits<double>::infinity();
     filter->process(n, audioData);
 }
 
