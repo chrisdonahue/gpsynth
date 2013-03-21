@@ -28,8 +28,8 @@ GPFunction multiply = { GPmultiply, GPmultiplyCalculateRange, "*", true, 0.0 };
     sin
 */
 double GPsineCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
-    *min = zeromin + onemin;
-    *max = zeromax + onemax;
+    *min = -1;
+    *max = 1;
 }
 double GPsine(double left, double right) {
     return sin(left);
