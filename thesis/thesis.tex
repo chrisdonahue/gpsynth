@@ -9,22 +9,25 @@
 
 \documentclass[12pt]{article}
 
+\usepackage{natbib}
+
 \begin{document}
 \maketitle
 
 \begin{abstract}
-This paper presents a system for evolving sound synthesis algorithms using the technique of genetic programming. The first goal of the investigation is to determine if genetic programming can be used to evolve sound synthesis algorithms whose output resembles a target sound. Typically this task involves many hours of labor by a human to determine an efficient way to mimic a given sound. The second goal is to determine if the synthesis algorithm search can be used interactively by musicians to help them create and discover new timbres. This would allow electronic composers access to a wide array of synthesizer timbres instead of restricting them to the synthesizers they have available.
+This paper presents a system for evolving sound synthesis algorithms using the technique of genetic programming. The investigation of this topic will consist of two parts. The first is to determine if genetic programming can be used to evolve sound synthesis algorithms whose output resembles a target sound. Typically this task involves many hours of labor by a human to determine an efficient way to mimic a given sound. The second goal is to determine if the genetic programming synthesis algorithm search can be used interactively and accessibly by musicians to help them create and discover new timbres. This would allow electronic composers access to a wide array of synthesizer timbres instead of restricting them to the synthesizers they have available.
 \end{abstract}
 
 \section{Introduction}
-Musical timbres are the aspects of sounds that allow us to distinguish and identify their origins. On a physical level, the perceived timbre of a sound is largely determined by the sound's spectrum (frequency content) and envelope (how the spectrum changes over time). Timbre cognition allows us to recognize some sounds without any other knowledge of their source. Timbre allows musicians to distinguish between a trumpet and a violin playing the same note. However, the concept of timbre is ignored by many if not most musicians today. Acoustic composers typically restrict themselves to given sounds, such as the instruments in a band or orchestra. Electronic and electroacoustic composers have a wider timbral pallette to work with but most usually restrict themselves to working within the confines of available synthesizers and samples. Wishart said in his 1994 book Audible Design:
+The idea of timbre is certainly not novel. For as long as there have been sounds, timbre has existed. What has changed remarkably over the past few centuries is human attitude towards timbre and its relevance within the musical community. Timbre is frequently defined not by what it is, but what it is not.
+Musical timbres are the aspects of sounds that allow us to distinguish and identify their origins. On a physical level, the perceived timbre of a sound is largely determined by the sound's spectrum (frequency content) and envelope (how the spectrum changes over time). Timbre cognition allows us to recognize some sounds without any other knowledge of their source. Timbre allows musicians to distinguish between a trumpet and a violin playing the same note. However, the concept of timbre is ignored by many if not most musicians today. Acoustic composers typically restrict themselves to given sounds, such as the instruments in a band or orchestra. Electronic and electroacoustic composers have a wider timbral pallette to work with but most usually restrict themselves to working within the confines of available synthesizers and samples. Wishart said in his book Audible Design \citep{wishart1994audible}:
 \begin{quote}
-"The spectral characteristics of sound have, for so long, been inaccesible to the composer that we have become accustomed to lumping together all aspect of the spectral structure under the catch all term "timbre"... [2]
+"The spectral characteristics of sound have, for so long, been inaccesible to the composer that we have become accustomed to lumping together all aspect of the spectral structure under the catch all term "timbre"...
 \end{quote}	 
 These issues suggest the need for alternative and accesible methods of timbre investigation for musicians and researchers. This paper will present a system that allows one to supply a target sound and receive a synthesis algorithm that mimics its timbral characteristics. It will also allow the user to examine, test and adjust these discovered algorithms to improve the fit. Many electronic musicians utilize techniques such as additive, subtractive, ring modulation, amplitude modulation, and frequency modulation to create sounds. This paper will also present an interactive genetic algorithm for searching the space of sound synthesis algorithms of which these traditional synthesis techniques are a miniscule subset of the algorithms the user will have access to.
 
 \section{Sound Synthesis Algorithms}
-Sound synthesis algorithms (SSA's) are typically numerical and render musically interesting sounds [15]. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as (sin (2 * pi * f * t)) where f is the frequency of the sine wave and t is the time since the start of the sine wave in seconds. In the digital domain, time at the nth sample would be n divided by sample rate.
+Sound synthesis algorithms (SSA's) are typically numerical and render musically interesting sounds \citep{tolonen1998evaluation}. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as (sin (2 * pi * f * t)) where f is the frequency of the sine wave and t is the time since the start of the sine wave in seconds. In the digital domain, time at the nth sample would be n divided by sample rate.
 	
 The sine wave rendering equation could be expressed in several different ways. Using prefix or Polish notation, it can be expressed equivalently as (sin (* (* (* 2 pi) f) t)). One can rearrange this prefix notation version into an equivalent S-expression shown below. S-expressions are convenient from a computational standpoint as they allow easy evaluation and modification of an equation in a recursive tree structure. S-expressions induce a space consiting of all possible combinations of all available functional units or primatives. This concept will become more important when this paper details its use of genetic programming in the described system.
 	
@@ -32,26 +35,26 @@ This sine wave rendering equation is so important to the domain of musical sound
 	
 \section{Mimicking Acoustic Instruments Using Sound Synthesis Algorithms}
 \subsection{Early Investigations (1950-1970)}
-Sound synthesis algorithms are a well studied aspect of computer music, and for as long as they have existed people have been using them to mimic recognizable acoustic timbres. TODO: "Find quote about the importance of acoustic mimicking synthesis algorithms from one of the papers". Max Mathews created the first widely used computer program for sound synthesis in 1957 called MUSIC. MUSIC and its descendants in the MUSIC-N family of programs utilize wrapper functions around common synthesis routines called unit generators. This is a similar concept to the wrapping of the sine wave rendering equation into a single primative. In his 1963 paper Mathews wrote that "there are no theoretical limitations to the performance of the computer as a source of musical sounds, in contrast to the performance of ordinary instruments." [4] While this statement can be challenged due to a computer's lack of ability to produce continuous signals, it holds perceptually as any possible wave form can be rendered by a machine. Jean-Claude Risset worked with Mathews in the late 1960's to attempt to produce with a computer sounds that mimicked acoustic instruments. They were successful in creating brass-like and string-tone sounds by analyzing the spectral content of recordings of these tones. TODO: BUT....
+Sound synthesis algorithms are a well studied aspect of computer music, and for as long as they have existed people have been using them to mimic recognizable acoustic timbres. TODO: ``Find quote about the importance of acoustic mimicking synthesis algorithms from one of the papers''. Max Mathews created the first widely used computer program for sound synthesis in 1957 called MUSIC. MUSIC and its descendants in the MUSIC-N family of programs utilize wrapper functions around common synthesis routines called unit generators. This is a similar concept to the wrapping of the sine wave rendering equation into a single primative. Mathews wrote that ``there are no theoretical limitations to the performance of the computer as a source of musical sounds, in contrast to the performance of ordinary instruments.'' \citep{mathews01111963} While this statement can be challenged due to a computer's lack of ability to produce continuous signals, it holds perceptually as any possible wave form can be rendered by a machine. Jean-Claude Risset worked with Mathews in the late 1960's to attempt to produce with a computer sounds that mimicked acoustic instruments. They were successful in creating brass-like and string-tone sounds by analyzing the spectral content of recordings of these tones. TODO: BUT....
 
 \subsection{FM Synthesis (1970-1990)}
-In 1973 John Chowning introduced a method for utilizing frequency modulation to efficiently synthesize tones with rich harmonic spectra. [1] Frequency modulation was a well-understood concept in broadcasting but had yet to be applied to sound synthesis. The task of efficiently producing spectrally complex tones had presented a major hurdle to mimicking spectrally complex acoustic instruments as computer performance was limited at the time. Chowning himself used FM synthesis to mimic brass, woodwind, percussive sounds, and later a singing voice [5] with impressive subjective results considering the computational efficiency of the algorithm. Morrill [6] also contributed parameters for trumpet tones using FM synthesis in 1977. TODO: figure out if this is true
+In 1973 John Chowning introduced a method for utilizing frequency modulation to efficiently synthesize tones with rich harmonic spectra \citep{chowning1973synthesis}. Frequency modulation was a well-understood concept in broadcasting but had yet to be applied to sound synthesis. The task of efficiently producing spectrally complex tones had presented a major hurdle to mimicking spectrally complex acoustic instruments as computer performance was limited at the time. Chowning himself used FM synthesis to mimic brass, woodwind, percussive sounds, and later a singing voice \citep{chowning1989frequency} with impressive subjective results considering the computational efficiency of the algorithm. Morrill [6] also contributed parameters for trumpet tones using FM synthesis in 1977. TODO: figure out if this is true/cite
 Work in the 1980's on mimicking acoustic timbres was mostly commercial after Stanford licensed Chowning's discovery of FM audio synthesis to Yamaha. Audio researchers at Yamaha spent a great deal of time and effort to mimic tones of acoustic instruments by modifying the parameters and general structure of FM synthesis.
 
 \subsection{Genetic Algorithms (1990-present)}
 \subsubsection{Traditional Genetic Algorithms}
 Genetic algorithms (GA's) were only popularized in the 1980's despite previous decades of theoretical study. A genetic algorithm is... (TODO: EXPLAIN GENETIC ALGORITHM)
 
-In 1993, Horner et al. demonstrated an automation of this task using a genetic algorithm. Horner succesfully demonstrated a system for optimizing the parameters of a fixed FM synthesis structure with a single modulator and multiple parallel carriers. Johnson [8] used an interactive genetic algorithm to control parameters for other synthesis algorithms and When [9] used ideas from natural selection to explore the parameter space and more in a more limited sense the connection space of FM-like synthesizers.... TODO: read these papers lol
+In 1993, Horner demonstrated an automation of this task using a genetic algorithm \citep{horner1993machine}. Horner succesfully demonstrated a system for optimizing the parameters of a fixed FM synthesis structure with a single modulator and multiple parallel carriers. Johnson used an interactive genetic algorithm to control parameters for other synthesis algorithms \citep{johnson1999exploring} and Wehn used ideas from natural selection to explore the parameter space and more in a more limited sense the connection space of FM-like synthesizers \citep{wehn1998using}.... TODO: read these papers lol
 
 \subsubsection{Genetic Programming}
-John Koza's 1994 book demonstrated a new class of genetic algorithms altogether. He introduced the idea of genetic programming which uses the principles of genetic algorithms to evolve computer programs. These "programs" typically consist of S-expressions. An S-expression is a tree representation of a program which can be a simple mathematical expression but could also be a more complicated algorithm involving logic operators and domain-specific tree nodes. (EXPLAIN GENETIC PROGRAMMING)
+John Koza's 1994 book demonstrated a new class of genetic algorithms altogether \citep{koza1992genetic}. He introduced the idea of genetic programming which uses the principles of genetic algorithms to evolve computer programs. These "programs" typically consist of S-expressions. An S-expression is a tree representation of a program which can be a simple mathematical expression but could also be a more complicated algorithm involving logic operators and domain-specific tree nodes. (EXPLAIN GENETIC PROGRAMMING)
 			
-The domain-specific applications of genetic programming are intriguing for sound synthesis as nodes of the S-expression could represent units such as sin wave oscillators and time-varying signal filters as discussed previously. In 2000, Ricardo Garcia successfully demonstrated the technique of genetic programming in the domain of synthesis algorithm generation for target sound matching [12].
+The domain-specific applications of genetic programming are intriguing for sound synthesis as nodes of the S-expression could represent units such as sin wave oscillators and time-varying signal filters as discussed previously. In 2000, Ricardo Garcia successfully demonstrated the technique of genetic programming in the domain of synthesis algorithm generation for target sound matching \citep{garcia2000towards}.
 
 Garcia's approach evolved trees that represented a set of instructions for building sound synthesis topologies such as the topology depicted in figure (TODO: FIGURE ABOVE). This indirect encoding was inspired by the fact that sound synthesis topologies can be cyclical and S-expressions evolved by genetic programming cannot be. However, these non-cyclical instruction trees could be instructions to build a cyclical synthesis topology and therefore allow unmodified genetic programming to be utilized to create cyclical topologies.
 
-Garcia makes the statement in his 2002 paper that "every [instruction] tree maps into a single topology... but a topology can be represented by many different trees." This leads me to believe that this approach is not the ideal way to apply genetic programming to sound synthesis as Garcia is searching through a larger space of S-expressions that map into a smaller space of topologies. I have also not encountered any examples of hand-designed sound synthesis algorithms that utilize cyclic topologies to mimic acoustic timbres. Cyclic behavior could also be represented non-cyclically by the use of a delay buffer primitive if necessary. Additionally, Garcia uses suboptimization of a known number of constants once a topology has been produced. This is an interesting strategy but could theoretically be encoded into GP itself by using ephemeral random constants. TODO: elaborate once we find the technique that we will use
+Garcia makes the statement in his 2002 paper that "every [instruction] tree maps into a single topology... but a topology can be represented by many different trees." \citep{garcia2012automatic}. This leads me to believe that this approach is not the ideal way to apply genetic programming to sound synthesis as Garcia is searching through a larger space of S-expressions that map into a smaller space of topologies. I have also not encountered any examples of hand-designed sound synthesis algorithms that utilize cyclic topologies to mimic acoustic timbres. Cyclic behavior could also be represented non-cyclically by the use of a delay buffer primitive if necessary. Additionally, Garcia uses suboptimization of a known number of constants once a topology has been produced. This is an interesting strategy but could theoretically be encoded into GP itself by using ephemeral random constants. TODO: elaborate once we find the technique that we will use
 
 \section{Target-Matching GP Search for Sound Synthesis Algorithms}
 \subsection{Method}
@@ -77,7 +80,7 @@ Evaluate the sound in comparison to the target by means of a fitness function
 If fitness < threshold || number of generations >= limit, FINISH and return champion
 otherwise create a new population using traditional genetic programming techniques and return to LOOP START
 \subsection{Initial Population}
-The random population of the initial generation is an unmodified implementation of Koza's Ramped Half and Half method to generate great diversity from the outset. [10]. The only difference is that I do not check for duplicate S-expressions as the amount of primitives I am utilizing is large and will not likely produce that many duplicate trees. (TODO: maybe change this). I am using the technique of Ephemeral Random Constants to propogate random constants throughout the population.
+The random population of the initial generation is an unmodified implementation of Koza's Ramped Half and Half method to generate great diversity from the outset \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions as the amount of primitives I am utilizing is large and will not likely produce that many duplicate trees. (TODO: maybe change this). I am using the technique of Ephemeral Random Constants to propogate random constants throughout the population.
 \subsection{Fitness Function}
 The fitness function I am using is a variation of the fitness function that Garcia used for his system. There are two broad types of fitness functions that could apply in this domain, strictly analytical fitness functions or fitness functions that take human perception into account. Garcia uses the following fitness function: MSEFREQMAG, MSEFREQPHASE, MSEFREQ = MSEFREQMAG + MSEFREQPHASE as an analytical fitness function. In his masters thesis he also presents a perceptual fitness technique called Simultaneous Frequency Masking that am currently not utilizing. Algorithms that produce silence are assigned a penalty fitness.
 \subsection{Genetic Operations}
@@ -105,24 +108,18 @@ Target-matching tests were run on the UT Condor Computing Cluster with SPECS and
 \section{Acknowledgements}
 The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for advice on the genetic algorithm aspects of this project. Thanks to Ashvin Bashyam for his help on my implementation of the Fourier transform-based fitness function. Thanks to TESTERS for kindly agreeing to test the interactive genetic algorithm. Finally, the author wishes to express gratitude to all co-authors who were incredibly helpful throughout the process.
 
-\section{More Information}
-cs.utexas.edu/~cdonahue/GPSynth.html (audio samples)
-github.com/cdonahue/gpsynth (source and downloadable/plugin versions of the interactive GA)
+%\section{For More Information and Download}
+%cs.utexas.edu/~cdonahue/GPSynth.html (audio samples)
+%github.com/cdonahue/gpsynth (source and downloadable/plugin versions of the interactive GA)
 
-\paragraph{Outline}
-The remainder of this article is organized as follows.
-Section~\ref{previous work} gives account of previous work.
-Our new and exciting results are described in Section~\ref{results}.
-Finally, Section~\ref{conclusions} gives the conclusions.
+%\paragraph{Outline}
+%The remainder of this article is organized as follows.
+%Section~\ref{previous work} gives account of previous work.
+%Our new and exciting results are described in Section~\ref{results}.
+%Finally, Section~\ref{conclusions} gives the conclusions.
 
-\section{Previous work}\label{previous work}
-A much longer \LaTeXe{} example was written by Gil~\cite{Gil:02}.
-
-\section{Results}\label{results}
-In this section we describe the results.
-
-\section{Conclusions}\label{conclusions}
-We worked hard, and achieved very little.
+%\section{Results}\label{results}
+%In this section we describe the results.
 
 \bibliographystyle{abbrv}
 \bibliography{bibthesis}
