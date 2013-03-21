@@ -1,4 +1,0 @@
-Abstract:
-	Mathemtical model for interactive sound synthesis based on GA's. We describe how waveforms can be treated as genetic code, the fitness evaluation methodology and how genetic operations such as crossover and mutation are used to produce generations of waveforms.
-	Has some alternative method of fitness functions presented and is impossible to read...
-	

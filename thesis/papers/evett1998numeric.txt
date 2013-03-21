@@ -1,0 +1,15 @@
+2:
+	Koza from GP97: The finding of numeric constants is a skeleton in the GP closet... [and an] area of research that requires more investigation."
+	
+3 Numeric Mutation:
+	Numeric mutation replaces all of the numeric constants with new ones in the individuals to which it is applied
+	New numeric constants are chosen uniformly at random within a specific selection range
+	The selection range for each constant is specified as the old value of that constant plus or minus a temperature factor
+	The temperature factor is determined by multiplying the raw score of the best individual of the current generation by a temperature variance constant, 0.02 in this paper
+	Selection range is larger when best individual is poor.
+4 Experimental Evaluation:
+	Numeric mutation applied to 40 randomly selected individuals of the 200 with the best fitness from a population of size 1081
+	Each selected indivdual is replaced with a copy wherein each numeric constant has been mutated
+	The fitness function is reevaluated for each of the new individuals so that the fitness-ranking of the population corresponds to the altered population
+	Used elitist graduated overselection strategy to select individuals from the population for reproduction and crossover, as described in Evett and Fernandez 1997
+	

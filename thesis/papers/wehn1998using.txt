@@ -1,0 +1,30 @@
+Abstract:
+	Describes a system for the automatic creation of digital synthesizer circuits that can generate soudns similar to a sampled target sound. The circuits will consist of very basic signal functions and generators that are arbitrarily interconnected. Uses a GA to evolve successively better circuits
+	3 The Synthesizer Signal Elements:
+		Basic elements of the synthesizers are:
+			Noise, Sin, Triangle, Square, Ramp, Adding, Multiply, Filter
+	4 Connections:
+		Most nodes have input lines, these can each have one connection to the output of any node in the configuration including its own output. Every input line is weighted by a value, usually between -1 and 1. If the input line is not connected to an output, the weight itself is used as a constant input signal. A collection of nodes and connections is a graph
+	5 Fitness value:
+		Check to see if the network contains any oscillators. If not, the fitness value is set to maximum
+		Shares a fitness function from the FFT windows
+			Euclidean distance between the amplitude spectrums fo the target wave and graph output. Therefore, lower fitness values are better and a perfect match gives a zero fitness value.
+	6 Evolutionary Process:
+		Used 100 graphs, random creation method to generate the first population. Then the evolutionary process can start. 20% of the population singled out and rest destroyed. 
+	7 Breeding techniques:
+		Cloning:
+			System makes a copy of one parent. Mutation rate set higher for clone
+		Grafting:
+			Takes two parents, both copied to the child and a random new connection between the subgraphs is added. Random connection added between subgraphs, garbage (invalid nodes) detected and collected
+		Crossover:
+			Takes two parents and moves through the nods of one parent and copies them one by one. At a random point the system will switch to the other parent and use this as the source.
+	8 Mutation:
+		One of the nodes in a graph is always replaced. The type of the new element is randomly chosen and it inherits all connections and weights from predecessor if possible. If not, weights are set to random values and no connections are made.
+		This mutation emerged empirically.
+	9 What can be expected?:
+		Fitness values use the amplitude spectrum and real life sounds are too complex so it won't evolve the exact match of the target sound. Could theoretically evolve the component sine waves in the fourier transform but this is not the purpose. MAXIMUM NODES SET TO 16 TO FORCE EVOLUTION TO FIND MORE INNOVATIVE SOLUTIONS
+	10 Future work:
+		USE A GENOTYPE instead of manipulating the phenotypes. More in line with traditional GA's and greatly simplifies the process of breeding and mutation. 
+		** IDEA ** PERHAPS REPRESENT GRAPH AS ARRAY WITH POINTERS AT 2N and 2N+1 TO LEFT AND RIGHT CHILDREN IN ORDER TO MAP ALGORITHM TO GA EASIER!
+		Geographical isolation between several populations with occasional exchange of genetic material. This allows different characteristics to evolve in each population and could help to avoid the problem of genetic homogeniety
+		Geographical location for each member in a population. Mating will only occur between neighbors. This could help preserve genetic diversity
