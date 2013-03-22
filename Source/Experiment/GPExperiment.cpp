@@ -187,8 +187,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
         //nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
-        nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
+        //nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
+        //nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
     }
     if (params->experimentNumber == 10) {
         /*

@@ -1,0 +1,22 @@
+What should my experimental results be?
+
+My goal is not to:
+    Produce an exact representation of a given target sound. Method is too stochastic
+    Produce a recognizable mimic of a target sound
+
+Idea for experiment:
+    Five sound files: Trumpet, Bassoon, Violin, Piano, Snare drum
+    Test evolution params:
+        pop size 1000 with greedy over-selection
+        100 generations
+        30 experiments
+    Variables:
+        Types of nodes available
+        Fitness function (compare Garcia/Horner/Donahue)
+        Mutation rates
+        Other GP params
+    How to compare results:
+        Find most convincing replicas across all experiment runs of each controlled variable
+        Play the results for musicans and non-musicians and see if they can identify the target instrument
+        Analyze human timbral comparisons to find best method for each instrument
+        OPTIMISTIC: play fake and real see if they can determine which is which
