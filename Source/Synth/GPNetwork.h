@@ -29,7 +29,7 @@ class GPNetwork {
         GPNetwork* getCopy();
 
         // EXAMINATION
-        void evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer);
+        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
         int getDepth();
         std::string toString();
         GPNode* getRoot();

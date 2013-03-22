@@ -38,15 +38,15 @@ FunctionNode* FunctionNode::getCopy() {
     return ret;
 }
 
-void FunctionNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     double zeromin;
     double zeromax;
-    descendants[0]->evaluateBlock(t, nv, v, &zeromin, &zeromax, n, buffer);
+    descendants[0]->evaluateBlock(fn, t, nv, v, &zeromin, &zeromax, n, buffer);
     if (arity == 2) {
         double onemin;
         double onemax;
         float* oneBlock = (float*) malloc(sizeof(float) * n);
-        descendants[1]->evaluateBlock(t, nv, v, &onemin, &onemax, n, oneBlock);
+        descendants[1]->evaluateBlock(fn, t, nv, v, &onemin, &onemax, n, oneBlock);
         gpfunction.calculateRange(min, max, zeromin, zeromax, onemin, onemax);
         for (int i = 0; i < n; i++) {
             buffer[i] = gpfunction.function(buffer[i], oneBlock[i]);

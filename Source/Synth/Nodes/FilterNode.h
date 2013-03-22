@@ -16,23 +16,28 @@
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(int t, int o, int fpc, double sr, GPMutatableParam* cf, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth);
+        FilterNode(int t, int fpc, double sr, GPMutatableParam* cfmin, GPMutatableParam* cfmax, GPMutatableParam* bwqmin, GPMutatableParam* bwqmax, GPNode* signal, GPNode* center, GPNode* bandwidth);
         ~FilterNode();
         FilterNode* getCopy();
 
-        void evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
         std::string toString();
         void updateMutatedParams();
 
     private:
         int type;
-        int order;
+        //int order;
         int fadeParameterChanges;
         double sampleRate;
+
+        double centerFrequencyMin;
+        double centerFrequencyMax;
         double centerFrequency;
-        double bandwidth;
-        double gainDb;
-        double quality;
+        double bandwidthQualityMin;
+        double bandwidthQualityMax;
+        double bandwidthQuality;
+
+        double maxGain;
         Dsp::Filter* filter;
         Dsp::Params params;
 };

@@ -52,10 +52,10 @@ GPNetwork* GPNetwork::getCopy() {
     ===========
 */
 
-void GPNetwork::evaluateBlock(double* t, unsigned nv, double* v, unsigned n, float* buffer) {
+void GPNetwork::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer) {
     double min;
     double max;
-    root->evaluateBlock(t, nv, v, &min, &max, n, buffer);
+    root->evaluateBlock(fn, t, nv, v, &min, &max, n, buffer);
     printf("min: %.2lf max: %.2lf\n", min, max);
 }
 

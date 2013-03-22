@@ -87,9 +87,12 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
     GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
-    GPMutatableParam* filterCenterFrequency = new GPMutatableParam("filtercenterfrequency", true, 1000.0, params->filterNodeCenterFrequencyMinimum, params->filterNodeCenterFrequencyMaximum);
-    GPMutatableParam* filterQuality = new GPMutatableParam("filterquality", true, 1.0, params->filterNodeQualityMinimum, params->filterNodeQualityMaximum);
-    GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidth", true, 1.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
+    GPMutatableParam* filterCenterFrequencyMin = new GPMutatableParam("filtercenterfrequencymin", true, 0.0, 0.0, targetSampleRate / 2);
+    GPMutatableParam* filterCenterFrequencyMax = new GPMutatableParam("filtercenterfrequencymax", true, 0.0, 0.0, targetSampleRate / 2);
+    GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
+    GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
+    GPMutatableParam* filterBandwidthMin = new GPMutatableParam("filterbandwidthmin", true, 0.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
+    GPMutatableParam* filterBandwidthMax = new GPMutatableParam("filterbandwidthmax", true, 0.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
 
     if (params->experimentNumber == 0) {
         // EVALUATE TARGET STRING
@@ -157,10 +160,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(rng));
-        nodes->push_back(new FilterNode(0, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
-        nodes->push_back(new FilterNode(1, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), NULL));
-        nodes->push_back(new FilterNode(2, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
-        nodes->push_back(new FilterNode(3, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+        nodes->push_back(new FilterNode(0, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(1, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(3, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(4, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
     }
     // Eb5 Trumpet Additive Experiment
     if (params->experimentNumber == 4) {
@@ -178,6 +181,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         //nodes->push_back(new FilterNode(3, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
     }
     if (params->experimentNumber == 10) {
+        /*
         // ASSIGN SPECIAL FITNESS VALUES
         p->bestPossibleFitness = 0;
         p->penaltyFitness = std::numeric_limits<float>::max();
@@ -211,6 +215,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         free(noise);
 
         exit(0);
+        */
     }
 
     // EXPERIMENT PARAMS THAT VARY BY EXPERIMENT NUMBER
@@ -226,9 +231,12 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     delete constantTwo;
     delete constantPi;
     delete oscilPartial;
-    delete filterCenterFrequency;
-    delete filterQuality;
-    delete filterBandwidth;
+    delete filterCenterFrequencyMin;
+    delete filterCenterFrequencyMax;
+    delete filterQualityMin;
+    delete filterQualityMax;
+    delete filterBandwidthMin;
+    delete filterBandwidthMax;
 }
 
 GPExperiment::~GPExperiment() {
@@ -452,7 +460,7 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
     unsigned numToRender;
     while (numRemaining > 0) {
         numToRender = n < numRemaining ? n : numRemaining;
-        candidate->evaluateBlock(sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
+        candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
         numRemaining -= numToRender;
         numCompleted += numToRender;
     }

@@ -15,6 +15,7 @@
 #include "../Common/GPParams.h"
 
 #include "../Synth/GPSynth.h"
+#include "../Synth/Nodes/ADSRNode.h"
 #include "../Synth/Nodes/ConstantNode.h"
 #include "../Synth/Nodes/TimeNode.h"
 #include "../Synth/Nodes/VariableNode.h"

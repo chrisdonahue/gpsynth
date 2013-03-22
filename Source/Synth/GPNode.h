@@ -33,7 +33,7 @@ class GPNode {
         }
 
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
-        virtual void evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
+        virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
         virtual std::string toString() = 0;
         virtual GPNode* getCopy() = 0;
         virtual void updateMutatedParams() = 0;

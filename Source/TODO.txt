@@ -50,8 +50,7 @@ TODO TOMORROW:
     SEE PINKSTON
 
 TODO FOR NEXT EXPERIMENT:
-    finish ADSR node
-    fix filter node do stuff with new descendants/min max stuff
+    calculate min/max stuff with filter node, determine if bandwidth/quality really need a descendant...
     consider if modoscilnode is not functioning as anticipated
     Numeric mutation
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset

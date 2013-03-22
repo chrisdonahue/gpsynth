@@ -19,7 +19,7 @@ class ConstantNode: public GPNode {
         ~ConstantNode();
         ConstantNode* getCopy();
 
-        void evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
         std::string toString();
         void updateMutatedParams();
 

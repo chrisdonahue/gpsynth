@@ -21,7 +21,7 @@ VariableNode* VariableNode::getCopy() {
     return new VariableNode(variableNum);
 }
 
-void VariableNode::evaluateBlock(double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     double* currentIndex = v + variableNum;
     // TODO: support variable nodes instead of just constants
     *min = *currentIndex;
