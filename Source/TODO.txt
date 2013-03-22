@@ -45,12 +45,9 @@ Thoughts:
     is ModOscilNode actually capable of FM synthesis? should it have an oscillator as well?
     reverse way min, max calculation happens by passing desired range down? think about this hard. might be more efficient also maybe its possible to work in ADSR this way
 
-TODO TOMORROW:
-    FINISH THESIS DRAFT
-    SEE PINKSTON
-
 TODO FOR NEXT EXPERIMENT:
     calculate min/max stuff with filter node, determine if bandwidth/quality really need a descendant...
+    make a terminal version of ADSR
     consider if modoscilnode is not functioning as anticipated
     Numeric mutation
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset
