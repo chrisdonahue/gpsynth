@@ -62,6 +62,10 @@ struct GPParams {
     double filterNodeBandwidthMinimum;
     double filterNodeBandwidthMaximum;
 
+    // adsr node
+    double ADSRNodeEnvelopeMin;
+    double ADSRNodeEnvelopeMax;
+
     // multiple nodes
     unsigned numVariables;
 };

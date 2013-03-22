@@ -87,12 +87,20 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
     GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
-    GPMutatableParam* filterCenterFrequencyMin = new GPMutatableParam("filtercenterfrequencymin", true, 0.0, 0.0, targetSampleRate / 2);
-    GPMutatableParam* filterCenterFrequencyMax = new GPMutatableParam("filtercenterfrequencymax", true, 0.0, 0.0, targetSampleRate / 2);
+    GPMutatableParam* filterCenterFrequencyMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, 1.0, targetSampleRate / 2);
+    GPMutatableParam* filterCenterFrequencyMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, 1.0, targetSampleRate / 2);
     GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
     GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
-    GPMutatableParam* filterBandwidthMin = new GPMutatableParam("filterbandwidthmin", true, 0.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
-    GPMutatableParam* filterBandwidthMax = new GPMutatableParam("filterbandwidthmax", true, 0.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
+    GPMutatableParam* filterBandwidthMin = new GPMutatableParam("filterbandwidthmin", true, 1.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
+    GPMutatableParam* filterBandwidthMax = new GPMutatableParam("filterbandwidthmax", true, 1.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
+    GPMutatableParam* ADSRDelay = new GPMutatableParam("adsrdelay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+    GPMutatableParam* ADSRAttack = new GPMutatableParam("adsrattack", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+    GPMutatableParam* ADSRAttackHeight = new GPMutatableParam("adsrattackheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
+    GPMutatableParam* ADSRDecay = new GPMutatableParam("adsrdecay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+    GPMutatableParam* ADSRSustain = new GPMutatableParam("adsrsustain", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+    GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
+    GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+
 
     if (params->experimentNumber == 0) {
         // EVALUATE TARGET STRING
@@ -160,10 +168,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(rng));
-        nodes->push_back(new FilterNode(0, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new FilterNode(1, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new FilterNode(3, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new FilterNode(4, 1024, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(0, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(1, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
     }
     // Eb5 Trumpet Additive Experiment
     if (params->experimentNumber == 4) {
@@ -177,8 +185,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
-        //nodes->push_back(new FilterNode(2, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
-        //nodes->push_back(new FilterNode(3, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterBandwidth->getCopy(), NULL));
+        //nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        //nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
+        nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
     }
     if (params->experimentNumber == 10) {
         /*
@@ -237,6 +247,13 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     delete filterQualityMax;
     delete filterBandwidthMin;
     delete filterBandwidthMax;
+    delete ADSRDelay;
+    delete ADSRAttack;
+    delete ADSRAttackHeight;
+    delete ADSRDecay;
+    delete ADSRSustain;
+    delete ADSRSustainHeight;
+    delete ADSRRelease;
 }
 
 GPExperiment::~GPExperiment() {

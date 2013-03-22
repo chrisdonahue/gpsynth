@@ -96,6 +96,10 @@ public:
         params->filterNodeBandwidthMinimum = 0;
         params->filterNodeBandwidthMaximum = 10000;
 
+        // adsr node
+        params->ADSRNodeEnvelopeMin = 0.0;
+        params->ADSRNodeEnvelopeMax = 1.0;
+
         // modulation node
         params->modulationNodeFrequencyRange = 10;
         params->numVariables = 0;

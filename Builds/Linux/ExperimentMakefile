@@ -124,6 +124,11 @@ $(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
 	@echo "Compiling GPNetwork.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/ADSRNode.o: ../../Source/Synth/Nodes/ADSRNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ADSRNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/OscilNode.o: ../../Source/Synth/Nodes/OscilNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling OscilNode.cpp"

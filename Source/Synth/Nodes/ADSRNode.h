@@ -12,11 +12,10 @@
 #define ADSRNODE_H
 
 #include "../GPNode.h"
-#include "../../Dependencies/DSPFilters/Dsp.h" 
 
 class ADSRNode: public GPNode {
     public:
-        ADSRNode(double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+        ADSRNode(bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
         ~ADSRNode();
         ADSRNode* getCopy();
 
@@ -25,6 +24,7 @@ class ADSRNode: public GPNode {
         void updateMutatedParams();
 
     private:
+        bool terminalADSR;
         double sampleRate;
         bool releaseFinished;
         unsigned framesInEnvelope;
@@ -38,6 +38,7 @@ class ADSRNode: public GPNode {
         double attackheight;
         double sustainheight;
 
+        double minheight;
         double maxheight;
 };
 

@@ -24,7 +24,7 @@ class GPNode {
                 mutatableParams(0) {
         }
         virtual ~GPNode() {
-            for (int i = 0; i < descendants.size(); i++) {
+            for (int i = 0; i < arity; i++) {
                 delete descendants[i];
             }
             for (int i = 0; i < mutatableParams.size(); i++) {

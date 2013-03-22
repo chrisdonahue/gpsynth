@@ -33,6 +33,19 @@ params()
     descendants.push_back(bandwidth);
     arity = 3;
 
+    if (type == 0) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
+    }
+    else if (type == 1) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
+    }
+    else if (type == 2) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandPass2, 1> (fadeParameterChanges);
+    }
+    else if (type == 3) {
+        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
+    }
+
     updateMutatedParams();
 }
 
@@ -64,9 +77,15 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     descendants[2]->evaluateBlock(fn, t, nv, v, &bwqmin, &bwqmax, n, bwqbuffer);
     double bwqscale = (bandwidthQualityMax - bandwidthQualityMin) / (bwqmax - bwqmin);
 
-    // TODO: calculate this
-    *min = std::numeric_limits<double>::infinity() * *min;
-    *max = std::numeric_limits<double>::infinity() * *max;
+    // TODO: calculate this for lopass/hipass
+    if (type < 2) {
+        *min = *min;
+        *max = *max;
+    }
+    if (type >= 2) {
+        *min = *min;
+        *max = *max;
+    }
 
     for (int i = 0; i < n; i++) {
         params[1] = (cfbuffer[i] * cfscale) + centerFrequency;
@@ -100,34 +119,18 @@ void FilterNode::updateMutatedParams() {
     bandwidthQualityMax = mutatableParams[3]->getValue();
 
     // remake filter
-    delete filter;
     params[0] = sampleRate;
     centerFrequency = (centerFrequencyMin + centerFrequencyMax) / 2;
     bandwidthQuality = (bandwidthQualityMin + bandwidthQualityMax) / 2;
-    if (type == 0) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
-        params[1] = centerFrequency;
-        params[2] = bandwidthQuality;
-    }
-    else if (type == 1) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
-        params[1] = centerFrequency;
-        params[2] = bandwidthQuality;
-    }
-    else if (type == 2) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandPass2, 1> (fadeParameterChanges);
-        params[1] = centerFrequency;
-        params[2] = bandwidthQuality;
-    }
-    else if (type == 3) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
-        params[1] = centerFrequency;
-        params[2] = bandwidthQuality;
-    }
+    params[1] = centerFrequency;
+    params[2] = bandwidthQuality;
     filter->setParams(params);
 
     // call on descendants
-    descendants[0]->updateMutatedParams();
-    descendants[1]->updateMutatedParams();
-    descendants[2]->updateMutatedParams();
+    if (descendants[0] != NULL)
+        descendants[0]->updateMutatedParams();
+    if (descendants[1] != NULL)
+        descendants[1]->updateMutatedParams();
+    if (descendants[2] != NULL)
+        descendants[2]->updateMutatedParams();
 }
