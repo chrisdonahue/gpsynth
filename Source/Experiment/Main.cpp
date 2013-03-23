@@ -51,10 +51,10 @@ public:
         
         // fitness function params
         params->fitnessFunctionType = 1;
-        params->penalizeBadMagnitude = 3;
+        params->penalizeBadMagnitude = 2;
         params->penalizeBadPhase = 2;
         params->magnitudeWeight = 1.0;
-        params->phaseWeight = 0.2;
+        params->phaseWeight = 1.0;
 
         // experiment params
         params->experimentNumber = 0;
