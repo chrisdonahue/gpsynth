@@ -21,6 +21,7 @@ class ADSRNode: public GPNode {
 
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
         std::string toString();
+        void fillFromParams();
         void updateMutatedParams();
 
     private:

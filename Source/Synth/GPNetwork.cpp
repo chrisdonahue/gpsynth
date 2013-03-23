@@ -53,10 +53,10 @@ GPNetwork* GPNetwork::getCopy() {
 */
 
 void GPNetwork::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer) {
-    double min;
-    double max;
+    double min = std::numeric_limits<double>::min();
+    double max = std::numeric_limits<double>::max();
     root->evaluateBlock(fn, t, nv, v, &min, &max, n, buffer);
-    printf("min: %.2lf max: %.2lf\n", min, max);
+    //printf("min: %.2lf max: %.2lf\n", min, max);
 }
 
 int GPNetwork::getDepth() {
@@ -133,6 +133,7 @@ void GPNetwork::updateMutatedParams() {
 
 void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->ephemeralRandom(r);
+    root->updateMutatedParams();
 }
 
 // RECURSIVE CONSTRUCTION

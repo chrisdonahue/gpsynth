@@ -3,6 +3,8 @@ Main.cpp:
     Add command line for all GPParams
     --help
     check argument ranges
+    renderBlockSize > frames in file?
+    fftSize > frames in file?
 
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()

@@ -41,12 +41,11 @@ sampleRate(sr)
         arity = 1;
     }
 
-    updateMutatedParams();
+    fillFromParams();
 }
 
 ADSRNode::~ADSRNode() {
     free(envelope);
-    std::cout << mutatableParams.size() << std::endl;
 }
 
 ADSRNode* ADSRNode::getCopy() {
@@ -128,7 +127,7 @@ std::string ADSRNode::toString() {
     return std::string(buffer);
 }
 
-void ADSRNode::updateMutatedParams() {
+void ADSRNode::fillFromParams() {
     delay = mutatableParams[0]->getValue();
     attack = mutatableParams[1]->getValue();
     attackheight = mutatableParams[2]->getValue();
@@ -136,7 +135,7 @@ void ADSRNode::updateMutatedParams() {
     sustain = mutatableParams[4]->getValue();
     sustainheight = mutatableParams[5]->getValue();
     release = mutatableParams[6]->getValue();
-    
+
     minheight = std::min(attackheight, sustainheight);
     minheight = std::min(0.0, minheight);
     maxheight = std::max(attackheight, sustainheight);
@@ -148,26 +147,30 @@ void ADSRNode::updateMutatedParams() {
 
     // delay
     unsigned framesFilled = 0;
-    for (int i = framesFilled; i < (unsigned) (delay * sampleRate); i++, framesFilled++) {
-        envelope[i] = 0.0;
+    for (int i = 0; i < (unsigned) (delay * sampleRate); i++, framesFilled++) {
+        envelope[framesFilled] = 0.0;
     }
     // attack
-    for (int i = framesFilled; i < (unsigned) (attack * sampleRate); i++, framesFilled++) {
-        envelope[i] = (i / (attack * sampleRate)) * attackheight;
+    for (int i = 0; i < (unsigned) (attack * sampleRate); i++, framesFilled++) {
+        envelope[framesFilled] = (i / (attack * sampleRate)) * attackheight;
     }
     // decay
-    for (int i = framesFilled; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
-        envelope[i] = attackheight - ((i / (decay * sampleRate)) * (attackheight - sustainheight));
+    for (int i = 0; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
+        envelope[framesFilled] = attackheight - ((i / (decay * sampleRate)) * (attackheight - sustainheight));
     }
     // sustain
-    for (int i = framesFilled; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
-        envelope[i] = sustainheight;
+    for (int i = 0; i < (unsigned) (sustain * sampleRate); i++, framesFilled++) {
+        envelope[framesFilled] = sustainheight;
     }
     // release
-    for (int i = framesFilled; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
-        envelope[i]  = sustainheight - ((i / (release * sampleRate)) * (sustainheight));
+    for (int i = 0; i < (unsigned) (release * sampleRate); i++, framesFilled++) {
+        envelope[framesFilled]  = sustainheight - ((i / (release * sampleRate)) * (sustainheight));
     }
+}
 
-    if (!terminalADSR && descendants[0] != NULL)
+void ADSRNode::updateMutatedParams() {
+    fillFromParams();
+    
+    if (!terminalADSR)
         descendants[0]->updateMutatedParams();
 }

@@ -29,6 +29,9 @@ class GPMutatableParam {
             cmaximum = max;
         }
 
+        ~GPMutatableParam() {
+        }
+
         // copy method
         GPMutatableParam* getCopy() {
             if (isContinuous)

@@ -185,11 +185,11 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
-        //nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
-        //nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay, ADSRAttack, ADSRAttackHeight, ADSRDecay, ADSRSustain, ADSRSustainHeight, ADSRRelease, NULL));
-    }
+        nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
+        nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+        nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+           }
     if (params->experimentNumber == 10) {
         /*
         // ASSIGN SPECIAL FITNESS VALUES

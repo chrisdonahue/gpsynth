@@ -53,7 +53,6 @@ class GPNode {
             for (int i = 0; i < mutatableParams.size(); i++) {
                 mutatableParams[i]->ephemeralRandom(r);
             }
-            updateMutatedParams();
             for (int i = 0; i < arity; i++) {
                 descendants[i]->ephemeralRandom(r);
             }

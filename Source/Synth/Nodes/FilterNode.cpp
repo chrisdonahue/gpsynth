@@ -24,7 +24,7 @@ params()
     sampleRate = sr;
 
     mutatableParams.push_back(cfmin);
-    mutatableParams.push_back(cfmin);
+    mutatableParams.push_back(cfmax);
     mutatableParams.push_back(bwqmin);
     mutatableParams.push_back(bwqmax);
 
@@ -45,8 +45,9 @@ params()
     else if (type == 3) {
         filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
     }
+    params[0] = sampleRate;
 
-    updateMutatedParams();
+    fillFromParams();
 }
 
 FilterNode::~FilterNode() {
@@ -66,14 +67,14 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     audioData[0] = buffer;
 
     float* cfbuffer = (float*) malloc(sizeof(float) * n);
-    double cfmin;
-    double cfmax;
+    double cfmin = std::numeric_limits<double>::min();
+    double cfmax = std::numeric_limits<double>::max();
     descendants[1]->evaluateBlock(fn, t, nv, v, &cfmin, &cfmax, n, cfbuffer);
     double cfscale = (centerFrequencyMax - centerFrequencyMin) / (cfmax - cfmin);
 
     float* bwqbuffer = (float*) malloc(sizeof(float) * n);
-    double bwqmin;
-    double bwqmax;
+    double bwqmin = std::numeric_limits<double>::min();
+    double bwqmax = std::numeric_limits<double>::max();
     descendants[2]->evaluateBlock(fn, t, nv, v, &bwqmin, &bwqmax, n, bwqbuffer);
     double bwqscale = (bandwidthQualityMax - bandwidthQualityMin) / (bwqmax - bwqmin);
 
@@ -111,7 +112,7 @@ std::string FilterNode::toString() {
     return std::string(buffer);
 }
 
-void FilterNode::updateMutatedParams() {
+void FilterNode::fillFromParams() {
     // update mutated params
     centerFrequencyMin = mutatableParams[0]->getValue();
     centerFrequencyMax = mutatableParams[1]->getValue();
@@ -119,18 +120,18 @@ void FilterNode::updateMutatedParams() {
     bandwidthQualityMax = mutatableParams[3]->getValue();
 
     // remake filter
-    params[0] = sampleRate;
     centerFrequency = (centerFrequencyMin + centerFrequencyMax) / 2;
     bandwidthQuality = (bandwidthQualityMin + bandwidthQualityMax) / 2;
     params[1] = centerFrequency;
     params[2] = bandwidthQuality;
     filter->setParams(params);
+}
+
+void FilterNode::updateMutatedParams() {
+    fillFromParams();
 
     // call on descendants
-    if (descendants[0] != NULL)
-        descendants[0]->updateMutatedParams();
-    if (descendants[1] != NULL)
-        descendants[1]->updateMutatedParams();
-    if (descendants[2] != NULL)
-        descendants[2]->updateMutatedParams();
+    descendants[0]->updateMutatedParams();
+    descendants[1]->updateMutatedParams();
+    descendants[2]->updateMutatedParams();
 }

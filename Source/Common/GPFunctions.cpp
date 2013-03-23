@@ -21,10 +21,12 @@ double GPmultiplyCalculateRange(double* min, double* max, double zeromin, double
     products[1] = zeromin * onemax;
     products[2] = zeromax * onemin;
     products[3] = zeromax * onemax;
-    for (int i = 0; i < 4; i++) {
+    *min = products[0];
+    *max = products[0];
+    for (int i = 1; i < 4; i++) {
        if (products[i] < *min)
             *min = products[i];
-        if (products[i] > *max)
+       if (products[i] > *max)
             *max = products[i];
     }
 }

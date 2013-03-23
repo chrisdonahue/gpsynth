@@ -39,12 +39,12 @@ FunctionNode* FunctionNode::getCopy() {
 }
 
 void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-    double zeromin;
-    double zeromax;
+    double zeromin = std::numeric_limits<double>::min();
+    double zeromax = std::numeric_limits<double>::max();
     descendants[0]->evaluateBlock(fn, t, nv, v, &zeromin, &zeromax, n, buffer);
     if (arity == 2) {
-        double onemin;
-        double onemax;
+        double onemin = std::numeric_limits<double>::min();
+        double onemax = std::numeric_limits<double>::max();
         float* oneBlock = (float*) malloc(sizeof(float) * n);
         descendants[1]->evaluateBlock(fn, t, nv, v, &onemin, &onemax, n, oneBlock);
         gpfunction.calculateRange(min, max, zeromin, zeromax, onemin, onemax);
