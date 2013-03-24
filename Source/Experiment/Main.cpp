@@ -77,6 +77,8 @@ public:
         params->reproductionSelectionType = 0;
         params->crossoverType = 0;
         params->crossoverSelectionType = 0;
+        params->numericMutationTemperatureConstant = 0.02;
+        params->proportionOfPopulationForNumericMutation = 0.2;
 
         // value node params
         params->valueNodeMinimum = -1.0;

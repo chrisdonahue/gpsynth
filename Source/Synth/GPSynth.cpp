@@ -114,10 +114,10 @@ GPNetwork* GPSynth::grow(unsigned m) {
 
 void GPSynth::initPopulation() {
     // implementation of ramped half and half
-    unsigned numPerPart = populationSize / (maxInitialDepth - 1);
+    unsigned numPerPart = maxInitialDepth <= 1 ? 0 : populationSize / (maxInitialDepth - 1);
     unsigned numFullPerPart = numPerPart / 2;
     unsigned numGrowPerPart = numFullPerPart + (numPerPart % 2);
-    unsigned additionalLargest = populationSize % (maxInitialDepth - 1);
+    unsigned additionalLargest = maxInitialDepth <= 1 ? populationSize : populationSize % (maxInitialDepth - 1);
     unsigned additionalFull = additionalLargest / 2;
     unsigned additionalGrow = additionalFull + (additionalLargest % 2);
 
@@ -246,6 +246,9 @@ int GPSynth::nextGeneration() {
     assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize && unevaluated.size() == 0);
 
     std::vector<GPNetwork*>* nextGeneration = new std::vector<GPNetwork*>();
+
+    unsigned numToNumericMutate = (unsigned) (proportionOfPopulationForNumericMutataion * populationSize);
+    // TODO: numericMutation
 
     unsigned numToCrossover = (unsigned) (proportionOfPopulationFromCrossover * populationSize);
 

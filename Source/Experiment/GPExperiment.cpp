@@ -181,9 +181,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         p->lowerFitnessIsBetter = true;
 
         // SUPPLY AVAILABLE NODES
-        nodes->push_back(new FunctionNode(add, NULL, NULL));
+        //nodes->push_back(new FunctionNode(add, NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
+        nodes->push_back(new NoiseNode(rng));
         nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
         nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));

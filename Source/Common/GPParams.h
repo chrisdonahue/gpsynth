@@ -39,6 +39,8 @@ struct GPParams {
     unsigned reproductionSelectionType;
     unsigned crossoverType;
     unsigned crossoverSelectionType;
+    double numericMutatationTemperatureConstant;
+    double proportionOfPopulationForNumericMutation;
 
     // value node
     double valueNodeMinimum;
