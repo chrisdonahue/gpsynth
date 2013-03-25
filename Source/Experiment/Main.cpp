@@ -72,13 +72,15 @@ public:
         params->maxDepth = 12;
 
         // synth genetic params
-        params->proportionOfPopulationFromCrossover = 0.9;
         params->proportionOfPopulationForGreedySelection = 0.0;
-        params->reproductionSelectionType = 0;
-        params->crossoverType = 0;
-        params->crossoverSelectionType = 0;
+        params->numericMutationSelectionType = 1;
+        params->percentileOfPopulationToSelectFromForNumericMutation = 0.2;
+        params->proportionOfPopulationToNumericallyMutate = 0.05;
         params->numericMutationTemperatureConstant = 0.02;
-        params->proportionOfPopulationForNumericMutation = 0.2;
+        params->crossoverSelectionType = 0;
+        params->crossoverType = 0;
+        params->proportionOfPopulationFromCrossover = 0.9;
+        params->reproductionSelectionType = 0;
 
         // value node params
         params->valueNodeMinimum = -1.0;

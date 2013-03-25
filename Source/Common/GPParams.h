@@ -34,13 +34,15 @@ struct GPParams {
     unsigned maxDepth;
 
     // synth genetic parameters
-    double proportionOfPopulationFromCrossover;
     double proportionOfPopulationForGreedySelection;
-    unsigned reproductionSelectionType;
-    unsigned crossoverType;
+    unsigned numericMutationSelectionType;
+    double percentileOfPopulationToSelectFromForNumericMutation;
+    double proportionOfPopulationToNumericallyMutate;
+    double numericMutationTemperatureConstant;
     unsigned crossoverSelectionType;
-    double numericMutatationTemperatureConstant;
-    double proportionOfPopulationForNumericMutation;
+    unsigned crossoverType;
+    double proportionOfPopulationFromCrossover;
+    unsigned reproductionSelectionType;
 
     // value node
     double valueNodeMinimum;

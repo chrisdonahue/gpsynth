@@ -11,6 +11,7 @@
 #ifndef GPSYNTH_H
 #define GPSYNTH_H
 
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <set>
@@ -47,14 +48,18 @@ class GPSynth {
 
         // EVOLUTION CONTROL
         int nextGeneration();
+        void calculateGenerationRanks();
+        void calculateGenerationNormalizedFitnesses();
 
         // HELPERS
         void addNetworkToPopulation(GPNetwork* net);
         void clearGenerationState();
-        GPNetwork* selectFromEvaluated(unsigned selectionType);
+        GPNetwork* selectFromEvaluated(unsigned selectionType, unsigned parameter);
+        bool compareNetworkFitnesses(GPNetwork* one, GPNetwork* two);
         
-        // CROSSOVER
+        // GENETIC OPERATIONS
         GPNetwork* reproduce(GPNetwork* one, GPNetwork* two);
+        double numericallyMutate(GPNetwork* one);
 
         // SYNTH EVOLUTION STATE
         GPRandom* rng;
@@ -67,14 +72,7 @@ class GPSynth {
         double bestPossibleFitness;
         unsigned maxInitialDepth;
         unsigned maxDepth;
-
-        // GENETIC PARAMS
-        double mutationDuringInitializationChance;
-        double proportionOfPopulationFromCrossover;
-        unsigned reproductionSelectionType;
         unsigned crossoverType;
-        unsigned crossoverSelectionType;
-        double mutationDuringCrossoverChance;
 
         // AVAILABLE CONTAINERS
         std::vector<GPNode*>* availableNodes;
@@ -90,7 +88,7 @@ class GPSynth {
         // SELECTION CONTAINERS
         std::vector<double> rawFitnesses;
         std::vector<double> normalizedFitnesses;
-        std::vector<int> rank;
+        std::vector<GPNetwork*> rank;
 };
 
 #endif
