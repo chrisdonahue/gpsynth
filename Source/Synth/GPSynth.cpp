@@ -268,7 +268,7 @@ int GPSynth::nextGeneration() {
       two->traceNetwork();
       two->ID = mom->ID;
 
-      GPNetwork* offspring = reproduce(one, two);
+      GPNetwork* offspring = crossover(one, two);
 
       // standard GP with two offspring
       if (offspring == NULL) {
@@ -320,7 +320,10 @@ void GPSynth::calculateGenerationRanks() {
     for (int i = 0; i < populationSize; i++) {
         rank[i] = currentGeneration[i];
     }
-    std::sort(rank.begin(), rank.end(), this->compareNetworkFitnesses);
+    if (lowerFitnessIsBetter)
+        std::sort(rank.begin(), rank.end(), compareFitnessesLower);
+    else
+        std::sort(rank.begin(), rank.end(), compareFitnessesHigher);
 }
 
 void GPSynth::calculateGenerationNormalizedFitnesses() {
@@ -445,18 +448,13 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType, unsigned paramet
     return NULL;
 }
 
-bool GPSynth::compareNetworkFitnesses(GPNetwork* one, GPNetwork* two) {
-    return lowerFitnessIsBetter ? one->fitness < two->fitness : one->fitness > two->fitness;
-}
-
-
 /*
     =========
     CROSSOVER
     =========
 */
 
-GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
+GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
         GPNode* subtreeone = one->getRandomNetworkNode(rng);
@@ -491,6 +489,21 @@ GPNetwork* GPSynth::reproduce(GPNetwork* one, GPNetwork* two) {
     return NULL;
 }
 
-double numericallyMutate(GPNetwork* one) {
+double GPSynth::numericallyMutate(GPNetwork* one) {
     return one->fitness;
 }
+
+/*
+    ====================
+    EXTERNAL COMPARATORS
+    ====================
+*/
+
+bool compareFitnessesLower(GPNetwork* one, GPNetwork* two) {
+    return one->fitness < two->fitness;
+}
+
+bool compareFitnessesHigher(GPNetwork* one, GPNetwork* two) {
+    return two->fitness < one->fitness;
+}
+

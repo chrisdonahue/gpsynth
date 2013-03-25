@@ -74,8 +74,10 @@ public:
         // synth genetic params
         params->proportionOfPopulationForGreedySelection = 0.0;
         params->numericMutationSelectionType = 1;
-        params->percentileOfPopulationToSelectFromForNumericMutation = 0.2;
-        params->proportionOfPopulationToNumericallyMutate = 0.05;
+        //params->percentileOfPopulationToSelectFromForNumericMutation = 0.2;
+        //params->proportionOfPopulationToNumericallyMutate = 0.05;
+        params->percentileOfPopulationToSelectFromForNumericMutation = 1.0;
+        params->proportionOfPopulationToNumericallyMutate = 1.00;
         params->numericMutationTemperatureConstant = 0.02;
         params->crossoverSelectionType = 0;
         params->crossoverType = 0;

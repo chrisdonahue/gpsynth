@@ -55,10 +55,9 @@ class GPSynth {
         void addNetworkToPopulation(GPNetwork* net);
         void clearGenerationState();
         GPNetwork* selectFromEvaluated(unsigned selectionType, unsigned parameter);
-        bool compareNetworkFitnesses(GPNetwork* one, GPNetwork* two);
         
         // GENETIC OPERATIONS
-        GPNetwork* reproduce(GPNetwork* one, GPNetwork* two);
+        GPNetwork* crossover(GPNetwork* one, GPNetwork* two);
         double numericallyMutate(GPNetwork* one);
 
         // SYNTH EVOLUTION STATE
@@ -90,5 +89,9 @@ class GPSynth {
         std::vector<double> normalizedFitnesses;
         std::vector<GPNetwork*> rank;
 };
+
+// EXTERNAL COMPARATORS
+extern bool compareFitnessesLower(GPNetwork* one, GPNetwork* two);
+extern bool compareFitnessesHigher(GPNetwork* one, GPNetwork* two);
 
 #endif
