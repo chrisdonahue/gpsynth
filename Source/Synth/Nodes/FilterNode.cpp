@@ -87,8 +87,8 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     double* currentIndex = v + variableNum;
     for (int i = 0; i < n; i++) {
         params[1] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
-        if (i == 0)
-          std::cout << params[1] << std::endl;
+        //if (i == 0)
+        //  std::cout << params[1] << std::endl;
         //params[2] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
         params[2] = bandwidthQuality;
         filter->process(1, audioData);

@@ -19,6 +19,7 @@
 GPSynth::GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes) :
 nextNetworkID(0), generationID(0),
 populationSize(p->populationSize),
+generationAverageFitness(p->penaltyFitness),
 lowerFitnessIsBetter(p->lowerFitnessIsBetter),
 bestPossibleFitness(p->bestPossibleFitness),
 maxInitialDepth(p->maxInitialDepth),
@@ -217,7 +218,7 @@ void GPSynth::printGenerationSummary() {
     assert(evaluated.size() == rawFitnesses.size());
     assert(evaluated.size() == populationSize);
     double generationCumulativeFitness = 0;
-    double generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
+    generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
     GPNetwork* champ = NULL;
     for (int i = 0; i < rawFitnesses.size(); i++) {
         double fitness = rawFitnesses[i];
@@ -235,7 +236,7 @@ void GPSynth::printGenerationSummary() {
             champ = currentGeneration[i];
         }
     }
-    double generationAverageFitness = generationCumulativeFitness / populationSize;
+    generationAverageFitness = generationCumulativeFitness / populationSize;
     std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString() << std::endl;
 }
 
@@ -253,8 +254,8 @@ int GPSynth::nextGeneration() {
         selected->fitness = newfitness;
         rawFitnesses[selected->ID % populationSize] = newfitness;
     }
-    rank.clear();
-    rank.resize(populationSize, NULL);
+    //rank.clear();
+    //rank.resize(populationSize, NULL);
 
     // CROSSOVER
     unsigned numToCrossover = (unsigned) (params->proportionOfPopulationFromCrossover * populationSize);
@@ -490,6 +491,34 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
 }
 
 double GPSynth::numericallyMutate(GPNetwork* one) {
+    double mutationAmount;
+    double bestProportion = generationBestFitness / params->penaltyFitness;
+    double temperatureConstant = params->numericMutationTemperatureConstant;
+
+    std::vector<GPMutatableParam*>* params = one->getAllMutatableParams();
+    for (int i = 0; i < params->size(); i++) {
+      GPMutatableParam* p = params->at(i);
+      if (p->isContinuous) {
+        double value = p->getCValue();
+        double min = p->getCMin();
+        double max = p->getCMax();
+        double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
+        double rand = rng->random();
+        double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
+        p->setCValue(value + mutationAmount);
+      }
+      else {
+        int value = p->getDValue();
+        int min = p->getDMin();
+        int max = p->getDMax();
+        double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
+        double rand = rng->random();
+        double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
+        p->setDValue((int) (value + mutationAmount));
+      }
+    }
+    one->updateMutatedParams();
+
     return one->fitness;
 }
 

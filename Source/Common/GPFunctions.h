@@ -6,7 +6,7 @@
 
 struct GPFunction {
     double (*function)(double, double);
-    double (*calculateRange)(double*, double*, double, double, double, double);
+    void (*calculateRange)(double*, double*, double, double, double, double);
     char symbol[4];
     bool isBinary;
     double identity;
@@ -21,11 +21,11 @@ extern GPFunction sine;
 //extern GPFunction power;
 //extern GPFunction cosine;
 
-extern double GPaddCalculateRange(double*, double*, double, double, double, double);
+extern void GPaddCalculateRange(double*, double*, double, double, double, double);
 extern double GPadd(double, double);
-extern double GPmultiplyCalculateRange(double*, double*, double, double, double, double);
+extern void GPmultiplyCalculateRange(double*, double*, double, double, double, double);
 extern double GPmultiply(double, double);
-extern double GPsineCalculateRange(double*, double*, double, double, double, double);
+extern void GPsineCalculateRange(double*, double*, double, double, double, double);
 extern double GPsine(double, double);
 
 //extern double GPcosine(double, double);

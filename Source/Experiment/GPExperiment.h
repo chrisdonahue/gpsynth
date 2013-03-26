@@ -40,6 +40,9 @@ class GPExperiment {
         // EVOLUTION CONTROL
         GPNetwork* evolve();
 
+        // REEVALUATION CALLBACK METHOD FOR SYNTH
+        double evaluateCallback(GPNetwork* candidate);
+
     private:
         // EXPERIMENT PARAMETERS
         GPParams* params;

@@ -3,7 +3,7 @@
 /*
     +
 */
-double GPaddCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+void GPaddCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
     *min = zeromin + onemin;
     *max = zeromax + onemax;
 }
@@ -15,7 +15,7 @@ GPFunction add = { GPadd, GPaddCalculateRange, "+", true, 0.0 };
 /*
     *
 */
-double GPmultiplyCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+void GPmultiplyCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
     double products[4];
     products[0] = zeromin * onemin;
     products[1] = zeromin * onemax;
@@ -38,7 +38,7 @@ GPFunction multiply = { GPmultiply, GPmultiplyCalculateRange, "*", true, 0.0 };
 /*
     sin
 */
-double GPsineCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+void GPsineCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
     *min = -1;
     *max = 1;
 }

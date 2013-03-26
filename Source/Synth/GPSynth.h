@@ -67,6 +67,8 @@ class GPSynth {
 
         // EVOLUTION PARAMS
         int populationSize;
+        double generationAverageFitness;
+        double generationBestFitness;
         bool lowerFitnessIsBetter;
         double bestPossibleFitness;
         unsigned maxInitialDepth;
