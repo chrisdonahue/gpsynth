@@ -20,3 +20,8 @@ Idea for experiment:
         Play the results for musicans and non-musicians and see if they can identify the target instrument
         Analyze human timbral comparisons to find best method for each instrument
         OPTIMISTIC: play fake and real see if they can determine which is which
+        Police line style, play all results against targets and see if nonmusicians can classify.
+        turk style
+
+    one experiment that shows the system works
+    make one thing that is as convincing as possible that this works
