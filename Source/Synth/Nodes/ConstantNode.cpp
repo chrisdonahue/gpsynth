@@ -14,14 +14,27 @@ ConstantNode::ConstantNode(GPMutatableParam* v, double min, double max) {
     value = v->getValue();
     mutatableParams.push_back(v);
 
+    hasInterval = true;
     minimum = min;
     maximum = max;
+}
+
+ConstantNode::ConstantNode(GPMutatableParam* v) {
+    value = v->getValue();
+    mutatableParams.push_back(v);
+
+    hasInterval = false;
+    minimum = value;
+    maximum = value;
 }
 
 ConstantNode::~ConstantNode() {
 }
 
 ConstantNode* ConstantNode::getCopy() {
+  if (hasInterval)
+    return new ConstantNode(mutatableParams[0]->getCopy(), minimum, maximum);
+  else
     return new ConstantNode(mutatableParams[0]->getCopy());
 }
 
@@ -46,4 +59,8 @@ std::string ConstantNode::toString() {
 
 void ConstantNode::updateMutatedParams() {
     value = mutatableParams[0]->getValue();
+    if (!hasInterval) {
+      minimum = value;
+      maximum = value;
+    }
 }

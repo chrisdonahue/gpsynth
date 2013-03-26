@@ -157,7 +157,7 @@ GPNode* createSubtree(GPParams* p, char* tokenized=strtok(NULL, " )(")) {
         return new TimeNode();
     }
     else if (strncmp(t, "v", 1) == 0) {
-        return new VariableNode(std::stoi(t + 1));
+        return new VariableNode(std::stoi(t + 1), 0.0, 0.0);
     }
     else {
         return new ConstantNode(new GPMutatableParam("constantvalue", true, std::stod(t), p->valueNodeMinimum, p->valueNodeMaximum));

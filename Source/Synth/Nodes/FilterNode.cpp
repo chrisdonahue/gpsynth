@@ -28,8 +28,7 @@ params()
 
     mutatableParams.push_back(cfmultmin);
     mutatableParams.push_back(cfmultmax);
-    mutatableParams.push_back(bwqmin);
-    mutatableParams.push_back(bwqmax);
+    mutatableParams.push_back(bwq);
 
     descendants.push_back(signal);
     descendants.push_back(center);
@@ -58,7 +57,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, fadeParameterChanges, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), descendants[2] == NULL ? NULL : descendants[2]->getCopy());
+    return new FilterNode(type, fadeParameterChanges, sampleRate, variableNum, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), descendants[2] == NULL ? NULL : descendants[2]->getCopy());
 }
 
 void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {

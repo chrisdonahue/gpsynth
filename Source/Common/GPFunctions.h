@@ -34,5 +34,31 @@ extern double GPsine(double, double);
 //extern double GPpower(double, double);
 //extern double GPsubtractCalculateRange(double*, double*, double, double, double, double);
 //extern double GPsubtract(double, double);
+/*
+class GPFunction {
+  GPFunction();
+  ~GPFunction();
+  virtual double function(double, double);
+  virtual double calculateRange(double, double);
+};
+
+template<GPFunction >
+function_traits
+{
+
+}
+
+function_traits<add >
+{
+  int param = 0;
+  string param = "+";
+}
+
+class add : GPFunction {
+  double function(double left, double right) {
+    return left + right;
+  }
+}
+*/
 
 #endif

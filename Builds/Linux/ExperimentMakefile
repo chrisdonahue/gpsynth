@@ -48,6 +48,7 @@ OBJECTS := \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
+  $(OBJDIR)/ADSRNode.o \
   $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/ModOscilNode.o \
   $(OBJDIR)/FilterNode.o \

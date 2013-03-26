@@ -21,7 +21,7 @@ VariableNode::~VariableNode() {
 }
 
 VariableNode* VariableNode::getCopy() {
-    return new VariableNode(variableNum);
+    return new VariableNode(variableNum, minimum, maximum);
 }
 
 void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {

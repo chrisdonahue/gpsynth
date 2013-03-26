@@ -150,7 +150,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ConstantNode(constantTwo->getCopy()));
         nodes->push_back(new ConstantNode(constantPi->getCopy()));
         nodes->push_back(new TimeNode());
-        nodes->push_back(new VariableNode(0));
+        nodes->push_back(new VariableNode(0, 0, targetSampleRate/2));
     }
     // C4 Piano experiment hard
     if (params->experimentNumber == 3) {
@@ -163,7 +163,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FunctionNode(add, NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new TimeNode());
-        nodes->push_back(new VariableNode(0));
+        nodes->push_back(new VariableNode(0, 0, targetSampleRate/2));
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new ModOscilNode(NULL, NULL));
         nodes->push_back(new NoiseNode(rng));
@@ -189,7 +189,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FilterNode(3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-           }
+     }
     if (params->experimentNumber == 10) {
         /*
         // ASSIGN SPECIAL FITNESS VALUES
@@ -245,8 +245,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     delete filterCenterFrequencyMultiplierMax;
     delete filterQualityMin;
     delete filterQualityMax;
-    delete filterBandwidthMin;
-    delete filterBandwidthMax;
+    delete filterBandwidth;
     delete ADSRDelay;
     delete ADSRAttack;
     delete ADSRAttackHeight;

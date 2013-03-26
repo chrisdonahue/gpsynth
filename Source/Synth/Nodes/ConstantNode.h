@@ -16,6 +16,7 @@
 class ConstantNode: public GPNode {
     public:
         ConstantNode(GPMutatableParam* v, double min, double max);
+        ConstantNode(GPMutatableParam* v);
         ~ConstantNode();
         ConstantNode* getCopy();
 
@@ -24,6 +25,7 @@ class ConstantNode: public GPNode {
         void updateMutatedParams();
 
     private:
+        bool hasInterval;
         double value;
         double minimum;
         double maximum;
