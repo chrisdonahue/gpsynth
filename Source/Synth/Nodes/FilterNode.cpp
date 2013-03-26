@@ -87,6 +87,8 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     double* currentIndex = v + variableNum;
     for (int i = 0; i < n; i++) {
         params[1] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
+        if (i == 0)
+          std::cout << params[1] << std::endl;
         //params[2] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
         params[2] = bandwidthQuality;
         filter->process(1, audioData);
@@ -105,9 +107,9 @@ std::string FilterNode::toString() {
     else if (type == 1)
         snprintf(buffer, 1024, "(highpass %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString().c_str());
     else if (type == 2)
-        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString().c_str());
+        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s %s %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString().c_str(), descendants[1]->toString().c_str(), descendants[2]->toString().c_str());
     else if (type == 3)
-        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString().c_str());
+        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s %s %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString().c_str(), descendants[1]->toString().c_str(), descendants[2]->toString().c_str());
     return std::string(buffer);
 }
 
