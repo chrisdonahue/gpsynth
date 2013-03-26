@@ -3,8 +3,8 @@ Main.cpp:
     Add command line for all GPParams
     --help
     check argument ranges
-    renderBlockSize > frames in file?
-    fftSize > frames in file?
+      renderBlockSize > frames in file?
+      fftSize > frames in file?
 
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
@@ -22,7 +22,6 @@ GPSynth.cpp:
 
 Node subclasses:
     DelayNode
-    ADSRNode
     ConditionalNode
     consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
 
@@ -46,10 +45,9 @@ Thoughts:
     better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
     is ModOscilNode actually capable of FM synthesis? should it have an oscillator as well?
     reverse way min, max calculation happens by passing desired range down? think about this hard. might be more efficient also maybe its possible to work in ADSR this way
-    calculate min/max stuff with lo/hi filter node, determine if bandwidth/quality really need a descendant...
-    filter node should reference center frequency/variables in some way? test filter more thoroughly
+    calculate min/max stuff with lo/hi filter node, alter bandwidth/quality calculation
 
 TODO FOR NEXT EXPERIMENT:
     consider if modoscilnode is not functioning as anticipated
-    Numeric mutation
+    Numeric mutation adds to next gen not modify existing
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset

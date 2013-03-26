@@ -245,6 +245,7 @@ int GPSynth::nextGeneration() {
 
     std::vector<GPNetwork*>* nextGeneration = new std::vector<GPNetwork*>();
 
+      // TODO: add new copy to next generation, dont overwrite it
     // NUMERIC MUTATION
     unsigned numForPossibleNumericMutation = (unsigned) (params->percentileOfPopulationToSelectFromForNumericMutation * populationSize);
     unsigned numToNumericMutate = (unsigned) (params->proportionOfPopulationToNumericallyMutate * populationSize);

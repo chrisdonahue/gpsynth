@@ -457,13 +457,6 @@ void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, dou
     ================
 */
 
-double GPExperiment::evaluateCallback(GPNetwork* candidate) {
-  float* buffer = (float*) malloc(sizeof(float) * numTargetFrames);
-  double fitness = suboptimize(candidate, numTargetFrames, buffer);
-  free(buffer);
-  return fitness;
-}
-
 double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
     if (params->suboptimize) {
         // TODO: this
