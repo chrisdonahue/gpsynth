@@ -10,8 +10,11 @@
 
 #include "VariableNode.h"
 
-VariableNode::VariableNode(int vn) {
+VariableNode::VariableNode(int vn, double min, double max) {
     variableNum = vn;
+
+    minimum = min;
+    maximum = max;
 }
 
 VariableNode::~VariableNode() {
@@ -23,9 +26,8 @@ VariableNode* VariableNode::getCopy() {
 
 void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     double* currentIndex = v + variableNum;
-    // TODO: support variable nodes instead of just constants
-    *min = *currentIndex;
-    *max = *currentIndex;
+    *min = minimum;
+    *max = maximum;
     for (int i = 0; i < n; i++) {
         buffer[i] = *currentIndex;
         currentIndex += nv;

@@ -10,9 +10,12 @@
 
 #include "ConstantNode.h"
 
-ConstantNode::ConstantNode(GPMutatableParam* v) {
+ConstantNode::ConstantNode(GPMutatableParam* v, double min, double max) {
     value = v->getValue();
     mutatableParams.push_back(v);
+
+    minimum = min;
+    maximum = max;
 }
 
 ConstantNode::~ConstantNode() {
@@ -23,8 +26,8 @@ ConstantNode* ConstantNode::getCopy() {
 }
 
 void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-    *min = value;
-    *max = value;
+    *min = minimum;
+    *max = maximum;
 	for (int i = 0; i < n; i++) {
         buffer[i] = value;
     }

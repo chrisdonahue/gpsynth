@@ -15,7 +15,7 @@
 
 class VariableNode: public GPNode {
     public:
-        VariableNode(int vn);
+        VariableNode(int vn, double min, double max);
         ~VariableNode();
         VariableNode* getCopy();
 
@@ -25,6 +25,8 @@ class VariableNode: public GPNode {
 
     private:
         int variableNum;
+        double minimum;
+        double maximum;
 };
 
 #endif
