@@ -16,7 +16,7 @@
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(int t, int fpc, double sr, GPMutatableParam* cfmin, GPMutatableParam* cfmax, GPMutatableParam* bwqmin, GPMutatableParam* bwqmax, GPNode* signal, GPNode* center, GPNode* bandwidth);
+        FilterNode(int t, int fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth);
         ~FilterNode();
         FilterNode* getCopy();
 
@@ -30,13 +30,16 @@ class FilterNode: public GPNode {
         //int order;
         int fadeParameterChanges;
         double sampleRate;
+        double nyquist;
 
-        double centerFrequencyMin;
-        double centerFrequencyMax;
-        double centerFrequency;
-        double bandwidthQualityMin;
-        double bandwidthQualityMax;
+        int variableNum;
+
+        double centerFrequencyMultiplierMin;
+        double centerFrequencyMultiplierMax;
+        double centerFrequencyMultiplier;
         double bandwidthQuality;
+        double bandwidthQualityMinimum;
+        double bandwidthQualityMaximum;
 
         double maxGain;
         Dsp::Filter* filter;
