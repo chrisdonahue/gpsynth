@@ -98,11 +98,11 @@ public:
 
         // filter node
         params->filterNodeCenterFrequencyMinimum = 20;
-        params->filterNodeCenterFrequencyMaximum = 20000;
+        params->filterNodeCenterFrequencyMaximum = 22050;
         params->filterNodeQualityMinimum = 0.1;
         params->filterNodeQualityMaximum = 10.0;
-        params->filterNodeBandwidthMinimum = 0;
-        params->filterNodeBandwidthMaximum = 10000;
+        params->filterNodeBandwidthMinimum = 10;
+        params->filterNodeBandwidthMaximum = 2000;
 
         // adsr node
         params->ADSRNodeEnvelopeMin = 0.0;

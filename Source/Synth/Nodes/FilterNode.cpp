@@ -89,14 +89,20 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     double* currentIndex = v + variableNum;
     for (int i = 0; i < n; i++) {
         params[2] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
-        //if (i == 0)
-        //  std::cout << params[1] << std::endl;
-        //params[2] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
+        if (i == 0)
+            std::cout << params[2] << ", " << bandwidthQuality <<  std::endl;
+        //params[3] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
         params[3] = bandwidthQuality;
+        filter->setParams(params);
         filter->process(1, audioData);
         audioData[0] = audioData[0] + 1;
         currentIndex += nv;
     }
+
+    //params[2] = (*currentIndex) * ((cfbuffer[0] * cfscale) + centerFrequencyMultiplier);
+    //params[3] = bandwidthQuality;
+    //filter->setParams(params);
+    //filter->process(n, audioData);
 
     //free(bwqbuffer);
     free(cfbuffer);
