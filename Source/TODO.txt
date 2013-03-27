@@ -48,6 +48,7 @@ Thoughts:
     calculate min/max stuff with lo/hi filter node, alter bandwidth/quality calculation
 
 TODO FOR NEXT EXPERIMENT:
-    consider if modoscilnode is not functioning as anticipated
-    Numeric mutation adds to next gen not modify existing
+    fix modoscilnode after thinking about it for a while/test/add to available nodes
+    remove ADSR nonterminal
+    test filter with noise experiment number 5... modify filter
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset

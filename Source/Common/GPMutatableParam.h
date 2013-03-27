@@ -44,14 +44,15 @@ class GPMutatableParam {
         void setDValue(int val) {
           if (val > dmaximum)
             dvalue = dmaximum;
-          if (val < dminimum)
+          else if (val < dminimum)
             dvalue = dminimum;
           else
             dvalue = val;
         }
 
         void setDRange(int min, int max) {
-            assert(!isContinuous && min <= dvalue && dvalue <= max);
+            assert(!isContinuous && min <= max);
+            // TODO: alter value to new range
             dminimum = min;
             dmaximum = max;
         }
@@ -60,14 +61,15 @@ class GPMutatableParam {
         void setCValue(double val) {
           if (val > cmaximum)
             cvalue = cmaximum;
-          if (val < cminimum)
+          else if (val < cminimum)
             cvalue = cminimum;
           else
             cvalue = val;
         }
 
         void setCRange(double min, double max) {
-            assert(isContinuous && min <= cvalue && cvalue <= max);
+            assert(isContinuous && min <= max);
+            // TODO: alter value to new range
             cminimum = min;
             cmaximum = max;
         }

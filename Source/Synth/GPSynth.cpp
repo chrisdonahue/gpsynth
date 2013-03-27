@@ -264,6 +264,7 @@ int GPSynth::nextGeneration() {
     for (int i = 0; i < numToNumericMutate; i++) {
         GPNetwork* selected = selectFromEvaluated(params->numericMutationSelectionType, numForPossibleNumericMutation);
         GPNetwork* one = selected->getCopy();
+        one->traceNetwork();
         double newfitness = numericallyMutate(one);
         nextGeneration->push_back(one);
         //selected->fitness = newfitness;
@@ -518,9 +519,12 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
 }
 
 double GPSynth::numericallyMutate(GPNetwork* one) {
+    //std::cout << "BEFORE NUMERIC MUTATION " << one->toString() << std::endl;
     double mutationAmount;
-    double bestProportion = generationBestFitness / params->penaltyFitness;
+    double bestProportion = generationBestFitness / generationAverageFitness;
     double temperatureConstant = params->numericMutationTemperatureConstant;
+
+    //std::cout << bestProportion << ", " << temperatureConstant << std::endl;
 
     std::vector<GPMutatableParam*>* params = one->getAllMutatableParams();
     for (int i = 0; i < params->size(); i++) {
@@ -532,6 +536,7 @@ double GPSynth::numericallyMutate(GPNetwork* one) {
         double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
         double rand = rng->random();
         double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
+        //std::cout << "CONTINUOUS VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
         p->setCValue(value + mutationAmount);
       }
       else {
@@ -541,10 +546,12 @@ double GPSynth::numericallyMutate(GPNetwork* one) {
         double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
         double rand = rng->random();
         double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
+        //std::cout << "DISCRETE VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
         p->setDValue((int) (value + mutationAmount));
       }
     }
     one->updateMutatedParams();
+    //std::cout << "AFTER NUMERIC MUTATION " << one->toString() << std::endl;
 
     return one->fitness;
 }

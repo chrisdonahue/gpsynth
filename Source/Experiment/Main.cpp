@@ -167,7 +167,7 @@ public:
           else if (i->equalsIgnoreCase("--nmselectparam")) {
             params->percentileOfPopulationToSelectFromForNumericMutation = (++i)->getDoubleValue();
           }
-          else if (i->equalsIgnoreCase("--nmteperature")) {
+          else if (i->equalsIgnoreCase("--nmtemperature")) {
             params->numericMutationTemperatureConstant = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--crossover")) {
