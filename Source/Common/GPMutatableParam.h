@@ -120,10 +120,10 @@ class GPMutatableParam {
         }
 
         void ephemeralRandom(GPRandom* rng) {
-            if (isContinuous)
+            if (isContinuous && isMutatable)
                 cvalue = (rng->random() * (cmaximum - cminimum)) + cminimum;
-            else
-                dvalue = (rng->random((dmaximum - dminimum) + 1)) + dminimum; 
+            else if (!isContinuous && isMutatable)
+                dvalue = (rng->random((dmaximum - dminimum) + 1)) + dminimum;
         }
 
         bool isContinuous;

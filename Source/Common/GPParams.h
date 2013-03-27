@@ -40,6 +40,11 @@ struct GPParams {
     double proportionOfPopulationFromNumericMutation;
     double percentileOfPopulationToSelectFromForNumericMutation;
     double numericMutationTemperatureConstant;
+    // mutation
+    unsigned mutationSelectionType;
+    unsigned mutationType;
+    double proportionOfPopulationFromMutation;
+    double percentileOfPopulationToSelectFromForMutation;
     // crossover
     unsigned crossoverSelectionType;
     unsigned crossoverType;

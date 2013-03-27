@@ -25,6 +25,7 @@ bestPossibleFitness(p->bestPossibleFitness),
 maxInitialDepth(p->maxInitialDepth),
 maxDepth(p->maxDepth),
 crossoverType(p->crossoverType),
+mutationType(p->mutationType),
 availableNodes(nodes),
 allNetworks(), unevaluated(), evaluated(), currentGeneration(),
 rawFitnesses(), normalizedFitnesses(), rank()
@@ -251,13 +252,14 @@ int GPSynth::nextGeneration() {
     proportionSum += params->proportionOfPopulationFromNumericMutation + params->proportionOfPopulationFromCrossover + params->proportionOfPopulationFromReproduction;
 
     unsigned numToNumericMutate = (unsigned) ((params->proportionOfPopulationFromNumericMutation/proportionSum) * populationSize);
+    unsigned numToMutate = (unsigned) ((params->proportionOfPopulationFromMutation/proportionSum) * populationSize);
     unsigned numToCrossover = (unsigned) ((params->proportionOfPopulationFromCrossover/proportionSum) * populationSize);
     unsigned numToReproduce = (unsigned) ((params->proportionOfPopulationFromReproduction/proportionSum) * populationSize);
 
-    assert(numToNumericMutate + numToCrossover + numToReproduce <= populationSize);
+    assert(numToNumericMutate + numToMutate + numToCrossover + numToReproduce <= populationSize);
     numToCrossover += populationSize - (numToNumericMutate + numToCrossover + numToReproduce);
 
-    std::cout << populationSize << ", " << numToNumericMutate << ", " << numToCrossover << ", " << numToReproduce << std::endl;
+    std::cout << populationSize << ", " << numToNumericMutate << ", " << numToMutate << ", " << numToCrossover << ", " << numToReproduce << std::endl;
 
     // NUMERIC MUTATION
     unsigned numForPossibleNumericMutation = params->percentileOfPopulationToSelectFromForNumericMutation * populationSize;
@@ -269,6 +271,17 @@ int GPSynth::nextGeneration() {
         nextGeneration->push_back(one);
         //selected->fitness = newfitness;
         //rawFitnesses[selected->ID % populationSize] = newfitness;
+    }
+
+    // MUTATION
+    unsigned numForPossibleMutation = params->percentileOfPopulationToSelectFromForMutation * populationSize;
+    for (int i = 0; i < numToMutate; i++) {
+        GPNetwork* selected = selectFromEvaluated(params->mutationSelectionType, numForPossibleMutation);
+        GPNetwork* one = selected->getCopy();
+        one->traceNetwork();
+        mutate(one);
+        nextGeneration->push_back(one);
+        //selected->fitness = newfitness;
     }
 
     // CROSSOVER
@@ -492,6 +505,7 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
         GPNode* subtreetwocopy = subtreetwo->getCopy();
         one->replaceSubtree(subtreeone, subtreetwocopy);
         two->replaceSubtree(subtreetwo, subtreeonecopy);
+        // TODO: do these traces need to happen?
         one->traceNetwork();
         two->traceNetwork();
         delete subtreeone;
@@ -516,6 +530,26 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
         return NULL;
     }
     return NULL;
+}
+
+void GPSynth::mutate(GPNetwork* one) {
+    if (mutationType == 0) {
+        // pick old subtree
+        GPNode* forReplacement = one->getRandomNetworkNode(rng);
+        assert(maxDepth - forReplacement->depth >= 0);
+
+        // grow new replacement subtree
+        GPNode* replacement = growRecursive(0, maxDepth - forReplacement->depth);
+        if (params->ephemeralRandomConstants);
+            replacement->ephemeralRandom(rng);
+
+        // replace and delete old
+        one->replaceSubtree(forReplacement, replacement);
+        delete forReplacement;
+
+        // TODO: is this trace needed here?
+        one->traceNetwork();
+    }
 }
 
 double GPSynth::numericallyMutate(GPNetwork* one) {

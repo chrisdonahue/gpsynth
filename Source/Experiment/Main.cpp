@@ -78,6 +78,11 @@ public:
         params->proportionOfPopulationFromNumericMutation = 0.05;
         params->percentileOfPopulationToSelectFromForNumericMutation = 0.05;
         params->numericMutationTemperatureConstant = 0.02;
+        // mutation
+        params->mutationSelectionType = 1;
+        params->mutationType = 0;
+        params->proportionOfPopulationFromMutation = 0.05;
+        params->percentileOfPopulationToSelectFromForMutation = 0.05;
         // crossover
         params->crossoverSelectionType = 0;
         params->crossoverType = 0;
@@ -169,6 +174,18 @@ public:
           }
           else if (i->equalsIgnoreCase("--nmtemperature")) {
             params->numericMutationTemperatureConstant = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--mutation")) {
+            params->proportionOfPopulationFromMutation = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--mselect")) {
+            params->mutationSelectionType = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--mtype")) {
+            params->mutationType = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--mselectparam")) {
+            params->percentileOfPopulationToSelectFromForMutation = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--crossover")) {
             params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();

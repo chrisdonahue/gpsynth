@@ -59,6 +59,7 @@ class GPSynth {
         // GENETIC OPERATIONS
         GPNetwork* crossover(GPNetwork* one, GPNetwork* two);
         double numericallyMutate(GPNetwork* one);
+        void mutate(GPNetwork* one);
 
         // SYNTH EVOLUTION STATE
         GPRandom* rng;
@@ -73,6 +74,7 @@ class GPSynth {
         double bestPossibleFitness;
         unsigned maxInitialDepth;
         unsigned maxDepth;
+        unsigned mutationType;
         unsigned crossoverType;
 
         // AVAILABLE CONTAINERS

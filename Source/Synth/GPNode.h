@@ -38,6 +38,9 @@ class GPNode {
         virtual GPNode* getCopy() = 0;
         virtual void updateMutatedParams() = 0;
 
+        // TREE STATE
+        int depth;
+
         // HERITAGE POINTERS
         GPNode* parent;
         std::vector<GPNode*> descendants;
@@ -61,6 +64,7 @@ class GPNode {
         // INHERITED TRACE METHOD
         void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* rootHeight, int currentDepth) {
             parent = p;
+            depth = currentDepth;
             allnodes->push_back(this);
             for (int i = 0; i < mutatableParams.size(); i++) {
                 if (mutatableParams[i]->isMutatable)
