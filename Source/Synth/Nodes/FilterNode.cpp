@@ -89,8 +89,10 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     double* currentIndex = v + variableNum;
     for (int i = 0; i < n; i++) {
         params[2] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
+        /*
         if (i == 0)
-            std::cout << params[2] << ", " << bandwidthQuality <<  std::endl;
+            std::cout << "CF: " << params[2] << ", BW: " << bandwidthQuality << ", v0: " << *currentIndex << ", BUF: " << cfbuffer[i] << ", SCALE: " << cfscale << ", CFM: " << centerFrequencyMultiplier << std::endl;
+        */
         //params[3] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
         params[3] = bandwidthQuality;
         filter->setParams(params);
@@ -125,6 +127,10 @@ void FilterNode::fillFromParams() {
     // update mutated params
     centerFrequencyMultiplierMin = mutatableParams[0]->getValue();
     centerFrequencyMultiplierMax = mutatableParams[1]->getValue();
+    if (centerFrequencyMultiplierMax < centerFrequencyMultiplierMin) {
+        centerFrequencyMultiplierMin = centerFrequencyMultiplierMax;
+        centerFrequencyMultiplierMax = centerFrequencyMultiplierMin;
+    }
     bandwidthQuality = mutatableParams[2]->getValue();
 
     // remake filter
