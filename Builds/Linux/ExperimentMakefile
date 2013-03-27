@@ -62,7 +62,9 @@ OBJECTS := \
   $(OBJDIR)/Param.o \
   $(OBJDIR)/Filter.o \
   $(OBJDIR)/Biquad.o \
-  $(OBJDIR)/RBJ.o \
+  $(OBJDIR)/Cascade.o \
+  $(OBJDIR)/PoleFilter.o \
+  $(OBJDIR)/Butterworth.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
@@ -198,6 +200,21 @@ $(OBJDIR)/Biquad.o: ../../Source/Dependencies/DSPFilters/Biquad.cpp
 $(OBJDIR)/RBJ.o: ../../Source/Dependencies/DSPFilters/RBJ.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling RBJ.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Butterworth.o: ../../Source/Dependencies/DSPFilters/Butterworth.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Butterworth.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Cascade.o: ../../Source/Dependencies/DSPFilters/Cascade.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Cascade.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PoleFilter.o: ../../Source/Dependencies/DSPFilters/PoleFilter.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PoleFilter.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp

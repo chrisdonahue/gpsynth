@@ -16,7 +16,7 @@
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(int t, int fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth);
+        FilterNode(unsigned t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth);
         ~FilterNode();
         FilterNode* getCopy();
 
@@ -26,9 +26,9 @@ class FilterNode: public GPNode {
         void updateMutatedParams();
 
     private:
-        int type;
-        //int order;
-        int fadeParameterChanges;
+        unsigned type;
+        unsigned order;
+        unsigned fadeParameterChanges;
         double sampleRate;
         double nyquist;
 

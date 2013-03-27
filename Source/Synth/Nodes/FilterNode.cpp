@@ -16,10 +16,11 @@
     ==============
 */
 
-FilterNode::FilterNode(int t, int fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth) :
+FilterNode::FilterNode(unsigned t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth) :
 params()
 {
     type = t;
+    order = o;
     fadeParameterChanges = fpc;
     sampleRate = sr;
     nyquist = sampleRate/2;
@@ -36,18 +37,19 @@ params()
     arity = 3;
 
     if (type == 0) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (fadeParameterChanges);
+        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::LowPass <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
     }
     else if (type == 1) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::HighPass, 1> (fadeParameterChanges);
+        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::HighPass <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
     }
     else if (type == 2) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandPass2, 1> (fadeParameterChanges);
+        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
     }
     else if (type == 3) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandStop, 1> (fadeParameterChanges);
+        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandStop <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
     }
     params[0] = sampleRate;
+    params[1] = order;
 
     fillFromParams();
 }
@@ -57,7 +59,7 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    return new FilterNode(type, fadeParameterChanges, sampleRate, variableNum, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), descendants[2] == NULL ? NULL : descendants[2]->getCopy());
+    return new FilterNode(type, order, fadeParameterChanges, sampleRate, variableNum, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), descendants[2] == NULL ? NULL : descendants[2]->getCopy());
 }
 
 void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -86,11 +88,11 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
 
     double* currentIndex = v + variableNum;
     for (int i = 0; i < n; i++) {
-        params[1] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
+        params[2] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
         //if (i == 0)
         //  std::cout << params[1] << std::endl;
         //params[2] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
-        params[2] = bandwidthQuality;
+        params[3] = bandwidthQuality;
         filter->process(1, audioData);
         audioData[0] = audioData[0] + 1;
         currentIndex += nv;
@@ -121,8 +123,8 @@ void FilterNode::fillFromParams() {
 
     // remake filter
     centerFrequencyMultiplier = (centerFrequencyMultiplierMin + centerFrequencyMultiplierMax) / 2;
-    params[1] = centerFrequencyMultiplier * 1.0;
-    params[2] = bandwidthQuality;
+    params[2] = centerFrequencyMultiplier * 1.0;
+    params[3] = bandwidthQuality;
     filter->setParams(params);
 }
 
