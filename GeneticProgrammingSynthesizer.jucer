@@ -1,11 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="GnskkM" name="GeneticProgrammingSynthesizer" projectType="guiapp"
-              version="1.0.0" bundleIdentifier="com.radiohunches.GeneticProgrammingSynthesizer"
-              jucerVersion="3.0.0" companyName="Radio Hunches Software">
-  <MAINGROUP id="C2oLXJ" name="GeneticProgrammingSynthesizer">
-    <GROUP id="{734C5601-02D3-8D24-5EE9-EA0C13BAF4F7}" name="Source">
-      <FILE id="BygsWE" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+<JUCERPROJECT id="JrY6H7" name="GeneticProgrammingSynthesizer" projectType="audioplug"
+              version="1.0.0" bundleIdentifier="com.yourcompany.GeneticProgrammingSynthesizer"
+              buildVST="1" buildRTAS="0" buildAU="0" pluginName="GeneticProgrammingSynthesizer"
+              pluginDesc="GeneticProgrammingSynthesizer" pluginManufacturer="radiohunches"
+              pluginManufacturerCode="Manu" pluginCode="Plug" pluginChannelConfigs="{0, 2}"
+              pluginIsSynth="1" pluginWantsMidiIn="1" pluginProducesMidiOut="0"
+              pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
+              pluginAUExportPrefix="GeneticProgrammingSynthesizerAU" pluginAUViewClass="GeneticProgrammingSynthesizerAU_V1"
+              pluginRTASCategory="" jucerVersion="3.0.0" companyName="Radio Hunches Software">
+  <EXPORTFORMATS>
+    <VS2010 targetFolder="Builds/VisualStudio2010" libraryType="1" juceFolder="..\..\juce\modules"
+            vstFolder="c:\SDKs\vstsdk2.4">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="GeneticProgrammingSynthesizer"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="GeneticProgrammingSynthesizer"/>
+      </CONFIGURATIONS>
+    </VS2010>
+  </EXPORTFORMATS>
+  <MAINGROUP id="zSukVr" name="GeneticProgrammingSynthesizer">
+    <GROUP id="{DD93D1E5-4B42-6E4C-0609-FA2429275004}" name="Source">
+      <GROUP id="{51497CE6-98ED-C2D0-E515-DB2AAA470B05}" name="Dependencies">
+        <GROUP id="{2EC6179D-947B-F6A3-D614-FFC2DC8BB34D}" name="DSPFilters">
+          <FILE id="gOh0j8" name="Bessel.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Bessel.cpp"/>
+          <FILE id="KO7tT6" name="Bessel.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Bessel.h"/>
+          <FILE id="h8T2SJ" name="Biquad.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Biquad.cpp"/>
+          <FILE id="YQQgXp" name="Biquad.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Biquad.h"/>
+          <FILE id="ckEcV0" name="Butterworth.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Butterworth.cpp"/>
+          <FILE id="FdP25n" name="Butterworth.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Butterworth.h"/>
+          <FILE id="oReXq9" name="Cascade.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Cascade.cpp"/>
+          <FILE id="rMPzEr" name="Cascade.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Cascade.h"/>
+          <FILE id="NaxLjf" name="ChebyshevI.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/ChebyshevI.cpp"/>
+          <FILE id="er7l0T" name="ChebyshevI.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/ChebyshevI.h"/>
+          <FILE id="DvaJWL" name="ChebyshevII.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/ChebyshevII.cpp"/>
+          <FILE id="J785ZN" name="ChebyshevII.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/ChebyshevII.h"/>
+          <FILE id="UQjMy8" name="Common.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Common.h"/>
+          <FILE id="jeevgQ" name="Custom.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Custom.cpp"/>
+          <FILE id="L0XF1m" name="Custom.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Custom.h"/>
+          <FILE id="LeSsYX" name="Design.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Design.cpp"/>
+          <FILE id="zqMMoq" name="Design.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Design.h"/>
+          <FILE id="NQUf4Q" name="Documentation.cpp" compile="1" resource="0"
+                file="Source/Dependencies/DSPFilters/Documentation.cpp"/>
+          <FILE id="jrsy6I" name="Dsp.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Dsp.h"/>
+          <FILE id="QkrCbw" name="Elliptic.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Elliptic.cpp"/>
+          <FILE id="OLbF8p" name="Elliptic.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Elliptic.h"/>
+          <FILE id="ufKVJO" name="Filter.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Filter.cpp"/>
+          <FILE id="Bw9fuN" name="Filter.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Filter.h"/>
+          <FILE id="c55LjD" name="Layout.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Layout.h"/>
+          <FILE id="NLzDYG" name="Legendre.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Legendre.cpp"/>
+          <FILE id="m7zL9Z" name="Legendre.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Legendre.h"/>
+          <FILE id="DkbImC" name="MathSupplement.h" compile="0" resource="0"
+                file="Source/Dependencies/DSPFilters/MathSupplement.h"/>
+          <FILE id="IW9TiS" name="Param.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/Param.cpp"/>
+          <FILE id="zk3CmB" name="Params.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Params.h"/>
+          <FILE id="AJelqp" name="PoleFilter.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/PoleFilter.cpp"/>
+          <FILE id="T3Ass5" name="PoleFilter.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/PoleFilter.h"/>
+          <FILE id="Azc1t0" name="ProductInfo.txt" compile="0" resource="1" file="Source/Dependencies/DSPFilters/ProductInfo.txt"/>
+          <FILE id="MuKmp2" name="ProductWebsite.html" compile="0" resource="1"
+                file="Source/Dependencies/DSPFilters/ProductWebsite.html"/>
+          <FILE id="LR0T0V" name="RBJ.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/RBJ.cpp"/>
+          <FILE id="JmMTfg" name="RBJ.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/RBJ.h"/>
+          <FILE id="qkLD3r" name="RootFinder.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/RootFinder.cpp"/>
+          <FILE id="AwDGQP" name="RootFinder.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/RootFinder.h"/>
+          <FILE id="xl9K0x" name="SedCommand.txt" compile="0" resource="1" file="Source/Dependencies/DSPFilters/SedCommand.txt"/>
+          <FILE id="DupWI4" name="SmoothedFilter.h" compile="0" resource="0"
+                file="Source/Dependencies/DSPFilters/SmoothedFilter.h"/>
+          <FILE id="Es246B" name="State.cpp" compile="1" resource="0" file="Source/Dependencies/DSPFilters/State.cpp"/>
+          <FILE id="KFBwCk" name="State.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/State.h"/>
+          <FILE id="ipurNI" name="Types.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Types.h"/>
+          <FILE id="hnHGd9" name="Utilities.h" compile="0" resource="0" file="Source/Dependencies/DSPFilters/Utilities.h"/>
+        </GROUP>
+        <GROUP id="{EC2E9C14-B39A-685D-2A2D-51E7C89208C1}" name="kissfft">
+          <FILE id="VDZDMq" name="_kiss_fft_guts.h" compile="0" resource="0"
+                file="Source/Dependencies/kissfft/_kiss_fft_guts.h"/>
+          <FILE id="UStzn8" name="kiss_fft.c" compile="1" resource="0" file="Source/Dependencies/kissfft/kiss_fft.c"/>
+          <FILE id="YlWHG8" name="kiss_fft.h" compile="0" resource="0" file="Source/Dependencies/kissfft/kiss_fft.h"/>
+          <FILE id="lmLmNu" name="kiss_fftr.c" compile="1" resource="0" file="Source/Dependencies/kissfft/kiss_fftr.c"/>
+          <FILE id="yZqzql" name="kiss_fftr.h" compile="0" resource="0" file="Source/Dependencies/kissfft/kiss_fftr.h"/>
+          <FILE id="JEoVmp" name="kissfft.hh" compile="0" resource="1" file="Source/Dependencies/kissfft/kissfft.hh"/>
+        </GROUP>
+      </GROUP>
+      <GROUP id="{C1C7AA59-1162-F532-8836-46397E1D612B}" name="Plugin">
+        <FILE id="oGD1tW" name="PluginEditor.cpp" compile="1" resource="0"
+              file="Source/Plugin/PluginEditor.cpp"/>
+        <FILE id="cN7qG3" name="PluginEditor.h" compile="0" resource="0" file="Source/Plugin/PluginEditor.h"/>
+        <FILE id="jOl8ss" name="PluginProcessor.cpp" compile="1" resource="0"
+              file="Source/Plugin/PluginProcessor.cpp"/>
+        <FILE id="QBLkwe" name="PluginProcessor.h" compile="0" resource="0"
+              file="Source/Plugin/PluginProcessor.h"/>
+      </GROUP>
+      <GROUP id="{1AA23BCC-D833-B23A-3558-5A78B86726A4}" name="Synth">
+        <FILE id="GyspUh" name="GPNetwork.cpp" compile="1" resource="0" file="Source/Synth/GPNetwork.cpp"/>
+        <FILE id="PSCzgC" name="GPNetwork.h" compile="0" resource="0" file="Source/Synth/GPNetwork.h"/>
+        <FILE id="zEbcFR" name="GPNode.h" compile="0" resource="0" file="Source/Synth/GPNode.h"/>
+        <FILE id="wxDIzF" name="GPSynth.cpp" compile="1" resource="0" file="Source/Synth/GPSynth.cpp"/>
+        <FILE id="VULi7p" name="GPSynth.h" compile="0" resource="0" file="Source/Synth/GPSynth.h"/>
+        <GROUP id="{7651B9DD-70E3-522B-89FC-B0662B99F074}" name="Nodes">
+          <FILE id="JKn2e6" name="ADSRNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/ADSRNode.cpp"/>
+          <FILE id="o6yyQl" name="ADSRNode.h" compile="0" resource="0" file="Source/Synth/Nodes/ADSRNode.h"/>
+          <FILE id="Uzwmko" name="ConditionalNode.cpp" compile="1" resource="0"
+                file="Source/Synth/Nodes/ConditionalNode.cpp"/>
+          <FILE id="kM8gUk" name="ConditionalNode.h" compile="0" resource="0"
+                file="Source/Synth/Nodes/ConditionalNode.h"/>
+          <FILE id="u21t4h" name="ConstantNode.cpp" compile="1" resource="0"
+                file="Source/Synth/Nodes/ConstantNode.cpp"/>
+          <FILE id="xNsqny" name="ConstantNode.h" compile="0" resource="0" file="Source/Synth/Nodes/ConstantNode.h"/>
+          <FILE id="FxrJUe" name="DelayNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/DelayNode.cpp"/>
+          <FILE id="tC2VoZ" name="DelayNode.h" compile="0" resource="0" file="Source/Synth/Nodes/DelayNode.h"/>
+          <FILE id="joa6Rf" name="FilterNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/FilterNode.cpp"/>
+          <FILE id="cQ4Q0R" name="FilterNode.h" compile="0" resource="0" file="Source/Synth/Nodes/FilterNode.h"/>
+          <FILE id="TFkkeA" name="FunctionNode.cpp" compile="1" resource="0"
+                file="Source/Synth/Nodes/FunctionNode.cpp"/>
+          <FILE id="XKgUi5" name="FunctionNode.h" compile="0" resource="0" file="Source/Synth/Nodes/FunctionNode.h"/>
+          <FILE id="ffaeLC" name="ModOscilNode.cpp" compile="1" resource="0"
+                file="Source/Synth/Nodes/ModOscilNode.cpp"/>
+          <FILE id="UuhFlL" name="ModOscilNode.h" compile="0" resource="0" file="Source/Synth/Nodes/ModOscilNode.h"/>
+          <FILE id="M0cfwM" name="NoiseNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/NoiseNode.cpp"/>
+          <FILE id="pqzFin" name="NoiseNode.h" compile="0" resource="0" file="Source/Synth/Nodes/NoiseNode.h"/>
+          <FILE id="yQKGN4" name="OscilNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/OscilNode.cpp"/>
+          <FILE id="kTsYlh" name="OscilNode.h" compile="0" resource="0" file="Source/Synth/Nodes/OscilNode.h"/>
+          <FILE id="ecj5jV" name="TimeNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/TimeNode.cpp"/>
+          <FILE id="NUQsDJ" name="TimeNode.h" compile="0" resource="0" file="Source/Synth/Nodes/TimeNode.h"/>
+          <FILE id="gxppZS" name="VariableNode.cpp" compile="1" resource="0"
+                file="Source/Synth/Nodes/VariableNode.cpp"/>
+          <FILE id="ky6PHt" name="VariableNode.h" compile="0" resource="0" file="Source/Synth/Nodes/VariableNode.h"/>
+        </GROUP>
+      </GROUP>
+      <GROUP id="{51C66B28-96CB-C10A-785D-D14ED76573AC}" name="Common">
+        <FILE id="Y5jss0" name="GPFunctions.cpp" compile="1" resource="0" file="Source/Common/GPFunctions.cpp"/>
+        <FILE id="MPyxBl" name="GPFunctions.h" compile="0" resource="0" file="Source/Common/GPFunctions.h"/>
+        <FILE id="zqqeMC" name="GPMutatableParam.h" compile="0" resource="0"
+              file="Source/Common/GPMutatableParam.h"/>
+        <FILE id="su6vYr" name="GPParams.h" compile="0" resource="0" file="Source/Common/GPParams.h"/>
+        <FILE id="xAdEja" name="GPRandom.cpp" compile="1" resource="0" file="Source/Common/GPRandom.cpp"/>
+        <FILE id="gzJWmx" name="GPRandom.h" compile="0" resource="0" file="Source/Common/GPRandom.h"/>
+      </GROUP>
     </GROUP>
   </MAINGROUP>
   <MODULES>
@@ -17,21 +148,13 @@
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
-    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
-  <EXPORTFORMATS>
-    <LINUX_MAKE targetFolder="Builds/Linux" juceFolder="../../../../../juce/modules">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="GeneticProgrammingSynthesizer"/>
-        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
-                       targetName="GeneticProgrammingSynthesizer"/>
-      </CONFIGURATIONS>
-    </LINUX_MAKE>
-  </EXPORTFORMATS>
-  <JUCEOPTIONS/>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
 </JUCERPROJECT>

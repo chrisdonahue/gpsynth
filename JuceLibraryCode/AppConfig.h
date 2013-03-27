@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __JUCE_APPCONFIG_GNSKKM__
-#define __JUCE_APPCONFIG_GNSKKM__
+#ifndef __JUCE_APPCONFIG_JRY6H7__
+#define __JUCE_APPCONFIG_JRY6H7__
 
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
@@ -22,18 +22,20 @@
 // [END_USER_CODE_SECTION]
 
 //==============================================================================
-#define JUCE_MODULE_AVAILABLE_juce_audio_basics          1
-#define JUCE_MODULE_AVAILABLE_juce_audio_devices         1
-#define JUCE_MODULE_AVAILABLE_juce_audio_formats         1
-#define JUCE_MODULE_AVAILABLE_juce_audio_processors      1
-#define JUCE_MODULE_AVAILABLE_juce_audio_utils           1
-#define JUCE_MODULE_AVAILABLE_juce_core                  1
-#define JUCE_MODULE_AVAILABLE_juce_cryptography          1
-#define JUCE_MODULE_AVAILABLE_juce_data_structures       1
-#define JUCE_MODULE_AVAILABLE_juce_events                1
-#define JUCE_MODULE_AVAILABLE_juce_graphics              1
-#define JUCE_MODULE_AVAILABLE_juce_gui_basics            1
-#define JUCE_MODULE_AVAILABLE_juce_gui_extra             1
+#define JUCE_MODULE_AVAILABLE_juce_audio_basics             1
+#define JUCE_MODULE_AVAILABLE_juce_audio_devices            1
+#define JUCE_MODULE_AVAILABLE_juce_audio_formats            1
+#define JUCE_MODULE_AVAILABLE_juce_audio_plugin_client      1
+#define JUCE_MODULE_AVAILABLE_juce_audio_processors         1
+#define JUCE_MODULE_AVAILABLE_juce_core                     1
+#define JUCE_MODULE_AVAILABLE_juce_cryptography             1
+#define JUCE_MODULE_AVAILABLE_juce_data_structures          1
+#define JUCE_MODULE_AVAILABLE_juce_events                   1
+#define JUCE_MODULE_AVAILABLE_juce_graphics                 1
+#define JUCE_MODULE_AVAILABLE_juce_gui_basics               1
+#define JUCE_MODULE_AVAILABLE_juce_gui_extra                1
+#define JUCE_MODULE_AVAILABLE_juce_opengl                   1
+#define JUCE_MODULE_AVAILABLE_juce_video                    1
 
 //==============================================================================
 // juce_audio_devices flags:
@@ -83,6 +85,10 @@
 
 #ifndef    JUCE_USE_MP3AUDIOFORMAT
  //#define JUCE_USE_MP3AUDIOFORMAT
+#endif
+
+#ifndef    JUCE_USE_LAME_AUDIO_FORMAT
+ //#define JUCE_USE_LAME_AUDIO_FORMAT
 #endif
 
 #ifndef    JUCE_USE_WINDOWS_MEDIA_FORMAT
@@ -156,5 +162,121 @@
  //#define JUCE_WEB_BROWSER
 #endif
 
+//==============================================================================
+// juce_video flags:
 
-#endif  // __JUCE_APPCONFIG_GNSKKM__
+#ifndef    JUCE_DIRECTSHOW
+ //#define JUCE_DIRECTSHOW
+#endif
+
+#ifndef    JUCE_MEDIAFOUNDATION
+ //#define JUCE_MEDIAFOUNDATION
+#endif
+
+#ifndef    JUCE_QUICKTIME
+ #define   JUCE_QUICKTIME 0
+#endif
+
+#ifndef    JUCE_USE_CAMERA
+ //#define JUCE_USE_CAMERA
+#endif
+
+
+//==============================================================================
+// Audio plugin settings..
+
+#ifndef  JucePlugin_Build_VST
+ #define JucePlugin_Build_VST              1
+#endif
+#ifndef  JucePlugin_Build_AU
+ #define JucePlugin_Build_AU               0
+#endif
+#ifndef  JucePlugin_Build_RTAS
+ #define JucePlugin_Build_RTAS             0
+#endif
+#ifndef  JucePlugin_Name
+ #define JucePlugin_Name                   "GeneticProgrammingSynthesizer"
+#endif
+#ifndef  JucePlugin_Desc
+ #define JucePlugin_Desc                   "GeneticProgrammingSynthesizer"
+#endif
+#ifndef  JucePlugin_Manufacturer
+ #define JucePlugin_Manufacturer           "radiohunches"
+#endif
+#ifndef  JucePlugin_ManufacturerCode
+ #define JucePlugin_ManufacturerCode       'Manu'
+#endif
+#ifndef  JucePlugin_PluginCode
+ #define JucePlugin_PluginCode             'Plug'
+#endif
+#ifndef  JucePlugin_MaxNumInputChannels
+ #define JucePlugin_MaxNumInputChannels    0
+#endif
+#ifndef  JucePlugin_MaxNumOutputChannels
+ #define JucePlugin_MaxNumOutputChannels   2
+#endif
+#ifndef  JucePlugin_PreferredChannelConfigurations
+ #define JucePlugin_PreferredChannelConfigurations  {0, 2}
+#endif
+#ifndef  JucePlugin_IsSynth
+ #define JucePlugin_IsSynth                1
+#endif
+#ifndef  JucePlugin_WantsMidiInput
+ #define JucePlugin_WantsMidiInput         1
+#endif
+#ifndef  JucePlugin_ProducesMidiOutput
+ #define JucePlugin_ProducesMidiOutput     0
+#endif
+#ifndef  JucePlugin_SilenceInProducesSilenceOut
+ #define JucePlugin_SilenceInProducesSilenceOut  0
+#endif
+#ifndef  JucePlugin_TailLengthSeconds
+ #define JucePlugin_TailLengthSeconds      0
+#endif
+#ifndef  JucePlugin_EditorRequiresKeyboardFocus
+ #define JucePlugin_EditorRequiresKeyboardFocus  0
+#endif
+#ifndef  JucePlugin_VersionCode
+ #define JucePlugin_VersionCode            0x10000
+#endif
+#ifndef  JucePlugin_VersionString
+ #define JucePlugin_VersionString          "1.0.0"
+#endif
+#ifndef  JucePlugin_VSTUniqueID
+ #define JucePlugin_VSTUniqueID            JucePlugin_PluginCode
+#endif
+#ifndef  JucePlugin_VSTCategory
+ #define JucePlugin_VSTCategory            kPlugCategSynth
+#endif
+#ifndef  JucePlugin_AUMainType
+ #define JucePlugin_AUMainType             kAudioUnitType_MusicDevice
+#endif
+#ifndef  JucePlugin_AUSubType
+ #define JucePlugin_AUSubType              JucePlugin_PluginCode
+#endif
+#ifndef  JucePlugin_AUExportPrefix
+ #define JucePlugin_AUExportPrefix         GeneticProgrammingSynthesizerAU
+#endif
+#ifndef  JucePlugin_AUExportPrefixQuoted
+ #define JucePlugin_AUExportPrefixQuoted   "GeneticProgrammingSynthesizerAU"
+#endif
+#ifndef  JucePlugin_AUManufacturerCode
+ #define JucePlugin_AUManufacturerCode     JucePlugin_ManufacturerCode
+#endif
+#ifndef  JucePlugin_CFBundleIdentifier
+ #define JucePlugin_CFBundleIdentifier     com.yourcompany.GeneticProgrammingSynthesizer
+#endif
+#ifndef  JucePlugin_AUCocoaViewClassName
+ #define JucePlugin_AUCocoaViewClassName   GeneticProgrammingSynthesizerAU_V1
+#endif
+#ifndef  JucePlugin_RTASCategory
+ #define JucePlugin_RTASCategory           ePlugInCategory_SWGenerators
+#endif
+#ifndef  JucePlugin_RTASManufacturerCode
+ #define JucePlugin_RTASManufacturerCode   JucePlugin_ManufacturerCode
+#endif
+#ifndef  JucePlugin_RTASProductId
+ #define JucePlugin_RTASProductId          JucePlugin_PluginCode
+#endif
+
+#endif  // __JUCE_APPCONFIG_JRY6H7__
