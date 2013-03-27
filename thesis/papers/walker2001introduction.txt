@@ -1,0 +1,39 @@
+3.2 Creating a Random Population:
+	Grow creates individuals up to a specified maximum depth
+	Full creates individuals of a specified minimum depth
+	Ramped-half-and-half uses both techniques to produce a population with a large variance
+3.4 The Genetic Operations:
+	3.4.1 Reproduction:
+		An asexual method, reproductino is where a selected individual copies itself into the new population
+		Koza allowed 10% of the population to survive. If the fitness test is deterministic, one does not need to re-test this individual.
+	3.4.2 Crossover:
+		Genetic material from two individuals is mixed to form offspring. Koza uses crossover on 90% of the population. Mutation, permutation, encapsulation and decimation have recently been given more consideration but were earlier ignored by Koza
+		Two offspring crossover:
+			Selection function picks two individuals
+			From each individual a randomly selected subtree is replaced by a randomly selected subtree from the other.
+3.5 Selection Functions:
+	3.5.1 Fitness-Proportionate Selection:
+		Raw fitness restated to standardised fitness. A lower standardised fitness implies a better individual. If the raw fitness increases as an individual improves then the individual's standardised fitness is max-raw. If raw fitness decreases as individual improves then standardised fitness for an individual is equal to the individual's raw fitness.
+		Standardised fitness is then restated as adjusted fitness, where a higher value implies better fitness:
+			adj(i) = 1/(1+std(i))
+		where adj(i) is adjusted fitness and std(i) is standardised fitness for individual i. The use of this adjustment is beneficial for separation of individuals with standardised fitness values that approach zero.
+		Normalized fitness is the form used by both selection methods. it is calculated from adjusted fitness in the following manner:
+			norm(i) = adj(i)/sum over all i adj(i)
+		probability of selection is sp(i) = norm(i)/total norm
+	3.5.2 Greedy Over-selection
+		To reduce number of generatinos required for a GP run, Koza made use of greedy over-selection. Individuals are selected based on their performance but this method biases selection towards the highest performers.
+		Using the normalised fitness values, the population is divided into two groups. Group 1 inclues the top 20% of individuals while group 2 contains the remaining 80%. Individuals from group 1 are selected 50% of the time. Selection inside a group is fitness-proportionate.
+3.6 User Decisions
+	User must make a number of decisions before the GP system may begin.
+	Selecting a superset of the required genes should pose little problem as the genes that are not useful will be bred out of the population.
+	Necessary parameters:
+		Population size: a larger population allows for a greater exploration of the problem space at each generation and increases the chance of evolving a solution. In general, the more complex a problem the greater the population size needed.
+		Maximum number of generations: Perhaps restart evolution once max gens has been reached
+		Probability of crossover: Koza used 90% in all his experiments
+		Probability of reproduction: Koza used 10% in all his experiments
+	Holy shit Koza used a population size of 600,000. This paper used 5000. Holy shit.
+	Drastically important that the fitness testing of individuals be as efficient as possible. Parallelization of the genetic programming paradigm has received significant effort
+	Further reading:
+		Koza's GP: on the programming of computers by means...
+		Koza's GP2: automatic discovery of reusable programs
+		Koza's GP3: darwinian invention and problem solving

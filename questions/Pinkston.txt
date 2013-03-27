@@ -10,3 +10,8 @@
 
     Can we try to map some famous topologies (perhaps Chowning instruments) into expression trees?
         Possible second experiment. Going to begin with recreating classic FM algorithm from input FM sound file/carrier frequency/modulator frequency
+
+3/21/13:
+    Filter design? How to calculate max filter gain from poles/zeroes?
+
+    Talk about fitness function more/spectral leakage/STFT/overlapping transform. What do you think about emphasizing peaks and valley and weighting the middle less so? Penalizing undershooting or overshooting based on peaks/valleys?

@@ -1,0 +1,54 @@
+Main.cpp:
+    Add command line for MIDI stuff
+    Add command line for all GPParams
+    --help
+    check argument ranges
+      renderBlockSize > frames in file?
+      fftSize > frames in file?
+
+GPExperiment.cpp:
+    Pass time-varying variables to evaluate()
+    fill and use sampleTimes for efficiency
+    do TODOs
+
+GPNetwork.cpp:
+    Add new syntax parsing to string parser once node subclasses finalized
+    
+GPSynth.cpp:
+    Fill in selectFromEvaluated() skeleton code including greedy over
+    Maybe implement other types of reproduction
+    do TODOs
+    maybe remove rawFitness container
+
+Node subclasses:
+    DelayNode
+    ConditionalNode
+    consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
+
+Interactive:
+    10 networks, 4 or 5 faders, one keyboard
+    Button to interactively suboptimize constants
+    Ability to edit network test and add things like PITCHBEND
+    Introduce Novelty button
+    Buttons to step backwards through evolution
+    button to run random evolution for a while
+
+Ideas:
+    crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
+    novelty search of new spectrum elements/spectral peak ratios
+    evaluateBlock scale constant for nodes that produce guaranteed envelopes (ADSR, OscilNodes)?
+    add in OPEN BEAGLE stuff or self made GA for suboptimization
+    human readable toString vs full detail toString
+    introduce textbook GP mutation
+
+Thoughts:
+    better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
+    is ModOscilNode actually capable of FM synthesis? should it have an oscillator as well?
+    reverse way min, max calculation happens by passing desired range down? think about this hard. might be more efficient also maybe its possible to work in ADSR this way
+    calculate min/max stuff with lo/hi filter node, alter bandwidth/quality calculation
+
+TODO FOR NEXT EXPERIMENT:
+    figure out why BandStop butterworth filter is crashing for seemingly valid input......
+    fix modoscilnode after thinking about it for a while/test/add to available nodes
+    remove ADSR nonterminal
+    Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset
