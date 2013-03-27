@@ -69,7 +69,7 @@ double GPRandom::whitenoise() {
 
 // m cannot be returned
 int GPRandom::random(int m) {
-    if (m < 0) {
+    if (m <= 0) {
         return -1;
     }
     return (int) (random() * m);

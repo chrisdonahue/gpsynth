@@ -73,16 +73,18 @@ public:
 
         // synth genetic params
         params->proportionOfPopulationForGreedySelection = 0.0;
+        // numeric mutation
         params->numericMutationSelectionType = 1;
-        //params->percentileOfPopulationToSelectFromForNumericMutation = 0.2;
-        //params->proportionOfPopulationToNumericallyMutate = 0.05;
-        params->percentileOfPopulationToSelectFromForNumericMutation = 1.0;
-        params->proportionOfPopulationToNumericallyMutate = 1.00;
+        params->proportionOfPopulationFromNumericMutation = 0.05;
+        params->percentileOfPopulationToSelectFromForNumericMutation = 0.05;
         params->numericMutationTemperatureConstant = 0.02;
+        // crossover
         params->crossoverSelectionType = 0;
         params->crossoverType = 0;
         params->proportionOfPopulationFromCrossover = 0.9;
+        // reproduction
         params->reproductionSelectionType = 0;
+        params->proportionOfPopulationFromReproduction = 0.05;
 
         // value node params
         params->valueNodeMinimum = -1.0;
@@ -120,21 +122,6 @@ public:
           else if (i->equalsIgnoreCase("--verbose")) {
             params->verbose = true;
           }
-          else if (i->equalsIgnoreCase("--fft")) {
-            params->fftSize = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--exp")) {
-            params->experimentNumber = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--threshold"))  {
-            params->thresholdFitness = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--fitnesstype")) {
-            params->fitnessFunctionType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--numgenerations"))  {
-            params->numGenerations = (++i)->getIntValue();
-          }
           else if (i->equalsIgnoreCase("--values")) {
             String* current = (++i);
             while ( (i != args.end())  && !((current + 1)->startsWith(String("--"))) ) {
@@ -143,6 +130,24 @@ public:
             }
             constants.push_back(current->getDoubleValue());
             params->numVariables = constants.size();
+          }
+          else if (i->equalsIgnoreCase("--fft")) {
+            params->fftSize = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--fitnesstype")) {
+            params->fitnessFunctionType = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--experiment")) {
+            params->experimentNumber = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--generations"))  {
+            params->numGenerations = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--threshold"))  {
+            params->thresholdFitness = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--erc")) {
+            params->ephemeralRandomConstants = true;
           }
           else if (i->equalsIgnoreCase("--popsize")) {
             params->populationSize = (++i)->getIntValue();
@@ -153,17 +158,32 @@ public:
           else if (i->equalsIgnoreCase("--md")) {
             params->maxDepth = (++i)->getIntValue();
           }
-          else if (i->equalsIgnoreCase("--ctype")) {
-            params->crossoverType = (++i)->getIntValue();
+          else if (i->equalsIgnoreCase("--numericmutation")) {
+            params->proportionOfPopulationFromNumericMutation = (++i)->getDoubleValue();
           }
-          else if (i->equalsIgnoreCase("--rselect")) {
-            params->reproductionSelectionType = (++i)->getIntValue();
+          else if (i->equalsIgnoreCase("--nmselect")) {
+            params->numericMutationSelectionType = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--nmselectparam")) {
+            params->percentileOfPopulationToSelectFromForNumericMutation = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--nmteperature")) {
+            params->numericMutationTemperatureConstant = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--crossover")) {
+            params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
           }
           else if (i->equalsIgnoreCase("--cselect")) {
             params->crossoverSelectionType = (++i)->getIntValue();
           }
-          else if (i->equalsIgnoreCase("--crosspercent")) {
-            params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
+          else if (i->equalsIgnoreCase("--ctype")) {
+            params->crossoverType = (++i)->getIntValue();
+          }
+          else if (i->equalsIgnoreCase("--reproduction")) {
+            params->proportionOfPopulationFromReproduction = (++i)->getDoubleValue();
+          }
+          else if (i->equalsIgnoreCase("--rselect")) {
+            params->reproductionSelectionType = (++i)->getIntValue();
           }
         }
 

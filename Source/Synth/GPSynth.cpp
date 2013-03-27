@@ -243,24 +243,35 @@ void GPSynth::printGenerationSummary() {
 int GPSynth::nextGeneration() {
     assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize && unevaluated.size() == 0);
 
+    // CREATE TEMP CONTAINER FOR NEXT GENERATION
     std::vector<GPNetwork*>* nextGeneration = new std::vector<GPNetwork*>();
 
-      // TODO: add new copy to next generation, dont overwrite it
+    // CALCULATE NUMBER OF INDIVIDUALS BY EACH MUTATION TYPE
+    double proportionSum = 0;
+    proportionSum += params->proportionOfPopulationFromNumericMutation + params->proportionOfPopulationFromCrossover + params->proportionOfPopulationFromReproduction;
+
+    unsigned numToNumericMutate = (unsigned) ((params->proportionOfPopulationFromNumericMutation/proportionSum) * populationSize);
+    unsigned numToCrossover = (unsigned) ((params->proportionOfPopulationFromCrossover/proportionSum) * populationSize);
+    unsigned numToReproduce = (unsigned) ((params->proportionOfPopulationFromReproduction/proportionSum) * populationSize);
+
+    assert(numToNumericMutate + numToCrossover + numToReproduce <= populationSize);
+    numToCrossover += populationSize - (numToNumericMutate + numToCrossover + numToReproduce);
+
+    std::cout << populationSize << ", " << numToNumericMutate << ", " << numToCrossover << ", " << numToReproduce << std::endl;
+
     // NUMERIC MUTATION
-    unsigned numForPossibleNumericMutation = (unsigned) (params->percentileOfPopulationToSelectFromForNumericMutation * populationSize);
-    unsigned numToNumericMutate = (unsigned) (params->proportionOfPopulationToNumericallyMutate * populationSize);
+    unsigned numForPossibleNumericMutation = params->percentileOfPopulationToSelectFromForNumericMutation * populationSize;
     for (int i = 0; i < numToNumericMutate; i++) {
         GPNetwork* selected = selectFromEvaluated(params->numericMutationSelectionType, numForPossibleNumericMutation);
-        double newfitness = numericallyMutate(selected);
-        selected->fitness = newfitness;
-        rawFitnesses[selected->ID % populationSize] = newfitness;
+        GPNetwork* one = selected->getCopy();
+        double newfitness = numericallyMutate(one);
+        nextGeneration->push_back(one);
+        //selected->fitness = newfitness;
+        //rawFitnesses[selected->ID % populationSize] = newfitness;
     }
-    //rank.clear();
-    //rank.resize(populationSize, NULL);
 
     // CROSSOVER
-    unsigned numToCrossover = (unsigned) (params->proportionOfPopulationFromCrossover * populationSize);
-    while (nextGeneration->size() < numToCrossover) {
+    for (int i = 0; i < numToCrossover;) {
       GPNetwork* dad = selectFromEvaluated(params->crossoverSelectionType, 0);
       GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
       GPNetwork* one = dad->getCopy();
@@ -279,12 +290,14 @@ int GPSynth::nextGeneration() {
           one = dad->getCopy();
         }
         nextGeneration->push_back(one);
-        if (nextGeneration->size() < numToCrossover) {
+        i++;
+        if (i < numToCrossover) {
           if (two->getDepth() > maxDepth) {
             delete two;
             two = mom->getCopy();
           }
          nextGeneration->push_back(two);
+         i++;
         }
         else {
             delete two;
@@ -295,9 +308,9 @@ int GPSynth::nextGeneration() {
         nextGeneration->push_back(offspring);
       }
     }
+
     // REPRODUCTION
-    // TODO: move into separate method under GENETIC OPERATIONS
-    while(nextGeneration->size() < populationSize) {
+    for (int i = 0; i < numToReproduce; i++) {
       GPNetwork* selected = selectFromEvaluated(params->reproductionSelectionType, 0);
       int oldID = selected->ID;
       double oldFitness = selected->fitness;
@@ -307,10 +320,18 @@ int GPSynth::nextGeneration() {
       nextGeneration->push_back(one);
     }
 
+    // DELETE STATE FROM LAST GENERATIOn
     clearGenerationState();
+
+    // INCREMENT THE GENERATION COUNT
     generationID++;
+
+    // PRINT START OF GENERATION DELIMITER
     printGenerationDelim();
-    for (int i = 0; i < nextGeneration->size(); i++) {
+
+    // POPULATE STATE WITH NEXT GENERATION
+    assert(nextGeneration->size() == populationSize);
+    for (int i = 0; i < populationSize; i++) {
         addNetworkToPopulation(nextGeneration->at(i));
     }
     delete nextGeneration;
@@ -423,9 +444,14 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType, unsigned paramet
         return currentGeneration[rng->sampleFromDistribution(&normalizedFitnesses)];
     }
     else if (selectionType == 1) {
-        // ranking linear selection
+        // ranking random selection from top parameter elements
         assert(parameter <= populationSize);
-        return rank[rng->random(parameter)];
+        if (parameter == 0) {
+            return rank[0];
+        }
+        else {
+            return rank[rng->random(parameter)];
+        }
     }
     else if (selectionType == 2) {
         // ranking curved selection

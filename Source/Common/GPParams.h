@@ -35,14 +35,18 @@ struct GPParams {
 
     // synth genetic parameters
     double proportionOfPopulationForGreedySelection;
+    // numeric mutation
     unsigned numericMutationSelectionType;
+    double proportionOfPopulationFromNumericMutation;
     double percentileOfPopulationToSelectFromForNumericMutation;
-    double proportionOfPopulationToNumericallyMutate;
     double numericMutationTemperatureConstant;
+    // crossover
     unsigned crossoverSelectionType;
     unsigned crossoverType;
     double proportionOfPopulationFromCrossover;
+    // reproduction
     unsigned reproductionSelectionType;
+    double proportionOfPopulationFromReproduction;
 
     // value node
     double valueNodeMinimum;
