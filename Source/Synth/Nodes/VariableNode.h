@@ -20,7 +20,7 @@ class VariableNode: public GPNode {
         VariableNode* getCopy();
 
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        std::string toString(unsigned* childStringLength);
+        std::string toString(unsigned* childStringLength, unsigned precision);
         void updateMutatedParams();
 
     private:

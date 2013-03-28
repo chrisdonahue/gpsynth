@@ -117,12 +117,12 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-std::string ADSRNode::toString(unsigned* childStringLength) {
+std::string ADSRNode::toString(unsigned* childStringLength, unsigned precision) {
     char buffer[2048];
     if (terminalADSR)
         snprintf(buffer, 2048, "(adsr %.2lf %.2lf %.2lf %.2lf %.2lf %.2lf %.2lf)", delay, attack, attackheight, decay, sustain, sustainheight, release);
     else
-        snprintf(buffer, 2048, "(adsr %.2lf %.2lf %.2lf %.2lf %.2lf %.2lf %.2lf %s)", delay, attack, attackheight, decay, sustain, sustainheight, release, descendants[0]->toString(unsigned* childStringLength).c_str());
+        snprintf(buffer, 2048, "(adsr %.2lf %.2lf %.2lf %.2lf %.2lf %.2lf %.2lf %s)", delay, attack, attackheight, decay, sustain, sustainheight, release, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str());
 
     return std::string(buffer);
 }

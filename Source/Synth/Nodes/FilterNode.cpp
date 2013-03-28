@@ -110,16 +110,16 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     free(cfbuffer);
 }
 
-std::string FilterNode::toString(unsigned* childStringLength) {
+std::string FilterNode::toString(unsigned* childStringLength, unsigned precision) {
     char buffer[1024];
     if (type == 0)
-        snprintf(buffer, 1024, "(lowpass %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength).c_str());
+        snprintf(buffer, 1024, "(lowpass %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str());
     else if (type == 1)
-        snprintf(buffer, 1024, "(highpass %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength).c_str());
+        snprintf(buffer, 1024, "(highpass %.2lf %.2lf %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str());
     else if (type == 2)
-        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s %s %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength).c_str(), descendants[1]->toString().c_str(), descendants[2]->toString().c_str());
+        snprintf(buffer, 1024, "(bandpass %.2lf %.2lf %s %s %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str(), descendants[1]->toString().c_str(), descendants[2]->toString().c_str());
     else if (type == 3)
-        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s %s %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength).c_str(), descendants[1]->toString().c_str(), descendants[2]->toString().c_str());
+        snprintf(buffer, 1024, "(bandstop %.2lf %.2lf %s %s %s)", centerFrequencyMultiplier, bandwidthQuality, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str(), descendants[1]->toString().c_str(), descendants[2]->toString().c_str());
     return std::string(buffer);
 }
 

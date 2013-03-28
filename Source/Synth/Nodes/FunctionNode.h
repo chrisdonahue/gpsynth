@@ -21,7 +21,7 @@ class FunctionNode: public GPNode {
         FunctionNode* getCopy();
 
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        std::string toString(unsigned* childStringLength);
+        std::string toString(unsigned* childStringLength, unsigned precision);
         void updateMutatedParams();
 
     private:

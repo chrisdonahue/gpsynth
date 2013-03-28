@@ -46,7 +46,7 @@ void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-std::string ConstantNode::toString(unsigned* childStringLength) {
+std::string ConstantNode::toString(unsigned* childStringLength, unsigned precision) {
     char buffer[10];
 
     if (value == M_PI) {

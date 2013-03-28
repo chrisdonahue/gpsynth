@@ -34,7 +34,7 @@ void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-std::string VariableNode::toString(unsigned* childStringLength) {
+std::string VariableNode::toString(unsigned* childStringLength, unsigned precision) {
     char buffer[10];
     snprintf(buffer, 10, "(v%d)", variableNum);
     return std::string(buffer);
