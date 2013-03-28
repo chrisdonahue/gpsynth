@@ -7,6 +7,9 @@
 struct GPParams {
     // auxillary parameters
     bool verbose;
+    unsigned printPrecision;
+    unsigned backupPrecision;
+    unsigned savePrecision;
     unsigned wavFileBufferSize;
     unsigned renderBlockSize;
     unsigned fftSize;

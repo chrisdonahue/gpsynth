@@ -112,19 +112,22 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
 
 void FilterNode::toString(std::stringstream& ss) {
     if (type == 0) {
-      ss << "(lowpass " << centerFrequencyMultiplier << " " << bandwidthQuality;
+      ss << "(lowpass ";
     }
     else if (type == 1) {
-      ss << "(highpass " << centerFrequencyMultiplier << " " << bandwidthQuality;
+      ss << "(highpass ";
     }
     else if (type == 2) {
-      ss << "(bandpass " << centerFrequencyMultiplier << " " << bandwidthQuality;
+      ss << "(bandpass ";
     }
     else if (type == 3) {
-      ss << "(bandstop " << centerFrequencyMultiplier << " " << bandwidthQuality;
+      ss << "(bandstop ";
     }
-      descendants[0]->toString(ss);
+    ss << centerFrequencyMultiplier << " " << bandwidthQuality << " ";
+     descendants[0]->toString(ss);
+     ss << " ";
       descendants[1]->toString(ss);
+      ss << " ";
       descendants[2]->toString(ss);
       ss << ")";
 }

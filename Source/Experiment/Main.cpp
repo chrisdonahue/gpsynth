@@ -45,6 +45,9 @@ public:
 
         // auxillary params
         params->verbose = false;
+        params->printPrecision = 3;
+        params->backupPrecision = 100;
+        params->savePrecision = 20;
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 1024;
         params->fftSize = 256;
@@ -126,6 +129,9 @@ public:
           }
           else if (i->equalsIgnoreCase("--verbose")) {
             params->verbose = true;
+          }
+          else if (i->equalsIgnoreCase("--precision")) {
+            params->printPrecision = (++i)->getIntValue(); 
           }
           else if (i->equalsIgnoreCase("--values")) {
             String* current = (++i);
