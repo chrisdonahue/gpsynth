@@ -18,12 +18,7 @@
 #include <limits>
 #include "../Common/GPParams.h"
 #include "../Common/GPMutatableParam.h"
-
-#ifdef __linux__
-#include <stdarg.h>
-#elif _win32
-#include <wtypes.h>
-#endif
+#include <sstream>
 
 class GPNode {
     public:
@@ -42,7 +37,7 @@ class GPNode {
 
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
         virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
-        virtual std::string toString(unsigned* childStringLength, unsigned precision) = 0;
+        virtual void toString(std::stringstream& ss) = 0;
         virtual GPNode* getCopy() = 0;
         virtual void updateMutatedParams() = 0;
 
@@ -86,16 +81,5 @@ class GPNode {
             }
         };
 };
-
-void formatBuffer(unsigned n, char* buffer, const char* fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
-#ifdef __linux__
-  vsnprintf(buffer, n, fmt, args);
-#elif _win32
-  vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, fmt, args);
-#endif
-  va_end(args);
-}
 
 #endif

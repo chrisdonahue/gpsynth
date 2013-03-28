@@ -23,7 +23,6 @@ allNodes(), allMutatableParams()
     fitness = -1;
     root = r;
     depth = r->depth;
-    asText = "";
 }
 
 GPNetwork::GPNetwork(GPParams* p, std::string netstring) {
@@ -62,8 +61,11 @@ unsigned GPNetwork::getDepth() {
     return depth;
 }
 
-std::string GPNetwork::toString() {
-    return asText;
+std::string GPNetwork::toString(unsigned precision) {
+  std::stringstream ss;
+  ss.precision(precision);
+  root->toString(ss);
+  return ss.str();
 }
 
 GPNode* GPNetwork::getRoot() {
@@ -71,7 +73,7 @@ GPNode* GPNetwork::getRoot() {
 }
 
 bool GPNetwork::equals(GPNetwork* other) {
-    return toString().compare(other->toString()) == 0;
+    return toString(10).compare(other->toString(10)) == 0;
 }
 
 /*
@@ -97,8 +99,6 @@ void GPNetwork::traceNetwork() {
     allMutatableParams.clear();
     depth = 0;
     root->traceSubtree(&allNodes, &allMutatableParams, NULL, &depth, 0);
-    unsigned length = 0;
-    asText = root->toString(&length, 100);
 }
 
 /*
@@ -129,7 +129,6 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 void GPNetwork::updateMutatedParams() {
     root->updateMutatedParams();
     unsigned length = 0;
-    asText = root->toString(&length, 100);
 }
 
 void GPNetwork::ephemeralRandom(GPRandom* r) {

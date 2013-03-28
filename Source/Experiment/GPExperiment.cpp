@@ -106,12 +106,12 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
         GPNetwork* answer = new GPNetwork(params, AMstring);
         answer->traceNetwork();
-        std::cout << "Target network: " << answer->toString() << std::endl;
+        //std::cout << "Target network: " << answer->toString() << std::endl;
         double sampleRate = 44100.0;
         numTargetFrames = 88200;
         targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
         //renderIndividual(answer, numTargetFrames, targetFrames);
-        saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, sampleRate, targetFrames);
+        //saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, sampleRate, targetFrames);
         //loadTargetWavFile("./Answer.wav");
         delete answer;
 
@@ -218,9 +218,9 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         renderIndividualByBlock(bandPassNoiseNetwork, numTargetFrames, params->renderBlockSize, passNoise);
         renderIndividualByBlock(bandStopNoiseNetwork, numTargetFrames, params->renderBlockSize, stopNoise);
 
-        saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), numTargetFrames, 44100, noise);
-        saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString().c_str()), numTargetFrames, 44100, stopNoise);
-        saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString().c_str()), numTargetFrames, 44100, passNoise);
+        //saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), numTargetFrames, 44100, noise);
+        //saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString().c_str()), numTargetFrames, 44100, stopNoise);
+        //saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString().c_str()), numTargetFrames, 44100, passNoise);
 
         free(stopNoise);
         free(passNoise);
@@ -368,7 +368,7 @@ GPNetwork* GPExperiment::evolve() {
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
             char buffer[100];
             snprintf(buffer, 100, "./gen.%d.best.wav", numEvaluatedGenerations);
-            saveWavFile(String(buffer), String(generationChamp->toString().c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
+            saveWavFile(String(buffer), String(generationChamp->toString(10).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
             free(genchampbuffer);
             delete generationChamp;
             generationChamp = NULL;
@@ -390,8 +390,8 @@ GPNetwork* GPExperiment::evolve() {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
-        std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString() << " and had a fitness of " << minFitnessAchieved << std::endl;
-        saveWavFile("./champion.wav", String(champ->toString().c_str()), numTargetFrames, targetSampleRate, champbuffer);
+        std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(10) << " and had a fitness of " << minFitnessAchieved << std::endl;
+        saveWavFile("./champion.wav", String(champ->toString(10).c_str()), numTargetFrames, targetSampleRate, champbuffer);
         free(champbuffer);
     }
     return champ;

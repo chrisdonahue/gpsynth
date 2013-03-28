@@ -21,7 +21,7 @@ class NoiseNode: public GPNode {
         NoiseNode* getCopy();
 
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        std::string toString(unsigned* childStringLength, unsigned precision);
+        void toString(std::stringstream& ss);
         void updateMutatedParams();
 
     private:

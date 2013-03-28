@@ -33,7 +33,7 @@ class GPNetwork {
         // EXAMINATION
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
         unsigned getDepth();
-        std::string toString();
+        std::string toString(unsigned precision);
         GPNode* getRoot();
         bool equals(GPNetwork* other);
         GPNode* getRandomNetworkNode(GPRandom* r);
@@ -53,7 +53,6 @@ class GPNetwork {
     private:
         // PRIVATE STATE
         unsigned depth;
-        std::string asText;
         GPNode* root;
         std::vector<GPNode*> allNodes;
         std::vector<GPMutatableParam*> allMutatableParams;

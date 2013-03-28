@@ -46,17 +46,13 @@ void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-std::string ConstantNode::toString(unsigned* childStringLength, unsigned precision) {
-    char buffer[10 + precision];
-    *childStringLength = 10;
-
-    if (value == M_PI) {
-        formatBuffer(10, buffer, "(pi)");
-    }
-    else {
-        formatBuffer(10, buffer, "(%.2lf)", value);
-    }
-    return std::string(buffer);
+void ConstantNode::toString(std::stringstream& ss) {
+  if (value == M_PI) {
+    ss << "(pi)";
+  }
+  else {
+    ss << "(" << value << ")";
+  }
 }
 
 void ConstantNode::updateMutatedParams() {

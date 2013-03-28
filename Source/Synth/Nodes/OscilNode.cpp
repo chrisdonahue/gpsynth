@@ -45,10 +45,8 @@ void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     }
 }
 
-std::string OscilNode::toString(unsigned* childStringLength, unsigned precision) {
-    char buffer[30];
-    snprintf(buffer, 30, "(osc p%d v%d)", partial, variableNum);
-    return std::string(buffer);
+void OscilNode::toString(std::stringstream& ss) {
+  ss << "(osc p" << partial << " v" << variableNum << ")";
 }
 
 void OscilNode::updateMutatedParams() {

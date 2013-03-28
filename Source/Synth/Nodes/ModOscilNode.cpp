@@ -46,10 +46,13 @@ void ModOscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     return;
 }
 
-std::string ModOscilNode::toString(unsigned* childStringLength, unsigned precision) {
-    char buffer[2048];
-    snprintf(buffer, 2048, "(modosc %s %s)", descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str(), descendants[1]->toString().c_str());
-    return std::string(buffer);
+void ModOscilNode::toString(std::stringstream& ss) {
+  ss << "(modosc";
+  for (unsigned i = 0; i < arity; i++) {
+    ss << " ";
+    descendants[i]->toString(ss);
+  }
+  ss << ")";
 }
 
 void ModOscilNode::updateMutatedParams() {

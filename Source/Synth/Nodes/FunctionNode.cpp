@@ -61,15 +61,13 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-std::string FunctionNode::toString(unsigned* childStringLength, unsigned precision) {
-    char buffer[2048];
-    if (arity == 2) {
-        snprintf(buffer, 2048, "(%s %s %s)", gpfunction.symbol, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str(), descendants[1]->toString().c_str());
-    }
-    else {
-        snprintf(buffer, 2048, "(%s %s)", gpfunction.symbol, descendants[0]->toString(unsigned* childStringLength, unsigned precision).c_str());
-    }
-    return std::string(buffer);
+void FunctionNode::toString(std::stringstream& ss) {
+  ss << "(" << gpfunction.symbol;
+  for (unsigned i = 0; i < arity; i++) {
+    ss << " ";
+    descendants[i]->toString(ss);
+  }
+  ss << ")";
 }
 
 void FunctionNode::updateMutatedParams() {

@@ -166,7 +166,7 @@ GPNetwork* GPSynth::getIndividual() {
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
     if (params->verbose)
-        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString() << std::endl;
+        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString(10) << std::endl;
     return ret;
 }
 
@@ -238,7 +238,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString() << std::endl;
+    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString(10) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -411,13 +411,13 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     }
     net->ID = nextNetworkID++;
     net->traceNetwork();
-    allNetworks.push_back(new std::string(net->toString()));
+    allNetworks.push_back(new std::string(net->toString(10)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
         // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
-            std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString() << " was reproduced into next generation with new ID " << net->ID << std::endl;
+            std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString(10) << " was reproduced into next generation with new ID " << net->ID << std::endl;
         assignFitness(net, net->fitness);
     }
     else {
