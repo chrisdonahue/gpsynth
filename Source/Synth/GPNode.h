@@ -16,9 +16,14 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
-#include <wtypes.h>
 #include "../Common/GPParams.h"
 #include "../Common/GPMutatableParam.h"
+
+#ifdef __linux__
+#include <stdarg.h>
+#elif _win32
+#include <wtypes.h>
+#endif
 
 class GPNode {
     public:
@@ -82,7 +87,7 @@ class GPNode {
         };
 };
 
-void formatBuffer(unsigned n, const char* buffer, const char* fmt, ...) {
+void formatBuffer(unsigned n, char* buffer, const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
 #ifdef __linux__

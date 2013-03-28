@@ -97,7 +97,8 @@ void GPNetwork::traceNetwork() {
     allMutatableParams.clear();
     depth = 0;
     root->traceSubtree(&allNodes, &allMutatableParams, NULL, &depth, 0);
-    asText = root->toString();
+    unsigned length = 0;
+    asText = root->toString(&length, 100);
 }
 
 /*
@@ -127,7 +128,8 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 
 void GPNetwork::updateMutatedParams() {
     root->updateMutatedParams();
-    asText = root->toString();
+    unsigned length = 0;
+    asText = root->toString(&length, 100);
 }
 
 void GPNetwork::ephemeralRandom(GPRandom* r) {
