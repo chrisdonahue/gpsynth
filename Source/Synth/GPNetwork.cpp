@@ -58,7 +58,7 @@ void GPNetwork::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, un
     //printf("min: %.2lf max: %.2lf\n", min, max);
 }
 
-int GPNetwork::getDepth() {
+unsigned GPNetwork::getDepth() {
     return depth;
 }
 

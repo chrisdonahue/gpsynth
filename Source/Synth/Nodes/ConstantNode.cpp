@@ -48,13 +48,17 @@ void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 
 std::string ConstantNode::toString() {
     char buffer[10];
-    if (value == M_PI) {
-        snprintf(buffer, 10, "(pi)");
-    }
-    else {
-        snprintf(buffer, 10, "(%.2lf)", value);
-    }
-    return std::string(buffer);
+    #ifdef __linux__
+        if (value == M_PI) {
+            snprintf(buffer, 10, "(pi)");
+        }
+        else {
+            snprintf(buffer, 10, "(%.2lf)", value);
+        }
+        return std::string(buffer);
+    #elif _WIN32
+        return std::string();
+    #endif
 }
 
 void ConstantNode::updateMutatedParams() {
