@@ -11,7 +11,6 @@
 #ifndef OSCILNODE_H
 #define OSCILNODE_H
 
-#include <cmath>
 #include "../GPNode.h"
 
 class OscilNode: public GPNode {

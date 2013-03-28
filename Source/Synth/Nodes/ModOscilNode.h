@@ -11,7 +11,6 @@
 #ifndef MODOSCILNODE_H
 #define MODOSCILNODE_H
 
-#include <cmath>
 #include "../GPNode.h"
 
 class ModOscilNode: public GPNode {

@@ -219,7 +219,7 @@ void GPSynth::printGenerationSummary() {
     assert(evaluated.size() == rawFitnesses.size());
     assert(evaluated.size() == populationSize);
     double generationCumulativeFitness = 0;
-    generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
+    generationBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
     GPNetwork* champ = NULL;
     for (unsigned i = 0; i < rawFitnesses.size(); i++) {
         double fitness = rawFitnesses[i];

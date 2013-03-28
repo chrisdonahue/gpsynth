@@ -11,6 +11,8 @@
 #ifndef GPNETWORK_H
 #define GPNETWORK_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 #include <string.h>
 #include "GPNode.h"
@@ -30,7 +32,7 @@ class GPNetwork {
 
         // EXAMINATION
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
-        int getDepth();
+        unsigned getDepth();
         std::string toString();
         GPNode* getRoot();
         bool equals(GPNetwork* other);

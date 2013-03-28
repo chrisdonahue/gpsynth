@@ -11,9 +11,9 @@
 #ifndef GPRANDOM_H
 #define GPRANDOM_H
 
+#include <cmath>
 #include <random>
 #include <iostream>
-#include <math.h>
 
 class GPRandom {
     public:
