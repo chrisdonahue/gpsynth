@@ -39,7 +39,7 @@ void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     *min = -1;
     *max = 1;
     double* currentIndex = v + variableNum;
-	for (int i = 0; i < n; i++) {
+	for (unsigned i = 0; i < n; i++) {
         buffer[i] = sin(w*(t[i])*(*currentIndex));
         currentIndex += nv;
     }

@@ -35,7 +35,7 @@ rawFitnesses(), normalizedFitnesses(), rank()
 
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
-    for (int i = 0; i < availableNodes->size(); i++) {
+    for (unsigned i = 0; i < availableNodes->size(); i++) {
         if (availableNodes->at(i)->arity == 0) {
             availableTerminals->push_back(nodes->at(i));
         }
@@ -54,10 +54,10 @@ rawFitnesses(), normalizedFitnesses(), rank()
 
 GPSynth::~GPSynth() {
     clearGenerationState();
-    for (int i = 0; i < allNetworks.size(); i++) {
+    for (unsigned i = 0; i < allNetworks.size(); i++) {
         delete allNetworks[i];
     }
-    for (int i = 0; i < availableNodes->size(); i++) {
+    for (unsigned i = 0; i < availableNodes->size(); i++) {
         delete availableNodes->at(i);
     }
     delete availableNodes;
@@ -73,7 +73,7 @@ GPNode* GPSynth::fullRecursive(unsigned cd, unsigned d) {
     }
     else {
         GPNode* ret = availableFunctions->at(rng->random(availableFunctions->size()))->getCopy();
-        for (int i = 0; i < ret->arity; i++) {
+        for (unsigned i = 0; i < ret->arity; i++) {
             ret->descendants[i] = fullRecursive(cd + 1, d);
         }
         return ret;
@@ -100,7 +100,7 @@ GPNode* GPSynth::growRecursive(unsigned cd, unsigned m) {
         if (ret->arity == 0) {
             return ret;
         }
-        for (int i = 0; i < ret->arity; i++) {
+        for (unsigned i = 0; i < ret->arity; i++) {
             ret->descendants[i] = growRecursive(cd + 1, m);
         }
         return ret;
@@ -122,29 +122,29 @@ void GPSynth::initPopulation() {
 
     // TODO: test for equality before adding to population
     GPNetwork* newnet;
-    for (int i = 0; i < maxInitialDepth - 1; i++) {
-        for (int j = 0; j < numFullPerPart; j++) {
+    for (unsigned i = 0; i < maxInitialDepth - 1; i++) {
+        for (unsigned j = 0; j < numFullPerPart; j++) {
             newnet = full(i + 2);
-            if (params->ephemeralRandomConstants);
+            if (params->ephemeralRandomConstants)
                 newnet->ephemeralRandom(rng);
             addNetworkToPopulation(newnet);
         }
-        for (int j = 0; j < numGrowPerPart; j++) {
+        for (unsigned j = 0; j < numGrowPerPart; j++) {
             newnet = grow(i + 2);
-            if (params->ephemeralRandomConstants);
+            if (params->ephemeralRandomConstants)
                 newnet->ephemeralRandom(rng);
             addNetworkToPopulation(newnet);
         }
     }
-    for (int j = 0; j < additionalFull; j++) {
+    for (unsigned j = 0; j < additionalFull; j++) {
         newnet = full(maxInitialDepth);
-        if (params->ephemeralRandomConstants);
+        if (params->ephemeralRandomConstants)
             newnet->ephemeralRandom(rng);
         addNetworkToPopulation(newnet);
     }
-    for (int j = 0; j < additionalGrow; j++) {
+    for (unsigned j = 0; j < additionalGrow; j++) {
         newnet = grow(maxInitialDepth);
-        if (params->ephemeralRandomConstants);
+        if (params->ephemeralRandomConstants)
             newnet->ephemeralRandom(rng);
         addNetworkToPopulation(newnet);
     }
@@ -170,7 +170,7 @@ GPNetwork* GPSynth::getIndividual() {
     return ret;
 }
 
-std::vector<GPNetwork*>* GPSynth::getIndividuals(int n) {
+std::vector<GPNetwork*>* GPSynth::getIndividuals(unsigned n) {
     if (unevaluated.size() < n) {
         std::cout << "Requested multiple individuals out of population that did not have that many remaining" << std::endl;
         return NULL;
@@ -221,7 +221,7 @@ void GPSynth::printGenerationSummary() {
     double generationCumulativeFitness = 0;
     generationBestFitness = lowerFitnessIsBetter ? INFINITY : 0;
     GPNetwork* champ = NULL;
-    for (int i = 0; i < rawFitnesses.size(); i++) {
+    for (unsigned i = 0; i < rawFitnesses.size(); i++) {
         double fitness = rawFitnesses[i];
         if (fitness < 0) {
             std::cerr << "Negative fitness value detected when summarizing generation" << std::endl;
@@ -263,7 +263,7 @@ int GPSynth::nextGeneration() {
 
     // NUMERIC MUTATION
     unsigned numForPossibleNumericMutation = params->percentileOfPopulationToSelectFromForNumericMutation * populationSize;
-    for (int i = 0; i < numToNumericMutate; i++) {
+    for (unsigned i = 0; i < numToNumericMutate; i++) {
         GPNetwork* selected = selectFromEvaluated(params->numericMutationSelectionType, numForPossibleNumericMutation);
         GPNetwork* one = selected->getCopy();
         one->traceNetwork();
@@ -275,7 +275,7 @@ int GPSynth::nextGeneration() {
 
     // MUTATION
     unsigned numForPossibleMutation = params->percentileOfPopulationToSelectFromForMutation * populationSize;
-    for (int i = 0; i < numToMutate; i++) {
+    for (unsigned i = 0; i < numToMutate; i++) {
         GPNetwork* selected = selectFromEvaluated(params->mutationSelectionType, numForPossibleMutation);
         GPNetwork* one = selected->getCopy();
         one->traceNetwork();
@@ -285,7 +285,7 @@ int GPSynth::nextGeneration() {
     }
 
     // CROSSOVER
-    for (int i = 0; i < numToCrossover;) {
+    for (unsigned i = 0; i < numToCrossover;) {
       GPNetwork* dad = selectFromEvaluated(params->crossoverSelectionType, 0);
       GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
       GPNetwork* one = dad->getCopy();
@@ -324,7 +324,7 @@ int GPSynth::nextGeneration() {
     }
 
     // REPRODUCTION
-    for (int i = 0; i < numToReproduce; i++) {
+    for (unsigned i = 0; i < numToReproduce; i++) {
       GPNetwork* selected = selectFromEvaluated(params->reproductionSelectionType, 0);
       int oldID = selected->ID;
       double oldFitness = selected->fitness;
@@ -345,7 +345,7 @@ int GPSynth::nextGeneration() {
 
     // POPULATE STATE WITH NEXT GENERATION
     assert(nextGeneration->size() == populationSize);
-    for (int i = 0; i < populationSize; i++) {
+    for (unsigned i = 0; i < populationSize; i++) {
         addNetworkToPopulation(nextGeneration->at(i));
     }
     delete nextGeneration;
@@ -354,7 +354,7 @@ int GPSynth::nextGeneration() {
 }
 
 void GPSynth::calculateGenerationRanks() {
-    for (int i = 0; i < populationSize; i++) {
+    for (unsigned i = 0; i < populationSize; i++) {
         rank[i] = currentGeneration[i];
     }
     if (lowerFitnessIsBetter)
@@ -371,7 +371,7 @@ void GPSynth::calculateGenerationNormalizedFitnesses() {
     }
     else {
         standardizedFitnesses = new std::vector<double>();
-        for (int i = 0; i < rawFitnesses.size(); i++) {
+        for (unsigned i = 0; i < rawFitnesses.size(); i++) {
             standardizedFitnesses->push_back(bestPossibleFitness - rawFitnesses[i]);
         }
     }
@@ -380,14 +380,14 @@ void GPSynth::calculateGenerationNormalizedFitnesses() {
     std::vector<double>* adjustedFitnesses = new std::vector<double>();
     double sum = 0;
     double si = 0;
-    for (int i = 0; i < standardizedFitnesses->size(); i++) {
+    for (unsigned i = 0; i < standardizedFitnesses->size(); i++) {
         si = 1/(1 + standardizedFitnesses->at(i));
         sum += si;
         adjustedFitnesses->push_back(si);
     }
 
     // NORMALIZE FITNESS
-    for (int i = 0; i < adjustedFitnesses->size(); i++) {
+    for (unsigned i = 0; i < adjustedFitnesses->size(); i++) {
         normalizedFitnesses[i] = (adjustedFitnesses->at(i)/sum);
     }
 
@@ -540,7 +540,7 @@ void GPSynth::mutate(GPNetwork* one) {
 
         // grow new replacement subtree
         GPNode* replacement = growRecursive(0, maxDepth - forReplacement->depth);
-        if (params->ephemeralRandomConstants);
+        if (params->ephemeralRandomConstants)
             replacement->ephemeralRandom(rng);
 
         // replace and delete old
@@ -561,7 +561,7 @@ double GPSynth::numericallyMutate(GPNetwork* one) {
     //std::cout << bestProportion << ", " << temperatureConstant << std::endl;
 
     std::vector<GPMutatableParam*>* params = one->getAllMutatableParams();
-    for (int i = 0; i < params->size(); i++) {
+    for (unsigned i = 0; i < params->size(); i++) {
       GPMutatableParam* p = params->at(i);
       if (p->isContinuous) {
         double value = p->getCValue();

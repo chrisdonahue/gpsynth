@@ -87,7 +87,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     // TODO: calculate min/max for lopass/hipass
 
     double* currentIndex = v + variableNum;
-    for (int i = 0; i < n; i++) {
+    for (unsigned i = 0; i < n; i++) {
         params[2] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
         /*
         if (i == 0)

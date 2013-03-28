@@ -70,16 +70,16 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
         *max = maxheight;
         if (!releaseFinished) {
             if (fn + n > framesInEnvelope) {
-                for (int i = 0; fn + i < framesInEnvelope; i++) {
+                for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
                     buffer[i] = envelope[fn + i];
                 }
-                for (int i = framesInEnvelope - fn; i < n; i++) {
+                for (unsigned i = framesInEnvelope - fn; i < n; i++) {
                     buffer[i] = 0.0;
                 }
                 releaseFinished = true;
             }
             else {
-                for (int i = 0; i < n; i++) {
+                for (unsigned i = 0; i < n; i++) {
                     buffer[i] = envelope[fn + i];
                 }
             }
@@ -93,17 +93,17 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
         if (!releaseFinished) {
             // if ADSR hasn't finished releasing but will within these n frames
             if (fn + n > framesInEnvelope) {
-                for (int i = 0; fn + i < framesInEnvelope; i++) {
+                for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
                     buffer[i] = buffer[i] * envelope[fn + i];
                 }
-                for (int i = framesInEnvelope - fn; i < n; i++) {
+                for (unsigned i = framesInEnvelope - fn; i < n; i++) {
                     buffer[i] = 0.0;
                 }
                 releaseFinished = true;
             }
             // else if ADSR hasn't finished releasing and won't within n
             else {
-                for (int i = 0; i < n; i++) {
+                for (unsigned i = 0; i < n; i++) {
                     buffer[i] = buffer[i] * envelope[fn + i];
                 }
             }
@@ -111,7 +111,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
     // else if ADSR has finished releasing for all n frames
     if (releaseFinished) {
-        for (int i = 0; i < n; i++) {
+        for (unsigned i = 0; i < n; i++) {
             buffer[i] = 0.0;
         }
     }
@@ -147,23 +147,23 @@ void ADSRNode::fillFromParams() {
 
     // delay
     unsigned framesFilled = 0;
-    for (int i = 0; i < (unsigned) (delay * sampleRate); i++, framesFilled++) {
+    for (unsigned i = 0; i < (unsigned) (delay * sampleRate); i++, framesFilled++) {
         envelope[framesFilled] = 0.0;
     }
     // attack
-    for (int i = 0; i < (unsigned) (attack * sampleRate); i++, framesFilled++) {
+    for (unsigned i = 0; i < (unsigned) (attack * sampleRate); i++, framesFilled++) {
         envelope[framesFilled] = (i / (attack * sampleRate)) * attackheight;
     }
     // decay
-    for (int i = 0; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
+    for (unsigned i = 0; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
         envelope[framesFilled] = attackheight - ((i / (decay * sampleRate)) * (attackheight - sustainheight));
     }
     // sustain
-    for (int i = 0; i < (unsigned) (sustain * sampleRate); i++, framesFilled++) {
+    for (unsigned i = 0; i < (unsigned) (sustain * sampleRate); i++, framesFilled++) {
         envelope[framesFilled] = sustainheight;
     }
     // release
-    for (int i = 0; i < (unsigned) (release * sampleRate); i++, framesFilled++) {
+    for (unsigned i = 0; i < (unsigned) (release * sampleRate); i++, framesFilled++) {
         envelope[framesFilled]  = sustainheight - ((i / (release * sampleRate)) * (sustainheight));
     }
 }

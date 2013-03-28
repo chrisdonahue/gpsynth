@@ -48,14 +48,14 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
         float* oneBlock = (float*) malloc(sizeof(float) * n);
         descendants[1]->evaluateBlock(fn, t, nv, v, &onemin, &onemax, n, oneBlock);
         gpfunction.calculateRange(min, max, zeromin, zeromax, onemin, onemax);
-        for (int i = 0; i < n; i++) {
+        for (unsigned i = 0; i < n; i++) {
             buffer[i] = gpfunction.function(buffer[i], oneBlock[i]);
         }
         free(oneBlock);
     }
     else {
         gpfunction.calculateRange(min, max, zeromin, zeromax, 0.0, 0.0);
-        for (int i = 0; i < n; i++) {
+        for (unsigned i = 0; i < n; i++) {
             buffer[i] = gpfunction.function(buffer[i], 0.0);
         }
     }

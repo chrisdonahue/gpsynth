@@ -39,7 +39,7 @@ void ModOscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     descendants[1]->evaluateBlock(fn, t, nv, v, &onemin, &onemax, n, phaseBlock);
     *min = -1;
     *max = 1;
-    for (int i = 0; i < n; i++) {
+    for (unsigned i = 0; i < n; i++) {
         buffer[i] = sin(w * (t[i]) * (buffer[i]) + phaseBlock[i]);
     }
     free(phaseBlock);

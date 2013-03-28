@@ -22,14 +22,13 @@ allNodes(), allMutatableParams()
     ID = -1;
     fitness = -1;
     root = r;
-    depth = -1;
+    depth = r->depth;
     asText = "";
 }
 
 GPNetwork::GPNetwork(GPParams* p, std::string netstring) {
     ID = -1;
     fitness = -1;
-    char* token;
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
     std::copy(netstring.begin(), netstring.end(), expr);
     expr[netstring.size()] = '\0';
@@ -112,7 +111,7 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
     else {
         // replace parent-child links
         bool replacedLink = false;
-        for (int i = 0; i < old->parent->arity; i++) {
+        for (unsigned i = 0; i < old->parent->arity; i++) {
             if (old->parent->descendants[i] == old) {
                 old->parent->descendants[i] = nu;
                 replacedLink = true;

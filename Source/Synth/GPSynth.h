@@ -29,7 +29,7 @@ class GPSynth {
 
         // EVOLUTION CONTROL
         GPNetwork* getIndividual();
-        std::vector<GPNetwork*>* getIndividuals(int n);
+        std::vector<GPNetwork*>* getIndividuals(unsigned n);
         int assignFitness(GPNetwork* net, double fitness);
         int prevGeneration();
         void printGenerationDelim();
@@ -67,7 +67,7 @@ class GPSynth {
         int generationID;
 
         // EVOLUTION PARAMS
-        int populationSize;
+        unsigned populationSize;
         double generationAverageFitness;
         double generationBestFitness;
         bool lowerFitnessIsBetter;

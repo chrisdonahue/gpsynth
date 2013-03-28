@@ -23,7 +23,7 @@ TimeNode* TimeNode::getCopy() {
 void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     *min = 0;
     *max = INFINITY;
-    for (int i = 0; i < n; i++) {
+    for (unsigned i = 0; i < n; i++) {
         buffer[i] = t[i];
     }
 }

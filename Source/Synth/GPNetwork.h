@@ -50,7 +50,7 @@ class GPNetwork {
 
     private:
         // PRIVATE STATE
-        int depth;
+        unsigned depth;
         std::string asText;
         GPNode* root;
         std::vector<GPNode*> allNodes;

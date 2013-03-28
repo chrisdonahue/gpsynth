@@ -24,10 +24,10 @@ class GPNode {
                 mutatableParams(0) {
         }
         virtual ~GPNode() {
-            for (int i = 0; i < arity; i++) {
+            for (unsigned i = 0; i < arity; i++) {
                 delete descendants[i];
             }
-            for (int i = 0; i < mutatableParams.size(); i++) {
+            for (unsigned i = 0; i < mutatableParams.size(); i++) {
                 delete mutatableParams[i];
             }
         }
@@ -39,7 +39,7 @@ class GPNode {
         virtual void updateMutatedParams() = 0;
 
         // TREE STATE
-        int depth;
+        unsigned depth;
 
         // HERITAGE POINTERS
         GPNode* parent;
@@ -53,27 +53,27 @@ class GPNode {
         std::vector<GPMutatableParam*> mutatableParams;
 
         void ephemeralRandom(GPRandom* r) {
-            for (int i = 0; i < mutatableParams.size(); i++) {
+            for (unsigned i = 0; i < mutatableParams.size(); i++) {
                 mutatableParams[i]->ephemeralRandom(r);
             }
-            for (int i = 0; i < arity; i++) {
+            for (unsigned i = 0; i < arity; i++) {
                 descendants[i]->ephemeralRandom(r);
             }
         }
 
         // INHERITED TRACE METHOD
-        void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* rootHeight, int currentDepth) {
+        void traceSubtree(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, unsigned* rootHeight, unsigned currentDepth) {
             parent = p;
             depth = currentDepth;
             allnodes->push_back(this);
-            for (int i = 0; i < mutatableParams.size(); i++) {
+            for (unsigned i = 0; i < mutatableParams.size(); i++) {
                 if (mutatableParams[i]->isMutatable)
                     allmutatableparams->push_back(mutatableParams[i]);
             }
             if (currentDepth > *rootHeight) {
                 *rootHeight = currentDepth;
             }
-            for (int i = 0; i < arity; i++) {
+            for (unsigned i = 0; i < arity; i++) {
                 descendants[i]->traceSubtree(allnodes, allmutatableparams, this, rootHeight, currentDepth + 1);
             }
         };
