@@ -20,7 +20,7 @@ class ModOscilNode: public GPNode {
         ModOscilNode* getCopy();
 
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        std::string toString();
+        std::string toString(unsigned* childStringLength);
         void updateMutatedParams();
 
     private:

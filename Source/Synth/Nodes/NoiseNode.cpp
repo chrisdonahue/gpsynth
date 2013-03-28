@@ -35,7 +35,7 @@ void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     }
 }
 
-std::string NoiseNode::toString() {
+std::string NoiseNode::toString(unsigned* childStringLength) {
     char buffer[20];
     snprintf(buffer, 20, "(noise)");
     return std::string(buffer);

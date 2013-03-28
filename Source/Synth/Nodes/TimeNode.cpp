@@ -27,7 +27,7 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-std::string TimeNode::toString() {
+std::string TimeNode::toString(unsigned* childStringLength) {
     char buffer[10];
     snprintf(buffer, 10, "(%s)", "time");
     return std::string(buffer);

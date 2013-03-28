@@ -13,11 +13,12 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "../Common/GPParams.h"
-#include "../Common/GPMutatableParam.h"
 #include <vector>
 #include <algorithm>
 #include <limits>
+#include <wtypes.h>
+#include "../Common/GPParams.h"
+#include "../Common/GPMutatableParam.h"
 
 class GPNode {
     public:
@@ -36,7 +37,7 @@ class GPNode {
 
         // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
         virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
-        virtual std::string toString() = 0;
+        virtual std::string toString(unsigned* childStringLength) = 0;
         virtual GPNode* getCopy() = 0;
         virtual void updateMutatedParams() = 0;
 
@@ -80,5 +81,16 @@ class GPNode {
             }
         };
 };
+
+void formatBuffer(unsigned n, const char* buffer, const char* fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+#ifdef __linux__
+  vsnprintf(buffer, n, fmt, args);
+#elif _win32
+  vsnprintf_s(buffer, sizeof(buffer), _TRUNCATE, fmt, args);
+#endif
+  va_end(args);
+}
 
 #endif

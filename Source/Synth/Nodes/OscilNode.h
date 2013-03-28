@@ -21,7 +21,7 @@ class OscilNode: public GPNode {
 
         double evaluate(double* t, double* v);
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        std::string toString();
+        std::string toString(unsigned* childStringLength);
         void updateMutatedParams();
 
     private:

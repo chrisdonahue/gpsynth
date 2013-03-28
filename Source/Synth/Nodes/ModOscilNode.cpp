@@ -46,9 +46,9 @@ void ModOscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     return;
 }
 
-std::string ModOscilNode::toString() {
+std::string ModOscilNode::toString(unsigned* childStringLength) {
     char buffer[2048];
-    snprintf(buffer, 2048, "(modosc %s %s)", descendants[0]->toString().c_str(), descendants[1]->toString().c_str());
+    snprintf(buffer, 2048, "(modosc %s %s)", descendants[0]->toString(unsigned* childStringLength).c_str(), descendants[1]->toString().c_str());
     return std::string(buffer);
 }
 

@@ -61,13 +61,13 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-std::string FunctionNode::toString() {
+std::string FunctionNode::toString(unsigned* childStringLength) {
     char buffer[2048];
     if (arity == 2) {
-        snprintf(buffer, 2048, "(%s %s %s)", gpfunction.symbol, descendants[0]->toString().c_str(), descendants[1]->toString().c_str());
+        snprintf(buffer, 2048, "(%s %s %s)", gpfunction.symbol, descendants[0]->toString(unsigned* childStringLength).c_str(), descendants[1]->toString().c_str());
     }
     else {
-        snprintf(buffer, 2048, "(%s %s)", gpfunction.symbol, descendants[0]->toString().c_str());
+        snprintf(buffer, 2048, "(%s %s)", gpfunction.symbol, descendants[0]->toString(unsigned* childStringLength).c_str());
     }
     return std::string(buffer);
 }

@@ -48,8 +48,8 @@ void DelayNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
 	return;
 }
 
-std::string DelayNode::toString() {
+std::string DelayNode::toString(unsigned* childStringLength) {
     char buffer[1024];
-    snprintf(buffer, 1024, "(delay %d %s)", numSamples, left->toString().c_str());
+    snprintf(buffer, 1024, "(delay %d %s)", numSamples, left->toString(unsigned* childStringLength).c_str());
     return std::string(buffer);
 }
