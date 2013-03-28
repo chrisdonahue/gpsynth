@@ -57,7 +57,13 @@ std::string ConstantNode::toString() {
         }
         return std::string(buffer);
     #elif _WIN32
-        return std::string();
+        if (value == M_PI) {
+            _snprintf_s(buffer, _countof(buffer), 10, "(pi)");
+        }
+        else {
+			_snprintf_s(buffer, _countof(buffer), 10, "(%.2lf)", value);
+        }
+        return std::string(buffer);
     #endif
 }
 
