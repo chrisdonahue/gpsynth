@@ -28,7 +28,7 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 }
 
 void TimeNode::toString(std::stringstream& ss) {
-  ss << "(time)";
+    ss << "(time)";
 }
 
 void TimeNode::updateMutatedParams() {

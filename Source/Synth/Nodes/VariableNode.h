@@ -14,19 +14,19 @@
 #include "../GPNode.h"
 
 class VariableNode: public GPNode {
-    public:
-        VariableNode(int vn, double min, double max);
-        ~VariableNode();
-        VariableNode* getCopy();
+public:
+    VariableNode(int vn, double min, double max);
+    ~VariableNode();
+    VariableNode* getCopy();
 
-        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        void toString(std::stringstream& ss);
-        void updateMutatedParams();
+    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+    void toString(std::stringstream& ss);
+    void updateMutatedParams();
 
-    private:
-        int variableNum;
-        double minimum;
-        double maximum;
+private:
+    int variableNum;
+    double minimum;
+    double maximum;
 };
 
 #endif

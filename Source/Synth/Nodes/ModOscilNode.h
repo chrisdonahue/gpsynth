@@ -14,18 +14,18 @@
 #include "../GPNode.h"
 
 class ModOscilNode: public GPNode {
-    public:
-        ModOscilNode(GPNode* freq, GPNode* phase);
-        ~ModOscilNode();
-        ModOscilNode* getCopy();
+public:
+    ModOscilNode(GPNode* freq, GPNode* phase);
+    ~ModOscilNode();
+    ModOscilNode* getCopy();
 
-        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        void toString(std::stringstream& ss);
-        void updateMutatedParams();
+    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+    void toString(std::stringstream& ss);
+    void updateMutatedParams();
 
-    private:
-        //int partial;
-        double w;
+private:
+    //int partial;
+    double w;
 };
 
 #endif

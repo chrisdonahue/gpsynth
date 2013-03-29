@@ -17,7 +17,7 @@
 */
 
 FilterNode::FilterNode(unsigned t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth) :
-params()
+    params()
 {
     type = t;
     order = o;
@@ -112,24 +112,24 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
 
 void FilterNode::toString(std::stringstream& ss) {
     if (type == 0) {
-      ss << "(lowpass ";
+        ss << "(lowpass ";
     }
     else if (type == 1) {
-      ss << "(highpass ";
+        ss << "(highpass ";
     }
     else if (type == 2) {
-      ss << "(bandpass ";
+        ss << "(bandpass ";
     }
     else if (type == 3) {
-      ss << "(bandstop ";
+        ss << "(bandstop ";
     }
     ss << centerFrequencyMultiplier << " " << bandwidthQuality << " ";
-     descendants[0]->toString(ss);
-     ss << " ";
-      descendants[1]->toString(ss);
-      ss << " ";
-      descendants[2]->toString(ss);
-      ss << ")";
+    descendants[0]->toString(ss);
+    ss << " ";
+    descendants[1]->toString(ss);
+    ss << " ";
+    descendants[2]->toString(ss);
+    ss << ")";
 }
 
 void FilterNode::fillFromParams() {

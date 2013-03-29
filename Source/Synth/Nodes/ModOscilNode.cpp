@@ -47,12 +47,12 @@ void ModOscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 }
 
 void ModOscilNode::toString(std::stringstream& ss) {
-  ss << "(modosc";
-  for (unsigned i = 0; i < arity; i++) {
-    ss << " ";
-    descendants[i]->toString(ss);
-  }
-  ss << ")";
+    ss << "(modosc";
+    for (unsigned i = 0; i < arity; i++) {
+        ss << " ";
+        descendants[i]->toString(ss);
+    }
+    ss << ")";
 }
 
 void ModOscilNode::updateMutatedParams() {

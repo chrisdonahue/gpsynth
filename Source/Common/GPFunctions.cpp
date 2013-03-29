@@ -24,9 +24,9 @@ void GPmultiplyCalculateRange(double* min, double* max, double zeromin, double z
     *min = products[0];
     *max = products[0];
     for (int i = 1; i < 4; i++) {
-       if (products[i] < *min)
+        if (products[i] < *min)
             *min = products[i];
-       if (products[i] > *max)
+        if (products[i] > *max)
             *max = products[i];
     }
 }

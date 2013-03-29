@@ -36,7 +36,7 @@ void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
 }
 
 void NoiseNode::toString(std::stringstream& ss) {
-  ss << "(noise)";
+    ss << "(noise)";
 }
 
 void NoiseNode::updateMutatedParams() {

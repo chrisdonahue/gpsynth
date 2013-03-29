@@ -17,18 +17,18 @@
 */
 
 GPSynth::GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes) :
-nextNetworkID(0), generationID(0),
-populationSize(p->populationSize),
-generationAverageFitness(p->penaltyFitness),
-lowerFitnessIsBetter(p->lowerFitnessIsBetter),
-bestPossibleFitness(p->bestPossibleFitness),
-maxInitialDepth(p->maxInitialDepth),
-maxDepth(p->maxDepth),
-crossoverType(p->crossoverType),
-mutationType(p->mutationType),
-availableNodes(nodes),
-allNetworks(), unevaluated(), evaluated(), currentGeneration(),
-rawFitnesses(), normalizedFitnesses(), rank()
+    nextNetworkID(0), generationID(0),
+    populationSize(p->populationSize),
+    generationAverageFitness(p->penaltyFitness),
+    lowerFitnessIsBetter(p->lowerFitnessIsBetter),
+    bestPossibleFitness(p->bestPossibleFitness),
+    maxInitialDepth(p->maxInitialDepth),
+    maxDepth(p->maxDepth),
+    crossoverType(p->crossoverType),
+    mutationType(p->mutationType),
+    availableNodes(nodes),
+    allNetworks(), unevaluated(), evaluated(), currentGeneration(),
+    rawFitnesses(), normalizedFitnesses(), rank()
 {
     params = p;
     rng = r;
@@ -286,52 +286,52 @@ int GPSynth::nextGeneration() {
 
     // CROSSOVER
     for (unsigned i = 0; i < numToCrossover;) {
-      GPNetwork* dad = selectFromEvaluated(params->crossoverSelectionType, 0);
-      GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
-      GPNetwork* one = dad->getCopy();
-      one->traceNetwork();
-      one->ID = dad->ID;
-      GPNetwork* two = mom->getCopy();
-      two->traceNetwork();
-      two->ID = mom->ID;
+        GPNetwork* dad = selectFromEvaluated(params->crossoverSelectionType, 0);
+        GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
+        GPNetwork* one = dad->getCopy();
+        one->traceNetwork();
+        one->ID = dad->ID;
+        GPNetwork* two = mom->getCopy();
+        two->traceNetwork();
+        two->ID = mom->ID;
 
-      GPNetwork* offspring = crossover(one, two);
+        GPNetwork* offspring = crossover(one, two);
 
-      // standard GP with two offspring
-      if (offspring == NULL) {
-        if (one->getDepth() > maxDepth) {
-          delete one;
-          one = dad->getCopy();
+        // standard GP with two offspring
+        if (offspring == NULL) {
+            if (one->getDepth() > maxDepth) {
+                delete one;
+                one = dad->getCopy();
+            }
+            nextGeneration->push_back(one);
+            i++;
+            if (i < numToCrossover) {
+                if (two->getDepth() > maxDepth) {
+                    delete two;
+                    two = mom->getCopy();
+                }
+                nextGeneration->push_back(two);
+                i++;
+            }
+            else {
+                delete two;
+            }
         }
-        nextGeneration->push_back(one);
-        i++;
-        if (i < numToCrossover) {
-          if (two->getDepth() > maxDepth) {
-            delete two;
-            two = mom->getCopy();
-          }
-         nextGeneration->push_back(two);
-         i++;
-        }
+        // some other type with one offspring
         else {
-            delete two;
+            nextGeneration->push_back(offspring);
         }
-      }
-      // some other type with one offspring
-      else {
-        nextGeneration->push_back(offspring);
-      }
     }
 
     // REPRODUCTION
     for (unsigned i = 0; i < numToReproduce; i++) {
-      GPNetwork* selected = selectFromEvaluated(params->reproductionSelectionType, 0);
-      int oldID = selected->ID;
-      double oldFitness = selected->fitness;
-      GPNetwork* one = selected->getCopy();
-      one->ID = oldID;
-      one->fitness = oldFitness;
-      nextGeneration->push_back(one);
+        GPNetwork* selected = selectFromEvaluated(params->reproductionSelectionType, 0);
+        int oldID = selected->ID;
+        double oldFitness = selected->fitness;
+        GPNetwork* one = selected->getCopy();
+        one->ID = oldID;
+        one->fitness = oldFitness;
+        nextGeneration->push_back(one);
     }
 
     // DELETE STATE FROM LAST GENERATIOn
@@ -426,21 +426,21 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
 }
 
 void GPSynth::clearGenerationState() {
-  for (std::set<GPNetwork*>::iterator i = unevaluated.begin(); i != unevaluated.end(); i++) {
-      delete (*i);
-  }
-  for (std::set<GPNetwork*>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
-      delete (*i);
-  }
-  evaluated.clear();
-  unevaluated.clear();
-  currentGeneration.clear();
-  rawFitnesses.clear();
-  rawFitnesses.resize(populationSize, -1.0);
-  normalizedFitnesses.clear();
-  normalizedFitnesses.resize(populationSize, -1.0);
-  rank.clear();
-  rank.resize(populationSize, NULL);
+    for (std::set<GPNetwork*>::iterator i = unevaluated.begin(); i != unevaluated.end(); i++) {
+        delete (*i);
+    }
+    for (std::set<GPNetwork*>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
+        delete (*i);
+    }
+    evaluated.clear();
+    unevaluated.clear();
+    currentGeneration.clear();
+    rawFitnesses.clear();
+    rawFitnesses.resize(populationSize, -1.0);
+    normalizedFitnesses.clear();
+    normalizedFitnesses.resize(populationSize, -1.0);
+    rank.clear();
+    rank.resize(populationSize, NULL);
 }
 
 GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType, unsigned parameter) {
@@ -562,27 +562,27 @@ double GPSynth::numericallyMutate(GPNetwork* one) {
 
     std::vector<GPMutatableParam*>* params = one->getAllMutatableParams();
     for (unsigned i = 0; i < params->size(); i++) {
-      GPMutatableParam* p = params->at(i);
-      if (p->isContinuous) {
-        double value = p->getCValue();
-        double min = p->getCMin();
-        double max = p->getCMax();
-        double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
-        double rand = rng->random();
-        double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
-        //std::cout << "CONTINUOUS VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
-        p->setCValue(value + mutationAmount);
-      }
-      else {
-        int value = p->getDValue();
-        int min = p->getDMin();
-        int max = p->getDMax();
-        double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
-        double rand = rng->random();
-        double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
-        //std::cout << "DISCRETE VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
-        p->setDValue((int) (value + mutationAmount));
-      }
+        GPMutatableParam* p = params->at(i);
+        if (p->isContinuous) {
+            double value = p->getCValue();
+            double min = p->getCMin();
+            double max = p->getCMax();
+            double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
+            double rand = rng->random();
+            double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
+            //std::cout << "CONTINUOUS VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
+            p->setCValue(value + mutationAmount);
+        }
+        else {
+            int value = p->getDValue();
+            int min = p->getDMin();
+            int max = p->getDMax();
+            double temperatureFactor = bestProportion * (max - min) * temperatureConstant;
+            double rand = rng->random();
+            double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
+            //std::cout << "DISCRETE VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
+            p->setDValue((int) (value + mutationAmount));
+        }
     }
     one->updateMutatedParams();
     //std::cout << "AFTER NUMERIC MUTATION " << one->toString() << std::endl;

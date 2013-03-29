@@ -15,21 +15,21 @@
 #include <list>
 
 class DelayNode: public GPNode {
-    public:
-        DelayNode(int n, GPNode* l, GPNode* r);
-        ~DelayNode();
-        DelayNode* getCopy();
+public:
+    DelayNode(int n, GPNode* l, GPNode* r);
+    ~DelayNode();
+    DelayNode* getCopy();
 
-        void setMemoryConstant(int n);
-        double evaluate(double* t, double* v);
-        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        void toString(std::stringstream& ss);
-        void mutate(GPParams* e);
+    void setMemoryConstant(int n);
+    double evaluate(double* t, double* v);
+    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+    void toString(std::stringstream& ss);
+    void mutate(GPParams* e);
 
-    private:
-        int numFilled;
-        int numSamples;
-        std::list<double> delayLine;
+private:
+    int numFilled;
+    int numSamples;
+    std::list<double> delayLine;
 };
 
 #endif

@@ -32,66 +32,66 @@
 #include <limits>
 
 class GPExperiment {
-    public:
-        // CONSTUCTION
-        GPExperiment(GPRandom* r, String target, GPParams* p, double* constants);
-        ~GPExperiment();
+public:
+    // CONSTUCTION
+    GPExperiment(GPRandom* r, String target, GPParams* p, double* constants);
+    ~GPExperiment();
 
-        // EVOLUTION CONTROL
-        GPNetwork* evolve();
+    // EVOLUTION CONTROL
+    GPNetwork* evolve();
 
-    private:
-        // EXPERIMENT PARAMETERS
-        GPParams* params;
-        float fitnessThreshold;
-        int numGenerations;
-        bool lowerFitnessIsBetter;
-        double bestPossibleFitness;
-        double penaltyFitness;
+private:
+    // EXPERIMENT PARAMETERS
+    GPParams* params;
+    float fitnessThreshold;
+    int numGenerations;
+    bool lowerFitnessIsBetter;
+    double bestPossibleFitness;
+    double penaltyFitness;
 
-        // TARGET DATA CONTAINERS
-        double targetSampleRate;
-        unsigned numTargetFrames;
-        float* targetFrames;
-        kiss_fft_cpx* targetSpectrum;
-        double* targetSpectrumMagnitudes;
-        double* targetSpectrumPhases;
-        double* weightMatrix;
+    // TARGET DATA CONTAINERS
+    double targetSampleRate;
+    unsigned numTargetFrames;
+    float* targetFrames;
+    kiss_fft_cpx* targetSpectrum;
+    double* targetSpectrumMagnitudes;
+    double* targetSpectrumPhases;
+    double* weightMatrix;
 
-        // EVALUATION DATA
-        double* sampleTimes;
-        double* specialValues;
-        // TODO: replace specialValues with specialValuesByTime
-        double* specialValuesByFrame;
-        unsigned numSpecialValues;
+    // EVALUATION DATA
+    double* sampleTimes;
+    double* specialValues;
+    // TODO: replace specialValues with specialValuesByTime
+    double* specialValuesByFrame;
+    unsigned numSpecialValues;
 
-        // EXPERIMENT STATE
-        float minFitnessAchieved;
-        int numEvaluatedGenerations;
+    // EXPERIMENT STATE
+    float minFitnessAchieved;
+    int numEvaluatedGenerations;
 
-        // SYNTH
-        GPSynth* synth;
+    // SYNTH
+    GPSynth* synth;
 
-        // FILL EVALUATION BUFFERS
-        void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
+    // FILL EVALUATION BUFFERS
+    void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
 
-        // WAV INTERFACE
-        ScopedPointer<WavAudioFormat> wavFormat;
-        unsigned wavFileBufferSize;
-        void getWavFileInfo(String path, unsigned* numFrames, double* sampleRate);
-        void loadWavFile(String path, unsigned n, float* buffer);
-        // TODO: move targetBuffer stuff from loadTargetWavFile to fillEvaluationBuffers
-        void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
+    // WAV INTERFACE
+    ScopedPointer<WavAudioFormat> wavFormat;
+    unsigned wavFileBufferSize;
+    void getWavFileInfo(String path, unsigned* numFrames, double* sampleRate);
+    void loadWavFile(String path, unsigned n, float* buffer);
+    // TODO: move targetBuffer stuff from loadTargetWavFile to fillEvaluationBuffers
+    void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
 
-        // FITNESS FUNCTION
-        double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
-        void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
-        double compareToTarget(unsigned type, float* candidateFrames);
+    // FITNESS FUNCTION
+    double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
+    void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
+    double compareToTarget(unsigned type, float* candidateFrames);
 
-        // FOURIER TRANSFORM
-        unsigned calculateFftBufferSize(unsigned numFrames, unsigned n);
-        void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
-        void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, double* magnitude, double* phase);
+    // FOURIER TRANSFORM
+    unsigned calculateFftBufferSize(unsigned numFrames, unsigned n);
+    void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
+    void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, double* magnitude, double* phase);
 };
 
 #endif

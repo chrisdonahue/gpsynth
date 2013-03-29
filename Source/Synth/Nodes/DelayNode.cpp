@@ -45,7 +45,7 @@ double DelayNode::evaluate(double* t, double* v) {
 }
 
 void DelayNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-	return;
+    return;
 }
 
 void DelayNode::toString(std::stringstream& ss) {

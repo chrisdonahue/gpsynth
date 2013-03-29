@@ -32,33 +32,33 @@ ConstantNode::~ConstantNode() {
 }
 
 ConstantNode* ConstantNode::getCopy() {
-  if (hasInterval)
-    return new ConstantNode(mutatableParams[0]->getCopy(), minimum, maximum);
-  else
-    return new ConstantNode(mutatableParams[0]->getCopy());
+    if (hasInterval)
+        return new ConstantNode(mutatableParams[0]->getCopy(), minimum, maximum);
+    else
+        return new ConstantNode(mutatableParams[0]->getCopy());
 }
 
 void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     *min = minimum;
     *max = maximum;
-	for (unsigned i = 0; i < n; i++) {
+    for (unsigned i = 0; i < n; i++) {
         buffer[i] = value;
     }
 }
 
 void ConstantNode::toString(std::stringstream& ss) {
-  if (value == M_PI) {
-    ss << "(pi)";
-  }
-  else {
-    ss << "(" << value << ")";
-  }
+    if (value == M_PI) {
+        ss << "(pi)";
+    }
+    else {
+        ss << "(" << value << ")";
+    }
 }
 
 void ConstantNode::updateMutatedParams() {
     value = mutatableParams[0]->getValue();
     if (!hasInterval) {
-      minimum = value;
-      maximum = value;
+        minimum = value;
+        maximum = value;
     }
 }

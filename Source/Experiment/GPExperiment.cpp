@@ -189,7 +189,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-     }
+    }
     // filtered noise test
     if (params->experimentNumber == 5) {
         // ASSIGN SPECIAL FITNESS VALUES
@@ -231,7 +231,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum));
-     }
+    }
     // filtered noise test
     if (params->experimentNumber == 5) {
     }
@@ -327,7 +327,7 @@ GPNetwork* GPExperiment::evolve() {
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
         GPNetwork* candidate = synth->getIndividual();
-        
+
         float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
         double fitness = suboptimize(candidate, numTargetFrames, candidateData);
         numEvaluated++;
@@ -343,7 +343,7 @@ GPNetwork* GPExperiment::evolve() {
             generationChamp->ID = backupID;
             generationChamp->fitness = fitness;
         }
-        
+
         if (fitness > penaltyFitness) {
             penaltyFitness = fitness;
             params->penaltyFitness = penaltyFitness;
@@ -425,7 +425,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         // calculate with fft window size
         unsigned n = params->fftSize;
         unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
-        
+
         // allocate output buffers
         targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
         targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
@@ -605,7 +605,7 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
 
         // perform fft
         kiss_fftr(cfg, in, out + numFftOutputUsed);
-        
+
         // analyze output
         //printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
         for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {

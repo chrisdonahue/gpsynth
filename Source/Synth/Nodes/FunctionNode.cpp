@@ -62,12 +62,12 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 }
 
 void FunctionNode::toString(std::stringstream& ss) {
-  ss << "(" << gpfunction.symbol;
-  for (unsigned i = 0; i < arity; i++) {
-    ss << " ";
-    descendants[i]->toString(ss);
-  }
-  ss << ")";
+    ss << "(" << gpfunction.symbol;
+    for (unsigned i = 0; i < arity; i++) {
+        ss << " ";
+        descendants[i]->toString(ss);
+    }
+    ss << ")";
 }
 
 void FunctionNode::updateMutatedParams() {

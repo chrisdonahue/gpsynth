@@ -17,7 +17,7 @@
 */
 
 GPNetwork::GPNetwork(GPNode* r) :
-allNodes(), allMutatableParams()
+    allNodes(), allMutatableParams()
 {
     ID = -1;
     fitness = -1;
@@ -62,10 +62,10 @@ unsigned GPNetwork::getDepth() {
 }
 
 std::string GPNetwork::toString(unsigned precision) {
-  std::stringstream ss;
-  ss.precision(precision);
-  root->toString(ss);
-  return ss.str();
+    std::stringstream ss;
+    ss.precision(precision);
+    root->toString(ss);
+    return ss.str();
 }
 
 GPNode* GPNetwork::getRoot() {
@@ -139,7 +139,7 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
 // RECURSIVE CONSTRUCTION
 GPNode* createSubtree(GPParams* p, char* tokenized=strtok(NULL, " )(")) {
     //std::cout << "----" << std::endl;
-    char* t = tokenized; 
+    char* t = tokenized;
     //std::cout << t << std::endl;
     if (strcmp(t, "+") == 0) {
         return new FunctionNode(add, createSubtree(p), createSubtree(p));

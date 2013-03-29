@@ -14,21 +14,21 @@
 #include "../GPNode.h"
 
 class OscilNode: public GPNode {
-    public:
-      OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod);
-        ~OscilNode();
-        OscilNode* getCopy();
+public:
+    OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod);
+    ~OscilNode();
+    OscilNode* getCopy();
 
-        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        void toString(std::stringstream& ss);
-        void updateMutatedParams();
+    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+    void toString(std::stringstream& ss);
+    void updateMutatedParams();
 
-    private:
-        bool terminalOscil;
-        int partial;
-        int variableNum;
-        double w;
-        double index;
+private:
+    bool terminalOscil;
+    int partial;
+    int variableNum;
+    double w;
+    double index;
 };
 
 #endif

@@ -35,7 +35,7 @@ void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 }
 
 void VariableNode::toString(std::stringstream& ss) {
-  ss << "(v" << variableNum << ")";
+    ss << "(v" << variableNum << ")";
 }
 
 void VariableNode::updateMutatedParams() {

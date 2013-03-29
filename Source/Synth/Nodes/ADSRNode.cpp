@@ -17,7 +17,7 @@
 */
 
 ADSRNode::ADSRNode(bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
-sampleRate(sr)
+    sampleRate(sr)
 {
     terminalADSR = terminal;
     sampleRate = sr;
@@ -118,14 +118,14 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 }
 
 void ADSRNode::toString(std::stringstream& ss) {
-  if (terminalADSR) {
-    ss << "(adsr " << delay << " " << attack << " " << attackheight << " " << decay << " " << sustain << " " << sustainheight << " " << release << ")";
-  }
-  else {
-    ss << "(adsr " << delay << " " << attack << " " << attackheight << " " << decay << " " << sustain << " " << sustainheight << " " << release << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
-  }
+    if (terminalADSR) {
+        ss << "(adsr " << delay << " " << attack << " " << attackheight << " " << decay << " " << sustain << " " << sustainheight << " " << release << ")";
+    }
+    else {
+        ss << "(adsr " << delay << " " << attack << " " << attackheight << " " << decay << " " << sustain << " " << sustainheight << " " << release << " ";
+        descendants[0]->toString(ss);
+        ss << ")";
+    }
 }
 
 void ADSRNode::fillFromParams() {
@@ -171,7 +171,7 @@ void ADSRNode::fillFromParams() {
 
 void ADSRNode::updateMutatedParams() {
     fillFromParams();
-    
+
     if (!terminalADSR)
         descendants[0]->updateMutatedParams();
 }

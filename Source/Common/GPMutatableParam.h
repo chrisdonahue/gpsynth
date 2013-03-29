@@ -6,137 +6,137 @@
 #include "GPRandom.h"
 
 class GPMutatableParam {
-    public:
-        // discrete constructor
-        GPMutatableParam(std::string t, bool mutatable, int val, int min, int max) {
-            assert(!mutatable || (min <= val && val <= max));
-            type = t;
-            isContinuous = false;
-            isMutatable = mutatable;
-            dvalue = val;
-            dminimum = min;
-            dmaximum = max;
-        }
+public:
+    // discrete constructor
+    GPMutatableParam(std::string t, bool mutatable, int val, int min, int max) {
+        assert(!mutatable || (min <= val && val <= max));
+        type = t;
+        isContinuous = false;
+        isMutatable = mutatable;
+        dvalue = val;
+        dminimum = min;
+        dmaximum = max;
+    }
 
-        // continuous constructor
-        GPMutatableParam(std::string t, bool mutatable, double val, double min, double max) {
-            assert(!mutatable || (min <= val && val <= max));
-            type = t;
-            isContinuous = true;
-            isMutatable = mutatable;
-            cvalue = val;
-            cminimum = min;
-            cmaximum = max;
-        }
+    // continuous constructor
+    GPMutatableParam(std::string t, bool mutatable, double val, double min, double max) {
+        assert(!mutatable || (min <= val && val <= max));
+        type = t;
+        isContinuous = true;
+        isMutatable = mutatable;
+        cvalue = val;
+        cminimum = min;
+        cmaximum = max;
+    }
 
-        ~GPMutatableParam() {
-        }
+    ~GPMutatableParam() {
+    }
 
-        // copy method
-        GPMutatableParam* getCopy() {
-            if (isContinuous)
-                return new GPMutatableParam(type, isMutatable, cvalue, cminimum, cmaximum);
-            else
-                return new GPMutatableParam(type, isMutatable, dvalue, dminimum, dmaximum);
-        }
+    // copy method
+    GPMutatableParam* getCopy() {
+        if (isContinuous)
+            return new GPMutatableParam(type, isMutatable, cvalue, cminimum, cmaximum);
+        else
+            return new GPMutatableParam(type, isMutatable, dvalue, dminimum, dmaximum);
+    }
 
-        // set discrete values
-        void setDValue(int val) {
-          if (val > dmaximum)
+    // set discrete values
+    void setDValue(int val) {
+        if (val > dmaximum)
             dvalue = dmaximum;
-          else if (val < dminimum)
+        else if (val < dminimum)
             dvalue = dminimum;
-          else
+        else
             dvalue = val;
-        }
+    }
 
-        void setDRange(int min, int max) {
-            assert(!isContinuous && min <= max);
-            // TODO: alter value to new range
-            dminimum = min;
-            dmaximum = max;
-        }
+    void setDRange(int min, int max) {
+        assert(!isContinuous && min <= max);
+        // TODO: alter value to new range
+        dminimum = min;
+        dmaximum = max;
+    }
 
-        // set continuous values
-        void setCValue(double val) {
-          if (val > cmaximum)
+    // set continuous values
+    void setCValue(double val) {
+        if (val > cmaximum)
             cvalue = cmaximum;
-          else if (val < cminimum)
+        else if (val < cminimum)
             cvalue = cminimum;
-          else
+        else
             cvalue = val;
-        }
+    }
 
-        void setCRange(double min, double max) {
-            assert(isContinuous && min <= max);
-            // TODO: alter value to new range
-            cminimum = min;
-            cmaximum = max;
-        }
+    void setCRange(double min, double max) {
+        assert(isContinuous && min <= max);
+        // TODO: alter value to new range
+        cminimum = min;
+        cmaximum = max;
+    }
 
-        // type accessor
-        std::string getType() {
-            return type;
-        }
+    // type accessor
+    std::string getType() {
+        return type;
+    }
 
-        // continuous accessors
-        double getCValue() {
-            assert(isContinuous);
+    // continuous accessors
+    double getCValue() {
+        assert(isContinuous);
+        return cvalue;
+    }
+
+    double getCMin() {
+        assert(isContinuous);
+        return cminimum;
+    }
+
+    double getCMax() {
+        assert(isContinuous);
+        return cmaximum;
+    }
+
+    // discrete accessors
+    int getDValue() {
+        assert(!isContinuous);
+        return dvalue;
+    }
+
+    int getDMin() {
+        assert(!isContinuous);
+        return dminimum;
+    }
+
+    int getDMax() {
+        assert(!isContinuous);
+        return dmaximum;
+    }
+
+    // combined accessor
+    double getValue() {
+        if (isContinuous)
             return cvalue;
-        }
-
-        double getCMin() {
-            assert(isContinuous);
-            return cminimum;
-        }
-
-        double getCMax() {
-            assert(isContinuous);
-            return cmaximum;
-        }
-
-        // discrete accessors
-        int getDValue() {
-            assert(!isContinuous);
+        else
             return dvalue;
-        }
+    }
 
-        int getDMin() {
-            assert(!isContinuous);
-            return dminimum;
-        }
+    void ephemeralRandom(GPRandom* rng) {
+        if (isContinuous && isMutatable)
+            cvalue = (rng->random() * (cmaximum - cminimum)) + cminimum;
+        else if (!isContinuous && isMutatable)
+            dvalue = (rng->random((dmaximum - dminimum) + 1)) + dminimum;
+    }
 
-        int getDMax() {
-            assert(!isContinuous);
-            return dmaximum;
-        }
+    bool isContinuous;
+    bool isMutatable;
 
-        // combined accessor
-        double getValue() {
-            if (isContinuous)
-                return cvalue;
-            else
-                return dvalue;
-        }
-
-        void ephemeralRandom(GPRandom* rng) {
-            if (isContinuous && isMutatable)
-                cvalue = (rng->random() * (cmaximum - cminimum)) + cminimum;
-            else if (!isContinuous && isMutatable)
-                dvalue = (rng->random((dmaximum - dminimum) + 1)) + dminimum;
-        }
-
-        bool isContinuous;
-        bool isMutatable;
-
-    private:
-        std::string type;
-        int dvalue;
-        int dminimum;
-        int dmaximum;
-        double cvalue;
-        double cminimum;
-        double cmaximum;
+private:
+    std::string type;
+    int dvalue;
+    int dminimum;
+    int dmaximum;
+    double cvalue;
+    double cminimum;
+    double cmaximum;
 };
 
 #endif

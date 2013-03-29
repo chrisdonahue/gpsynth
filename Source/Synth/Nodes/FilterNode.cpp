@@ -17,7 +17,7 @@
 */
 
 FilterNode::FilterNode(unsigned m, unsigned n, GPRandom* r, bool erc, GPMutatableParam* z, GPMutatableParam* p, GPNode* signal) :
-xcoefficients(), ycoefficients()
+    xcoefficients(), ycoefficients()
 {
     // allocate zero buffer
     numXCoefficients = m;
@@ -39,7 +39,7 @@ xcoefficients(), ycoefficients()
         mutatableParams.push_back(copy);
     }
     delete z;
-    
+
     // make mutatable params for y coefficients
     for (unsigned i = 0; i < numYCoefficients; i++) {
         GPMutatableParam* copy = p->getCopy();
@@ -119,8 +119,8 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     for (unsigned i = 0; i < n; i++) {
         for (unsigned j = 1;
     }
-    *min = min;
-    *max = max;
+        *min = min;
+*max = max;
 }
 
 void FilterNode::toString(std::stringstream& ss) {

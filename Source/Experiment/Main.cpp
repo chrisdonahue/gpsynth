@@ -51,7 +51,7 @@ public:
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 1024;
         params->fftSize = 256;
-        
+
         // fitness function params
         params->fitnessFunctionType = 1;
         params->penalizeBadMagnitude = 2;
@@ -121,93 +121,93 @@ public:
         params->numVariables = 0;
 
         for (String* i = args.begin(); i < args.end(); i++) {
-          if (i->equalsIgnoreCase("--target")) {
-            target = *(++i);
-          }
-          else if (i->equalsIgnoreCase("--seed")) {
-            seed = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--verbose")) {
-            params->verbose = true;
-          }
-          else if (i->equalsIgnoreCase("--precision")) {
-            params->printPrecision = (++i)->getIntValue(); 
-          }
-          else if (i->equalsIgnoreCase("--values")) {
-            String* current = (++i);
-            while ( (i != args.end())  && !((current + 1)->startsWith(String("--"))) ) {
-                constants.push_back(current->getDoubleValue());
-                current = ++i;
+            if (i->equalsIgnoreCase("--target")) {
+                target = *(++i);
             }
-            constants.push_back(current->getDoubleValue());
-            params->numVariables = constants.size();
-          }
-          else if (i->equalsIgnoreCase("--fft")) {
-            params->fftSize = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--fitnesstype")) {
-            params->fitnessFunctionType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--experiment")) {
-            params->experimentNumber = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--generations"))  {
-            params->numGenerations = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--threshold"))  {
-            params->thresholdFitness = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--erc")) {
-            params->ephemeralRandomConstants = true;
-          }
-          else if (i->equalsIgnoreCase("--popsize")) {
-            params->populationSize = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--mid")) {
-            params->maxInitialDepth = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--md")) {
-            params->maxDepth = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--numericmutation")) {
-            params->proportionOfPopulationFromNumericMutation = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--nmselect")) {
-            params->numericMutationSelectionType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--nmselectparam")) {
-            params->percentileOfPopulationToSelectFromForNumericMutation = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--nmtemperature")) {
-            params->numericMutationTemperatureConstant = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--mutation")) {
-            params->proportionOfPopulationFromMutation = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--mselect")) {
-            params->mutationSelectionType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--mtype")) {
-            params->mutationType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--mselectparam")) {
-            params->percentileOfPopulationToSelectFromForMutation = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--crossover")) {
-            params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--cselect")) {
-            params->crossoverSelectionType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--ctype")) {
-            params->crossoverType = (++i)->getIntValue();
-          }
-          else if (i->equalsIgnoreCase("--reproduction")) {
-            params->proportionOfPopulationFromReproduction = (++i)->getDoubleValue();
-          }
-          else if (i->equalsIgnoreCase("--rselect")) {
-            params->reproductionSelectionType = (++i)->getIntValue();
-          }
+            else if (i->equalsIgnoreCase("--seed")) {
+                seed = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--verbose")) {
+                params->verbose = true;
+            }
+            else if (i->equalsIgnoreCase("--precision")) {
+                params->printPrecision = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--values")) {
+                String* current = (++i);
+                while ( (i != args.end())  && !((current + 1)->startsWith(String("--"))) ) {
+                    constants.push_back(current->getDoubleValue());
+                    current = ++i;
+                }
+                constants.push_back(current->getDoubleValue());
+                params->numVariables = constants.size();
+            }
+            else if (i->equalsIgnoreCase("--fft")) {
+                params->fftSize = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--fitnesstype")) {
+                params->fitnessFunctionType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--experiment")) {
+                params->experimentNumber = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--generations"))  {
+                params->numGenerations = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--threshold"))  {
+                params->thresholdFitness = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--erc")) {
+                params->ephemeralRandomConstants = true;
+            }
+            else if (i->equalsIgnoreCase("--popsize")) {
+                params->populationSize = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--mid")) {
+                params->maxInitialDepth = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--md")) {
+                params->maxDepth = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--numericmutation")) {
+                params->proportionOfPopulationFromNumericMutation = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--nmselect")) {
+                params->numericMutationSelectionType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--nmselectparam")) {
+                params->percentileOfPopulationToSelectFromForNumericMutation = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--nmtemperature")) {
+                params->numericMutationTemperatureConstant = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--mutation")) {
+                params->proportionOfPopulationFromMutation = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--mselect")) {
+                params->mutationSelectionType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--mtype")) {
+                params->mutationType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--mselectparam")) {
+                params->percentileOfPopulationToSelectFromForMutation = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--crossover")) {
+                params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--cselect")) {
+                params->crossoverSelectionType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--ctype")) {
+                params->crossoverType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--reproduction")) {
+                params->proportionOfPopulationFromReproduction = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--rselect")) {
+                params->reproductionSelectionType = (++i)->getIntValue();
+            }
         }
 
         // TODO: check all value ranges here

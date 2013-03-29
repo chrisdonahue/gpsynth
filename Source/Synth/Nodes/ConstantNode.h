@@ -14,21 +14,21 @@
 #include "../GPNode.h"
 
 class ConstantNode: public GPNode {
-    public:
-        ConstantNode(GPMutatableParam* v, double min, double max);
-        ConstantNode(GPMutatableParam* v);
-        ~ConstantNode();
-        ConstantNode* getCopy();
+public:
+    ConstantNode(GPMutatableParam* v, double min, double max);
+    ConstantNode(GPMutatableParam* v);
+    ~ConstantNode();
+    ConstantNode* getCopy();
 
-        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        void toString(std::stringstream& ss);
-        void updateMutatedParams();
+    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+    void toString(std::stringstream& ss);
+    void updateMutatedParams();
 
-    private:
-        bool hasInterval;
-        double value;
-        double minimum;
-        double maximum;
+private:
+    bool hasInterval;
+    double value;
+    double minimum;
+    double maximum;
 };
 
 #endif

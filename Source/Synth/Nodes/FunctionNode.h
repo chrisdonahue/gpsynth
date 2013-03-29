@@ -15,17 +15,17 @@
 #include "../GPNode.h"
 
 class FunctionNode: public GPNode {
-    public:
-        FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one);
-        ~FunctionNode();
-        FunctionNode* getCopy();
+public:
+    FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one);
+    ~FunctionNode();
+    FunctionNode* getCopy();
 
-        void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-        void toString(std::stringstream& ss);
-        void updateMutatedParams();
+    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+    void toString(std::stringstream& ss);
+    void updateMutatedParams();
 
-    private:
-        GPFunction gpfunction;
+private:
+    GPFunction gpfunction;
 };
 
 #endif
