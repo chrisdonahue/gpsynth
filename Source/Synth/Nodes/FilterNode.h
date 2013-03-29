@@ -15,24 +15,26 @@
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+        FilterNode(unsigned m, unsigned n, GPRandom* r, bool erc, GPMutatableParam* z, GPMutatableParam* p, GPNode* signal);
+        FilterNode(std::vector<GPMutatableParam*>& xcoef, std::vector<GPMutatableParam*>& ycoef, GPNode* signal);
         ~FilterNode();
         FilterNode* getCopy();
 
         void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
         void toString(std::stringstream& ss);
-        void fillFromParams();
         void updateMutatedParams();
 
     private:
         // difference equation zeroes
         unsigned numXCoefficients;
         std::vector<GPMutatableParam*> xcoefficients;
+        float* xcoefs;
         float* x;
 
         // difference equation poles
         unsigned numYCoefficients;
         std::vector<GPMutatableParam*> ycoefficients;
+        float* ycoefs;
         float* y;
 };
 
