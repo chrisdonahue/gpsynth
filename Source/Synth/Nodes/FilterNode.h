@@ -12,11 +12,10 @@
 #define FILTERNODE_H
 
 #include "../GPNode.h"
-#include "../../Dependencies/DSPFilters/Dsp.h" 
 
 class FilterNode: public GPNode {
     public:
-        FilterNode(unsigned t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth);
+        FilterNode(bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
         ~FilterNode();
         FilterNode* getCopy();
 
@@ -26,24 +25,15 @@ class FilterNode: public GPNode {
         void updateMutatedParams();
 
     private:
-        unsigned type;
-        unsigned order;
-        unsigned fadeParameterChanges;
-        double sampleRate;
-        double nyquist;
+        // difference equation zeroes
+        unsigned numXCoefficients;
+        std::vector<GPMutatableParam*> xcoefficients;
+        float* x;
 
-        int variableNum;
-
-        double centerFrequencyMultiplierMin;
-        double centerFrequencyMultiplierMax;
-        double centerFrequencyMultiplier;
-        double bandwidthQuality;
-        double bandwidthQualityMinimum;
-        double bandwidthQualityMaximum;
-
-        double maxGain;
-        Dsp::Filter* filter;
-        Dsp::Params params;
+        // difference equation poles
+        unsigned numYCoefficients;
+        std::vector<GPMutatableParam*> ycoefficients;
+        float* y;
 };
 
 #endif

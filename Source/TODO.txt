@@ -49,5 +49,6 @@ Thoughts:
 
 TODO FOR NEXT EXPERIMENT:
     figure out why BandStop butterworth filter is crashing for seemingly valid input......
+    finish implementing new FilterNode. turns out my difference equation idea from the start might have been better somehow
     remove ADSR nonterminal add new OscilNode
     Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset
