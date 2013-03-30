@@ -20,6 +20,9 @@ struct GPParams {
     unsigned penalizeBadPhase;
     double magnitudeWeight;
     double phaseWeight;
+    double goodComparisonFactor;
+    double badComparisonFactor;
+    double baseComparisonFactor;
 
     // experiment parameters
     unsigned experimentNumber;

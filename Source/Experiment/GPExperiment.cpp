@@ -307,6 +307,8 @@ GPExperiment::~GPExperiment() {
         free(targetSpectrumMagnitudes);
         free(targetSpectrumPhases);
         free(weightMatrix);
+        free(binOvershootingPenalty);
+        free(binUndershootingPenalty);
     }
     free(sampleTimes);
     free(specialValuesByFrame);
@@ -431,9 +433,52 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         weightMatrix = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
         // take fft of target data
         FftReal(numTargetFrames, targetFrames, n, targetSpectrum, targetSpectrumMagnitudes, targetSpectrumPhases);
+
+        // calculate stats on each frame
+        double base = params->baseComparisonFactor;
+        double good = params->goodComparisonFactor;
+        double bad = params->badComparisonFactor;
+        unsigned numBins = (n/2) + 1
+        unsigned numFftFrames = fftOutputBufferSize / numBins;
+        for (unsigned i = 0; i < numFftFrames; i++) {
+            // calculate frame average magnitude
+            double sum = 0;
+            double maxBin = std::numeric_limits<double>::min();
+            double minBin = std::numeric_limits<double>::max();
+            for (unsigned j = 0; j < numBins; j++) {
+                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j]; 
+                sum += binMagnitude;
+                if (binMagnitude > maxBin)
+                    maxBin = binMagnitude;
+                if (binMagnitude < minBin)
+                    minBin = binMagnitude;
+            }
+            double frameAverageMagnitude = sum / numbins;
+
+            // compare each bin to the average magnitude
+            for (unsigned j = 0; j < numBins; j++) {
+                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
+
+                // if we are above the mean penalize undershooting more
+                if (binMagnitude > frameAverageMagnitude) {
+                    double proportionOfMax = (binMagnitude - frameAverageMagnitude) / (maxBin - frameAverageMagnitude);
+                    binUndershootingPenalty[(i * numBins) + j] = (proportionOfMax * bad) + base;
+                    binOvershootingPenalty[(i * numBins) + j] = (proportionOfMax * good) + base;
+                }
+
+                // if we are below the mean penalize overshooting more
+                else {
+                    double proportionOfMin = (frameAverageMagnitude - binMagnitude) / (frameAverageMagnitude - minBin);
+                    binUndershootingPenalty[(i * numBins) + j] = (proportionOfMin * good) + base;
+                    binOvershootingPenalty[(i * numBins) + j] = (proportionOfMin * bad) + base;
+                }
+            }
+        }
     }
 }
 
@@ -557,7 +602,13 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         double MSEmag = 0;
         double MSEph = 0;
         for (int i = 0; i < fftOutputBufferSize; i++) {
-            MSEmag += pow(abs(magnitude[i] - targetSpectrumMagnitudes[i]), params->penalizeBadMagnitude);
+            if (magnitude[i] < targetSpectrumMagnitudes[i]) {
+                MSEmag += pow(targetSpectrumMagnitudes[i] - magnitude[i], binUndershootingPenalty[i]);
+            }
+            else {
+                MSEmag += pow(magnitude[i] - targetSpectrumMagnitudes[i], binOvershootingPenalty[i]);
+            }
+            //MSEmag += pow(abs(magnitude[i] - targetSpectrumMagnitudes[i]), params->penalizeBadMagnitude);
             MSEph += pow(abs(phase[i] - targetSpectrumPhases[i]), params->penalizeBadPhase);
         }
         ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;

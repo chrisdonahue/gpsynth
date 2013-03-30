@@ -57,6 +57,8 @@ private:
     double* targetSpectrumMagnitudes;
     double* targetSpectrumPhases;
     double* weightMatrix;
+    double* binOvershootingPenalty;
+    double* binUndershootingPenalty;
 
     // EVALUATION DATA
     double* sampleTimes;
