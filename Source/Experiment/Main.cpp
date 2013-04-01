@@ -49,15 +49,18 @@ public:
         params->backupPrecision = 100;
         params->savePrecision = 20;
         params->wavFileBufferSize = 256;
-        params->renderBlockSize = 1024;
+        params->renderBlockSize = 256;
         params->fftSize = 256;
 
         // fitness function params
         params->fitnessFunctionType = 1;
-        params->penalizeBadMagnitude = 2;
+        //params->penalizeBadMagnitude = 2;
         params->penalizeBadPhase = 2;
         params->magnitudeWeight = 1.0;
-        params->phaseWeight = 1.0;
+        params->phaseWeight = 0.2;
+        params->goodComparisonFactor = 1.0;
+        params->badComparisonFactor = 2.0;
+        params->baseComparisonFactor = 1.0;
 
         // experiment params
         params->experimentNumber = 0;

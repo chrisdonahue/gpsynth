@@ -614,6 +614,8 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
             //MSEmag += pow(abs(magnitude[i] - targetSpectrumMagnitudes[i]), params->penalizeBadMagnitude);
             MSEph += pow(abs(phase[i] - targetSpectrumPhases[i]), params->penalizeBadPhase);
         }
+        MSEmag = MSEmag / n;
+        MSEph = MSEph / n;
         ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
         free(phase);
         free(magnitude);
