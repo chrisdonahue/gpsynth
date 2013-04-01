@@ -65,6 +65,8 @@ struct GPParams {
 
     // oscil node
     unsigned oscilNodeMaxPartial;
+    double oscilNodeMinIndexOfModulation;
+    double oscilNodeMaxIndexOfModulation;
 
     // modulation node
     unsigned modulationNodeFrequencyRange;

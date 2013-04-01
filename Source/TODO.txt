@@ -40,6 +40,7 @@ Ideas:
     add in OPEN BEAGLE stuff or self made GA for suboptimization
     human readable toString vs full detail toString
     introduce textbook GP mutation
+    finish implementing DifferenceEquationNode. turns out my difference equation idea from the start might have been better somehow. need to find a way to guarantee min/max though
 
 Thoughts:
     better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
@@ -49,6 +50,5 @@ Thoughts:
 
 TODO FOR NEXT EXPERIMENT:
     figure out why BandStop butterworth filter is crashing for seemingly valid input......
-    finish implementing new FilterNode. turns out my difference equation idea from the start might have been better somehow
     remove ADSR nonterminal add new OscilNode
-    Add weight calculation to spectrum fitness function/improve fitness function/do something with DC offset
+    test new fitness function/improve fitness function: factor noise/do something with DC offset

@@ -100,6 +100,8 @@ public:
 
         // oscil node params
         params->oscilNodeMaxPartial = 10;
+        params->oscilNodeMinIndexOfModulation = 0.0;
+        params->oscilNodeMaxIndexOfModulation = 2.0;
 
         // delay node
         params->delayNodeBufferMaxSeconds = 1.0;

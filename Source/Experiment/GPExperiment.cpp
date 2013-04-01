@@ -87,6 +87,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
     GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
+    GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
     GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 10.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
     GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 10.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
     GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
@@ -122,8 +123,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
-        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
+        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
+        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
     }
     // AM 440 hz experiment easy
     if (params->experimentNumber == 1) {
@@ -134,8 +135,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
-        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
+        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
+        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
     }
     // AM 440 hz experiment hard
     if (params->experimentNumber == 2) {
@@ -183,7 +184,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FunctionNode(add, NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum));
-        nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
+        nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
+        nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
         nodes->push_back(new NoiseNode(rng));
         nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
@@ -286,6 +288,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     delete constantTwo;
     delete constantPi;
     delete oscilPartial;
+    delete oscilModIndex;
     delete filterCenterFrequencyMultiplierMin;
     delete filterCenterFrequencyMultiplierMax;
     delete filterQualityMin;
@@ -443,7 +446,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         double base = params->baseComparisonFactor;
         double good = params->goodComparisonFactor;
         double bad = params->badComparisonFactor;
-        unsigned numBins = (n/2) + 1
+        unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
         for (unsigned i = 0; i < numFftFrames; i++) {
             // calculate frame average magnitude
@@ -458,7 +461,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 if (binMagnitude < minBin)
                     minBin = binMagnitude;
             }
-            double frameAverageMagnitude = sum / numbins;
+            double frameAverageMagnitude = sum / ((double) numBins);
 
             // compare each bin to the average magnitude
             for (unsigned j = 0; j < numBins; j++) {

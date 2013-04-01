@@ -26,10 +26,10 @@ OscilNode::OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatablePara
     mutatableParams.push_back(p);
 
     if (!terminalOscil) {
-        arity = 1;
         index = i->getCValue();
-        descendants.push_back(mod);
         mutatableParams.push_back(i);
+        descendants.push_back(mod);
+        arity = 1;
     }
 }
 
@@ -40,7 +40,7 @@ OscilNode* OscilNode::getCopy() {
     if (terminalOscil)
         return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, NULL, NULL);
     else
-        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, mutatableParams[1]->getCopy(), descendants[0]->getCopy());
+        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
 void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
