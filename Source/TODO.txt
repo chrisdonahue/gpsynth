@@ -51,4 +51,4 @@ Thoughts:
 TODO FOR NEXT EXPERIMENT:
     figure out why BandStop butterworth filter is crashing for seemingly valid input......
     remove ADSR nonterminal add new OscilNode
-    test new fitness function/improve fitness function: factor noise/do something with DC offset
+    test new fitness function/improve fitness function: factor noise (weight less)/do something with DC offset

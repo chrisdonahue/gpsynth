@@ -58,9 +58,9 @@ public:
         params->penalizeBadPhase = 2;
         params->magnitudeWeight = 1.0;
         params->phaseWeight = 0.2;
-        params->goodComparisonFactor = 1.0;
+        params->goodComparisonFactor = 0.1;
         params->badComparisonFactor = 2.0;
-        params->baseComparisonFactor = 1.0;
+        params->baseComparisonFactor = 0.9;
 
         // experiment params
         params->experimentNumber = 0;

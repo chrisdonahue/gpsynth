@@ -189,7 +189,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new NoiseNode(rng));
         nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+        nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
     // filtered noise test
@@ -446,6 +446,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         double base = params->baseComparisonFactor;
         double good = params->goodComparisonFactor;
         double bad = params->badComparisonFactor;
+        //std::cout << good << ", " << bad << std::endl;
         unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
         for (unsigned i = 0; i < numFftFrames; i++) {
@@ -462,24 +463,34 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                     minBin = binMagnitude;
             }
             double frameAverageMagnitude = sum / ((double) numBins);
+            //std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
 
             // compare each bin to the average magnitude
             for (unsigned j = 0; j < numBins; j++) {
-                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
+                unsigned binIndex = (i * numBins) + j;
+                double binMagnitude = targetSpectrumMagnitudes[binIndex];
 
                 // if we are above the mean penalize undershooting more
                 if (binMagnitude > frameAverageMagnitude) {
                     double proportionOfMax = (binMagnitude - frameAverageMagnitude) / (maxBin - frameAverageMagnitude);
-                    binUndershootingPenalty[(i * numBins) + j] = (proportionOfMax * bad) + base;
-                    binOvershootingPenalty[(i * numBins) + j] = (proportionOfMax * good) + base;
+                    //std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax;
+                    binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
+                    binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
                 }
 
                 // if we are below the mean penalize overshooting more
                 else {
                     double proportionOfMin = (frameAverageMagnitude - binMagnitude) / (frameAverageMagnitude - minBin);
-                    binUndershootingPenalty[(i * numBins) + j] = (proportionOfMin * good) + base;
-                    binOvershootingPenalty[(i * numBins) + j] = (proportionOfMin * bad) + base;
+                    //std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin;
+                    binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
+                    binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
                 }
+                /*
+                if (i == 3) {
+                    std::cout << "BIN " << j << " MAG: " << binMagnitude;
+                    std::cout << ", OVERSHOOT: " << binOvershootingPenalty[binIndex] << ", UNDERSHOOT: " << binUndershootingPenalty[binIndex] << std::endl;
+                }
+                */
             }
         }
     }
