@@ -46,7 +46,8 @@ Thoughts:
 
 TODO long run:
     calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
-    print ranges/save networks in text file
+    print ranges/save networks in text file/just save ID's in waves
+    create log infrastructure similar to braincraft and combine with stuff from ataritexplore encluding GIT COMMIT TAG
 
 TODO FOR NEXT EXPERIMENT:
     test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes... where did this huge performance hit come from?
