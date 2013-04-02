@@ -18,6 +18,7 @@
 #include <limits>
 #include "../Common/GPParams.h"
 #include "../Common/GPMutatableParam.h"
+#include "../Common/GPHelpers.h"
 #include <sstream>
 
 class GPNode {

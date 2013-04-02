@@ -111,12 +111,26 @@ public:
         return dmaximum;
     }
 
-    // combined accessor
+    // combined accessors
     double getValue() {
         if (isContinuous)
             return cvalue;
         else
             return dvalue;
+    }
+
+    double getMin() {
+	if (isContinuous)
+	    return cminimum;
+	else
+	    return dminimum;
+    }
+
+    double getMax() {
+	if (isContinuous)
+	    return cmaximum;
+	else
+	    return dmaximum;
     }
 
     void ephemeralRandom(GPRandom* rng) {

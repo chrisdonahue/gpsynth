@@ -111,7 +111,7 @@ public:
 
         // filter node
         params->filterNodeCenterFrequencyMinimum = 20;
-        params->filterNodeCenterFrequencyMaximum = 22050;
+        params->filterNodeCenterFrequencyMaximumProportionOfNyquist = 0.9999;
         params->filterNodeQualityMinimum = 0.1;
         params->filterNodeQualityMaximum = 10.0;
         params->filterNodeBandwidthMinimum = 10;

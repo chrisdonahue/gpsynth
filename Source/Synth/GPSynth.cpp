@@ -259,7 +259,7 @@ int GPSynth::nextGeneration() {
     assert(numToNumericMutate + numToMutate + numToCrossover + numToReproduce <= populationSize);
     numToCrossover += populationSize - (numToNumericMutate + numToMutate + numToCrossover + numToReproduce);
 
-    std::cout << populationSize << ", " << numToNumericMutate << ", " << numToMutate << ", " << numToCrossover << ", " << numToReproduce << std::endl;
+    //std::cout << populationSize << ", " << numToNumericMutate << ", " << numToMutate << ", " << numToCrossover << ", " << numToReproduce << std::endl;
 
     // NUMERIC MUTATION
     unsigned numForPossibleNumericMutation = params->percentileOfPopulationToSelectFromForNumericMutation * populationSize;

@@ -51,6 +51,7 @@ private:
 
     // TARGET DATA CONTAINERS
     double targetSampleRate;
+    double targetNyquist;
     unsigned numTargetFrames;
     float* targetFrames;
     kiss_fft_cpx* targetSpectrum;
