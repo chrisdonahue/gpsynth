@@ -75,13 +75,15 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     double cfmax = std::numeric_limits<double>::max();
     descendants[1]->evaluateBlock(fn, t, nv, v, &cfmin, &cfmax, n, cfbuffer);
     //descendants[1]->evaluateBlock(fn + (n-1), t + (n-1), nv, v + (n-1), &cfmin, &cfmax, 1, cfbuffer);
-    double cfscale = (centerFrequencyMultiplierMax - centerFrequencyMultiplierMin) / (cfmax - cfmin);
+    double cfm = 0;
+    double cfb = 0;
+    continuousMapRange(cfmin, cfmax, centerFrequencyMultiplierMin, centerFrequencyMultiplierMax, &cfm, &cfb);
 
     double* currentIndex = v + variableNum;
 
     if (fn == 0) {
         filter->reset();
-        params[2] = (*currentIndex) * ((cfbuffer[0] * cfscale) + centerFrequencyMultiplier);
+        params[2] = (*currentIndex) * (cfbuffer[0] * cfm + cfb);
         params[3] = bandwidthQuality;
         filter->setParams(params);
     }
@@ -97,16 +99,19 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     // TODO: calculate min/max for lopass/hipass
 
     //double* currentIndex = v + variableNum;
-   
-  // std::cout << "-------" << type << "------------" << std::endl;
-  //  std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
 
-    params[2] = (*currentIndex) * ((cfbuffer[n-1] * cfscale) + centerFrequencyMultiplier);
+    params[2] = (*currentIndex) * (cfbuffer[n-1] * cfm + cfb);
     params[3] = bandwidthQuality;
 
-  //  std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
+    if (params[2] < 1.0 || params[2] >= params[0] / 2) {
+	std::cout << "[" << cfmin << ", " << cfmax << "] -> [" << centerFrequencyMultiplierMin << ", " << centerFrequencyMultiplierMax << "]" << std::endl;
+	std::stringstream ss;
+	descendants[1]->toString(ss);
+	std::cout << ss.str() << std::endl;
+        std::cout << params[2] << ", " << cfbuffer[n-1] << ", " << cfm << ", "<< cfb << std::endl;
+    }
 
-    //filter->setParams(params);
+    filter->setParams(params);
     filter->process(n, audioData);
 
     //free(bwqbuffer);

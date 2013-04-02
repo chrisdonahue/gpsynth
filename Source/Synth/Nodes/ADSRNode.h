@@ -39,8 +39,8 @@ private:
     double attackheight;
     double sustainheight;
 
-    double minheight;
-    double maxheight;
+    double minimum;
+    double maximum;
 };
 
 #endif

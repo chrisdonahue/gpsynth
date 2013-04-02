@@ -21,51 +21,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     specialValues(constants),
     wavFormat(new WavAudioFormat())
 {
-    if (params->experimentNumber == 9) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
-        unsigned fftSize = 1024;
-
-        unsigned numSinSamples;
-        unsigned numPianoSamples;
-        double sinsr;
-        double pnosr;
-        String sinwave("./samples/SinWaveC51024.wav");
-        String piano("./samples/PianoC51024.wav");
-        getWavFileInfo(sinwave, &numSinSamples, &sinsr);
-        getWavFileInfo(piano, &numPianoSamples, &pnosr);
-        std::cout << "Sin sound has " << numSinSamples << " samples at a rate of " << sinsr << std::endl;
-        std::cout << "Piano sound has " << numPianoSamples << " samples at a rate of " << pnosr << std::endl;
-
-        float* sinFrames = (float*) malloc(sizeof(float) * numSinSamples);
-        float* pnoFrames = (float*) malloc(sizeof(float) * numPianoSamples);
-        loadWavFile(sinwave, numSinSamples, sinFrames);
-        loadWavFile(piano, numPianoSamples, pnoFrames);
-
-        unsigned fftOutputBufferSize = calculateFftBufferSize(numSinSamples, 1024);
-        kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-
-        std::cout << "SIN FFT:" << std::endl;
-        FftReal(numSinSamples, sinFrames, 1024, output, magnitude, phase);
-        std::cout << "PNO FFT:" << std::endl;
-        FftReal(numPianoSamples, pnoFrames, 1024, output, magnitude, phase);
-
-        free(phase);
-        free(magnitude);
-        free(output);
-        free(pnoFrames);
-        free(sinFrames);
-        exit(-1);
-    }
-
     // TARGET DATA CONTAINERS
     wavFileBufferSize = p->wavFileBufferSize;
     getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
+    targetNyquist = targetSampleRate / 2;
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
     loadWavFile(target, numTargetFrames, targetFrames);
     fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
@@ -88,8 +47,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
     GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
     GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
-    GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
-    GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
+    GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
+    GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
     GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
     GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
     GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidthmin", true, 10.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
@@ -101,78 +60,6 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
     GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
-
-    if (params->experimentNumber == 0) {
-        // EVALUATE TARGET STRING
-        std::string AMstring("(* (sin (* (* (time) (v0)) (* (2) (pi)))) (sin (* (time) (* (2) (pi)))))");
-        GPNetwork* answer = new GPNetwork(params, AMstring);
-        answer->traceNetwork();
-        //std::cout << "Target network: " << answer->toString() << std::endl;
-        double sampleRate = 44100.0;
-        numTargetFrames = 88200;
-        targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-        //renderIndividual(answer, numTargetFrames, targetFrames);
-        //saveWavFile("./Answer.wav", String(answer->toString().c_str()), numTargetFrames, sampleRate, targetFrames);
-        //loadTargetWavFile("./Answer.wav");
-        delete answer;
-
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
-        // SUPPLY AVAILABLE NODES
-        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
-        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
-    }
-    // AM 440 hz experiment easy
-    if (params->experimentNumber == 1) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
-        // SUPPLY AVAILABLE NODES
-        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 0));
-        //nodes->push_back(new OscilNode(oscilPartial->getCopy(), 1));
-    }
-    // AM 440 hz experiment hard
-    if (params->experimentNumber == 2) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
-        // SUPPLY AVAILABLE NODES
-        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new FunctionNode(sine, NULL, NULL));
-        nodes->push_back(new ConstantNode(constantTwo->getCopy()));
-        nodes->push_back(new ConstantNode(constantPi->getCopy()));
-        nodes->push_back(new TimeNode());
-        nodes->push_back(new VariableNode(0, 0, targetSampleRate/2));
-    }
-    // C4 Piano experiment hard
-    if (params->experimentNumber == 3) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
-        // SUPPLY AVAILABLE NODES
-        nodes->push_back(new FunctionNode(add, NULL, NULL));
-        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new TimeNode());
-        nodes->push_back(new VariableNode(0, 0, targetSampleRate/2));
-        nodes->push_back(new ConstantNode(constantValue->getCopy()));
-        nodes->push_back(new ModOscilNode(NULL, NULL));
-        nodes->push_back(new NoiseNode(rng));
-        //nodes->push_back(new FilterNode(0, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new FilterNode(1, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterQualityMin->getCopy(), filterQualityMax->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new FilterNode(2, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new FilterNode(3, 1, targetSampleRate, filterCenterFrequencyMin->getCopy(), filterCenterFrequencyMax->getCopy(), filterBandwidthMin->getCopy(), filterBandwidthMax->getCopy(), NULL, NULL, NULL));
-    }
     // Eb5 Trumpet Additive Experiment
     if (params->experimentNumber == 4) {
         // ASSIGN SPECIAL FITNESS VALUES
@@ -183,7 +70,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(add, NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum));
+        nodes->push_back(new ConstantNode(constantValue->getCopy()));
         nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
         nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
         nodes->push_back(new NoiseNode(rng));
@@ -200,11 +87,10 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         p->lowerFitnessIsBetter = true;
 
         GPNode* noiseNode = new NoiseNode(rng);
-        GPNode* constantNode = new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum);
-        // TODO: try changing FPC to see if anything works
+        GPNode* constantNode = new ConstantNode(constantValue->getCopy());
         //GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
-        GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
-        GPNode* bandStop = new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
+        GPNode* bandPass = new FilterNode(2, 3, 11000, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
+        GPNode* bandStop = new FilterNode(3, 3, 1024, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
 
         GPNetwork* noiseNetwork = new GPNetwork(noiseNode);
         noiseNetwork->traceNetwork();
@@ -230,48 +116,13 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         free(passNoise);
         free(noise);
 
+	exit(-1);
+
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new NoiseNode(rng));
         nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum));
-    }
-    if (params->experimentNumber == 10) {
-        /*
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
-        GPNode* noiseNode = new NoiseNode(rng);
-        GPNode* constantNode = new ConstantNode(constantValue->getCopy());
-        GPNode* filterNoiseNode = new FilterNode(0, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), noiseNode);
-        GPNode* filterSilenceNode = new FilterNode(0, 1, 1024, targetSampleRate, filterCenterFrequency->getCopy(), filterQuality->getCopy(), constantNode);
-
-        GPNetwork* noiseNetwork = new GPNetwork(noiseNode);
-        noiseNetwork->traceNetwork();
-        GPNetwork* filteredNoiseNetwork = new GPNetwork(filterNoiseNode);
-        filteredNoiseNetwork->traceNetwork();
-        GPNetwork* filteredSilenceNetwork = new GPNetwork(filterSilenceNode);
-        filteredSilenceNetwork->traceNetwork();
-
-        float* noise = (float*) malloc(sizeof(float) * 88200);
-        float* filtNoise = (float*) malloc(sizeof(float) * 88200);
-        float* filtSilence = (float*) malloc(sizeof(float) * 88200);
-        renderIndividualByBlock(noiseNetwork, 88200, params->renderBlockSize, noise);
-        renderIndividualByBlock(filteredNoiseNetwork, 88200, params->renderBlockSize, filtNoise);
-        renderIndividualByBlock(filteredSilenceNetwork, 88200, params->renderBlockSize, filtSilence);
-
-        saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), 88200, 44100, noise);
-        saveWavFile("./lowpassnoise.wav", String(filteredNoiseNetwork->toString().c_str()), 88200, 44100, filtNoise);
-        saveWavFile("./lowpasssilence.wav", String(filteredSilenceNetwork->toString().c_str()), 88200, 44100, filtSilence);
-
-        free(filtSilence);
-        free(filtNoise);
-        free(noise);
-
-        exit(0);
-        */
+        nodes->push_back(new ConstantNode(constantValue->getCopy()));
     }
 
     // EXPERIMENT PARAMS THAT VARY BY EXPERIMENT NUMBER

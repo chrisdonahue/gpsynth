@@ -66,8 +66,8 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 
     // if this is a terminal node
     if (terminalADSR) {
-        *min = minheight;
-        *max = maxheight;
+        *min = minimum;
+        *max = maximum;
         if (!releaseFinished) {
             if (fn + n > framesInEnvelope) {
                 for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
@@ -88,8 +88,9 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     // if this is not a terminal node
     else {
         descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
-        *min = minheight * (*min);
-        *max = maxheight * (*max);
+	GPmultiplyCalculateRange(min, max, minimum, maximum, *min, *max);
+        //*min = minimum * (*min);
+        //*max = maximum * (*max);
         if (!releaseFinished) {
             // if ADSR hasn't finished releasing but will within these n frames
             if (fn + n > framesInEnvelope) {
@@ -137,9 +138,32 @@ void ADSRNode::fillFromParams() {
     sustainheight = mutatableParams[5]->getValue();
     release = mutatableParams[6]->getValue();
 
-    minheight = std::min(attackheight, sustainheight);
-    minheight = std::min(0.0, minheight);
-    maxheight = std::max(attackheight, sustainheight);
+    minimum = std::numeric_limits<double>::max();
+    maximum = std::numeric_limits<double>::min();
+
+    // calculate minimum
+    if (mutatableParams[2]->getMin() < minimum)
+	minimum = mutatableParams[2]->getMin();
+    if (mutatableParams[2]->getMax() < minimum)
+	minimum = mutatableParams[2]->getMax();
+    if (mutatableParams[5]->getMin() < minimum)
+	minimum = mutatableParams[5]->getMin();
+    if (mutatableParams[5]->getMax() < minimum)
+	minimum = mutatableParams[5]->getMax();
+    if (0 < minimum)
+	minimum = 0;
+
+    // calculate maximum
+    if (mutatableParams[2]->getMin() > maximum)
+	maximum = mutatableParams[2]->getMin();
+    if (mutatableParams[2]->getMax() > maximum)
+	maximum = mutatableParams[2]->getMax();
+    if (mutatableParams[5]->getMin() > maximum)
+	maximum = mutatableParams[5]->getMin();
+    if (mutatableParams[5]->getMax() > maximum)
+	minimum = mutatableParams[5]->getMax();
+    if (0 > maximum)
+	maximum = 0;
 
     framesInEnvelope = (unsigned) (delay * sampleRate) + (unsigned) (attack * sampleRate) + (unsigned) (decay * sampleRate) + (unsigned) (sustain * sampleRate) + (unsigned) (release * sampleRate);
     if (envelope != NULL)

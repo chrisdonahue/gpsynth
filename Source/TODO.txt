@@ -51,6 +51,6 @@ Thoughts:
     test new fitness function/improve fitness function: factor noise (weight less)/do something with DC offset
 
 TODO FOR NEXT EXPERIMENT:
-    remove ADSR nonterminal
+    change all nodes that map ranges to use the GPHelper
     test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes?
     fix mutate ephemeral random so it works

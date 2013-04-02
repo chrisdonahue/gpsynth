@@ -77,7 +77,7 @@ struct GPParams {
 
     // filter node
     double filterNodeCenterFrequencyMinimum;
-    double filterNodeCenterFrequencyMaximum;
+    double filterNodeCenterFrequencyMaximumProportionOfNyquist;
     double filterNodeQualityMinimum;
     double filterNodeQualityMaximum;
     double filterNodeBandwidthMinimum;
