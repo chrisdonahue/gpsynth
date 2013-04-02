@@ -65,10 +65,6 @@ FilterNode* FilterNode::getCopy() {
 }
 
 void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-    if (fn == 0) {
-        filter->reset();
-    }
-
     descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
     float* audioData[1];
     audioData[0] = buffer;
@@ -81,6 +77,15 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     //descendants[1]->evaluateBlock(fn + (n-1), t + (n-1), nv, v + (n-1), &cfmin, &cfmax, 1, cfbuffer);
     double cfscale = (centerFrequencyMultiplierMax - centerFrequencyMultiplierMin) / (cfmax - cfmin);
 
+    double* currentIndex = v + variableNum;
+
+    if (fn == 0) {
+        filter->reset();
+        params[2] = (*currentIndex) * ((cfbuffer[0] * cfscale) + centerFrequencyMultiplier);
+        params[3] = bandwidthQuality;
+        filter->setParams(params);
+    }
+
     /*
     float* bwqbuffer = (float*) malloc(sizeof(float) * n);
     double bwqmin = std::numeric_limits<double>::min();
@@ -91,37 +96,17 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
 
     // TODO: calculate min/max for lopass/hipass
 
-    double* currentIndex = v + variableNum;
-    /*
-    for (unsigned i = 0; i < n; i++) {
-        params[2] = (*currentIndex) * ((cfbuffer[i] * cfscale) + centerFrequencyMultiplier);
-        
-        if (i == 0)
-            std::cout << "CF: " << params[2] << ", BW: " << bandwidthQuality << ", v0: " << *currentIndex << ", BUF: " << cfbuffer[i] << ", SCALE: " << cfscale << ", CFM: " << centerFrequencyMultiplier << std::endl;
-        
-        //params[3] = (params[1]/nyquist) * (bwqbuffer[i] * bandwidthQuality);
-        params[3] = bandwidthQuality;
-        filter->setParams(params);
-        filter->process(1, audioData);
-        audioData[0] = audioData[0] + 1;
-        currentIndex += nv;
-    }
-    */
-
-    if (type >= 2 && fn == 0) {
-        //std::cout << *currentIndex << ", " << cfbuffer[0] << ", " << cfscale << ", " << centerFrequencyMultiplier << ", " << params[2] << ", " << params[3] << std::endl;
-        std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
-    }
+    //double* currentIndex = v + variableNum;
+   
+  // std::cout << "-------" << type << "------------" << std::endl;
+  //  std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
 
     params[2] = (*currentIndex) * ((cfbuffer[n-1] * cfscale) + centerFrequencyMultiplier);
     params[3] = bandwidthQuality;
 
-    if (type >= 2 && fn == 0) {
-        //std::cout << *currentIndex << ", " << cfbuffer[0] << ", " << cfscale << ", " << centerFrequencyMultiplier << ", " << params[2] << ", " << params[3] << std::endl;
-        std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
-    }
+  //  std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
 
-    filter->setParams(params);
+    //filter->setParams(params);
     filter->process(n, audioData);
 
     //free(bwqbuffer);

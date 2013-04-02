@@ -201,7 +201,9 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
         GPNode* noiseNode = new NoiseNode(rng);
         GPNode* constantNode = new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum);
-        GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
+        // TODO: try changing FPC to see if anything works
+        //GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
+        GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
         GPNode* bandStop = new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
 
         GPNetwork* noiseNetwork = new GPNetwork(noiseNode);

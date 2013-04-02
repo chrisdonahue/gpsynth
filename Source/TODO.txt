@@ -41,6 +41,7 @@ Ideas:
     human readable toString vs full detail toString
     introduce textbook GP mutation
     finish implementing DifferenceEquationNode. turns out my difference equation idea from the start might have been better somehow. need to find a way to guarantee min/max though
+    maybe add "prepare to play" abstract to GP node to replace if (fn == 0)
 
 Thoughts:
     better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
@@ -51,4 +52,5 @@ Thoughts:
 
 TODO FOR NEXT EXPERIMENT:
     remove ADSR nonterminal
-    test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation
+    test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes?
+    fix mutate ephemeral random so it works

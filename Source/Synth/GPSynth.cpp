@@ -249,7 +249,7 @@ int GPSynth::nextGeneration() {
 
     // CALCULATE NUMBER OF INDIVIDUALS BY EACH MUTATION TYPE
     double proportionSum = 0;
-    proportionSum += params->proportionOfPopulationFromNumericMutation + params->proportionOfPopulationFromCrossover + params->proportionOfPopulationFromReproduction;
+    proportionSum += params->proportionOfPopulationFromNumericMutation + params->proportionOfPopulationFromMutation + params->proportionOfPopulationFromCrossover + params->proportionOfPopulationFromReproduction;
 
     unsigned numToNumericMutate = (unsigned) ((params->proportionOfPopulationFromNumericMutation/proportionSum) * populationSize);
     unsigned numToMutate = (unsigned) ((params->proportionOfPopulationFromMutation/proportionSum) * populationSize);
@@ -257,7 +257,7 @@ int GPSynth::nextGeneration() {
     unsigned numToReproduce = (unsigned) ((params->proportionOfPopulationFromReproduction/proportionSum) * populationSize);
 
     assert(numToNumericMutate + numToMutate + numToCrossover + numToReproduce <= populationSize);
-    numToCrossover += populationSize - (numToNumericMutate + numToCrossover + numToReproduce);
+    numToCrossover += populationSize - (numToNumericMutate + numToMutate + numToCrossover + numToReproduce);
 
     std::cout << populationSize << ", " << numToNumericMutate << ", " << numToMutate << ", " << numToCrossover << ", " << numToReproduce << std::endl;
 
@@ -417,7 +417,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
         // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
-            std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString(10) << " was reproduced into next generation with new ID " << net->ID << std::endl;
+            std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString(params->printPrecision) << " was reproduced into next generation with new ID " << net->ID << std::endl;
         assignFitness(net, net->fitness);
     }
     else {
@@ -549,6 +549,7 @@ void GPSynth::mutate(GPNetwork* one) {
 
         // TODO: is this trace needed here?
         one->traceNetwork();
+        assert(one->getDepth() <= maxDepth);
     }
 }
 

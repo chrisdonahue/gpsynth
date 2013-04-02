@@ -47,7 +47,7 @@ public:
         params->verbose = false;
         params->printPrecision = 3;
         params->backupPrecision = 100;
-        params->savePrecision = 20;
+        params->savePrecision = 4;
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 256;
         params->fftSize = 256;
