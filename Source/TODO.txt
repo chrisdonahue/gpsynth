@@ -48,6 +48,9 @@ TODO long run:
     calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
     print ranges/save networks in text file/just save ID's in waves
     create log infrastructure similar to braincraft and combine with stuff from ataritexplore encluding GIT COMMIT TAG
+    update README
+    check if numericalMutation is working right or not
+    implement a structure for fading more params by the convergence of the population. Perhaps switch fitness function to use the wave form magnitudes more once the spectrum has been developed. I seem to not be finding anything that alters spectrum over time
 
 TODO FOR NEXT EXPERIMENT:
     test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes... where did this huge performance hit come from?
