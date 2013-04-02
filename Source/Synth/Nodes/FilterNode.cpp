@@ -103,6 +103,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     params[2] = (*currentIndex) * (cfbuffer[n-1] * cfm + cfb);
     params[3] = bandwidthQuality;
 
+    /*
     if (params[2] < 1.0 || params[2] >= params[0] / 2) {
 	std::cout << "[" << cfmin << ", " << cfmax << "] -> [" << centerFrequencyMultiplierMin << ", " << centerFrequencyMultiplierMax << "]" << std::endl;
 	std::stringstream ss;
@@ -110,6 +111,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
 	std::cout << ss.str() << std::endl;
         std::cout << params[2] << ", " << cfbuffer[n-1] << ", " << cfm << ", "<< cfb << std::endl;
     }
+    */
 
     filter->setParams(params);
     filter->process(n, audioData);
