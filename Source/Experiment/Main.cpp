@@ -150,6 +150,9 @@ public:
             else if (i->equalsIgnoreCase("--fft")) {
                 params->fftSize = (++i)->getIntValue();
             }
+            else if (i->equalsIgnoreCase("--render")) {
+                params->renderBlockSize = (++i)->getIntValue();
+            }
             else if (i->equalsIgnoreCase("--fitnesstype")) {
                 params->fitnessFunctionType = (++i)->getIntValue();
             }

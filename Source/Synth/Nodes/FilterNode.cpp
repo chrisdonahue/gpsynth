@@ -65,8 +65,9 @@ FilterNode* FilterNode::getCopy() {
 }
 
 void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-    if (fn = 0)
+    if (fn == 0) {
         filter->reset();
+    }
 
     descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
     float* audioData[1];
@@ -107,13 +108,18 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     }
     */
 
+    if (type >= 2 && fn == 0) {
+        //std::cout << *currentIndex << ", " << cfbuffer[0] << ", " << cfscale << ", " << centerFrequencyMultiplier << ", " << params[2] << ", " << params[3] << std::endl;
+        std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
+    }
+
     params[2] = (*currentIndex) * ((cfbuffer[n-1] * cfscale) + centerFrequencyMultiplier);
     params[3] = bandwidthQuality;
 
-    //if (type == 3) {
+    if (type >= 2 && fn == 0) {
         //std::cout << *currentIndex << ", " << cfbuffer[0] << ", " << cfscale << ", " << centerFrequencyMultiplier << ", " << params[2] << ", " << params[3] << std::endl;
-        std::cout << params[2] << ", " << params[3] << std::endl;
-    //}
+        std::cout << params[0] << ", " << params[1] << ", " << params[2] << ", " << params[3] << std::endl;
+    }
 
     filter->setParams(params);
     filter->process(n, audioData);
@@ -156,9 +162,9 @@ void FilterNode::fillFromParams() {
 
     // remake filter
     centerFrequencyMultiplier = (centerFrequencyMultiplierMin + centerFrequencyMultiplierMax) / 2;
-    params[2] = centerFrequencyMultiplier * 1.0;
-    params[3] = bandwidthQuality;
-    filter->setParams(params);
+    //params[2] = centerFrequencyMultiplier * 1.0;
+    //params[3] = bandwidthQuality;
+    //filter->setParams(params);
 }
 
 void FilterNode::updateMutatedParams() {

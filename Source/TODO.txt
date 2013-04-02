@@ -50,5 +50,5 @@ Thoughts:
     test new fitness function/improve fitness function: factor noise (weight less)/do something with DC offset
 
 TODO FOR NEXT EXPERIMENT:
-    figure out why BandStop butterworth filter is crashing for seemingly valid input......
     remove ADSR nonterminal
+    test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation
