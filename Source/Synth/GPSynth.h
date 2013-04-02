@@ -58,7 +58,7 @@ private:
 
     // GENETIC OPERATIONS
     GPNetwork* crossover(GPNetwork* one, GPNetwork* two);
-    double numericallyMutate(GPNetwork* one);
+    void numericallyMutate(GPNetwork* one);
     void mutate(GPNetwork* one);
 
     // SYNTH EVOLUTION STATE

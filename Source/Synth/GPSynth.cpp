@@ -267,7 +267,7 @@ int GPSynth::nextGeneration() {
         GPNetwork* selected = selectFromEvaluated(params->numericMutationSelectionType, numForPossibleNumericMutation);
         GPNetwork* one = selected->getCopy();
         one->traceNetwork();
-        double newfitness = numericallyMutate(one);
+        numericallyMutate(one);
         nextGeneration->push_back(one);
         //selected->fitness = newfitness;
         //rawFitnesses[selected->ID % populationSize] = newfitness;
@@ -553,7 +553,7 @@ void GPSynth::mutate(GPNetwork* one) {
     }
 }
 
-double GPSynth::numericallyMutate(GPNetwork* one) {
+void GPSynth::numericallyMutate(GPNetwork* one) {
     //std::cout << "BEFORE NUMERIC MUTATION " << one->toString() << std::endl;
     double mutationAmount;
     double bestProportion = generationBestFitness / generationAverageFitness;
@@ -587,8 +587,6 @@ double GPSynth::numericallyMutate(GPNetwork* one) {
     }
     one->updateMutatedParams();
     //std::cout << "AFTER NUMERIC MUTATION " << one->toString() << std::endl;
-
-    return one->fitness;
 }
 
 /*

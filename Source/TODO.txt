@@ -1,5 +1,5 @@
 Main.cpp:
-    Add command line for MIDI stuff
+    Add command line for Envelope stuff somehow
     Add command line for all GPParams
     --help
     check argument ranges
@@ -32,25 +32,21 @@ Interactive:
     Introduce Novelty button
     Buttons to step backwards through evolution
     button to run random evolution for a while
+    novelty search of new spectrum elements/spectral peak ratios
 
 Ideas:
+    use GPHelper to map a range for OscilNode's index of modulation
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
-    novelty search of new spectrum elements/spectral peak ratios
-    evaluateBlock scale constant for nodes that produce guaranteed envelopes (ADSR, OscilNodes)?
-    add in OPEN BEAGLE stuff or self made GA for suboptimization
-    human readable toString vs full detail toString
-    introduce textbook GP mutation
     finish implementing DifferenceEquationNode. turns out my difference equation idea from the start might have been better somehow. need to find a way to guarantee min/max though
     maybe add "prepare to play" abstract to GP node to replace if (fn == 0)
 
 Thoughts:
-    better silence detection. evaluateBlock could return bool representing silence or I could find a filter that produces silence output for silence input or i could not worry about it due to ERC or I could do something with a sort of silence threshold per frame to trigger the penalty fitness
-    is ModOscilNode actually capable of FM synthesis? should it have an oscillator as well?
     reverse way min, max calculation happens by passing desired range down? think about this hard. might be more efficient also maybe its possible to work in ADSR this way
-    calculate min/max stuff with lo/hi filter node, alter bandwidth/quality calculation
     test new fitness function/improve fitness function: factor noise (weight less)/do something with DC offset
 
+TODO long run:
+    calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
+    print ranges/save networks in text file
+
 TODO FOR NEXT EXPERIMENT:
-    change all nodes that map ranges to use the GPHelper
-    test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes?
-    fix mutate ephemeral random so it works
+    test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes... where did this huge performance hit come from?
