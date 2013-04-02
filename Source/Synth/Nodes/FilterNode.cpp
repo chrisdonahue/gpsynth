@@ -73,9 +73,11 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     audioData[0] = buffer;
 
     float* cfbuffer = (float*) malloc(sizeof(float) * n);
+    //float* cfbuffer = (float*) malloc(sizeof(float) * 1);
     double cfmin = std::numeric_limits<double>::min();
     double cfmax = std::numeric_limits<double>::max();
     descendants[1]->evaluateBlock(fn, t, nv, v, &cfmin, &cfmax, n, cfbuffer);
+    //descendants[1]->evaluateBlock(fn + (n-1), t + (n-1), nv, v + (n-1), &cfmin, &cfmax, 1, cfbuffer);
     double cfscale = (centerFrequencyMultiplierMax - centerFrequencyMultiplierMin) / (cfmax - cfmin);
 
     /*
@@ -105,10 +107,14 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     }
     */
 
-    params[2] = (*currentIndex) * ((cfbuffer[0] * cfscale) + centerFrequencyMultiplier);
+    params[2] = (*currentIndex) * ((cfbuffer[n-1] * cfscale) + centerFrequencyMultiplier);
     params[3] = bandwidthQuality;
-    if (type == 3)
+
+    //if (type == 3) {
+        //std::cout << *currentIndex << ", " << cfbuffer[0] << ", " << cfscale << ", " << centerFrequencyMultiplier << ", " << params[2] << ", " << params[3] << std::endl;
         std::cout << params[2] << ", " << params[3] << std::endl;
+    //}
+
     filter->setParams(params);
     filter->process(n, audioData);
 

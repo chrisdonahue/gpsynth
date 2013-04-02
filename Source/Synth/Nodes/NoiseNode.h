@@ -23,9 +23,15 @@ public:
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
     void toString(std::stringstream& ss);
     void updateMutatedParams();
+    void whitenoise(float* _fpDstBuffer, unsigned int _uiBufferSize, float _fLevel );
 
 private:
     GPRandom* rng;
+    float g_fScale;
+    int g_x1;
+    int g_x2;
+
+    // whitenoise stuff
 };
 
 #endif

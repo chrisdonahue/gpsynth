@@ -88,8 +88,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
     GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
     GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
-    GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 10.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
-    GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 10.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
+    GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
+    GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, 1.0/specialValues[0], (targetSampleRate / 2)/specialValues[0]);
     GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
     GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
     GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidthmin", true, 10.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
@@ -220,9 +220,9 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         renderIndividualByBlock(bandPassNoiseNetwork, numTargetFrames, params->renderBlockSize, passNoise);
         renderIndividualByBlock(bandStopNoiseNetwork, numTargetFrames, params->renderBlockSize, stopNoise);
 
-        //saveWavFile("./noise.wav", String(noiseNetwork->toString().c_str()), numTargetFrames, 44100, noise);
-        //saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString().c_str()), numTargetFrames, 44100, stopNoise);
-        //saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString().c_str()), numTargetFrames, 44100, passNoise);
+        saveWavFile("./noise.wav", String(noiseNetwork->toString(10).c_str()), numTargetFrames, 44100, noise);
+        saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString(10).c_str()), numTargetFrames, 44100, stopNoise);
+        saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString(10).c_str()), numTargetFrames, 44100, passNoise);
 
         free(stopNoise);
         free(passNoise);
@@ -233,9 +233,6 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy(), params->valueNodeMinimum, params->valueNodeMaximum));
-    }
-    // filtered noise test
-    if (params->experimentNumber == 5) {
     }
     if (params->experimentNumber == 10) {
         /*
