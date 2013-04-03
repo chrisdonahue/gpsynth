@@ -50,7 +50,7 @@ void ModOscilNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(modosc";
     for (unsigned i = 0; i < arity; i++) {
         ss << " ";
-        descendants[i]->toString(ss);
+        descendants[i]->toString(printRange, ss);
     }
     ss << ")";
 }

@@ -73,7 +73,7 @@ GPNode* GPNetwork::getRoot() {
 }
 
 bool GPNetwork::equals(GPNetwork* other) {
-    return toString(10).compare(other->toString(10)) == 0;
+    return toString(true, 10).compare(other->toString(true, 10)) == 0;
 }
 
 /*

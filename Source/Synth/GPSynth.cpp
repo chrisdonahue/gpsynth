@@ -166,7 +166,7 @@ GPNetwork* GPSynth::getIndividual() {
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
     if (params->verbose)
-        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString(params->printPrecision) << std::endl;
+        std::cout << "Testing algorithm " << ret->ID << " with depth " << ret->getDepth() << " and structure " << ret->toString(false, params->printPrecision) << std::endl;
     return ret;
 }
 
@@ -238,7 +238,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString(params->printPrecision) << std::endl;
+    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString(false, params->printPrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -411,13 +411,13 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     }
     net->ID = nextNetworkID++;
     net->traceNetwork();
-    allNetworks.push_back(new std::string(net->toString(params->backupPrecision)));
+    allNetworks.push_back(new std::string(net->toString(true, params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
         // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
-            std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString(params->printPrecision) << " was reproduced into next generation with new ID " << net->ID << std::endl;
+            std::cout << "Algorithm " << oldID << " with depth " << net->getDepth() << " and structure " << net->toString(false, params->printPrecision) << " was reproduced into next generation with new ID " << net->ID << std::endl;
         assignFitness(net, net->fitness);
     }
     else {

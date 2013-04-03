@@ -84,7 +84,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         float* fuckedBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         renderIndividualByBlock(fucked, numTargetFrames, params->renderBlockSize, fuckedBuffer);
 
-        saveWavFile("./fucked.wav", String(fucked->toString(10).c_str()), numTargetFrames, 44100, fuckedBuffer);
+        saveWavFile("./fucked.wav", String(fucked->toString(false, 10).c_str()), numTargetFrames, 44100, fuckedBuffer);
 
         free(fuckedBuffer);
 
@@ -104,8 +104,8 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
         nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
         nodes->push_back(new NoiseNode(rng));
-        nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+        //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+        //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
@@ -138,9 +138,9 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         renderIndividualByBlock(bandPassNoiseNetwork, numTargetFrames, params->renderBlockSize, passNoise);
         renderIndividualByBlock(bandStopNoiseNetwork, numTargetFrames, params->renderBlockSize, stopNoise);
 
-        saveWavFile("./noise.wav", String(noiseNetwork->toString(10).c_str()), numTargetFrames, 44100, noise);
-        saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString(10).c_str()), numTargetFrames, 44100, stopNoise);
-        saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString(10).c_str()), numTargetFrames, 44100, passNoise);
+        saveWavFile("./noise.wav", String(noiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, noise);
+        saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, stopNoise);
+        saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, passNoise);
 
         free(stopNoise);
         free(passNoise);
@@ -253,7 +253,7 @@ GPNetwork* GPExperiment::evolve() {
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
             char buffer[100];
             snprintf(buffer, 100, "./gen.%d.best.wav", numEvaluatedGenerations);
-            saveWavFile(String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
+            saveWavFile(String(buffer), String(generationChamp->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
             free(genchampbuffer);
             delete generationChamp;
             generationChamp = NULL;
@@ -275,8 +275,8 @@ GPNetwork* GPExperiment::evolve() {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
-        std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(params->printPrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
-        saveWavFile("./champion.wav", String(champ->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
+        std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(false, params->printPrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
+        saveWavFile("./champion.wav", String(champ->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
         free(champbuffer);
     }
     return champ;

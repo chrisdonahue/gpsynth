@@ -142,7 +142,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
         if (buffer[i] < -1.0 || buffer[i] > 1.0) {
             std::cout << "[" << cfmin << ", " << cfmax << "] -> [" << centerFrequencyMultiplierMin << ", " << centerFrequencyMultiplierMax << "]" << std::endl;
             std::stringstream ss;
-            descendants[1]->toString(ss);
+            descendants[1]->toString(true, ss);
             std::cout << ss.str() << std::endl;
             std::cout << params[2] << ", " << params[3] << ", " << cfbuffer[n-1] << ", " << cfm << ", "<< cfb << std::endl;
             std::cout << "FILTER IS MESSED UP" << std::endl;

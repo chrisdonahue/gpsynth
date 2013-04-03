@@ -54,7 +54,10 @@ public:
           ss << "}";
         }
         else {
-          ss << cvalue;
+          if (isContinuous)
+            ss << cvalue;
+          else
+            ss << dvalue;
         }
     }
 
