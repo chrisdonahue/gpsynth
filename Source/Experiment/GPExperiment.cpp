@@ -60,6 +60,36 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
     GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
+    if (params->experimentNumber == 3) {
+        // ASSIGN SPECIAL FITNESS VALUES
+        p->bestPossibleFitness = 0;
+        p->penaltyFitness = std::numeric_limits<float>::max();
+        p->lowerFitnessIsBetter = true;
+
+        // PARAMS
+        GPMutatableParam* partialThree = new GPMutatableParam("", false, 3, 0, 5);
+        GPMutatableParam* filterLow = new GPMutatableParam("", false, 11.9511, 10.0, 15.0);
+        GPMutatableParam* filterHigh = new GPMutatableParam("", false, 31.8139, 30.0, 32.0);
+        GPMutatableParam* bandwidth = new GPMutatableParam("", false, 1000.532, 150.0, 155.0);
+
+        // NODES
+        GPNode* noiseNode = new NoiseNode(rng);
+        GPNode* oscilPartialThree = new OscilNode(true, partialThree, 0, NULL, NULL);
+        GPNode* filter = new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterLow, filterHigh, bandwidth, noiseNode, oscilPartialThree, NULL);
+
+        // NETWORK
+        GPNetwork* fucked = new GPNetwork(filter);
+        fucked->traceNetwork();
+
+        float* fuckedBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+        renderIndividualByBlock(fucked, numTargetFrames, params->renderBlockSize, fuckedBuffer);
+
+        saveWavFile("./fucked.wav", String(fucked->toString(10).c_str()), numTargetFrames, 44100, fuckedBuffer);
+
+        free(fuckedBuffer);
+
+        exit(-1);
+    }
     // Eb5 Trumpet Additive Experiment
     if (params->experimentNumber == 4) {
         // ASSIGN SPECIAL FITNESS VALUES

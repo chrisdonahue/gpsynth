@@ -44,6 +44,14 @@ void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     */
 
     whitenoise(buffer, n, 1.0);
+
+    /*
+    for (unsigned i = 0; i < n; i++) {
+        if (buffer[i] < -1.0 || buffer[i] > 1.0) {
+            std::cout << buffer[i] << std::endl;
+        }
+    }
+    */
 }
 
 /*

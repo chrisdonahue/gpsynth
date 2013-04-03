@@ -36,7 +36,6 @@ private:
 
     double centerFrequencyMultiplierMin;
     double centerFrequencyMultiplierMax;
-    double centerFrequencyMultiplier;
     double bandwidthQuality;
     double bandwidthQualityMinimum;
     double bandwidthQualityMaximum;
