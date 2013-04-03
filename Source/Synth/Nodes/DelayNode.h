@@ -23,7 +23,7 @@ public:
     void setMemoryConstant(int n);
     double evaluate(double* t, double* v);
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-    void toString(std::stringstream& ss);
+    void toString(bool printRange, std::stringstream& ss);
     void mutate(GPParams* e);
 
 private:

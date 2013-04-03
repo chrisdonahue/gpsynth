@@ -27,7 +27,7 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-void TimeNode::toString(std::stringstream& ss) {
+void TimeNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(time)";
 }
 

@@ -155,7 +155,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     free(cfbuffer);
 }
 
-void FilterNode::toString(std::stringstream& ss) {
+void FilterNode::toString(bool printRange, std::stringstream& ss) {
     if (type == 0) {
         ss << "(lowpass ";
     }
@@ -168,10 +168,16 @@ void FilterNode::toString(std::stringstream& ss) {
     else if (type == 3) {
         ss << "(bandstop ";
     }
-    ss << "[" << centerFrequencyMultiplierMin << ", " << centerFrequencyMultiplierMax << "] " << bandwidthQuality << " ";
-    descendants[0]->toString(ss);
+    ss << "[";
+    mutatableParams[0]->toString(printRange, ss);
+    ss <<  ", ";
+    mutatableParams[1]->toString(printRange, ss);
+    ss << "] ";
+    mutatableParams[2]->toString(printRange, ss);
     ss << " ";
-    descendants[1]->toString(ss);
+    descendants[0]->toString(printRange, ss);
+    ss << " ";
+    descendants[1]->toString(printRange, ss);
     //ss << " ";
     //descendants[2]->toString(ss);
     ss << ")";

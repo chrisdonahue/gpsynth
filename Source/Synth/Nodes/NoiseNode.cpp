@@ -72,8 +72,8 @@ void NoiseNode::whitenoise(
     }
 }
 
-void NoiseNode::toString(std::stringstream& ss) {
-    ss << "(noise)";
+void NoiseNode::toString(bool printRange, std::stringstream& ss) {
+    ss << "(whitenoise)";
 }
 
 void NoiseNode::updateMutatedParams() {

@@ -48,7 +48,7 @@ void DelayNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     return;
 }
 
-void DelayNode::toString(std::stringstream& ss) {
+void DelayNode::toString(bool printRange, std::stringstream& ss) {
     char buffer[1024];
     snprintf(buffer, 1024, "(delay %d %s)", numSamples, left->toString(std::stringstreamstd::stringstreamstd::stringstream ss ss ss).c_str());
 }

@@ -117,15 +117,17 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-void ADSRNode::toString(std::stringstream& ss) {
-    if (terminalADSR) {
-        ss << "(adsr " << delay << " " << attack << " " << attackheight << " " << decay << " " << sustain << " " << sustainheight << " " << release << ")";
+void ADSRNode::toString(bool printRange, std::stringstream& ss) {
+    ss << "(adsr";
+    for (unsigned i = 0; i < mutatableParams.size(); i++) {
+      ss << " ";
+      mutatableParams[i]->toString(printRange, ss);
     }
-    else {
-        ss << "(adsr " << delay << " " << attack << " " << attackheight << " " << decay << " " << sustain << " " << sustainheight << " " << release << " ";
-        descendants[0]->toString(ss);
-        ss << ")";
+    if (!terminalADSR) {
+        ss << " ";
+        descendants[0]->toString(printRange, ss);
     }
+    ss << ")";
 }
 
 void ADSRNode::fillFromParams() {

@@ -123,7 +123,7 @@ void DifferenceEquationNode::evaluateBlock(unsigned fn, double* t, unsigned nv, 
 *max = max;
 }
 
-void DifferenceEquationNode::toString(std::stringstream& ss) {
+void DifferenceEquationNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(iirfilter z" << numXCoefficients << ":";
     for (unsigned i = 0; i < numXCoefficients; i++) {
         ss << " " << xcoefs[i];

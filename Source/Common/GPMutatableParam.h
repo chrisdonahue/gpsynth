@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <string>
+#include <sstream>
 #include "GPRandom.h"
 
 class GPMutatableParam {
@@ -38,6 +39,23 @@ public:
             return new GPMutatableParam(type, isMutatable, cvalue, cminimum, cmaximum);
         else
             return new GPMutatableParam(type, isMutatable, dvalue, dminimum, dmaximum);
+    }
+
+    // render as string
+    void toString(bool printRange, std::stringstream& ss) {
+        if (printRange) {
+          ss << "{";
+          if (isContinuous) {
+            ss << "C: " << cminimum << ", " << cvalue << ", " << cmaximum;
+          }
+          else {
+            ss << "D: " << dminimum << ", " << dvalue << ", " << dmaximum;
+          }
+          ss << "}";
+        }
+        else {
+          ss << cvalue;
+        }
     }
 
     // set discrete values

@@ -46,7 +46,7 @@ void ModOscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     return;
 }
 
-void ModOscilNode::toString(std::stringstream& ss) {
+void ModOscilNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(modosc";
     for (unsigned i = 0; i < arity; i++) {
         ss << " ";

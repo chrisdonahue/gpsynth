@@ -61,11 +61,11 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-void FunctionNode::toString(std::stringstream& ss) {
+void FunctionNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(" << gpfunction.symbol;
     for (unsigned i = 0; i < arity; i++) {
         ss << " ";
-        descendants[i]->toString(ss);
+        descendants[i]->toString(printRange, ss);
     }
     ss << ")";
 }

@@ -33,12 +33,14 @@ void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-void ConstantNode::toString(std::stringstream& ss) {
+void ConstantNode::toString(bool printRange, std::stringstream& ss) {
     if (value == M_PI) {
         ss << "(pi)";
     }
     else {
-        ss << "(" << value << ")";
+        ss << "(";
+        mutatableParams[0]->toString(printRange, ss);
+        ss << ")";
     }
 }
 

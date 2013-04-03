@@ -65,13 +65,19 @@ void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     }
 }
 
-void OscilNode::toString(std::stringstream& ss) {
+void OscilNode::toString(bool printRange, std::stringstream& ss) {
     if (terminalOscil)
-        ss << "(osc p" << partial << " v" << variableNum << ")";
+        ss << "(osc p";
+        mutatableParams[0]->toString(printRange, ss);
+        ss << " v" << variableNum << ")";
     else {
-        ss << "(fm p" << partial << " v" << variableNum << " (* (" << index << ") ";
-        descendants[0]->toString(ss);
-        ss << "))";
+        ss << "(fm p"; 
+        mutatableParams[0]->toString(printRange, ss);
+        ss << " v" << variableNum << " ";
+        mutatableParams[1]->toString(printRange, ss);
+        ss << " ";
+        descendants[0]->toString(printRange, ss);
+        ss << ")";
     }
 }
 

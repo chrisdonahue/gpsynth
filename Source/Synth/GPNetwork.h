@@ -33,7 +33,7 @@ public:
     // EXAMINATION
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
     unsigned getDepth();
-    std::string toString(unsigned precision);
+    std::string toString(bool printRange, unsigned precision);
     GPNode* getRoot();
     bool equals(GPNetwork* other);
     GPNode* getRandomNetworkNode(GPRandom* r);

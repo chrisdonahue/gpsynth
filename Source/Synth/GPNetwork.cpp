@@ -61,10 +61,10 @@ unsigned GPNetwork::getDepth() {
     return depth;
 }
 
-std::string GPNetwork::toString(unsigned precision) {
+std::string GPNetwork::toString(bool printRange, unsigned precision) {
     std::stringstream ss;
     ss.precision(precision);
-    root->toString(ss);
+    root->toString(printRange, ss);
     return ss.str();
 }
 
