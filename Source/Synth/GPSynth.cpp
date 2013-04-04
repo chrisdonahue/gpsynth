@@ -26,9 +26,6 @@ GPSynth::GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes) :
     maxDepth(p->maxDepth),
     crossoverType(p->crossoverType),
     mutationType(p->mutationType),
-    convergenceFactor(0.0),
-    continuousConvergenceVaryingParams(0),
-    continuousConvergenceVaryingTemperatures(0),
     availableNodes(nodes),
     allNetworks(), unevaluated(), evaluated(), currentGeneration(),
     rawFitnesses(), normalizedFitnesses(), rank()

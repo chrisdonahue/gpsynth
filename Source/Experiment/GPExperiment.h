@@ -60,6 +60,7 @@ private:
     double* weightMatrix;
     double* binOvershootingPenalty;
     double* binUndershootingPenalty;
+    float* targetEnvelope;
 
     // EVALUATION DATA
     double* sampleTimes;
@@ -87,7 +88,7 @@ private:
     void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
 
     // FITNESS FUNCTION
-    double suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer);
+    double renderEnvelopeAndEvaluate(GPNetwork* candidate, float* buffer);
     void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 

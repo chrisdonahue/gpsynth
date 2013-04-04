@@ -185,6 +185,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
 
 GPExperiment::~GPExperiment() {
     free(targetFrames);
+    free(targetEnvelope);
     if (params->fitnessFunctionType == 1) {
         free(targetSpectrum);
         free(targetSpectrumMagnitudes);
@@ -214,7 +215,7 @@ GPNetwork* GPExperiment::evolve() {
         GPNetwork* candidate = synth->getIndividual();
 
         float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
-        double fitness = suboptimize(candidate, numTargetFrames, candidateData);
+        double fitness = renderEnvelopeAndEvaluate(candidate, candidateData);
         numEvaluated++;
 
         //TODO: handle lowerFitnessIsBetter
@@ -303,6 +304,62 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         for (int val = 0; val < numVariableSpecialValues; val++) {
             *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
         }
+    }
+    
+    // MAKE AMPLITUDE ENVELOPE OF TARGET
+    if (params->fitnessFunctionType > 0) {
+      // x/y pairs for absolute waveform bound
+      std::vector<unsigned> x;
+      x.resize(0, 0);
+      std::vector<float> y;
+      y.resize(0, 0);
+
+      // set initial value
+      x.push_back(0);
+      y.push_back(fabs(targetFrames[0]));
+
+      // find waveform minima/maxima
+      float prevSlope = (targetFrames[1] - targetFrames[0]);
+      float currSlope;
+      for (unsigned i = 1; i < numTargetFrames - 2; i++) {
+        currSlope = (targetFrames[i + 1] - targetFrames[i]);
+
+        // if one slope is 0 we're at one edge of a plateau or silence
+        float slopeProduct = currSlope * prevSlope;
+        if (slopeProduct == 0) {
+          x.push_back(i);
+          y.push_back(fabs(targetFrames[0]));
+        }
+        // else if slope has changed we found a minimum or maximum
+        else if (slopeProduct < 0) {
+          x.push_back(i);
+          y.push_back(fabs(targetFrames[0]));
+        }
+
+        prevSlope = currSlope;
+      }
+
+      // set final value
+      x.push_back(numTargetFrames - 1);
+      y.push_back(fabs(targetFrames[numTargetFrames - 1]));
+
+      // fill targetEnvelope buffer
+      targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
+      for (unsigned i = 0; i < x.size() - 1; i++) {
+        // calculate slope between points
+        unsigned currFrameNumber = x[i];
+        float currEnvValue = y[i];
+        unsigned nextFrameNumber = x[i+1];
+        float nextEnvValue = y[i+1];
+        float slope = (nextEnvValue - currEnvValue)/(nextFrameNumber - currFrameNumber);
+        
+        // fill buffer from slope
+        unsigned assignEnvelopeSample = currFrameNumber;
+        while (assignEnvelopeSample < nextFrameNumber) {
+          targetEnvelope[assignEnvelopeSample] = ((assignEnvelopeSample - currFrameNumber) * slope) + currEnvValue;
+          assignEnvelopeSample++;
+        }
+      }
     }
 
     // FILL FREQUENCY SPECTRUM OF TARGET
@@ -441,16 +498,12 @@ void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, dou
     ================
 */
 
-double GPExperiment::suboptimize(GPNetwork* candidate, int64 numSamples, float* buffer) {
-    if (params->suboptimize) {
-        // TODO: this
-        std::vector<GPMutatableParam*>* candidateParams = candidate->getAllMutatableParams();
-        return -1;
+double GPExperiment::renderEnvelopeAndEvaluate(GPNetwork* candidate, float* buffer) {
+    renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, buffer);
+    for (unsigned i = 0; i < numTargetFrames; i++) {
+      buffer[i] *= targetEnvelope[i];
     }
-    else {
-        renderIndividualByBlock(candidate, numSamples, params->renderBlockSize, buffer);
-        return compareToTarget(params->fitnessFunctionType, buffer);
-    }
+    return compareToTarget(params->fitnessFunctionType, buffer);
 }
 
 void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer) {

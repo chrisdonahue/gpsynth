@@ -29,7 +29,6 @@ struct GPParams {
     unsigned numGenerations;
     double thresholdFitness;
     bool ephemeralRandomConstants;
-    bool suboptimize;
 
     // synth evolution parameters
     unsigned populationSize;

@@ -67,7 +67,6 @@ public:
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
         params->ephemeralRandomConstants = true;
-        params->suboptimize = false;
 
         // synth evolution params
         params->populationSize = 500;
