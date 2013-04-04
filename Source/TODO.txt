@@ -53,4 +53,6 @@ TODO long run:
     implement a structure for fading more params by the convergence of the population. Perhaps switch fitness function to use the wave form magnitudes more once the spectrum has been developed. I seem to not be finding anything that alters spectrum over time
 
 TODO FOR NEXT EXPERIMENT:
+    change GPRandom to compile on condor
+    print github commit number to important info from Main.cpp
     test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes... where did this huge performance hit come from? it came from the set params stuff :/. also 0, n-1 usage for FPC and whatnot
