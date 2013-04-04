@@ -55,12 +55,12 @@ The changes both of spectral envelope (formant-glide) and fundamental frequency 
 The prefix, an onset of a sound quite dissimilar to the ensuing lasting vibration.
 \end{enumerate}
 
-For the purposes of this experiment, these five perceptual characteristics will be used to develop a method for comparing the timbral characteristics of two sounds. A computable metric of timbral comparison that is similar to human judgement is necessary for a genetic algorithm designed to produce sound synthesis algorithms capable of convincing humans of their origin.
+For the purposes of this experiment, these five perceptual characteristics will be used to develop a method for comparing the timbral characteristics of two sounds. A computable metric of timbral comparison that is similar to human judgement is necessary for a genetic algorithm designed to produce sound synthesis algorithms capable of sounding like a target timbre to a human.
 
 \section{Motivations}
+Chowning summarized the motivations for this research in his paper detailing the technique of frequency modulation audio synthesis.
 \begin{quote}
-\emph{To seek out new tonalities, new timbres... \\
-To boldly listen to what no one has heard before.} \citep{sethares2004tuning}
+Of interest in both acoustical re-search and electronic music is the synthesis of natural sound. For the researcher, it is the ultimate test of acoustical theory, while for the composer of electronic music it is an extraordinarily rich point of departure in the domain of timbre, or tone quality. \citep{chowning1973synthesis}
 \end{quote}
 The concept of timbre is ignored by many if not most musicians today. Acoustic composers typically restrict themselves to given sounds, such as the instruments in a wind ensemble or orchestra. Electronic and electro-acoustic composers have a wider timbral palette to work with but usually restrict themselves to working within the confines of available synthesizers and samples. Wishart said in his book Audible Design \citep{wishart1994audible}:
 \begin{quote}
@@ -69,17 +69,14 @@ The spectral characteristics of sound have, for so long, been inaccessible to th
 These issues suggest the need for alternative and accessible methods of timbre investigation for musicians and researchers. This paper will present a system that allows one to supply a target sound and receive a synthesis algorithm that mimics its timbral characteristics. The system will also allow the user to examine, test and adjust these discovered algorithms to improve their fit. Such capabilities could theoretically allow a musician to utilize an instrument they do not have physical access too from a single recording of its sound. Many electronic musicians utilize synthesis techniques such as additive, subtractive, ring modulation, amplitude modulation, and frequency modulation to create sounds. This paper will also present an interactive genetic algorithm for searching the space of sound synthesis algorithms of which these traditional synthesis techniques are a minuscule subset of the search space.
 
 \section{Sound Synthesis Algorithms}\label{SSA}
-Sound synthesis algorithms (SSA's) are typically numerical and render musically interesting sounds \citep{tolonen1998evaluation}. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as $sin (2 \times \pi \times f \times t)$ where $f$ is the desired frequency of the sine wave and $t$ is the time since the start of the sine wave in seconds. In the digital domain, time at the $n$th sample would be $n$ divided by $sample rate$.
+Sound synthesis algorithms (SSA's) are typically numerical algorithms for rendering sonically interesting sounds \citep{tolonen1998evaluation}. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as $sin (2 \times \pi \times f \times t)$ where $f$ is the desired frequency of the sine wave and $t$ is the time since the start of the sine wave in seconds. In the digital domain, time at the $n$th sample would be $n$ divided by $sample rate$.
 	
 The sine wave rendering equation could be expressed in several different ways. Using prefix notation, it can be expressed equivalently as the S-expression $\sexp{({sin} (\times (\times (\times 2 \pi) f) t))}$. S-expressions are convenient from a computational standpoint as they allow easy evaluation and modification of an equation in a recursive tree structure. The evaluable arrangements of operators and terminals (together referred to as primitives) induce a space of S-expressions. This concept will become more important when this paper details its use of genetic programming.
 	
 This sine wave rendering equation is so important to the domain of musical sounds that it will be convenient for our purposes to see it as a single, high level unit instead of the combination of eight lower level units as shown in FIGURE. Also included is a depiction of the sine wave rendering equation expressed as a more traditional synthesis topology. TODO: figures
 	
 \section{Mimicking Acoustic Instruments Using Sound Synthesis Algorithms}
-Sound synthesis algorithms are a well studied aspect of computer music, and for as long as they have existed people have been using them to mimic recognizable acoustic timbres. Chowning summarized the motivations for this research in his paper detailing the technique of frequency modulation audio synthesis.
-\begin{quote}
-Of interest in both acoustical re-search and electronic music is the synthesis of natural sound. For the researcher, it is the ultimate test of acoustical theory, while for the composer of electronic music it is an extraordinarily rich point of departure in the domain of timbre, or tone quality. \citep{chowning1973synthesis}
-\end{quote}
+Sound synthesis algorithms are a well studied aspect of computer music, and for as long as they have existed people have been using them to mimic recognizable acoustic timbres.
 
 \subsection{Early Investigations (1950-1970)}
 Max Mathews created the first widely used computer program for sound synthesis in 1957 called MUSIC. MUSIC and its descendants in the MUSIC-N family of programs utilize wrapper functions around common synthesis routines called unit generators. This is a similar concept to the wrapping of the sine wave rendering equation into a single S-expression primitive as discussed in \ref{SSA}. Mathews wrote that ``there are no theoretical limitations to the performance of the computer as a source of musical sounds, in contrast to the performance of ordinary instruments.'' \citep{mathews01111963} While this statement can be challenged due to a computer's lack of ability to produce continuous signals, it holds perceptually as any possible discrete wave form can be rendered by a machine. Jean-Claude Risset worked with Mathews in the late 1960's to attempt to produce with a computer sounds that mimicked acoustic instruments. While they were successful in creating brass-like and string-like sounds by analyzing the spectral content of recordings, their conclusion was that ``additional factors must be discovered to yield an impeccable match to a given [instrument]'' \citep{risset1969analysis}.
@@ -150,6 +147,10 @@ Because of the nature of S-expressions, a given node cannot have multiple parent
 \subsection{Parameters}
 
 \section{Interactive Evolution of Sound Synthesis Algorithms}
+\begin{quote}
+\emph{To seek out new tonalities, new timbres... \\
+To boldly listen to what no one has heard before.} \citep{sethares2004tuning}
+\end{quote}
 \begin{quote}
 The musical value of the computer does not lie, of course, in its ability to duplicate exactly what a real instrument can do, but rather in yielding an extended repertory of sounds, including and going beyond the classes of sounds of actual instruments. \citep{risset1969analysis}.
 \end{quote}
