@@ -13,6 +13,7 @@
 
 #include "../Common/GPFunctions.h"
 #include "../Common/GPParams.h"
+#include "../Common/GPHelpers.h"
 
 #include "../Synth/GPSynth.h"
 #include "../Synth/Nodes/ADSRNode.h"
@@ -21,15 +22,14 @@
 #include "../Synth/Nodes/VariableNode.h"
 #include "../Synth/Nodes/FunctionNode.h"
 #include "../Synth/Nodes/OscilNode.h"
-#include "../Synth/Nodes/ModOscilNode.h"
 #include "../Synth/Nodes/FilterNode.h"
 #include "../Synth/Nodes/NoiseNode.h"
 
-#include "../Dependencies/kissfft/kiss_fft.h"
 #include "../Dependencies/kissfft/kiss_fftr.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include <limits>
+#include <fstream>
 
 class GPExperiment {
 public:
@@ -41,6 +41,10 @@ public:
     GPNetwork* evolve();
 
 private:
+    // PRINT DESTINATIONS
+    std::stringstream verbose;
+    std::stringstream important;
+
     // EXPERIMENT PARAMETERS
     GPParams* params;
     float fitnessThreshold;

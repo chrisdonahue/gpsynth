@@ -46,7 +46,7 @@ GPSynth::GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes) :
 
     clearGenerationState();
 
-    std::cout << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
+    std::cerr << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
     initPopulation();
 
     printGenerationDelim();
@@ -238,7 +238,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cout << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString(false, params->printPrecision) << std::endl;
+    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString(true, params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {

@@ -264,18 +264,18 @@ GPNetwork* GPExperiment::evolve() {
         free(candidateData);
     }
 
-    std::cout << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
+    std::cerr << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
 
     if (minFitnessAchieved <= fitnessThreshold) {
-        std::cout << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
+        std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
     // TODO: add decimal precision to numEvaluatedGeneratinos
-    std::cout << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
+    std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
-        std::cout << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(false, params->printPrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
+        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         saveWavFile("./champion.wav", String(champ->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
         free(champbuffer);
     }

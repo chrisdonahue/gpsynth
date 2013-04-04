@@ -19,7 +19,7 @@ public:
     GeneticProgrammingSynthesizerExperiment() {}
 
     const String getApplicationName()       {
-        return String("GP Synthesis Expermient");
+        return String("GP Synthesis Experiment");
     }
     const String getApplicationVersion()    {
         return String("1.0.0");
@@ -224,11 +224,49 @@ public:
             quit();
         }
 
+        printImportantExperimentInfo();
+
         experiment = new GPExperiment(new GPRandom(seed), target, params, constants.data());
 
         GPNetwork* champion = experiment->evolve();
         delete champion;
         quit();
+    }
+
+    void printImportantExperimentInfo() {
+        // PRINT COMP INFORMATION TO ERROR LOG
+		time_t now = time(0);
+		struct tm tstruct;
+		char buff[80];
+		tstruct = *localtime(&now);
+		strftime(buff, sizeof(buff), "%m.%d.%Y\n%H.%M.%S\n", &tstruct);
+
+        // PRINT TIME/DATE
+        std::cerr << buff;
+        
+        // PRINT HOST INFO
+		FILE *hostname = popen("hostname", "r");
+		char hostbuffer[200];
+		while (fgets(hostbuffer, sizeof(hostbuffer) - 1, hostname) != NULL) {
+          std::cerr << hostbuffer;
+		}
+		pclose(hostname);
+
+        // PRINT CPU INFO
+		FILE *lscpu = popen("lscpu", "r");
+		char lscpubuffer[1024];
+		while (fgets(lscpubuffer, sizeof(lscpubuffer) - 1, lscpu) != NULL) {
+          std::cerr << lscpubuffer;
+		}
+		pclose(lscpu);
+
+        // PRINT MEMORY INFO
+		FILE *meminfo = popen("grep \"Mem\" /proc/meminfo", "r");
+		char meminfobuffer[200];
+		while (fgets(meminfobuffer, sizeof(meminfobuffer) - 1, meminfo) != NULL) {
+          std::cerr << meminfobuffer;
+		}
+		pclose(meminfo);
     }
 
     void shutdown()
