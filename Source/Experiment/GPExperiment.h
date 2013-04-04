@@ -41,10 +41,6 @@ public:
     GPNetwork* evolve();
 
 private:
-    // PRINT DESTINATIONS
-    std::stringstream verbose;
-    std::stringstream important;
-
     // EXPERIMENT PARAMETERS
     GPParams* params;
     float fitnessThreshold;

@@ -77,6 +77,11 @@ private:
     unsigned mutationType;
     unsigned crossoverType;
 
+    // CONVERGENCE-VARYING
+    double convergenceFactor;
+    std::vector<double*> continuousConvergenceVaryingParams;
+    std::vector<double*> continuousCongergenceVaryingTemperatures;
+
     // AVAILABLE CONTAINERS
     std::vector<GPNode*>* availableNodes;
     std::vector<GPNode*>* availableFunctions;
