@@ -56,3 +56,6 @@ TODO long run:
     change GPRandom to compile on condor
 
 TODO FOR NEXT EXPERIMENT:
+    find out why 24531 was crashing
+    remove DC offset from fitness function
+    envelope after evaluation, not before
