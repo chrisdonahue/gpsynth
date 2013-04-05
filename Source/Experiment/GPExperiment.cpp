@@ -320,7 +320,8 @@ void GPExperiment::envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, f
 
     // find waveform minima/maxima
     float prevSlope = (wav[1] - wav[0]);
-    float currSlope;
+    float currSlope = 0;
+    float slopeProduct = 0;
     for (unsigned i = 1; i < n - 2; i++) {
         currSlope = (wav[i + 1] - wav[i]);
 
@@ -339,6 +340,9 @@ void GPExperiment::envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, f
             }
         }
         else {
+            //std::cout << i << ", " << n << std::endl;
+            //std::cout << slopeProduct << std::endl;
+            //std::cout << prevSlope << std::endl;
             if (slopeProduct < 0 && prevSlope > 0) {
                 x.push_back(i);
                 y.push_back(fabs(wav[i]));
@@ -368,6 +372,7 @@ void GPExperiment::envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, f
             assignEnvelopeSample++;
         }
     }
+    env[n - 1] = wav[n - 1];
 }
 
 // PRECONDITIONS:

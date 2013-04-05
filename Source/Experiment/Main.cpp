@@ -240,18 +240,26 @@ public:
         // PRINT COMP INFORMATION TO ERROR LOG
 		time_t now = time(0);
 		struct tm tstruct;
-		char buff[80];
+		char buff[200];
 		tstruct = *localtime(&now);
-		strftime(buff, sizeof(buff), "%m.%d.%Y\n%H.%M.%S\n", &tstruct);
+		strftime(buff, sizeof(buff), "Date run: %m.%d.%Y\nTime run: %H.%M.%S\n", &tstruct);
 
         // PRINT TIME/DATE
         std::cerr << buff;
-        
+    
+        // PRINT GITHUB COMMIT ID
+		FILE *gitid = popen("git rev-parse HEAD", "r");
+		char gitbuffer[200];
+		while (fgets(gitbuffer, sizeof(gitbuffer) - 1, gitid) != NULL) {
+          std::cerr << "Git commit ID: " << gitbuffer;
+		}
+		pclose(gitid);
+
         // PRINT HOST INFO
 		FILE *hostname = popen("hostname", "r");
 		char hostbuffer[200];
 		while (fgets(hostbuffer, sizeof(hostbuffer) - 1, hostname) != NULL) {
-          std::cerr << hostbuffer;
+          std::cerr << "Host name: " << hostbuffer;
 		}
 		pclose(hostname);
 
