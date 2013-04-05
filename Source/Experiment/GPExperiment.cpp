@@ -436,7 +436,8 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             double sum = 0;
             double maxBin = std::numeric_limits<double>::min();
             double minBin = std::numeric_limits<double>::max();
-            for (unsigned j = 0; j < numBins; j++) {
+            // EXCLUDE DC OFFSET
+            for (unsigned j = 1; j < numBins; j++) {
                 double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
                 sum += binMagnitude;
                 if (binMagnitude > maxBin)
@@ -447,8 +448,8 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             double frameAverageMagnitude = sum / ((double) numBins);
             //std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
 
-            // compare each bin to the average magnitude
-            for (unsigned j = 0; j < numBins; j++) {
+            // compare each bin EXCEPT DC OFFSET to the average magnitude
+            for (unsigned j = 1; j < numBins; j++) {
                 unsigned binIndex = (i * numBins) + j;
                 double binMagnitude = targetSpectrumMagnitudes[binIndex];
 
@@ -591,18 +592,22 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 
         double MSEmag = 0;
         double MSEph = 0;
-        for (int i = 0; i < fftOutputBufferSize; i++) {
-            if (magnitude[i] < targetSpectrumMagnitudes[i]) {
-                MSEmag += pow(targetSpectrumMagnitudes[i] - magnitude[i], binUndershootingPenalty[i]);
+        unsigned numBins = (n/2) + 1;
+        unsigned numFftFrames = fftOutputBufferSize / numBins;
+        for (unsigned i = 0; i < numFftFrames; i++) {
+            for (unsigned j = 1; j < numBins; j++) {
+                unsigned binIndex = (i * numBins) + j;
+                if (magnitude[binIndex] < targetSpectrumMagnitudes[binIndex]) {
+                    MSEmag += pow(targetSpectrumMagnitudes[binIndex] - magnitude[binIndex], binUndershootingPenalty[binIndex]);
+                }
+                else {
+                    MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
+                }
+                MSEph += pow(abs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
             }
-            else {
-                MSEmag += pow(magnitude[i] - targetSpectrumMagnitudes[i], binOvershootingPenalty[i]);
-            }
-            //MSEmag += pow(abs(magnitude[i] - targetSpectrumMagnitudes[i]), params->penalizeBadMagnitude);
-            MSEph += pow(abs(phase[i] - targetSpectrumPhases[i]), params->penalizeBadPhase);
         }
-        MSEmag = MSEmag / n;
-        MSEph = MSEph / n;
+        //MSEmag = MSEmag / n;
+        //MSEph = MSEph / n;
         ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
         free(phase);
         free(magnitude);

@@ -55,7 +55,7 @@ TODO long run:
     maybe change fitness function to measure partials relative to maximum instead of absolute magnitude
     change GPRandom to compile on condor
     figure out how to start without being in initialise method
+    test removed DC offset from fitness function
+    figure out why thrashing/crashing probably save string
 
 TODO FOR NEXT EXPERIMENT:
-    remove DC offset from fitness function
-    figure out why thrashing/crashing probably save string
