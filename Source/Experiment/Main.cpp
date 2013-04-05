@@ -64,6 +64,7 @@ public:
 
         // experiment params
         params->experimentNumber = 0;
+        params->envelopeIterations = 0;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
         params->ephemeralRandomConstants = true;
@@ -157,6 +158,9 @@ public:
             }
             else if (i->equalsIgnoreCase("--experiment")) {
                 params->experimentNumber = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--enviter")) {
+                params->envelopeIterations = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--generations"))  {
                 params->numGenerations = (++i)->getIntValue();

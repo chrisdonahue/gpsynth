@@ -77,6 +77,7 @@ private:
     GPSynth* synth;
 
     // FILL EVALUATION BUFFERS
+    void envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, float* env);
     void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
 
     // WAV INTERFACE
@@ -88,7 +89,7 @@ private:
     void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
 
     // FITNESS FUNCTION
-    double renderEnvelopeAndEvaluate(GPNetwork* candidate, float* buffer);
+    double renderEnvelopeAndEvaluate(bool envelope, GPNetwork* candidate, float* buffer);
     void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 

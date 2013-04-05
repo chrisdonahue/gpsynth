@@ -146,7 +146,20 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         free(passNoise);
         free(noise);
 
-	exit(-1);
+        exit(-1);
+
+        // RENDER AND SAVE ONE NETWORk
+        GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 5);
+        GPNode* oscilPartialOne = new OscilNode(true, partialOne, 0, NULL, NULL);
+        GPNetwork* oscil = new GPNetwork(oscilPartialOne);
+        oscil->traceNetwork();
+        float* oscilBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+        renderEnvelopeAndEvaluate(true, oscil, oscilBuffer);
+        saveWavFile("./oscilEnv.wav", String(oscil->toString(false, 10).c_str()), numTargetFrames, targetSampleRate, oscilBuffer);
+        renderIndividualByBlock(oscil, numTargetFrames, params->renderBlockSize, oscilBuffer);
+        saveWavFile("./oscil.wav", String(oscil->toString(false, 10).c_str()), numTargetFrames, targetSampleRate, oscilBuffer);
+        free(oscilBuffer);
+        exit(-1);
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new NoiseNode(rng));
@@ -215,7 +228,11 @@ GPNetwork* GPExperiment::evolve() {
         GPNetwork* candidate = synth->getIndividual();
 
         float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
-        double fitness = renderEnvelopeAndEvaluate(candidate, candidateData);
+        double fitness;
+        if (params->envelopeIterations > 0)
+            fitness = renderEnvelopeAndEvaluate(true, candidate, candidateData);
+        else
+            fitness = renderEnvelopeAndEvaluate(false, candidate, candidateData);
         numEvaluated++;
 
         //TODO: handle lowerFitnessIsBetter
@@ -289,6 +306,70 @@ GPNetwork* GPExperiment::evolve() {
     =======================
 */
 
+void GPExperiment::envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, float* env) {
+    // MAKE AMPLITUDE ENVELOPE OF TARGET
+    // x/y pairs for absolute waveform bound
+    std::vector<unsigned> x;
+    x.resize(0, 0);
+    std::vector<float> y;
+    y.resize(0, 0);
+
+    // set initial value
+    x.push_back(0);
+    y.push_back(fabs(wav[0]));
+
+    // find waveform minima/maxima
+    float prevSlope = (wav[1] - wav[0]);
+    float currSlope;
+    for (unsigned i = 1; i < n - 2; i++) {
+        currSlope = (wav[i + 1] - wav[i]);
+
+        // if one slope is 0 we're at one edge of a plateau or silence
+        float slopeProduct = currSlope * prevSlope;
+
+        if (!ignoreZeroes) {
+            if (slopeProduct == 0) {
+                x.push_back(i);
+                y.push_back(fabs(wav[i]));
+            }
+            // else if slope has changed we found a minimum or maximum
+            else if (slopeProduct < 0 && prevSlope > 0) {
+                x.push_back(i);
+                y.push_back(fabs(wav[i]));
+            }
+        }
+        else {
+            if (slopeProduct < 0 && prevSlope > 0) {
+                x.push_back(i);
+                y.push_back(fabs(wav[i]));
+            }
+        }
+
+        prevSlope = currSlope;
+    }
+
+    // set final value
+    x.push_back(n - 1);
+    y.push_back(fabs(wav[n - 1]));
+
+    // fill env buffer
+    for (unsigned i = 0; i < x.size() - 1; i++) {
+        // calculate slope between points
+        unsigned currFrameNumber = x[i];
+        float currEnvValue = y[i];
+        unsigned nextFrameNumber = x[i+1];
+        float nextEnvValue = y[i+1];
+        float slope = (nextEnvValue - currEnvValue)/(nextFrameNumber - currFrameNumber);
+
+        // fill buffer from slope
+        unsigned assignEnvelopeSample = currFrameNumber;
+        while (assignEnvelopeSample < nextFrameNumber) {
+            env[assignEnvelopeSample] = ((assignEnvelopeSample - currFrameNumber) * slope) + currEnvValue;
+            assignEnvelopeSample++;
+        }
+    }
+}
+
 // PRECONDITIONS:
 // NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
 void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
@@ -305,62 +386,19 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
         }
     }
-    
-    // MAKE AMPLITUDE ENVELOPE OF TARGET
-    if (params->fitnessFunctionType > 0) {
-      // x/y pairs for absolute waveform bound
-      std::vector<unsigned> x;
-      x.resize(0, 0);
-      std::vector<float> y;
-      y.resize(0, 0);
 
-      // set initial value
-      x.push_back(0);
-      y.push_back(fabs(targetFrames[0]));
-
-      // find waveform minima/maxima
-      float prevSlope = (targetFrames[1] - targetFrames[0]);
-      float currSlope;
-      for (unsigned i = 1; i < numTargetFrames - 2; i++) {
-        currSlope = (targetFrames[i + 1] - targetFrames[i]);
-
-        // if one slope is 0 we're at one edge of a plateau or silence
-        float slopeProduct = currSlope * prevSlope;
-        if (slopeProduct == 0) {
-          x.push_back(i);
-          y.push_back(fabs(targetFrames[0]));
+    // FILL ENVELOPE OF TARGET BUFFER
+    targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
+    for (unsigned i = 0; i < params->envelopeIterations; i++) {
+        if (i == 0) {
+            envelopeWaveform(true, numTargetFrames, targetFrames, targetEnvelope);
         }
-        // else if slope has changed we found a minimum or maximum
-        else if (slopeProduct < 0) {
-          x.push_back(i);
-          y.push_back(fabs(targetFrames[0]));
+        else {
+            envelopeWaveform(true, numTargetFrames, targetEnvelope, targetEnvelope);
         }
-
-        prevSlope = currSlope;
-      }
-
-      // set final value
-      x.push_back(numTargetFrames - 1);
-      y.push_back(fabs(targetFrames[numTargetFrames - 1]));
-
-      // fill targetEnvelope buffer
-      targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
-      for (unsigned i = 0; i < x.size() - 1; i++) {
-        // calculate slope between points
-        unsigned currFrameNumber = x[i];
-        float currEnvValue = y[i];
-        unsigned nextFrameNumber = x[i+1];
-        float nextEnvValue = y[i+1];
-        float slope = (nextEnvValue - currEnvValue)/(nextFrameNumber - currFrameNumber);
-        
-        // fill buffer from slope
-        unsigned assignEnvelopeSample = currFrameNumber;
-        while (assignEnvelopeSample < nextFrameNumber) {
-          targetEnvelope[assignEnvelopeSample] = ((assignEnvelopeSample - currFrameNumber) * slope) + currEnvValue;
-          assignEnvelopeSample++;
-        }
-      }
     }
+    if (params->envelopeIterations > 0)
+        saveWavFile(String("envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
 
     // FILL FREQUENCY SPECTRUM OF TARGET
     if (params->fitnessFunctionType > 0) {
@@ -392,7 +430,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             double maxBin = std::numeric_limits<double>::min();
             double minBin = std::numeric_limits<double>::max();
             for (unsigned j = 0; j < numBins; j++) {
-                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j]; 
+                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
                 sum += binMagnitude;
                 if (binMagnitude > maxBin)
                     maxBin = binMagnitude;
@@ -498,10 +536,12 @@ void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, dou
     ================
 */
 
-double GPExperiment::renderEnvelopeAndEvaluate(GPNetwork* candidate, float* buffer) {
+double GPExperiment::renderEnvelopeAndEvaluate(bool envelope, GPNetwork* candidate, float* buffer) {
     renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, buffer);
-    for (unsigned i = 0; i < numTargetFrames; i++) {
-      buffer[i] *= targetEnvelope[i];
+    if (envelope) {
+        for (unsigned i = 0; i < numTargetFrames; i++) {
+            buffer[i] *= targetEnvelope[i];
+        }
     }
     return compareToTarget(params->fitnessFunctionType, buffer);
 }
