@@ -16,9 +16,10 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* constants) :
+GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* constants, bool* rq) :
     params(p),
     specialValues(constants),
+    requestedQuit(rq),
     wavFormat(new WavAudioFormat())
 {
     // TARGET DATA CONTAINERS
@@ -154,7 +155,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         GPNetwork* oscil = new GPNetwork(oscilPartialOne);
         oscil->traceNetwork();
         float* oscilBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        renderEnvelopeAndEvaluate(true, oscil, oscilBuffer);
+        //renderEnvelopeAndEvaluate(true, oscil, oscilBuffer);
         saveWavFile("./oscilEnv.wav", String(oscil->toString(false, 10).c_str()), numTargetFrames, targetSampleRate, oscilBuffer);
         renderIndividualByBlock(oscil, numTargetFrames, params->renderBlockSize, oscilBuffer);
         saveWavFile("./oscil.wav", String(oscil->toString(false, 10).c_str()), numTargetFrames, targetSampleRate, oscilBuffer);
@@ -223,16 +224,14 @@ GPNetwork* GPExperiment::evolve() {
     GPNetwork* generationChamp = NULL;
     int numEvaluated = 0;
     double generationMinimumFitness = INFINITY;
+    float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
 
-    while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations) {
+    while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
         GPNetwork* candidate = synth->getIndividual();
 
-        float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
         double fitness;
-        if (params->envelopeIterations > 0)
-            fitness = renderEnvelopeAndEvaluate(true, candidate, candidateData);
-        else
-            fitness = renderEnvelopeAndEvaluate(false, candidate, candidateData);
+        renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, candidateData);
+        fitness = compareToTarget(params->fitnessFunctionType, candidateData);
         numEvaluated++;
 
         //TODO: handle lowerFitnessIsBetter
@@ -269,6 +268,8 @@ GPNetwork* GPExperiment::evolve() {
             float* genchampbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
             generationChamp->traceNetwork();
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
+            if (params->envelopeIterations > 0)
+              applyEnvelope(numTargetFrames, genchampbuffer, targetEnvelope);
             char buffer[100];
             snprintf(buffer, 100, "./gen.%d.best.wav", numEvaluatedGenerations);
             saveWavFile(String(buffer), String(generationChamp->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
@@ -278,9 +279,8 @@ GPNetwork* GPExperiment::evolve() {
 
             numEvaluatedGenerations++;
         }
-
-        free(candidateData);
     }
+    free(candidateData);
 
     std::cerr << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
 
@@ -288,11 +288,13 @@ GPNetwork* GPExperiment::evolve() {
         std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
     // TODO: add decimal precision to numEvaluatedGeneratinos
-    std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
+    std::cerr << "Evolution completed " << numEvaluatedGenerations << " generations" << std::endl;
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
+        if (params->envelopeIterations > 0)
+          applyEnvelope(numTargetFrames, champbuffer, targetEnvelope);
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         saveWavFile("./champion.wav", String(champ->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
         free(champbuffer);
@@ -403,7 +405,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         }
     }
     if (params->envelopeIterations > 0)
-        saveWavFile(String("envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
+        saveWavFile(String("./envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
 
     // FILL FREQUENCY SPECTRUM OF TARGET
     if (params->fitnessFunctionType > 0) {
@@ -541,14 +543,10 @@ void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, dou
     ================
 */
 
-double GPExperiment::renderEnvelopeAndEvaluate(bool envelope, GPNetwork* candidate, float* buffer) {
-    renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, buffer);
-    if (envelope) {
-        for (unsigned i = 0; i < numTargetFrames; i++) {
-            buffer[i] *= targetEnvelope[i];
-        }
-    }
-    return compareToTarget(params->fitnessFunctionType, buffer);
+void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope) {
+  for (unsigned i = 0; i < n; i++) {
+    buffer[i] *= envelope[i];
+  }
 }
 
 void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer) {

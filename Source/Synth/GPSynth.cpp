@@ -411,7 +411,8 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     }
     net->ID = nextNetworkID++;
     net->traceNetwork();
-    allNetworks.push_back(new std::string(net->toString(true, params->backupPrecision)));
+    if (params->backupAllNetworks)
+      allNetworks.push_back(new std::string(net->toString(true, params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
         // TODO: probably dont need the following line:

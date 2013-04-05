@@ -70,6 +70,7 @@ public:
         params->ephemeralRandomConstants = true;
 
         // synth evolution params
+        params->backupAllNetworks = false;
         params->populationSize = 500;
         params->lowerFitnessIsBetter = true;
         params->bestPossibleFitness = 0;
@@ -229,7 +230,8 @@ public:
 
         printImportantExperimentInfo();
 
-        experiment = new GPExperiment(new GPRandom(seed), target, params, constants.data());
+        requestedQuit = false;
+        experiment = new GPExperiment(new GPRandom(seed), target, params, constants.data(), &requestedQuit);
 
         GPNetwork* champion = experiment->evolve();
         delete champion;
@@ -238,46 +240,46 @@ public:
 
     void printImportantExperimentInfo() {
         // PRINT COMP INFORMATION TO ERROR LOG
-		time_t now = time(0);
-		struct tm tstruct;
-		char buff[200];
-		tstruct = *localtime(&now);
-		strftime(buff, sizeof(buff), "Date run: %m.%d.%Y\nTime run: %H.%M.%S\n", &tstruct);
+        time_t now = time(0);
+        struct tm tstruct;
+        char buff[200];
+        tstruct = *localtime(&now);
+        strftime(buff, sizeof(buff), "Date run: %m.%d.%Y\nTime run: %H.%M.%S\n", &tstruct);
 
         // PRINT TIME/DATE
         std::cerr << buff;
-    
+
         // PRINT GITHUB COMMIT ID
-		FILE *gitid = popen("git rev-parse HEAD", "r");
-		char gitbuffer[200];
-		while (fgets(gitbuffer, sizeof(gitbuffer) - 1, gitid) != NULL) {
-          std::cerr << "Git commit ID: " << gitbuffer;
-		}
-		pclose(gitid);
+        FILE *gitid = popen("git rev-parse HEAD", "r");
+        char gitbuffer[200];
+        while (fgets(gitbuffer, sizeof(gitbuffer) - 1, gitid) != NULL) {
+            std::cerr << "Git commit ID: " << gitbuffer;
+        }
+        pclose(gitid);
 
         // PRINT HOST INFO
-		FILE *hostname = popen("hostname", "r");
-		char hostbuffer[200];
-		while (fgets(hostbuffer, sizeof(hostbuffer) - 1, hostname) != NULL) {
-          std::cerr << "Host name: " << hostbuffer;
-		}
-		pclose(hostname);
+        FILE *hostname = popen("hostname", "r");
+        char hostbuffer[200];
+        while (fgets(hostbuffer, sizeof(hostbuffer) - 1, hostname) != NULL) {
+            std::cerr << "Host name: " << hostbuffer;
+        }
+        pclose(hostname);
 
         // PRINT CPU INFO
-		FILE *lscpu = popen("lscpu", "r");
-		char lscpubuffer[1024];
-		while (fgets(lscpubuffer, sizeof(lscpubuffer) - 1, lscpu) != NULL) {
-          std::cerr << lscpubuffer;
-		}
-		pclose(lscpu);
+        FILE *lscpu = popen("lscpu", "r");
+        char lscpubuffer[1024];
+        while (fgets(lscpubuffer, sizeof(lscpubuffer) - 1, lscpu) != NULL) {
+            std::cerr << lscpubuffer;
+        }
+        pclose(lscpu);
 
         // PRINT MEMORY INFO
-		FILE *meminfo = popen("grep \"Mem\" /proc/meminfo", "r");
-		char meminfobuffer[200];
-		while (fgets(meminfobuffer, sizeof(meminfobuffer) - 1, meminfo) != NULL) {
-          std::cerr << meminfobuffer;
-		}
-		pclose(meminfo);
+        FILE *meminfo = popen("grep \"Mem\" /proc/meminfo", "r");
+        char meminfobuffer[200];
+        while (fgets(meminfobuffer, sizeof(meminfobuffer) - 1, meminfo) != NULL) {
+            std::cerr << meminfobuffer;
+        }
+        pclose(meminfo);
     }
 
     void shutdown()
@@ -291,6 +293,8 @@ public:
     {
         // This is called when the app is being asked to quit: you can ignore this
         // request and let the app carry on running, or call quit() to allow the app to close.
+        std::cout << "ACTUALLY REQUESTED QUIT..." << std::endl;
+        requestedQuit = true;
         quit();
     }
 
@@ -302,6 +306,7 @@ public:
     }
 
 private:
+    bool requestedQuit;
     GPExperiment* experiment;
     GPParams* params;
 };

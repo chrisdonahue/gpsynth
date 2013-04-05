@@ -34,7 +34,7 @@
 class GPExperiment {
 public:
     // CONSTUCTION
-    GPExperiment(GPRandom* r, String target, GPParams* p, double* constants);
+    GPExperiment(GPRandom* r, String target, GPParams* p, double* constants, bool* rq);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
@@ -72,6 +72,7 @@ private:
     // EXPERIMENT STATE
     float minFitnessAchieved;
     int numEvaluatedGenerations;
+    bool* requestedQuit;
 
     // SYNTH
     GPSynth* synth;
@@ -89,7 +90,7 @@ private:
     void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
 
     // FITNESS FUNCTION
-    double renderEnvelopeAndEvaluate(bool envelope, GPNetwork* candidate, float* buffer);
+    void applyEnvelope(unsigned n, float* buffer, float* envelope);
     void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 

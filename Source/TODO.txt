@@ -54,10 +54,8 @@ TODO long run:
     test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes... where did this huge performance hit come from? it came from the set params stuff :/. also 0, n-1 usage for FPC and whatnot
     maybe change fitness function to measure partials relative to maximum instead of absolute magnitude
     change GPRandom to compile on condor
+    figure out how to start without being in initialise method
 
 TODO FOR NEXT EXPERIMENT:
-    find out why 24531 was crashing... its xbox?
-    figure out how to start without being in initialise method
     remove DC offset from fitness function
-    envelope after evaluation, not before
     figure out why thrashing/crashing probably save string

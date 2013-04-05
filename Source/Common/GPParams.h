@@ -32,6 +32,7 @@ struct GPParams {
     bool ephemeralRandomConstants;
 
     // synth evolution parameters
+    bool backupAllNetworks;
     unsigned populationSize;
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;
