@@ -59,3 +59,6 @@ TODO long run:
     figure out why thrashing/crashing probably save string
 
 TODO FOR NEXT EXPERIMENT:
+    check how many partials lie above average for trumpet sound
+    try another sample
+    get filters/noise back in the mixture maybe
