@@ -11,7 +11,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-AudioProcessor* JUCE_CALLTYPE createPluginFilter();
+AudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
 
 
 //==============================================================================
@@ -384,7 +384,7 @@ double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 
 //==============================================================================
 // This creates new instances of the plugin..
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+AudioProcessor* JUCE_CALLTYPE createGPPluginFilter()
 {
     return new GeneticProgrammingSynthesizerAudioProcessor();
 }
