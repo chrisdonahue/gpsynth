@@ -12,7 +12,7 @@
 #define __PLUGINEDITOR_H_4ACCBAA__
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PluginProcessor.h"
+#include "GPPluginProcessor.h"
 
 
 //==============================================================================

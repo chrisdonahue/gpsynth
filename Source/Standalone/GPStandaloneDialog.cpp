@@ -3,12 +3,12 @@
 //==============================================================================
 //  Somewhere in the codebase of your plugin, you need to implement this function
 //  and make it create an instance of the filter subclass that you're building.
-extern GPPluginAudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
+extern GeneticProgrammingSynthesizerAudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
 
 
 //==============================================================================
 StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
-        const Colour& backgroundColour)
+        const Colour& backgroundColour, GPParams* p)
     : DocumentWindow (title, backgroundColour,
                       DocumentWindow::minimiseButton
                       | DocumentWindow::closeButton)
@@ -16,10 +16,10 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
     JUCE_TRY
     {
         filter = createGPPluginFilter();
-        filter->addChangeListener(this);
-        filter->addActionListener(this);
-        filter->sendChangeMessage();
-        filter->createGUI();
+        //filter->addChangeListener(this);
+        //filter->addActionListener(this);
+        //filter->sendChangeMessage();
+        //filter->createGUI();
     }
     JUCE_CATCH_ALL
 
@@ -102,10 +102,10 @@ void StandaloneFilterWindow::resetFilter()
     deleteFilter();
     deviceManager->closeAudioDevice();
     filter = createGPPluginFilter();
-    filter->addChangeListener(this);
-    filter->addActionListener(this);
-    filter->sendChangeMessage();
-    filter->createGUI();
+    //filter->addChangeListener(this);
+    //filter->addActionListener(this);
+    //filter->sendChangeMessage();
+    //filter->createGUI();
 
     if (filter != nullptr)
     {

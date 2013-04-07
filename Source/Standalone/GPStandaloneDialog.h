@@ -1,6 +1,7 @@
 #ifndef __JUCE_STANDALONEFILTERWINDOW_JUCEHEADER__
 #define __JUCE_STANDALONEFILTERWINDOW_JUCEHEADER__
 
+#include "../Common/GPParams.h"
 #include "../Plugin/GPPluginProcessor.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
@@ -16,7 +17,7 @@ class StandaloneFilterWindow    : public DocumentWindow,
 public:
     //==============================================================================
     StandaloneFilterWindow (const String& title,
-                            const Colour& backgroundColour);
+                            const Colour& backgroundColour, GPParams* p);
 
     ~StandaloneFilterWindow();
 
@@ -60,7 +61,7 @@ public:
 
 private:
     void timerCallback();
-    ScopedPointer<GPPluginAudioProcessor> filter;
+    ScopedPointer<GeneticProgrammingSynthesizerAudioProcessor> filter;
     ScopedPointer<AudioDeviceManager> deviceManager;
     AudioProcessorPlayer player;
     TextButton optionsButton;
@@ -69,6 +70,9 @@ private:
     int currentLine;
     bool pipeOpenedOk;
     String consoleMessages;
+    
+    // GP stuff
+    GPParams* p;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StandaloneFilterWindow);
 };

@@ -18,7 +18,7 @@ ifeq ($(CONFIG),Debug)
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 -std=c++0x 
   CXXFLAGS += $(CFLAGS) 
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt 
   LDDEPS :=
@@ -33,7 +33,7 @@ ifeq ($(CONFIG),Release)
   OBJDIR := build/intermediate/Release
   OUTDIR := build
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -Os
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -Os -std=c++0x 
   CXXFLAGS += $(CFLAGS) 
   LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt 
   LDDEPS :=
@@ -115,22 +115,22 @@ $(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
 	@echo "Compiling GPNetwork.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/OscilNode.o: ../../Source/Synth/OscilNode.cpp
+$(OBJDIR)/OscilNode.o: ../../Source/Synth/Nodes/OscilNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling OscilNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FunctionNode.o: ../../Source/Synth/FunctionNode.cpp
+$(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FunctionNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ValueNode.o: ../../Source/Synth/ValueNode.cpp
+$(OBJDIR)/ValueNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ValueNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Random.o: ../../Source/Common/Random.cpp
+$(OBJDIR)/Random.o: ../../Source/Common/GPRandom.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Random.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
