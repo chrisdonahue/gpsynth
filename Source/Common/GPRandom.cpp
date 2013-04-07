@@ -28,7 +28,7 @@ int GPRandom::sampleFromDistribution(std::vector<double>* weights) {
     // sample from normalized distribution
     double rand = random();
     double sum = 0;
-    for (int i = 0; i < weights->size(); i++) {
+    for (unsigned i = 0; i < weights->size(); i++) {
         sum += weights->at(i);
         if (sum > rand)
             return i;

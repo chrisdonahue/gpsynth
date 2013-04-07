@@ -180,7 +180,7 @@
  #define JucePlugin_Desc                   "GeneticProgrammingSynthesizer"
 #endif
 #ifndef  JucePlugin_Manufacturer
- #define JucePlugin_Manufacturer           "radiohunches"
+ #define JucePlugin_Manufacturer           "Radio Hunches Software"
 #endif
 #ifndef  JucePlugin_ManufacturerCode
  #define JucePlugin_ManufacturerCode       'Manu'

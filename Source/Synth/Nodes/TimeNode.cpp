@@ -21,6 +21,10 @@ TimeNode* TimeNode::getCopy() {
 }
 
 void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+	v;
+	nv;
+	fn;
+	max;
     *min = 0;
     for (unsigned i = 0; i < n; i++) {
         buffer[i] = t[i];
@@ -28,6 +32,7 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 }
 
 void TimeNode::toString(bool printRange, std::stringstream& ss) {
+	printRange;
     ss << "(time)";
 }
 

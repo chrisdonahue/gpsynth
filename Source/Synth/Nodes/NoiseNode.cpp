@@ -28,6 +28,10 @@ NoiseNode* NoiseNode::getCopy() {
 }
 
 void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+	v;
+	nv;
+	t;
+
     *min = -1;
     *max = 1;
 
@@ -73,6 +77,7 @@ void NoiseNode::whitenoise(
 }
 
 void NoiseNode::toString(bool printRange, std::stringstream& ss) {
+	printRange;
     ss << "(whitenoise)";
 }
 

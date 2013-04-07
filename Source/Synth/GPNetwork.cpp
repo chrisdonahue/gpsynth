@@ -128,7 +128,6 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 
 void GPNetwork::updateMutatedParams() {
     root->updateMutatedParams();
-    unsigned length = 0;
 }
 
 void GPNetwork::ephemeralRandom(GPRandom* r) {

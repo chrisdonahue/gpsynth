@@ -26,6 +26,10 @@ ConstantNode* ConstantNode::getCopy() {
 }
 
 void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+	v;
+	nv;
+	t;
+	fn;
     *min = minimum;
     *max = maximum;
     for (unsigned i = 0; i < n; i++) {

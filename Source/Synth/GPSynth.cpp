@@ -405,7 +405,7 @@ void GPSynth::calculateGenerationNormalizedFitnesses() {
 */
 
 void GPSynth::addNetworkToPopulation(GPNetwork* net) {
-    int oldID;
+    int oldID = -1;
     if (net->fitness != -1) {
         oldID = net->ID;
     }
@@ -556,7 +556,6 @@ void GPSynth::mutate(GPNetwork* one) {
 
 void GPSynth::numericallyMutate(GPNetwork* one) {
     //std::cout << "BEFORE NUMERIC MUTATION " << one->toString() << std::endl;
-    double mutationAmount;
     double bestProportion = generationBestFitness / generationAverageFitness;
     double temperatureConstant = params->numericMutationTemperatureConstant;
 

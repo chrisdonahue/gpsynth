@@ -25,6 +25,8 @@ VariableNode* VariableNode::getCopy() {
 }
 
 void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+	fn;
+	t;
     double* currentIndex = v + variableNum;
     *min = minimum;
     *max = maximum;
@@ -35,6 +37,7 @@ void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 }
 
 void VariableNode::toString(bool printRange, std::stringstream& ss) {
+	printRange;
     ss << "(v" << variableNum << ")";
 }
 

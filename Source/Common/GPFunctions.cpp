@@ -39,10 +39,15 @@ GPFunction multiply = { GPmultiply, GPmultiplyCalculateRange, "*", true, 0.0 };
     sin
 */
 void GPsineCalculateRange(double* min, double* max, double zeromin, double zeromax, double onemin, double onemax) {
+	zeromax;
+	zeromin;
+	onemax;
+	onemin;
     *min = -1;
     *max = 1;
 }
 double GPsine(double left, double right) {
+	right;
     return sin(left);
 }
 GPFunction sine = { GPsine, GPsineCalculateRange, "sin", false, 0.0 };
