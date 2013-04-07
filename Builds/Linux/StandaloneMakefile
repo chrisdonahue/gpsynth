@@ -47,19 +47,24 @@ OBJECTS := \
   $(OBJDIR)/GPStandaloneDialog.o \
   $(OBJDIR)/GPPluginProcessor.o \
   $(OBJDIR)/GPPluginEditor.o \
+  $(OBJDIR)/GPRandom.o \
+  $(OBJDIR)/GPFunctions.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
+  $(OBJDIR)/ADSRNode.o \
   $(OBJDIR)/OscilNode.o \
+  $(OBJDIR)/ModOscilNode.o \
+  $(OBJDIR)/NoiseNode.o \
   $(OBJDIR)/FunctionNode.o \
-  $(OBJDIR)/ValueNode.o \
-  $(OBJDIR)/Random.o \
+  $(OBJDIR)/ConstantNode.o \
+  $(OBJDIR)/TimeNode.o \
+  $(OBJDIR)/VariableNode.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
   $(OBJDIR)/juce_audio_devices_a4c8a728.o \
   $(OBJDIR)/juce_audio_formats_d349f0c8.o \
   $(OBJDIR)/juce_audio_processors_44a134a2.o \
   $(OBJDIR)/juce_audio_utils_f63b12e8.o \
   $(OBJDIR)/juce_core_aff681cc.o \
-  $(OBJDIR)/juce_cryptography_25c7e826.o \
   $(OBJDIR)/juce_data_structures_bdd6d488.o \
   $(OBJDIR)/juce_events_79b2840.o \
   $(OBJDIR)/juce_graphics_c8f1e7a4.o \
@@ -105,6 +110,16 @@ $(OBJDIR)/GPPluginEditor.o: ../../Source/Plugin/GPPluginEditor.cpp
 	@echo "Compiling GPPluginEditor.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPRandom.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPFunctions.o: ../../Source/Common/GPFunctions.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPFunctions.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/GPSynth.o: ../../Source/Synth/GPSynth.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPSynth.cpp"
@@ -115,9 +130,29 @@ $(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
 	@echo "Compiling GPNetwork.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/ADSRNode.o: ../../Source/Synth/Nodes/ADSRNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ADSRNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/OscilNode.o: ../../Source/Synth/Nodes/OscilNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling OscilNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ModOscilNode.o: ../../Source/Synth/Nodes/ModOscilNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ModOscilNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FilterNode.o: ../../Source/Synth/Nodes/FilterNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FilterNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/NoiseNode.o: ../../Source/Synth/Nodes/NoiseNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NoiseNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
@@ -125,14 +160,19 @@ $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 	@echo "Compiling FunctionNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ValueNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
+$(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ValueNode.cpp"
+	@echo "Compiling ConstantNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Random.o: ../../Source/Common/GPRandom.cpp
+$(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Random.cpp"
+	@echo "Compiling TimeNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/VariableNode.o: ../../Source/Synth/Nodes/VariableNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling VariableNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_2442e4ea.o: ../../JuceLibraryCode/modules/juce_audio_basics/juce_audio_basics.cpp
