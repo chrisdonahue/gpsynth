@@ -8,11 +8,11 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "GPPluginProcessor.h"
+#include "GPPluginEditor.h"
 
 //==============================================================================
-GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizerAudioProcessorEditor (JuceDemoPluginAudioProcessor* ownerFilter)
+GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizerAudioProcessorEditor (GeneticProgrammingSynthesizerAudioProcessor* ownerFilter)
     : AudioProcessorEditor (ownerFilter),
       midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
       infoLabel (String::empty),
@@ -87,7 +87,7 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::resized()
 // This timer periodically checks whether any of the filter's parameters have changed...
 void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 {
-    JuceDemoPluginAudioProcessor* ourProcessor = getProcessor();
+    GeneticProgrammingSynthesizerAudioProcessor* ourProcessor = getProcessor();
 
     AudioPlayHead::CurrentPositionInfo newPos (ourProcessor->lastPosInfo);
 
@@ -106,12 +106,12 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slid
         // It's vital to use setParameterNotifyingHost to change any parameters that are automatable
         // by the host, rather than just modifying them directly, otherwise the host won't know
         // that they've changed.
-        getProcessor()->setParameterNotifyingHost (JuceDemoPluginAudioProcessor::gainParam,
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::gainParam,
                                                    (float) gainSlider.getValue());
     }
     else if (slider == &delaySlider)
     {
-        getProcessor()->setParameterNotifyingHost (JuceDemoPluginAudioProcessor::delayParam,
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::delayParam,
                                                    (float) delaySlider.getValue());
     }
 }

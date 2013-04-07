@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "GPPluginProcessor.h"
+#include "GPPluginEditor.h"
 
 AudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
 
