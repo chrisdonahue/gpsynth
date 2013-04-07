@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-JuceDemoPluginAudioProcessorEditor::JuceDemoPluginAudioProcessorEditor (JuceDemoPluginAudioProcessor* ownerFilter)
+GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizerAudioProcessorEditor (JuceDemoPluginAudioProcessor* ownerFilter)
     : AudioProcessorEditor (ownerFilter),
       midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
       infoLabel (String::empty),
@@ -57,18 +57,18 @@ JuceDemoPluginAudioProcessorEditor::JuceDemoPluginAudioProcessorEditor (JuceDemo
     startTimer (50);
 }
 
-JuceDemoPluginAudioProcessorEditor::~JuceDemoPluginAudioProcessorEditor()
+GeneticProgrammingSynthesizerAudioProcessorEditor::~GeneticProgrammingSynthesizerAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void JuceDemoPluginAudioProcessorEditor::paint (Graphics& g)
+void GeneticProgrammingSynthesizerAudioProcessorEditor::paint (Graphics& g)
 {
     g.setGradientFill (ColourGradient (Colours::white, 0, 0, Colours::grey, 0, (float) getHeight(), false));
     g.fillAll();
 }
 
-void JuceDemoPluginAudioProcessorEditor::resized()
+void GeneticProgrammingSynthesizerAudioProcessorEditor::resized()
 {
     infoLabel.setBounds (10, 4, 400, 25);
     gainSlider.setBounds (20, 60, 150, 40);
@@ -85,7 +85,7 @@ void JuceDemoPluginAudioProcessorEditor::resized()
 
 //==============================================================================
 // This timer periodically checks whether any of the filter's parameters have changed...
-void JuceDemoPluginAudioProcessorEditor::timerCallback()
+void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 {
     JuceDemoPluginAudioProcessor* ourProcessor = getProcessor();
 
@@ -99,7 +99,7 @@ void JuceDemoPluginAudioProcessorEditor::timerCallback()
 }
 
 // This is our Slider::Listener callback, when the user drags a slider.
-void JuceDemoPluginAudioProcessorEditor::sliderValueChanged (Slider* slider)
+void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
     if (slider == &gainSlider)
     {
@@ -155,7 +155,7 @@ static const String ppqToBarsBeatsString (double ppq, double /*lastBarPPQ*/, int
 }
 
 // Updates the text in our position label.
-void JuceDemoPluginAudioProcessorEditor::displayPositionInfo (const AudioPlayHead::CurrentPositionInfo& pos)
+void GeneticProgrammingSynthesizerAudioProcessorEditor::displayPositionInfo (const AudioPlayHead::CurrentPositionInfo& pos)
 {
     lastDisplayedPosition = pos;
     String displayText;

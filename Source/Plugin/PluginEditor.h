@@ -18,13 +18,13 @@
 //==============================================================================
 /** This is the editor component that our filter will display.
 */
-class JuceDemoPluginAudioProcessorEditor  : public AudioProcessorEditor,
+class GeneticProgrammingSynthesizerAudioProcessorEditor  : public AudioProcessorEditor,
                                             public SliderListener,
                                             public Timer
 {
 public:
-    JuceDemoPluginAudioProcessorEditor (JuceDemoPluginAudioProcessor* ownerFilter);
-    ~JuceDemoPluginAudioProcessorEditor();
+    GeneticProgrammingSynthesizerAudioProcessorEditor (GeneticProgrammingSynthesizerAudioProcessor* ownerFilter);
+    ~GeneticProgrammingSynthesizerAudioProcessorEditor();
 
     //==============================================================================
     void timerCallback();
@@ -42,9 +42,9 @@ private:
 
     AudioPlayHead::CurrentPositionInfo lastDisplayedPosition;
 
-    JuceDemoPluginAudioProcessor* getProcessor() const
+    GeneticProgrammingSynthesizerAudioProcessor* getProcessor() const
     {
-        return static_cast <JuceDemoPluginAudioProcessor*> (getAudioProcessor());
+        return static_cast <GeneticProgrammingSynthesizerAudioProcessor*> (getAudioProcessor());
     }
 
     void displayPositionInfo (const AudioPlayHead::CurrentPositionInfo& pos);

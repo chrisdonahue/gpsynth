@@ -16,10 +16,10 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter();
 
 //==============================================================================
 /** A demo synth sound that's just a basic sine wave.. */
-class SineWaveSound : public SynthesiserSound
+class GPSound : public SynthesiserSound
 {
 public:
-    SineWaveSound() {}
+    GPSound() {}
 
     bool appliesToNote (const int /*midiNoteNumber*/)           { return true; }
     bool appliesToChannel (const int /*midiChannel*/)           { return true; }
@@ -27,10 +27,10 @@ public:
 
 //==============================================================================
 /** A simple demo synth voice that just plays a sine wave.. */
-class SineWaveVoice  : public SynthesiserVoice
+class GPVoice  : public SynthesiserVoice
 {
 public:
-    SineWaveVoice()
+    GPVoice()
         : angleDelta (0.0),
           tailOff (0.0)
     {
@@ -38,7 +38,7 @@ public:
 
     bool canPlaySound (SynthesiserSound* sound)
     {
-        return dynamic_cast <SineWaveSound*> (sound) != 0;
+        return dynamic_cast <GPSound*> (sound) != 0;
     }
 
     void startNote (const int midiNoteNumber, const float velocity,
@@ -133,7 +133,7 @@ private:
 
 
 //==============================================================================
-JuceDemoPluginAudioProcessor::JuceDemoPluginAudioProcessor()
+GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
     : delayBuffer (2, 12000)
 {
     // Set up some default values..
@@ -148,22 +148,22 @@ JuceDemoPluginAudioProcessor::JuceDemoPluginAudioProcessor()
 
     // Initialise the synth...
     for (int i = 4; --i >= 0;)
-        synth.addVoice (new SineWaveVoice());   // These voices will play our custom sine-wave sounds..
+        synth.addVoice (new GPVoice());   // These voices will play our custom sine-wave sounds..
 
-    synth.addSound (new SineWaveSound());
+    synth.addSound (new GPSound());
 }
 
-JuceDemoPluginAudioProcessor::~JuceDemoPluginAudioProcessor()
+GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
 }
 
 //==============================================================================
-int JuceDemoPluginAudioProcessor::getNumParameters()
+int GeneticProgrammingSynthesizerAudioProcessor::getNumParameters()
 {
     return totalNumParams;
 }
 
-float JuceDemoPluginAudioProcessor::getParameter (int index)
+float GeneticProgrammingSynthesizerAudioProcessor::getParameter (int index)
 {
     // This method will be called by the host, probably on the audio thread, so
     // it's absolutely time-critical. Don't use critical sections or anything
@@ -176,7 +176,7 @@ float JuceDemoPluginAudioProcessor::getParameter (int index)
     }
 }
 
-void JuceDemoPluginAudioProcessor::setParameter (int index, float newValue)
+void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float newValue)
 {
     // This method will be called by the host, probably on the audio thread, so
     // it's absolutely time-critical. Don't use critical sections or anything
@@ -189,7 +189,7 @@ void JuceDemoPluginAudioProcessor::setParameter (int index, float newValue)
     }
 }
 
-const String JuceDemoPluginAudioProcessor::getParameterName (int index)
+const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int index)
 {
     switch (index)
     {
@@ -201,13 +201,13 @@ const String JuceDemoPluginAudioProcessor::getParameterName (int index)
     return String::empty;
 }
 
-const String JuceDemoPluginAudioProcessor::getParameterText (int index)
+const String GeneticProgrammingSynthesizerAudioProcessor::getParameterText (int index)
 {
     return String (getParameter (index), 2);
 }
 
 //==============================================================================
-void JuceDemoPluginAudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBlock*/)
+void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBlock*/)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
@@ -216,21 +216,21 @@ void JuceDemoPluginAudioProcessor::prepareToPlay (double sampleRate, int /*sampl
     delayBuffer.clear();
 }
 
-void JuceDemoPluginAudioProcessor::releaseResources()
+void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
     keyboardState.reset();
 }
 
-void JuceDemoPluginAudioProcessor::reset()
+void GeneticProgrammingSynthesizerAudioProcessor::reset()
 {
     // Use this method as the place to clear any delay lines, buffers, etc, as it
     // means there's been a break in the audio's continuity.
     delayBuffer.clear();
 }
 
-void JuceDemoPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     const int numSamples = buffer.getNumSamples();
     int channel, dp = 0;
@@ -287,13 +287,13 @@ void JuceDemoPluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, Midi
 }
 
 //==============================================================================
-AudioProcessorEditor* JuceDemoPluginAudioProcessor::createEditor()
+AudioProcessorEditor* GeneticProgrammingSynthesizerAudioProcessor::createEditor()
 {
-    return new JuceDemoPluginAudioProcessorEditor (this);
+    return new GeneticProgrammingSynthesizerAudioProcessorEditor (this);
 }
 
 //==============================================================================
-void JuceDemoPluginAudioProcessor::getStateInformation (MemoryBlock& destData)
+void GeneticProgrammingSynthesizerAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // Here's an example of how you can use XML to make it easy and more robust:
@@ -311,7 +311,7 @@ void JuceDemoPluginAudioProcessor::getStateInformation (MemoryBlock& destData)
     copyXmlToBinary (xml, destData);
 }
 
-void JuceDemoPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void GeneticProgrammingSynthesizerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -334,27 +334,27 @@ void JuceDemoPluginAudioProcessor::setStateInformation (const void* data, int si
     }
 }
 
-const String JuceDemoPluginAudioProcessor::getInputChannelName (const int channelIndex) const
+const String GeneticProgrammingSynthesizerAudioProcessor::getInputChannelName (const int channelIndex) const
 {
     return String (channelIndex + 1);
 }
 
-const String JuceDemoPluginAudioProcessor::getOutputChannelName (const int channelIndex) const
+const String GeneticProgrammingSynthesizerAudioProcessor::getOutputChannelName (const int channelIndex) const
 {
     return String (channelIndex + 1);
 }
 
-bool JuceDemoPluginAudioProcessor::isInputChannelStereoPair (int /*index*/) const
+bool GeneticProgrammingSynthesizerAudioProcessor::isInputChannelStereoPair (int /*index*/) const
 {
     return true;
 }
 
-bool JuceDemoPluginAudioProcessor::isOutputChannelStereoPair (int /*index*/) const
+bool GeneticProgrammingSynthesizerAudioProcessor::isOutputChannelStereoPair (int /*index*/) const
 {
     return true;
 }
 
-bool JuceDemoPluginAudioProcessor::acceptsMidi() const
+bool GeneticProgrammingSynthesizerAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -363,7 +363,7 @@ bool JuceDemoPluginAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool JuceDemoPluginAudioProcessor::producesMidi() const
+bool GeneticProgrammingSynthesizerAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -372,12 +372,12 @@ bool JuceDemoPluginAudioProcessor::producesMidi() const
    #endif
 }
 
-bool JuceDemoPluginAudioProcessor::silenceInProducesSilenceOut() const
+bool GeneticProgrammingSynthesizerAudioProcessor::silenceInProducesSilenceOut() const
 {
     return false;
 }
 
-double JuceDemoPluginAudioProcessor::getTailLengthSeconds() const
+double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
@@ -386,5 +386,5 @@ double JuceDemoPluginAudioProcessor::getTailLengthSeconds() const
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new JuceDemoPluginAudioProcessor();
+    return new GeneticProgrammingSynthesizerAudioProcessor();
 }

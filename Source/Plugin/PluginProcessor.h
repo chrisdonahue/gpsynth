@@ -17,12 +17,12 @@
 //==============================================================================
 /**
 */
-class JuceDemoPluginAudioProcessor  : public AudioProcessor
+class GeneticProgrammingSynthesizerAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
-    JuceDemoPluginAudioProcessor();
-    ~JuceDemoPluginAudioProcessor();
+    GeneticProgrammingSynthesizerAudioProcessor();
+    ~GeneticProgrammingSynthesizerAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock);
@@ -101,7 +101,7 @@ private:
     // the synth!
     Synthesiser synth;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceDemoPluginAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneticProgrammingSynthesizerAudioProcessor)
 };
 
 #endif  // __PLUGINPROCESSOR_H_526ED7A9__
