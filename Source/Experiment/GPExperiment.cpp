@@ -449,7 +449,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                     minBin = binMagnitude;
             }
             double frameAverageMagnitude = sum / ((double) numBins);
-            //std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
+            std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
 
             // compare each bin EXCEPT DC OFFSET to the average magnitude
             for (unsigned j = 1; j < numBins; j++) {
@@ -459,7 +459,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 // if we are above the mean penalize undershooting more
                 if (binMagnitude > frameAverageMagnitude) {
                     double proportionOfMax = (binMagnitude - frameAverageMagnitude) / (maxBin - frameAverageMagnitude);
-                    //std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax;
+                    std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax << std::endl;
                     binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
                     binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
                 }
@@ -467,7 +467,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 // if we are below the mean penalize overshooting more
                 else {
                     double proportionOfMin = (frameAverageMagnitude - binMagnitude) / (frameAverageMagnitude - minBin);
-                    //std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin;
+                    std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin << std::endl;
                     binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
                     binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
                 }

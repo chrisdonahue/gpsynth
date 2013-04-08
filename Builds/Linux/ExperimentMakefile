@@ -42,7 +42,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
-  $(OBJDIR)/Main.o \
+  $(OBJDIR)/ExperimentMain.o \
   $(OBJDIR)/GPRandom.o \
   $(OBJDIR)/GPFunctions.o \
   $(OBJDIR)/GPExperiment.o \
@@ -96,7 +96,7 @@ strip:
 	@echo Stripping GeneticProgrammingSynthesizer
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
-$(OBJDIR)/Main.o: ../../Source/Experiment/Main.cpp
+$(OBJDIR)/ExperimentMain.o: ../../Source/Experiment/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"

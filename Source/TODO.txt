@@ -42,23 +42,32 @@ Ideas:
     framework to change constants over time that depend on pop convergence
 
 Thoughts:
-    reverse way min, max calculation happens by passing desired range down? think about this hard. might be more efficient also maybe its possible to work in ADSR this way
-    test new fitness function/improve fitness function: factor noise (weight less)/do something with DC offset
 
 TODO long run:
     calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
     print ranges/save networks in text file/just save ID's in waves
     update README
-    check if numericalMutation is working right or not
-    implement a structure for fading more params by the convergence of the population. Perhaps switch fitness function to use the wave form magnitudes more once the spectrum has been developed. I seem to not be finding anything that alters spectrum over time
-    test setParams and fadeParamChanges stuff.. figure out how to use order in filter instantiation... figure out how to actually fade parameter changes... where did this huge performance hit come from? it came from the set params stuff :/. also 0, n-1 usage for FPC and whatnot
-    maybe change fitness function to measure partials relative to maximum instead of absolute magnitude
-    change GPRandom to compile on condor
-    figure out how to start without being in initialise method
-    test removed DC offset from fitness function
-    figure out why thrashing/crashing probably save string
+    implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
+    figure out how to start without being in initialise method (new thread)
+    confirm removed DC offset from fitness function
+    fleschter munsion? :/
 
-TODO FOR NEXT EXPERIMENT:
+TODO FOR NEXT EXPERIMENT (by Wednesday):
+    test one at a time save data on condor
+    increase num partials to (unsigned) (nyquist/fundamental)?
+    check if numericalMutation is working right or not
+        maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
     check how many partials lie above average for trumpet sound
+    comparison to average for fitness function should be in log dB scale, not amplitude scale, graph this and compare to audacity for trumpet 1024 use ATARITEXPLORE graph script
+        maybe change fitness function to measure partials relative to maximum instead of absolute magnitude
     try another sample
-    get filters/noise back in the mixture maybe
+    get filters/noise back in the mixture
+    try to reward with a percentage improvement in fitness if envelope is matched by GP
+        maybe thats actually stupid and you should just put amplitude comparison INTO the reward function
+    perhaps fitness function needs to consider different domains independently by a sum:
+        envelope comparison
+        spectral content
+        noise shaping
+        phase
+    CONDOR JUST DO IT! check memory usage
+    change GPRandom to compile on condor
