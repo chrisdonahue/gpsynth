@@ -110,6 +110,9 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
+    if (params->experimentNumber == 10) {
+      exit(-1);
+    }
     // filtered noise test
     if (params->experimentNumber == 5) {
         // ASSIGN SPECIAL FITNESS VALUES
@@ -655,7 +658,7 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
         kiss_fftr(cfg, in, out + numFftOutputUsed);
 
         // analyze output
-        //printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
+        printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
         for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
             magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
             if (out[bin].r == 0 && out[bin].i == 0) {
@@ -664,7 +667,7 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
             else {
                 phase[bin] = atan(out[bin].i / out[bin].r);
             }
-            //printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
+            printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
             //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
         }
         numFftOutputUsed += fftOutputSize;
