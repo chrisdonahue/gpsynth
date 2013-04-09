@@ -40,6 +40,7 @@ public:
         String target("");
         unsigned seed = time(NULL);
         std::vector<double> constants(0);
+        bool printExperimentInfo = false;
 
         params = (GPParams*) malloc(sizeof(GPParams));
 
@@ -136,6 +137,9 @@ public:
             else if (i->equalsIgnoreCase("--verbose")) {
                 params->verbose = true;
             }
+            else if (i->equalsIgnoreCase("--expinfo")) {
+                printExperimentInfo = true;
+            }
             else if (i->equalsIgnoreCase("--precision")) {
                 params->printPrecision = (++i)->getIntValue();
             }
@@ -228,11 +232,13 @@ public:
             quit();
         }
 
-        printImportantExperimentInfo();
+        if (printExperimentInfo)
+            printImportantExperimentInfo();
 
         requestedQuit = false;
         experiment = new GPExperiment(new GPRandom(seed), target, params, constants.data(), &requestedQuit);
 
+        // TODO start a new thread to do this
         GPNetwork* champion = experiment->evolve();
         delete champion;
         quit();
