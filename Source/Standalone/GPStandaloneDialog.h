@@ -5,43 +5,22 @@
 #include "../Plugin/GPPluginProcessor.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-//==============================================================================
-// This is the main host window. It gets instatiated in StandaloneFilterApp.cpp
-//==============================================================================
-class StandaloneFilterWindow    : public DocumentWindow,
-    public Button::Listener,
-    public ChangeListener,
-    public Timer,
-    public ActionListener
+class StandaloneFilterWindow    : public DocumentWindow
 {
 public:
-    //==============================================================================
+    // CONSTRUCTION
     StandaloneFilterWindow (const String& title,
                             const Colour& backgroundColour, GPParams* p);
-
+    // DESTRUCTION
     ~StandaloneFilterWindow();
 
-    //=================================================================
-    //=================================================================
-    void resetFilter();
-    void saveState();
-    void loadState();
+    // AUDIO SETTINGS DIALOGUE
     virtual void showAudioSettingsDialog();
 
-    //==============================================================================
+    //
     void closeButtonPressed();
-    void buttonClicked (Button*);
-    void showInfoWindow(String text);
     void resized();
-    void actionListenerCallback (const String& message);
-    	void changeListenerCallback(ChangeBroadcaster *source);
-    int exportPlugin(String type, bool saveAs);
-    void openFile();
-    void saveFile();
-    void saveFileAs();
 	PropertySet* getGlobalSettings();
-
-
 
     bool isGuiEnabled() {
         return isGUIOn;
@@ -51,25 +30,15 @@ public:
         isGUIOn = onoff;
     }
 
-    void setCurrentLine(int line) {
-        currentLine=line;
-    }
-
-    int getCurrentLine() {
-        return currentLine;
-    }
-
 private:
-    void timerCallback();
+    void deleteFilter();
+
     ScopedPointer<GeneticProgrammingSynthesizerAudioProcessor> filter;
     ScopedPointer<AudioDeviceManager> deviceManager;
+    ScopedPointer<AudioProcessorEditor> editor;
     AudioProcessorPlayer player;
-    TextButton optionsButton;
-    void deleteFilter();
+
     bool isGUIOn;
-    int currentLine;
-    bool pipeOpenedOk;
-    String consoleMessages;
     
     // GP stuff
     GPParams* p;

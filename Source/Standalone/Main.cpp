@@ -218,11 +218,11 @@ public:
 
 	// TODO: check all value ranges here
 
-	pluginWindow = new StandaloneFilterWindow (String("Interactive GP Synthesis"), Colours::black, params);
-	//filterWindow->setTitleBarButtonsRequired (DocumentWindow::allButtons, false);
-	pluginWindow->setVisible (true);
-	//filterWindow->setResizable (true, true);
-	juce::Thread::setCurrentThreadName("interactivegp");
+        pluginWindow = new StandaloneFilterWindow (String("Interactive GP Synthesis"), Colours::black, params);
+        //filterWindow->setTitleBarButtonsRequired (DocumentWindow::allButtons, false);
+        pluginWindow->setVisible (true);
+        //filterWindow->setResizable (true, true);
+        juce::Thread::setCurrentThreadName("interactivegp");
     }
 
     void shutdown()
