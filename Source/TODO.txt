@@ -53,8 +53,6 @@ TODO long run:
     fleschter munsion? :/
 
 NEXT EXPERIMENTS (by Wednesday):
-    1. Test how Condor saves waves files/get that all sorted out. Looks like results folder will have to be a command line arg or something like that. Test GPRandom locally to see if it still works
-    2. Run current experiment with hacked enveloping on a Bassoon sound
     2.5. Check if numerical mutation is working...
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
     3. Run tests controlling the following variables:
