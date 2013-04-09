@@ -33,14 +33,13 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
 
     player.setProcessor (filter);
 
-    showAudioSettingsDialog();
+    //showAudioSettingsDialog();
     std::cout << deviceManager->getCurrentAudioDeviceType() << std::endl;
 
     deviceManager->initialise (filter->getNumInputChannels(),
                                filter->getNumOutputChannels(),
                                0,
                                true);
-    deviceManager->closeAudioDevice();
 
     setContentOwned(editor, true);
 }
@@ -49,6 +48,7 @@ StandaloneFilterWindow::~StandaloneFilterWindow()
 {
     deviceManager->removeMidiInputCallback (String::empty, &player);
     deviceManager->removeAudioCallback (&player);
+    deviceManager->closeAudioDevice();
     deviceManager = nullptr;
 
     deleteFilter();
@@ -80,7 +80,6 @@ void StandaloneFilterWindow::showAudioSettingsDialog()
 
     selectorComp.setSize (400, 250);
     setAlwaysOnTop(false);
-    //selectorComp.setLookAndFeel(lookAndFeel);
     Colour col(44, 44, 44);
     DialogWindow::showModalDialog(TRANS("Audio Settings"), &selectorComp, this, col, true, false, false);
     setAlwaysOnTop(true);
