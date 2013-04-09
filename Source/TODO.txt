@@ -52,21 +52,20 @@ TODO long run:
     confirm removed DC offset from fitness function
     fleschter munsion? :/
 
-TODO FOR NEXT EXPERIMENT (by Wednesday):
-    comparison to average for fitness function should be in log dB scale and need to remap height/average stuff to actually work
-    check how many partials lie above average for trumpet sound
-        maybe change fitness function to measure partials relative to maximum instead of absolute magnitude
-
-    test one at a time save data on condor
-    increase num partials to (unsigned) (nyquist/fundamental)?
-    check if numericalMutation is working right or not
+NEXT EXPERIMENTS (by Wednesday):
+    1. Test how Condor saves waves files/get that all sorted out
+    2. Run current experiment with hacked enveloping on a Bassoon sound
+    2.5. Check if numerical mutation is working...
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
-    try another sample
-    get filters/noise back in the mixture
-    perhaps fitness function needs to consider different domains independently by a sum:
-        envelope comparison
-        spectral content
-        noise shaping
-        phase
-    CONDOR JUST DO IT! check memory usage
-    change GPRandom to compile on condor
+    3. Run tests controlling the following variables:
+        4. increase num partials to (unsigned) (nyquist/fundamental)?
+        5. Fitness function
+            comparison to average for fitness function should be in log dB scale and need to remap height/average stuff to actually work
+            check how many partials lie above average for trumpet sound
+                maybe change fitness function to measure partials relative to maximum instead of absolute magnitude
+            perhaps fitness function needs to consider different domains independently by a sum:
+                envelope comparison
+                spectral content
+                noise shaping
+                phase
+        6. Get filters/noise working again. Switch filter libs probably
