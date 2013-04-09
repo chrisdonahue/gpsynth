@@ -11,8 +11,8 @@
 
 */
 
-#ifndef __JUCE_APPCONFIG_JRY6H7__
-#define __JUCE_APPCONFIG_JRY6H7__
+#ifndef __JUCE_APPCONFIG_0NRD9LLGO__
+#define __JUCE_APPCONFIG_0NRD9LLGO__
 
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
@@ -97,11 +97,11 @@
 // juce_audio_processors flags:
 
 #ifndef    JUCE_PLUGINHOST_VST
- //#define JUCE_PLUGINHOST_VST
+ #define   JUCE_PLUGINHOST_VST 0
 #endif
 
 #ifndef    JUCE_PLUGINHOST_AU
- //#define JUCE_PLUGINHOST_AU
+ #define   JUCE_PLUGINHOST_AU 0
 #endif
 
 //==============================================================================
@@ -174,28 +174,28 @@
  #define JucePlugin_Build_RTAS             0
 #endif
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "GeneticProgrammingSynthesizer"
+ #define JucePlugin_Name                   "Genetic Programming Synthesizer"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "GeneticProgrammingSynthesizer"
+ #define JucePlugin_Desc                   "Genetic Programming Synthesizer"
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "Radio Hunches Software"
 #endif
 #ifndef  JucePlugin_ManufacturerCode
- #define JucePlugin_ManufacturerCode       'Manu'
+ #define JucePlugin_ManufacturerCode       ''
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             'Plug'
+ #define JucePlugin_PluginCode             'PLUG'
 #endif
 #ifndef  JucePlugin_MaxNumInputChannels
- #define JucePlugin_MaxNumInputChannels    0
+ #define JucePlugin_MaxNumInputChannels    2
 #endif
 #ifndef  JucePlugin_MaxNumOutputChannels
  #define JucePlugin_MaxNumOutputChannels   2
 #endif
 #ifndef  JucePlugin_PreferredChannelConfigurations
- #define JucePlugin_PreferredChannelConfigurations  {0, 2}
+ #define JucePlugin_PreferredChannelConfigurations  {1, 1}, {2, 2}
 #endif
 #ifndef  JucePlugin_IsSynth
  #define JucePlugin_IsSynth                1
@@ -213,7 +213,7 @@
  #define JucePlugin_TailLengthSeconds      0
 #endif
 #ifndef  JucePlugin_EditorRequiresKeyboardFocus
- #define JucePlugin_EditorRequiresKeyboardFocus  0
+ #define JucePlugin_EditorRequiresKeyboardFocus  1
 #endif
 #ifndef  JucePlugin_VersionCode
  #define JucePlugin_VersionCode            0x10000
@@ -234,19 +234,19 @@
  #define JucePlugin_AUSubType              JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AUExportPrefix
- #define JucePlugin_AUExportPrefix         GeneticProgrammingSynthesizerAU
+ #define JucePlugin_AUExportPrefix         
 #endif
 #ifndef  JucePlugin_AUExportPrefixQuoted
- #define JucePlugin_AUExportPrefixQuoted   "GeneticProgrammingSynthesizerAU"
+ #define JucePlugin_AUExportPrefixQuoted   ""
 #endif
 #ifndef  JucePlugin_AUManufacturerCode
  #define JucePlugin_AUManufacturerCode     JucePlugin_ManufacturerCode
 #endif
 #ifndef  JucePlugin_CFBundleIdentifier
- #define JucePlugin_CFBundleIdentifier     com.yourcompany.GeneticProgrammingSynthesizer
+ #define JucePlugin_CFBundleIdentifier     com.radiohunchessoftware.gpsynth
 #endif
 #ifndef  JucePlugin_AUCocoaViewClassName
- #define JucePlugin_AUCocoaViewClassName   GeneticProgrammingSynthesizerAU_V1
+ #define JucePlugin_AUCocoaViewClassName   
 #endif
 #ifndef  JucePlugin_RTASCategory
  #define JucePlugin_RTASCategory           ePlugInCategory_SWGenerators
@@ -258,4 +258,4 @@
  #define JucePlugin_RTASProductId          JucePlugin_PluginCode
 #endif
 
-#endif  // __JUCE_APPCONFIG_JRY6H7__
+#endif  // __JUCE_APPCONFIG_0NRD9LLGO__
