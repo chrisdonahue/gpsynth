@@ -12,8 +12,8 @@
 #define GPRANDOM_H
 
 #include <cmath>
+#include <random>
 #include <iostream>
-#include "boost/random.hpp"
 
 class GPRandom {
 public:
@@ -28,8 +28,9 @@ public:
 
 private:
     unsigned seed;
-    boost::mt19937 engine;
-    boost::uniform_real<double> uni_real;
+    std::mt19937 engine;
+    std::uniform_real_distribution<double> uni_real;
+    std::uniform_real_distribution<double> noise;
 
     // GNU GAUSS MEMBER VARIABLES
     double fac;
