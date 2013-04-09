@@ -4,9 +4,10 @@ import glob
 import os
 import re
 import math
+import sys
 
 # find files
-files = glob.glob("*.fft")
+files = [sys.argv[1]]
 
 # float raw string
 fp = r"([+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
@@ -30,7 +31,7 @@ for path in files:
       imag = match.group(3)
       freqs.append(float(freq))
       mag = match.group(4)
-      dBmag = 10 * math.log(float(real)**2 + float(imag)**2) - 54
+      dBmag = 10 * math.log(float(real)**2 + float(imag)**2, 10) - 54
       print dBmag
       mags.append(float(dBmag))
       phase = match.group(5)
@@ -47,7 +48,7 @@ plt.plot(binfreqs, magdata)
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Magnitude')
 plt.xlim(0, 44100/2)
-plt.ylim(0, max(mags))
+plt.ylim(min(mags), 0)
 plt.show()
 #plt.savefig(scoregraph)
 #plt.clf()

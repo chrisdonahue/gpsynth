@@ -20,6 +20,7 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
     params(p),
     specialValues(constants),
     requestedQuit(rq),
+    dBRef(54),
     wavFormat(new WavAudioFormat())
 {
     // TARGET DATA CONTAINERS
@@ -111,7 +112,27 @@ GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* co
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
     if (params->experimentNumber == 10) {
-      exit(-1);
+        unsigned fftOutSize = 513;
+        unsigned fftSize = 1024;
+        float* freqAxis = (float*) malloc(sizeof(float) * fftOutSize);
+        fillFrequencyAxisBuffer(fftSize, targetSampleRate, freqAxis);
+
+        float* magAxis = (float*) malloc(sizeof(float) * fftOutSize);
+        for (unsigned i = 0; i < fftOutSize; i++) {
+            magAxis[i] = (float) targetSpectrumMagnitudes[i];
+        }
+
+        saveTextFile(String("./fftEnv0.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
+        findEnvelope(true, fftOutSize, magAxis, magAxis);
+        saveTextFile(String("./fftEnv1.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
+        findEnvelope(true, fftOutSize, magAxis, magAxis);
+        saveTextFile(String("./fftEnv2.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
+        findEnvelope(true, fftOutSize, magAxis, magAxis);
+        saveTextFile(String("./fftEnv3.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
+
+        free(magAxis);
+        free(freqAxis);
+        exit(-1);
     }
     // filtered noise test
     if (params->experimentNumber == 5) {
@@ -311,7 +332,328 @@ GPNetwork* GPExperiment::evolve() {
     =======================
 */
 
-void GPExperiment::envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, float* env) {
+// PRECONDITIONS:
+// NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
+void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
+    // FILL BUFFERS WITH SPECIAL VALUES
+    numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
+    specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
+    sampleTimes = (double*) malloc(sizeof(double) * numTargetFrames);
+    for (int frame = 0; frame < numTargetFrames; frame++) {
+        sampleTimes[frame] = frame/targetSampleRate;
+        for (int val = 0; val < numConstantSpecialValues; val++) {
+            *(specialValuesByFrame + (frame * numSpecialValues) + val) = constantSpecialValues[val];
+        }
+        for (int val = 0; val < numVariableSpecialValues; val++) {
+            *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
+        }
+    }
+
+    // FILL ENVELOPE OF TARGET BUFFER
+    targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
+    for (unsigned i = 0; i < params->envelopeIterations; i++) {
+        if (i == 0) {
+            findEnvelope(true, numTargetFrames, targetFrames, targetEnvelope);
+        }
+        else {
+            findEnvelope(true, numTargetFrames, targetEnvelope, targetEnvelope);
+        }
+    }
+    if (params->envelopeIterations > 0) {
+        saveTextFile(String("./envelope.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
+        //saveWavFile(String("./envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
+    }
+
+    // FILL FREQUENCY SPECTRUM OF TARGET
+    if (params->fitnessFunctionType > 0) {
+        // calculate with fft window size
+        unsigned n = params->fftSize;
+        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
+
+        // allocate output buffers
+        targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        weightMatrix = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+
+        // take fft of target data
+        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, false, targetSpectrumMagnitudes, targetSpectrumPhases);
+
+        // calculate stats on each frame
+        double base = params->baseComparisonFactor;
+        double good = params->goodComparisonFactor;
+        double bad = params->badComparisonFactor;
+        //std::cout << good << ", " << bad << std::endl;
+        unsigned numBins = (n/2) + 1;
+        unsigned numFftFrames = fftOutputBufferSize / numBins;
+        for (unsigned i = 0; i < numFftFrames; i++) {
+            // calculate frame average magnitude
+            double sum = 0;
+            double maxBin = std::numeric_limits<double>::min();
+            double minBin = std::numeric_limits<double>::max();
+            // EXCLUDE DC OFFSET
+            for (unsigned j = 1; j < numBins; j++) {
+                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
+                sum += binMagnitude;
+                if (binMagnitude > maxBin)
+                    maxBin = binMagnitude;
+                if (binMagnitude < minBin)
+                    minBin = binMagnitude;
+            }
+            double frameAverageMagnitude = sum / ((double) numBins);
+            //std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
+
+            // compare each bin EXCEPT DC OFFSET to the average magnitude
+            for (unsigned j = 1; j < numBins; j++) {
+                unsigned binIndex = (i * numBins) + j;
+                double binMagnitude = targetSpectrumMagnitudes[binIndex];
+
+                // if we are above the mean penalize undershooting more
+                if (binMagnitude > frameAverageMagnitude) {
+                    double proportionOfMax = (binMagnitude - frameAverageMagnitude) / (maxBin - frameAverageMagnitude);
+                    //std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax << std::endl;
+                    binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
+                    binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
+                }
+
+                // if we are below the mean penalize overshooting more
+                else {
+                    double proportionOfMin = (frameAverageMagnitude - binMagnitude) / (frameAverageMagnitude - minBin);
+                    //std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin << std::endl;
+                    binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
+                    binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
+                }
+                /*
+                if (i == 3) {
+                    std::cout << "BIN " << j << " MAG: " << binMagnitude;
+                    std::cout << ", OVERSHOOT: " << binOvershootingPenalty[binIndex] << ", UNDERSHOOT: " << binUndershootingPenalty[binIndex] << std::endl;
+                }
+                */
+            }
+        }
+    }
+}
+
+/*
+    ==============
+    FILE INTERFACE
+    ==============
+*/
+
+void GPExperiment::getWavFileInfo(String path, unsigned* numFrames, double* sampleRate) {
+    File input(path);
+    assert(input.existsAsFile());
+    FileInputStream* fis = input.createInputStream();
+    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
+
+    // get info on target
+    *numFrames = afr->lengthInSamples;
+    *sampleRate = afr->sampleRate;
+}
+
+void GPExperiment::loadWavFile(String path, unsigned n, float* buffer) {
+    File input(path);
+    assert(input.existsAsFile());
+    FileInputStream* fis = input.createInputStream();
+    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
+
+    // get waveform of target
+    AudioSampleBuffer asb(1, n);
+    afr->read(&asb, 0, n, 0, false, true);
+    float* chanData = asb.getSampleData(0);
+    memcpy(buffer, chanData, sizeof(float) * n);
+}
+
+void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, double sampleRate, float* data) {
+    File output(path);
+    if (output.existsAsFile()) {
+        output.deleteFile();
+    }
+    output.create();
+    FileOutputStream* fos = output.createOutputStream();
+
+    StringPairArray metaData(true);
+    metaData = WavAudioFormat::createBWAVMetadata(desc, ProjectInfo::versionString, "", Time::getCurrentTime(), int64(sampleRate), "JUCE");
+
+    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
+
+    int64 numRemaining = numFrames;
+    int64 numCompleted = 0;
+    AudioSampleBuffer asb(1, wavFileBufferSize);
+    float* chanData = asb.getSampleData(0);
+    while (numRemaining > 0) {
+        int numToWrite = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
+        for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
+            chanData[samp] = data[numCompleted];
+        }
+        afw->writeFromAudioSampleBuffer(asb, 0, numToWrite);
+        numRemaining -= numToWrite;
+    }
+    assert (numCompleted == numFrames && numRemaining == 0);
+}
+
+void GPExperiment::saveTextFile(String path, String text) {
+    File output(path);
+    if (output.existsAsFile()) {
+        output.deleteFile();
+    }
+    output.create();
+    output.replaceWithText(text);
+}
+
+/*
+    ================
+    FITNESS FUNCTION
+    ================
+*/
+
+void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer) {
+    int64 numRemaining = numSamples;
+    int64 numCompleted = 0;
+    int64 bufferIndex = 0;
+    unsigned numToRender;
+    while (numRemaining > 0) {
+        numToRender = n < numRemaining ? n : numRemaining;
+        candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
+        numRemaining -= numToRender;
+        numCompleted += numToRender;
+    }
+}
+
+double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
+    double ret = -1;
+    double silenceTest = 0;
+    if (type == 0) {
+        double sum = 0;
+        for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
+            sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
+            silenceTest += candidateFrames[frameNum];
+            /*
+            if (frameNum % 128 == 0) {
+                std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
+                std::cout << " sum: " << sum << " frameNum: " << frameNum << std::endl;
+            }
+            */
+        }
+        ret = sqrt(sum);
+    }
+    else if (type == 1) {
+        unsigned n = params->fftSize;
+
+        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
+        kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+
+        FftReal(numTargetFrames, candidateFrames, n, output, false, magnitude, phase);
+
+        double MSEmag = 0;
+        double MSEph = 0;
+        unsigned numBins = (n/2) + 1;
+        unsigned numFftFrames = fftOutputBufferSize / numBins;
+        for (unsigned i = 0; i < numFftFrames; i++) {
+            for (unsigned j = 1; j < numBins; j++) {
+                unsigned binIndex = (i * numBins) + j;
+                if (magnitude[binIndex] < targetSpectrumMagnitudes[binIndex]) {
+                    MSEmag += pow(targetSpectrumMagnitudes[binIndex] - magnitude[binIndex], binUndershootingPenalty[binIndex]);
+                }
+                else {
+                    MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
+                }
+                MSEph += pow(abs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
+            }
+        }
+        //MSEmag = MSEmag / n;
+        //MSEph = MSEph / n;
+        ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
+        free(phase);
+        free(magnitude);
+        free(output);
+    }
+    /*
+    //std::cout << "SILENCE TEST: " << silenceTest << std::endl;
+    if (silenceTest == 0)
+        return penaltyFitness;
+    else
+        */
+    return ret;
+}
+
+/*
+    ===========
+    FFT METHODS
+    ===========
+*/
+
+unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n) {
+    unsigned numFftCalls = numFrames / n;
+    if (numFrames % n > 0)
+        numFftCalls++;
+    return numFftCalls * ((n/2) + 1);
+}
+
+void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase) {
+    kiss_fftr_cfg cfg;
+    cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
+    kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+
+    unsigned fftOutputSize = (n/2 + 1);
+    int64 numCompleted = 0;
+    int64 numRemaining = numFrames;
+    int64 numFftOutputUsed = 0;
+    while (numRemaining > 0) {
+        // fill the input buffer
+        unsigned numToTransform = numRemaining > n ? n : numRemaining;
+        for (size_t i = 0; i < numToTransform; i++) {
+            in[i] = input[numCompleted];
+            numCompleted++;
+            numRemaining--;
+        }
+        // 0 out rest of input buffer if we're out of frames
+        for (size_t i = numToTransform; i < n; i++) {
+            in[i] = 0;
+        }
+
+        // perform fft
+        kiss_fftr(cfg, in, out + numFftOutputUsed);
+
+        // analyze output
+        //printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
+        for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
+            if (dB)
+                magnitude[bin] = 10 * log10(out[bin].r * out[bin].r + out[bin].i * out[bin].i) - dBRef;
+            else
+                magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
+            if (out[bin].r == 0 && out[bin].i == 0) {
+                phase[bin] = 0;
+            }
+            else {
+                phase[bin] = atan(out[bin].i / out[bin].r);
+            }
+        //    printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
+            //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
+        }
+        numFftOutputUsed += fftOutputSize;
+    }
+    free(in);
+    free(cfg);
+}
+
+/*
+    ==========
+    ENVELOPING
+    ==========
+*/
+
+void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope) {
+  for (unsigned i = 0; i < n; i++) {
+    buffer[i] *= envelope[i];
+  }
+}
+
+void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env) {
     // MAKE AMPLITUDE ENVELOPE OF TARGET
     // x/y pairs for absolute waveform bound
     std::vector<unsigned> x;
@@ -380,322 +722,34 @@ void GPExperiment::envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, f
     env[n - 1] = wav[n - 1];
 }
 
-// PRECONDITIONS:
-// NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
-void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
-    // FILL BUFFERS WITH SPECIAL VALUES
-    numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
-    specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
-    sampleTimes = (double*) malloc(sizeof(double) * numTargetFrames);
-    for (int frame = 0; frame < numTargetFrames; frame++) {
-        sampleTimes[frame] = frame/targetSampleRate;
-        for (int val = 0; val < numConstantSpecialValues; val++) {
-            *(specialValuesByFrame + (frame * numSpecialValues) + val) = constantSpecialValues[val];
-        }
-        for (int val = 0; val < numVariableSpecialValues; val++) {
-            *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
-        }
-    }
-
-    // FILL ENVELOPE OF TARGET BUFFER
-    targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
-    for (unsigned i = 0; i < params->envelopeIterations; i++) {
-        if (i == 0) {
-            envelopeWaveform(true, numTargetFrames, targetFrames, targetEnvelope);
-        }
-        else {
-            envelopeWaveform(true, numTargetFrames, targetEnvelope, targetEnvelope);
-        }
-    }
-    if (params->envelopeIterations > 0)
-        saveWavFile(String("./envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
-
-    // FILL FREQUENCY SPECTRUM OF TARGET
-    if (params->fitnessFunctionType > 0) {
-        // calculate with fft window size
-        unsigned n = params->fftSize;
-        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
-
-        // allocate output buffers
-        targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        weightMatrix = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-
-        // take fft of target data
-        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, targetSpectrumMagnitudes, targetSpectrumPhases);
-
-        // calculate stats on each frame
-        double base = params->baseComparisonFactor;
-        double good = params->goodComparisonFactor;
-        double bad = params->badComparisonFactor;
-        //std::cout << good << ", " << bad << std::endl;
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
-        for (unsigned i = 0; i < numFftFrames; i++) {
-            // calculate frame average magnitude
-            double sum = 0;
-            double maxBin = std::numeric_limits<double>::min();
-            double minBin = std::numeric_limits<double>::max();
-            // EXCLUDE DC OFFSET
-            for (unsigned j = 1; j < numBins; j++) {
-                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
-                sum += binMagnitude;
-                if (binMagnitude > maxBin)
-                    maxBin = binMagnitude;
-                if (binMagnitude < minBin)
-                    minBin = binMagnitude;
-            }
-            double frameAverageMagnitude = sum / ((double) numBins);
-            std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
-
-            // compare each bin EXCEPT DC OFFSET to the average magnitude
-            for (unsigned j = 1; j < numBins; j++) {
-                unsigned binIndex = (i * numBins) + j;
-                double binMagnitude = targetSpectrumMagnitudes[binIndex];
-
-                // if we are above the mean penalize undershooting more
-                if (binMagnitude > frameAverageMagnitude) {
-                    double proportionOfMax = (binMagnitude - frameAverageMagnitude) / (maxBin - frameAverageMagnitude);
-                    std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax << std::endl;
-                    binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
-                    binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
-                }
-
-                // if we are below the mean penalize overshooting more
-                else {
-                    double proportionOfMin = (frameAverageMagnitude - binMagnitude) / (frameAverageMagnitude - minBin);
-                    std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin << std::endl;
-                    binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
-                    binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
-                }
-                /*
-                if (i == 3) {
-                    std::cout << "BIN " << j << " MAG: " << binMagnitude;
-                    std::cout << ", OVERSHOOT: " << binOvershootingPenalty[binIndex] << ", UNDERSHOOT: " << binUndershootingPenalty[binIndex] << std::endl;
-                }
-                */
-            }
-        }
-    }
-}
-
 /*
     =============
-    WAV INTERFACE
+    GRAPH HELPERS
     =============
 */
 
-void GPExperiment::getWavFileInfo(String path, unsigned* numFrames, double* sampleRate) {
-    File input(path);
-    assert(input.existsAsFile());
-    FileInputStream* fis = input.createInputStream();
-    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
-
-    // get info on target
-    *numFrames = afr->lengthInSamples;
-    *sampleRate = afr->sampleRate;
-}
-
-void GPExperiment::loadWavFile(String path, unsigned n, float* buffer) {
-    File input(path);
-    assert(input.existsAsFile());
-    FileInputStream* fis = input.createInputStream();
-    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
-
-    // get waveform of target
-    AudioSampleBuffer asb(1, n);
-    afr->read(&asb, 0, n, 0, false, true);
-    float* chanData = asb.getSampleData(0);
-    memcpy(buffer, chanData, sizeof(float) * n);
-}
-
-void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, double sampleRate, float* data) {
-    File output(path);
-    if (output.existsAsFile()) {
-        output.deleteFile();
-    }
-    output.create();
-    FileOutputStream* fos = output.createOutputStream();
-
-    StringPairArray metaData(true);
-    // TODO: gpsynth 0.1 replace with some controlled version string
-    metaData = WavAudioFormat::createBWAVMetadata(desc, "gpsynth 0.1", "", Time::getCurrentTime(), int64(sampleRate), "JUCE");
-
-    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
-
-    int64 numRemaining = numFrames;
-    int64 numCompleted = 0;
-    AudioSampleBuffer asb(1, wavFileBufferSize);
-    float* chanData = asb.getSampleData(0);
-    while (numRemaining > 0) {
-        int numToWrite = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
-        for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
-            chanData[samp] = data[numCompleted];
-        }
-        afw->writeFromAudioSampleBuffer(asb, 0, numToWrite);
-        numRemaining -= numToWrite;
-    }
-    assert (numCompleted == numFrames && numRemaining == 0);
-}
-
-/*
-    ================
-    FITNESS FUNCTION
-    ================
-*/
-
-void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope) {
-  for (unsigned i = 0; i < n; i++) {
-    buffer[i] *= envelope[i];
-  }
-}
-
-void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer) {
-    int64 numRemaining = numSamples;
-    int64 numCompleted = 0;
-    int64 bufferIndex = 0;
-    unsigned numToRender;
-    while (numRemaining > 0) {
-        numToRender = n < numRemaining ? n : numRemaining;
-        candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
-        numRemaining -= numToRender;
-        numCompleted += numToRender;
+void GPExperiment::fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer) {
+    for (unsigned i = 0; i < (fftSize/2) + 1; i++) {
+        buffer[i] = (sr / fftSize) * i;
     }
 }
 
-double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
-    double ret = -1;
-    double silenceTest = 0;
-    if (type == 0) {
-        double sum = 0;
-        for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
-            sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
-            silenceTest += candidateFrames[frameNum];
-            /*
-            if (frameNum % 128 == 0) {
-                std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
-                std::cout << " sum: " << sum << " frameNum: " << frameNum << std::endl;
-            }
-            */
-        }
-        ret = sqrt(sum);
+String GPExperiment::floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, float* x, float* y) {
+    String ret;
+    ret += options;
+    ret += "\n";
+    ret += xlab;
+    ret += "\t";
+    ret += ylab;
+    ret += "\n";
+    for (unsigned i = 0; i < n; i++) {
+        if (indexAsX)
+            ret += String(i);
+        else
+            ret += String(x[i]);
+        ret += "\t";
+        ret += String(y[i]);
+        ret += "\n";
     }
-    else if (type == 1) {
-        unsigned n = params->fftSize;
-
-        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
-        kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-
-        FftReal(numTargetFrames, candidateFrames, n, output, magnitude, phase);
-
-        double MSEmag = 0;
-        double MSEph = 0;
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
-        for (unsigned i = 0; i < numFftFrames; i++) {
-            for (unsigned j = 1; j < numBins; j++) {
-                unsigned binIndex = (i * numBins) + j;
-                if (magnitude[binIndex] < targetSpectrumMagnitudes[binIndex]) {
-                    MSEmag += pow(targetSpectrumMagnitudes[binIndex] - magnitude[binIndex], binUndershootingPenalty[binIndex]);
-                }
-                else {
-                    MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
-                }
-                MSEph += pow(abs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
-            }
-        }
-        //MSEmag = MSEmag / n;
-        //MSEph = MSEph / n;
-        ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
-        free(phase);
-        free(magnitude);
-        free(output);
-    }
-    /*
-    //std::cout << "SILENCE TEST: " << silenceTest << std::endl;
-    if (silenceTest == 0)
-        return penaltyFitness;
-    else
-        */
     return ret;
-}
-
-unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n) {
-    unsigned numFftCalls = numFrames / n;
-    if (numFrames % n > 0)
-        numFftCalls++;
-    return numFftCalls * ((n/2) + 1);
-}
-
-void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, double* magnitude, double* phase) {
-    kiss_fftr_cfg cfg;
-    cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-    kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-
-    unsigned fftOutputSize = (n/2 + 1);
-    int64 numCompleted = 0;
-    int64 numRemaining = numFrames;
-    int64 numFftOutputUsed = 0;
-    while (numRemaining > 0) {
-        // fill the input buffer
-        unsigned numToTransform = numRemaining > n ? n : numRemaining;
-        for (size_t i = 0; i < numToTransform; i++) {
-            in[i] = input[numCompleted];
-            numCompleted++;
-            numRemaining--;
-        }
-        // 0 out rest of input buffer if we're out of frames
-        for (size_t i = numToTransform; i < n; i++) {
-            in[i] = 0;
-        }
-
-        // perform fft
-        kiss_fftr(cfg, in, out + numFftOutputUsed);
-
-        // analyze output
-        printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
-        for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
-            magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
-            if (out[bin].r == 0 && out[bin].i == 0) {
-                phase[bin] = 0;
-            }
-            else {
-                phase[bin] = atan(out[bin].i / out[bin].r);
-            }
-            printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
-            //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
-        }
-        numFftOutputUsed += fftOutputSize;
-    }
-    free(in);
-    free(cfg);
-}
-
-void GPExperiment::FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase)
-{
-    kiss_fftr_cfg cfg;
-
-    // take FFT of input data and put it in output
-    cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-    kiss_fftr(cfg, in, out);
-    free(cfg);
-
-    // analyze output and fill magnitude and phase info
-    for (size_t bin = 0; bin < (n/2 + 1); bin++) {
-        double binmag = sqrt(pow(out[bin].r, 2) + pow(out[bin].i, 2));
-        double binphase;
-        if (out[bin].i == 0 && out[bin].r == 0) {
-            binphase = 0;
-        }
-        else {
-            binphase = atan(out[bin].i / out[bin].r);
-        }
-        magnitude[bin] = binmag;
-        phase[bin] = binphase;
-    }
 }

@@ -78,7 +78,6 @@ private:
     GPSynth* synth;
 
     // FILL EVALUATION BUFFERS
-    void envelopeWaveform(bool ignoreZeroes, unsigned n, float* wav, float* env);
     void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
 
     // WAV INTERFACE
@@ -86,18 +85,25 @@ private:
     unsigned wavFileBufferSize;
     void getWavFileInfo(String path, unsigned* numFrames, double* sampleRate);
     void loadWavFile(String path, unsigned n, float* buffer);
-    // TODO: move targetBuffer stuff from loadTargetWavFile to fillEvaluationBuffers
     void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
+    void saveTextFile(String path, String text);
 
     // FITNESS FUNCTION
-    void applyEnvelope(unsigned n, float* buffer, float* envelope);
     void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 
     // FOURIER TRANSFORM
+    float dBRef;
     unsigned calculateFftBufferSize(unsigned numFrames, unsigned n);
-    void FftReal(unsigned n, const kiss_fft_scalar* in, kiss_fft_cpx* out, double* magnitude, double* phase);
-    void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, double* magnitude, double* phase);
+    void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase);
+
+    // ENVELOPING
+    void applyEnvelope(unsigned n, float* buffer, float* envelope);
+    void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
+
+    // GRAPH HELPERS
+    void fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer);
+    String floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, float* x, float* y);
 };
 
 #endif

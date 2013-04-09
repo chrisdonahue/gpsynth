@@ -3,7 +3,7 @@
 //==============================================================================
 //  Somewhere in the codebase of your plugin, you need to implement this function
 //  and make it create an instance of the filter subclass that you're building.
-extern GeneticProgrammingSynthesizerAudioProcessor* JUCE_CALLTYPE createGPPluginFilter();
+extern GeneticProgrammingSynthesizerAudioProcessor* JUCE_CALLTYPE createPluginFilter();
 
 
 //==============================================================================
@@ -15,7 +15,7 @@ StandaloneFilterWindow::StandaloneFilterWindow (const String& title,
 {
     JUCE_TRY
     {
-        filter = createGPPluginFilter();
+        filter = createPluginFilter();
         //filter->addChangeListener(this);
         //filter->addActionListener(this);
         //filter->sendChangeMessage();
@@ -101,7 +101,7 @@ void StandaloneFilterWindow::resetFilter()
 {
     deleteFilter();
     deviceManager->closeAudioDevice();
-    filter = createGPPluginFilter();
+    filter = createPluginFilter();
     //filter->addChangeListener(this);
     //filter->addActionListener(this);
     //filter->sendChangeMessage();
