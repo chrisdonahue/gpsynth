@@ -22,15 +22,15 @@
     </VS2010>
   </EXPORTFORMATS>
   <MAINGROUP id="dYAMo6Ykd" name="Genetic Programming Synthesizer">
-    <GROUP id="{E90CFE70-5FC1-FFEA-6FD3-29EA2A2AF351}" name="Common">
-      <FILE id="GJ1Gmh" name="GPFunctions.cpp" compile="1" resource="0" file="Source/Common/GPFunctions.cpp"/>
-      <FILE id="wEh7wL" name="GPFunctions.h" compile="0" resource="0" file="Source/Common/GPFunctions.h"/>
-      <FILE id="Ad4Xmg" name="GPHelpers.h" compile="0" resource="0" file="Source/Common/GPHelpers.h"/>
-      <FILE id="SR1P9E" name="GPMutatableParam.h" compile="0" resource="0"
-            file="Source/Common/GPMutatableParam.h"/>
-      <FILE id="VltZMg" name="GPParams.h" compile="0" resource="0" file="Source/Common/GPParams.h"/>
-      <FILE id="VBEe2f" name="GPRandom.cpp" compile="1" resource="0" file="Source/Common/GPRandom.cpp"/>
-      <FILE id="kut2Mb" name="GPRandom.h" compile="0" resource="0" file="Source/Common/GPRandom.h"/>
+    <GROUP id="{68F0B7FD-3BBA-84C1-611F-88FF19E512F1}" name="Common">
+      <FILE id="KQTLzH" name="GPFunctions.cpp" compile="1" resource="0" file="../Source/Common/GPFunctions.cpp"/>
+      <FILE id="r7bV1H" name="GPFunctions.h" compile="0" resource="0" file="../Source/Common/GPFunctions.h"/>
+      <FILE id="O2kvAU" name="GPHelpers.h" compile="0" resource="0" file="../Source/Common/GPHelpers.h"/>
+      <FILE id="l7TA9P" name="GPMutatableParam.h" compile="0" resource="0"
+            file="../Source/Common/GPMutatableParam.h"/>
+      <FILE id="xQdXAk" name="GPParams.h" compile="0" resource="0" file="../Source/Common/GPParams.h"/>
+      <FILE id="OyIwQW" name="GPRandom.cpp" compile="1" resource="0" file="../Source/Common/GPRandom.cpp"/>
+      <FILE id="CQDa5v" name="GPRandom.h" compile="0" resource="0" file="../Source/Common/GPRandom.h"/>
     </GROUP>
     <GROUP id="{2A2EF46F-3D5B-EDE2-77E1-81854CD9B050}" name="Plugin">
       <FILE id="A5sgs4" name="PluginEditor.cpp" compile="1" resource="0"
