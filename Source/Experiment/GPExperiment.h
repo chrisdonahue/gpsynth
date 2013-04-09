@@ -34,7 +34,7 @@
 class GPExperiment {
 public:
     // CONSTUCTION
-    GPExperiment(GPRandom* r, String target, GPParams* p, double* constants, bool* rq);
+    GPExperiment(GPRandom* r, unsigned s, String target, String path, GPParams* p, double* constants, bool* rq);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
@@ -43,6 +43,8 @@ public:
 private:
     // EXPERIMENT PARAMETERS
     GPParams* params;
+    unsigned seed;
+    String savePath;
     float fitnessThreshold;
     int numGenerations;
     bool lowerFitnessIsBetter;

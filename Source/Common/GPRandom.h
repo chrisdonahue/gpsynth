@@ -27,7 +27,7 @@ public:
     int random(int m);
 
 private:
-    unsigned seed;
+    const unsigned seed;
     boost::mt19937 engine;
     boost::uniform_real<double> uni_real;
 

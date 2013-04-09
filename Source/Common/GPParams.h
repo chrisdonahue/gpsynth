@@ -7,6 +7,7 @@
 struct GPParams {
     // auxillary parameters
     bool verbose;
+    bool saveGenerationChampions;
     unsigned printPrecision;
     unsigned backupPrecision;
     unsigned savePrecision;

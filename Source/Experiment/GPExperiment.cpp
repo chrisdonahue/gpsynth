@@ -16,7 +16,9 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPRandom* rng, String target, GPParams* p, double* constants, bool* rq) :
+GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path, GPParams* p, double* constants, bool* rq) :
+    seed(s),
+    savePath(path),
     params(p),
     specialValues(constants),
     requestedQuit(rq),
@@ -294,9 +296,11 @@ GPNetwork* GPExperiment::evolve() {
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
             if (params->envelopeIterations > 0)
               applyEnvelope(numTargetFrames, genchampbuffer, targetEnvelope);
-            char buffer[100];
-            snprintf(buffer, 100, "./gen.%d.best.wav", numEvaluatedGenerations);
-            saveWavFile(String(buffer), String(generationChamp->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
+            if (params->saveGenerationChampions) {
+              char buffer[100];
+              snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
+              saveWavFile(savePath + String(buffer), String(generationChamp->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
+            }
             free(genchampbuffer);
             delete generationChamp;
             generationChamp = NULL;
@@ -320,7 +324,9 @@ GPNetwork* GPExperiment::evolve() {
         if (params->envelopeIterations > 0)
           applyEnvelope(numTargetFrames, champbuffer, targetEnvelope);
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
-        saveWavFile("./champion.wav", String(champ->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
+        char buffer[100];
+        snprintf(buffer, 100, "%d.champion.wav", seed);
+        saveWavFile(savePath + String(buffer), String(champ->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
         free(champbuffer);
     }
     return champ;

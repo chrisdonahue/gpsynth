@@ -38,6 +38,7 @@ public:
 
         // temp fields
         String target("");
+        String saveFilesTo("./");
         unsigned seed = time(NULL);
         std::vector<double> constants(0);
         bool printExperimentInfo = false;
@@ -46,6 +47,7 @@ public:
 
         // auxillary params
         params->verbose = false;
+        params->saveGenerationChampions = false;
         params->printPrecision = 3;
         params->backupPrecision = 100;
         params->savePrecision = 4;
@@ -131,11 +133,17 @@ public:
             if (i->equalsIgnoreCase("--target")) {
                 target = *(++i);
             }
+            else if (i->equalsIgnoreCase("--path")) {
+                saveFilesTo = *(++i);
+            }
             else if (i->equalsIgnoreCase("--seed")) {
                 seed = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--verbose")) {
                 params->verbose = true;
+            }
+            else if (i->equalsIgnoreCase("--savegenchamps")) {
+                params->saveGenerationChampions = true;
             }
             else if (i->equalsIgnoreCase("--expinfo")) {
                 printExperimentInfo = true;
@@ -232,11 +240,13 @@ public:
             quit();
         }
 
-        if (printExperimentInfo)
+        if (printExperimentInfo) {
+            std::cerr << commandLine << std::endl;
             printImportantExperimentInfo();
+        }
 
         requestedQuit = false;
-        experiment = new GPExperiment(new GPRandom(seed), target, params, constants.data(), &requestedQuit);
+        experiment = new GPExperiment(new GPRandom(seed), seed, target, saveFilesTo, params, constants.data(), &requestedQuit);
 
         // TODO start a new thread to do this
         GPNetwork* champion = experiment->evolve();
