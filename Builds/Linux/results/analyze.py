@@ -22,14 +22,11 @@ overlayedaveragesgraphpath = folder + 'overlayed.averages.png'
 overlayedbestsgraphpath = folder + 'overlayed.bests.png'
 
 # find files
-files = glob.glob("*.err*")
-
-# use command line arg file
-files = [sys.argv[1]]
+files = glob.glob("*.err")
 
 # float raw string
 fp = r"([+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
-linematch = 'Generation (\d+) had average fitness ' + fp + ' and best fitness ' + fp + ' attained'
+linematch = 'Generation (\d+) had average fitness ' + fp + ' and best fitness ' + fp + ' attained by algorithm (\d+) with structure (.+)'
 
 # parse data files
 runs = []
@@ -41,10 +38,11 @@ for path in files:
   for line in f:
     match = re.search(linematch, line)
     if match:
-      gen = match.group(1)
-      avg = match.group(2)
-      best = match.group(3)
-      run.append((gen, avg, best))
+      gen = int(match.group(1))
+      avg = float(match.group(2))
+      best = float(match.group(3))
+      bestalg = match.group(5)
+      run.append((gen, avg, best, bestalg))
   f.close()
   
   runs.append(run)
@@ -55,14 +53,15 @@ for path in files:
 
 # ANALYZE DATA
 # length of each run
-lengthsOfEachRun = [len(run[i]) for i in range(len(runs))]
+lengthsOfEachRun = [len(runs[i]) for i in range(len(runs))]
 # sum of all generation averages across all runs indexed by generation number
 sumOfAveragesByGeneration = [0.0 for i in range(max(lengthsOfEachRun))]
 # number of runs that got to a particular generation indexed by generation number
 numRunsWithThisGeneration = [0 for i in range(max(lengthsOfEachRun))]
 # best individual for a generation across all runs indexed by generation numbre
-generationBestsAcrossAllRun = [float('inf') for i in range(max(lengthsOfEachRun))]
-
+generationBestsAcrossAllRuns = [float('inf') for i in range(max(lengthsOfEachRun))]
+# best algorithm across all runs across all generations (run, gen, alg, fit)
+bestAlgorithm = [0, 0, 0, float('inf')]
 # for each run
 for i in range(numberOfRuns):
   # for each completed generation
@@ -70,11 +69,29 @@ for i in range(numberOfRuns):
     # sum each average
     sumOfAveragesByGeneration[j] += runs[i][j][1]
     generationBestsAcrossAllRuns[j] = min(generationBestsAcrossAllRuns[j], runs[i][j][2])
+    if runs[i][j][2] < bestAlgorithm[3]:
+      bestAlgorithm[0] = i
+      bestAlgorithm[1] = j
+      bestAlgorithm[2] = runs[i][j][3]
+      bestAlgorithm[3] = runs[i][j][2]
     numRunsWithThisGeneration[j] += 1
 
 # find averages
 generationAveragesAcrossAllRuns = [sumOfAveragesByGeneration[i]/numRunsWithThisGeneration[i] for i in range(max(lengthsOfEachRun))]
 
+# PRINT INFO
+print('NUMBER OF GENERATIONS BY RUN', file=info)
+print(lengthsOfEachRun, file=info)
+print('NUMBER OF RUNS BY GENERATION', file=info)
+print(numRunsWithThisGeneration, file=info)
+print('AVERAGE OF ALL GENERATION AVERAGES ACROSS ALL RUNS BY GENERATION', file=info)
+print(generationAveragesAcrossAllRuns, file=info)
+print('BESTS ACROSS ALL RUNS BY GENERATION', file=info)
+print(generationBestsAcrossAllRuns, file=info)
+print('BEST ALGORITHM ACROSS ALL RUNS AND ALL GENERATIONS', file=info)
+beststr = 'From run %d and generation %d with fitness %f:' % (bestAlgorithm[0], bestAlgorithm[1], bestAlgorithm[3])
+print(beststr, file=info)
+print(bestAlgorithm[2], file=info)
 
 # MAKE GRAPH OF AVERAGES ACROSS ALL RUNS
 generations = np.array(range(max(lengthsOfEachRun)))
@@ -85,7 +102,7 @@ plt.ylabel('Average of Averages Across All Runs')
 plt.xlim(0, max(lengthsOfEachRun))
 plt.ylim(min(averages), max(averages))
 plt.show()
-plt.savefix(trialaveragesgraphpath)
+plt.savefig(trialaveragesgraphpath)
 plt.clf()
 
 # MAKE GRAPH OF BESTS ACROSS ALL RUNS
@@ -94,9 +111,9 @@ plt.plot(generations, bests)
 plt.xlabel('Generation #')
 plt.ylabel('Best of Generation Across All Runs')
 plt.xlim(0, max(lengthsOfEachRun))
-plt.ylim(max(bests), 0)
+plt.ylim(0, max(bests))
 plt.show()
-plt.savefix(trialbestsgraphpath)
+plt.savefig(trialbestsgraphpath)
 plt.clf()
 
 info.close()
