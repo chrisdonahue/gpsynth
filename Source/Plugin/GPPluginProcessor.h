@@ -11,8 +11,10 @@
 #ifndef __PLUGINPROCESSOR_H_526ED7A9__
 #define __PLUGINPROCESSOR_H_526ED7A9__
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Synth/GPSynth.h"
 
+class GPVoice;
 
 //==============================================================================
 /**
@@ -100,6 +102,8 @@ private:
 
     // the synth!
     Synthesiser synth;
+    GPVoice** synthVoices;
+    unsigned numSynthVoices;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneticProgrammingSynthesizerAudioProcessor)
 };

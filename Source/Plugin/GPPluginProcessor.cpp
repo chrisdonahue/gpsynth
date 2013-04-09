@@ -21,8 +21,12 @@ class GPSound : public SynthesiserSound
 public:
     GPSound() {}
 
-    bool appliesToNote (const int /*midiNoteNumber*/)           { return true; }
-    bool appliesToChannel (const int /*midiChannel*/)           { return true; }
+    bool appliesToNote (const int /*midiNoteNumber*/)           {
+        return true;
+    }
+    bool appliesToChannel (const int /*midiChannel*/)           {
+        return true;
+    }
 };
 
 //==============================================================================
@@ -30,8 +34,12 @@ public:
 class GPVoice  : public SynthesiserVoice
 {
 public:
-    GPVoice()
-        : angleDelta (0.0),
+    GPVoice(GPNetwork* net)
+        : network(net),
+          t(nullptr),
+          v(nullptr),
+          nv(0),
+          blockSize(0),
           tailOff (0.0)
     {
     }
@@ -41,17 +49,27 @@ public:
         return dynamic_cast <GPSound*> (sound) != 0;
     }
 
+    void setBlockSize (int bs) {
+        blockSize = bs;
+        if (t != nullptr)
+          free(t);
+        if (v != nullptr)
+          free(v);
+        t = (double*) malloc(sizeof(double) * blockSize);
+        v = (double*) malloc(sizeof(double) * blockSize);
+        std::cout << "BLOCK SIZE SET TO: " << blockSize << " FOR " << this << std::endl;
+    }
+
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
     {
-        currentAngle = 0.0;
         level = velocity * 0.15;
         tailOff = 0.0;
 
         double cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
         double cyclesPerSample = cyclesPerSecond / getSampleRate();
-
-        angleDelta = cyclesPerSample * 2.0 * double_Pi;
+        cps = cyclesPerSecond;
+        std::cout << "START NOTE: " << cps << " FOR " << this << std::endl;
     }
 
     void stopNote (const bool allowTailOff)
@@ -62,7 +80,7 @@ public:
             // this and do a fade out, calling clearCurrentNote() when it's finished.
 
             if (tailOff == 0.0) // we only need to begin a tail-off if it's not already doing so - the
-                                // stopNote method could be called more than once.
+                // stopNote method could be called more than once.
                 tailOff = 1.0;
         }
         else
@@ -70,8 +88,8 @@ public:
             // we're being told to stop playing immediately, so reset everything..
 
             clearCurrentNote();
-            angleDelta = 0.0;
         }
+        std::cout << "STOP NOTE: " << cps << " FOR " << this << std::endl;
     }
 
     void pitchWheelMoved (const int /*newValue*/)
@@ -86,49 +104,37 @@ public:
 
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
     {
-        if (angleDelta != 0.0)
-        {
-            if (tailOff > 0)
-            {
-                while (--numSamples >= 0)
-                {
-                    const float currentSample = (float) (sin (currentAngle) * level * tailOff);
-
-                    for (int i = outputBuffer.getNumChannels(); --i >= 0;)
-                        *outputBuffer.getSampleData (i, startSample) += currentSample;
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-
-                    tailOff *= 0.99;
-
-                    if (tailOff <= 0.005)
-                    {
-                        clearCurrentNote();
-
-                        angleDelta = 0.0;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                while (--numSamples >= 0)
-                {
-                    const float currentSample = (float) (sin (currentAngle) * level);
-
-                    for (int i = outputBuffer.getNumChannels(); --i >= 0;)
-                        *outputBuffer.getSampleData (i, startSample) += currentSample;
-
-                    currentAngle += angleDelta;
-                    ++startSample;
-                }
+        // fill info buffers
+        double sampleRate = getSampleRate();
+        for (int i = startSample; i < startSample + numSamples; i++) {
+          t[i] = i / sampleRate;
+        }
+        for (int i = 0; i < numSamples; i++) {
+          v[i] = cps;
+        }
+        
+        // fill audio buffers
+        float* channel0Buffer = outputBuffer.getSampleData(0, startSample);
+        network->evaluateBlock(startSample, t, nv, v, numSamples, channel0Buffer);
+        for (int i = 1; i < outputBuffer.getNumChannels(); i++) {
+            float* channelBuffer = outputBuffer.getSampleData(i, startSample);
+            for (int j = 0; j < numSamples; j++) {
+                channelBuffer[j] = channel0Buffer[j];
             }
         }
     }
 
 private:
-    double currentAngle, angleDelta, level, tailOff;
+// GP Network state
+    GPNetwork* network;
+    int blockSize;
+    double* t;
+    unsigned nv;
+    double* v;
+    double cps;
+
+// default
+    double level, tailOff;
 };
 
 
@@ -146,9 +152,21 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     lastPosInfo.resetToDefault();
     delayPosition = 0;
 
+    GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 2);
+    GPNode* oscilNode = new OscilNode(true, partialOne, 0, NULL, NULL);
+    GPNetwork* sinwave = new GPNetwork(oscilNode);
+    sinwave->traceNetwork();
+
     // Initialise the synth...
-    for (int i = 4; --i >= 0;)
-        synth.addVoice (new GPVoice());   // These voices will play our custom sine-wave sounds..
+    numSynthVoices = 4;
+    synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
+    for (int i = numSynthVoices; --i >= 0;) {
+        GPNetwork* sinCopy = sinwave->getCopy();
+        sinCopy->traceNetwork();
+        GPVoice* newVoice = new GPVoice(sinCopy);
+        synth.addVoice (newVoice);   // These voices will play our custom sine-wave sounds..
+        synthVoices[i] = newVoice;
+    }
 
     synth.addSound (new GPSound());
 }
@@ -170,9 +188,12 @@ float GeneticProgrammingSynthesizerAudioProcessor::getParameter (int index)
     // UI-related, or anything at all that may block in any way!
     switch (index)
     {
-        case gainParam:     return gain;
-        case delayParam:    return delay;
-        default:            return 0.0f;
+    case gainParam:
+        return gain;
+    case delayParam:
+        return delay;
+    default:
+        return 0.0f;
     }
 }
 
@@ -183,9 +204,14 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     // UI-related, or anything at all that may block in any way!
     switch (index)
     {
-        case gainParam:     gain = newValue;  break;
-        case delayParam:    delay = newValue;  break;
-        default:            break;
+    case gainParam:
+        gain = newValue;
+        break;
+    case delayParam:
+        delay = newValue;
+        break;
+    default:
+        break;
     }
 }
 
@@ -193,9 +219,12 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int 
 {
     switch (index)
     {
-        case gainParam:     return "gain";
-        case delayParam:    return "delay";
-        default:            break;
+    case gainParam:
+        return "gain";
+    case delayParam:
+        return "delay";
+    default:
+        break;
     }
 
     return String::empty;
@@ -207,11 +236,14 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterText (int 
 }
 
 //==============================================================================
-void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBlock*/)
+void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
+    for (unsigned i = 0; i < numSynthVoices; i++) {
+      synthVoices[i]->setBlockSize(samplesPerBlock);
+    }
     keyboardState.reset();
     delayBuffer.clear();
 }
@@ -356,20 +388,20 @@ bool GeneticProgrammingSynthesizerAudioProcessor::isOutputChannelStereoPair (int
 
 bool GeneticProgrammingSynthesizerAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool GeneticProgrammingSynthesizerAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool GeneticProgrammingSynthesizerAudioProcessor::silenceInProducesSilenceOut() const
