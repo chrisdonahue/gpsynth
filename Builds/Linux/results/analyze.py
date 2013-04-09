@@ -12,121 +12,91 @@ if not os.path.exists(folder):
 
 # files
 info = open(folder + 'trialinfo.txt', 'w')
-scoregraph = folder + 'rewards.png'
-stepsgraph = folder + 'steps.png'
-
-# bounds
-minreward = 0
-maxreward = 500
-minsteps = 0
-maxsteps = 500
+# graph of the average of each generation average across all runs
+trialaveragesgraphpath = folder + 'averages.png'
+# graph of best of all each generation best across all run
+trialbestsgraphpath = folder + 'bests.png'
+# graph of all the averages across all runs overlayed
+overlayedaveragesgraphpath = folder + 'overlayed.averages.png'
+# graph of all the bests across all runs overlayed
+overlayedbestsgraphpath = folder + 'overlayed.bests.png'
 
 # find files
 files = glob.glob("*.err*")
 
+# use command line arg file
+files = [sys.argv[1]]
+
+# float raw string
+fp = r"([+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
+linematch = 'Generation (\d+) had average fitness ' + fp + ' and best fitness ' + fp + ' attained'
+
 # parse data files
-trials = []
+runs = []
+numberOfRuns = 0
 for path in files:
-  scores = []
-  steps = []
-  errors = []
-  trials.append((scores, steps, errors))
+  run = []
+  
   f = open(path)
-
   for line in f:
-    match = re.search('(\-?\d+)\t(\d+)\t(\d+)', line)
+    match = re.search(linematch, line)
     if match:
-      score = match.group(1)
-      step = match.group(2)
-      error = match.group(3)
-      scores.append(score)
-      steps.append(step)
-      errors.append(error)
+      gen = match.group(1)
+      avg = match.group(2)
+      best = match.group(3)
+      run.append((gen, avg, best))
   f.close()
+  
+  runs.append(run)
+  numberOfRuns += 1
+ 
+# run data structure:
+#  [[(0, gen0avg, gen0best), (1, gen1avg, gen1best), ...], [(...)]]
 
-# find number of episodes that each trial lasted
-numEpisodesPerTrial = []
-for i in range(len(trials)):
-  numEpisodesPerTrial.append(len(trials[i][0]))
-print ('NUMBER OF EPISODES PER TRIAL:', file=info)
-print (numEpisodesPerTrial, file=info)
+# ANALYZE DATA
+# length of each run
+lengthsOfEachRun = [len(run[i]) for i in range(len(runs))]
+# sum of all generation averages across all runs indexed by generation number
+sumOfAveragesByGeneration = [0.0 for i in range(max(lengthsOfEachRun))]
+# number of runs that got to a particular generation indexed by generation number
+numRunsWithThisGeneration = [0 for i in range(max(lengthsOfEachRun))]
+# best individual for a generation across all runs indexed by generation numbre
+generationBestsAcrossAllRun = [float('inf') for i in range(max(lengthsOfEachRun))]
 
-# analyze data
-maxEpisodeReached = max(numEpisodesPerTrial)
-totalrewards = []
-totalsteps = []
-totalerrors = []
-errorcounts = []
-for i in range(maxEpisodeReached):
-  totalreward = 0
-  totalstep = 0
-  totalerror = 0
-  numEpisodesThatReachedThisTrial = 0
-  for j in range(len(trials)):
-    trial = trials[j]
-    if numEpisodesPerTrial[j] > i:
-      if (int(trial[0][i]) > maxreward):
-        maxreward = int(trial[0][i])
-      totalreward = totalreward + int(trial[0][i])
-      totalstep = totalstep + int(trial[1][i])
-      totalerror = totalerror + int(trial[2][i])
-      numEpisodesThatReachedThisTrial = numEpisodesThatReachedThisTrial + 1
-  totalrewards.append((totalreward, numEpisodesThatReachedThisTrial))
-  totalsteps.append((totalstep, numEpisodesThatReachedThisTrial))
-  totalerrors.append((totalerror, numEpisodesThatReachedThisTrial))
-  errorcounts.append(totalerror)
+# for each run
+for i in range(numberOfRuns):
+  # for each completed generation
+  for j in range(len(runs[i])):
+    # sum each average
+    sumOfAveragesByGeneration[j] += runs[i][j][1]
+    generationBestsAcrossAllRuns[j] = min(generationBestsAcrossAllRuns[j], runs[i][j][2])
+    numRunsWithThisGeneration[j] += 1
 
-# total prints for debugging
-#print ('PER EPISODE: (TOTAL REWARD, NUM TRIALS THAT REACHED THIS EPISODE)', file=info)
-#print (totalrewards, file=info)
-#print ('PER EPISODE: (TOTAL STEPS, NUM TRIALS THAT REACHED THIS EPISODE)', file=info)
-#print (totalsteps, file=info)
-#print ('PER EPISODE: (TOTAL ERRORS, NUM TRIALS THAT REACHED THIS EPISODE)', file=info)
-#print (totalerrors, file=info)
+# find averages
+generationAveragesAcrossAllRuns = [sumOfAveragesByGeneration[i]/numRunsWithThisGeneration[i] for i in range(max(lengthsOfEachRun))]
 
-# average rewards, steps and errors by episode
-averagerewards = []
-for (total, epCount) in totalrewards:
-  averagerewards.append(float(total)/epCount)
-print ('AVERAGE EPISODE REWARD ACROSS ALL TRIALS:', file=info)
-print (averagerewards, file=info)
 
-averagesteps = []
-for (total, epCount) in totalsteps:
-  averagesteps.append(float(total)/epCount)
-print ('AVERAGE STEPS IN AN EPISODE ACROSS ALL TRIALS:', file=info)
-print (averagesteps, file=info)
-
-averageerrors = []
-for (total, epCount) in totalerrors:
-  averageerrors.append(float(total)/epCount)
-#print ('AVERAGE ERRORS IN AN EPISODE ACROSS ALL TRIALS:', file=info)
-#print (averageerrors, file=info)
-
-print ('NUMBER OF IMAGE PARSING ERRORS BY EPISODE:', file=info)
-print (errorcounts, file=info)
-
-# format data for graphs
-t = np.array(range(maxEpisodeReached))
-avgs = np.array(averagerewards)
-stps = np.array(averagesteps)
-errs = np.array(averageerrors)
-
-# plot graphs
-plt.plot(t, avgs)
-plt.xlabel('Episode #')
-plt.ylabel('Average Reward')
-plt.xlim(0, maxEpisodeReached)
-plt.ylim(minreward, maxreward)
-#plt.show()
-plt.savefig(scoregraph)
+# MAKE GRAPH OF AVERAGES ACROSS ALL RUNS
+generations = np.array(range(max(lengthsOfEachRun)))
+averages = np.array(generationAveragesAcrossAllRuns)
+plt.plot(generations, averages)
+plt.xlabel('Generation #')
+plt.ylabel('Average of Averages Across All Runs')
+plt.xlim(0, max(lengthsOfEachRun))
+plt.ylim(min(averages), max(averages))
+plt.show()
+plt.savefix(trialaveragesgraphpath)
 plt.clf()
 
-plt.plot(t, stps)
-plt.xlabel('Episode #')
-plt.ylabel('Average Steps')
-plt.xlim(0, maxEpisodeReached)
-plt.ylim(minsteps, maxsteps)
-plt.savefig(stepsgraph)
+# MAKE GRAPH OF BESTS ACROSS ALL RUNS
+bests = np.array(generationBestsAcrossAllRuns)
+plt.plot(generations, bests)
+plt.xlabel('Generation #')
+plt.ylabel('Best of Generation Across All Runs')
+plt.xlim(0, max(lengthsOfEachRun))
+plt.ylim(max(bests), 0)
+plt.show()
+plt.savefix(trialbestsgraphpath)
+plt.clf()
 
 info.close()
