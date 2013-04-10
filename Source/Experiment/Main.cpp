@@ -106,7 +106,7 @@ public:
         params->valueNodeMaximum = 1.0;
 
         // oscil node params
-        params->oscilNodeMaxPartial = 10;
+        params->oscilNodeMaxPartial = 30;
         params->oscilNodeMinIndexOfModulation = 0.0;
         params->oscilNodeMaxIndexOfModulation = 2.0;
 

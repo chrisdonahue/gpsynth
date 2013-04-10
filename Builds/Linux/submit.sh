@@ -6,6 +6,6 @@
 set -e
 
 export PATH=/lusr/opt/condor/bin:$PATH
-condor_submit results/4.9.13.3.bassoon/condor.desc
+condor_submit results/4.10.13.1.trumpet.morePartials/condor.desc
 
 set +e
