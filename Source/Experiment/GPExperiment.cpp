@@ -123,15 +123,18 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         for (unsigned i = 0; i < fftOutSize; i++) {
             magAxis[i] = (float) targetSpectrumMagnitudes[i];
         }
+        
+        saveTextFile(String("./spectrum.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
 
-        saveTextFile(String("./fftEnv0.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
-        findEnvelope(true, fftOutSize, magAxis, magAxis);
-        saveTextFile(String("./fftEnv1.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
-        findEnvelope(true, fftOutSize, magAxis, magAxis);
-        saveTextFile(String("./fftEnv2.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
-        findEnvelope(true, fftOutSize, magAxis, magAxis);
-        saveTextFile(String("./fftEnv3.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
+        float* mac = (float*) malloc(sizeof(float) * fftOutSize);
+        findMovingAverage(fftOutSize, magAxis, mac, 10);
+        saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
+        findMovingAverage(fftOutSize, magAxis, mac, 20);
+        saveTextFile(String("./mac20.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
+        findMovingAverage(fftOutSize, magAxis, mac, 30);
+        saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
 
+        free(mac);
         free(magAxis);
         free(freqAxis);
         exit(-1);
@@ -385,7 +388,8 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
         // take fft of target data
-        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, false, targetSpectrumMagnitudes, targetSpectrumPhases);
+        // TODO: change back to false
+        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, true, targetSpectrumMagnitudes, targetSpectrumPhases);
 
         // calculate stats on each frame
         double base = params->baseComparisonFactor;
@@ -648,10 +652,48 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
 }
 
 /*
-    ==========
-    ENVELOPING
-    ==========
+    =================
+    WAVEFORM ANALYSIS
+    =================
 */
+
+void GPExperiment::findMovingAverage(unsigned n, float* buffer, float* movingaverage, unsigned R) {
+    unsigned D = 2 * R;
+    assert(n > D);
+    // based on http://radonc.wustl.edu/research/physics/5d/Papers/Lu_Medphys_Oct2006.pdf
+    // TOP PART OF FORMULA FROM WEBSITE
+    double firstRSum = 0.0;
+    for (unsigned i = 0; i < R; i++) {
+        firstRSum += buffer[i];
+    }
+    double firstRAvg = firstRSum / R;
+    for (unsigned i = 0; i < R; i++) {
+        firstRSum += buffer[i + R];
+        movingaverage[i] = firstRSum / (i + R);
+    }
+
+    // MIDDLE PART OF FORMULA FROM WEBSITE
+    double bufferIndexMinusRValue = buffer[0];
+    double sumOfDiameter = 0.0;
+    for (unsigned i = 0; i <= D; i++) {
+        sumOfDiameter += buffer[i];
+    }
+    movingaverage[R] = sumOfDiameter / (D + 1);
+    for (unsigned i = R + 1; i < n - R; i++) {
+        sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
+        sumOfDiameter = sumOfDiameter + buffer[i + R];
+        movingaverage[i] = sumOfDiameter / (D + 1);
+        bufferIndexMinusRValue = buffer[i - R];
+    }
+
+    // BOTTOM PART OF FORMULA FROM WEBSITE
+    for (unsigned i = n - R; i < n; i++) {
+        sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
+        movingaverage[i] = sumOfDiameter / (R + n - i);
+        bufferIndexMinusRValue = buffer[i - R];
+    }
+
+}
 
 void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope) {
   for (unsigned i = 0; i < n; i++) {

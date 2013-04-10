@@ -44,6 +44,7 @@ Ideas:
 Thoughts:
 
 TODO long run:
+    make memory optimized/performance optimized versions of ADSR for testing on condor vs plugin
     calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
     print ranges/save networks in text file/just save ID's in waves
     update README
