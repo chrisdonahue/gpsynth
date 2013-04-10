@@ -57,7 +57,6 @@ TODO long run:
 
 NEXT EXPERIMENTS (by Wednesday):
     3. Run tests controlling the following variables:
-        4. increase num partials
         5. Fitness function
             Hanning window (wikipedia article)
             Replace raw energy average with moving average for overshooting/undershooting calcs
