@@ -388,8 +388,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
         // take fft of target data
-        // TODO: change back to false
-        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, true, targetSpectrumMagnitudes, targetSpectrumPhases);
+        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, false, targetSpectrumMagnitudes, targetSpectrumPhases);
 
         // calculate stats on each frame
         double base = params->baseComparisonFactor;
