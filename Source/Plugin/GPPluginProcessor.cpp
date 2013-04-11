@@ -36,11 +36,17 @@ class GPVoice  : public SynthesiserVoice
 public:
     GPVoice(GPNetwork* net)
         : network(net),
+		  buffer(nullptr),
           t(nullptr),
-          v(nullptr),
           nv(0),
-		  playing(false),
+          v(nullptr),
           blockSize(0),
+		  sampleRate(0.0),
+		  time(0.0),
+		  timeDeltaPerSample(0.0),
+		  cps(0.0),
+		  playing(false),
+		  level(0.0),
           tailOff (0.0)
     {
     }
@@ -167,7 +173,7 @@ private:
 	double timeDeltaPerSample;
     double cps;
 	bool playing;
-    double level;
+    float level;
 	double tailOff;
 };
 
