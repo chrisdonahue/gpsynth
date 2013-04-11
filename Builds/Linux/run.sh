@@ -93,7 +93,7 @@ COMMENT
 COMMENT
 
 # TEST FFT
-./build/GPAudioTargetMatchingExperiment --target ./samples/TrumpetEb51024.wav --verbose --precision 3 --values 622.25 --fft 1024 --fitnesstype 1 --enviter 3 --experiment 10 --generations 0 --erc --popsize 0 --mid 5 -- md 11 --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9 --mutation 0.05 --mtype 1 --mselectparam 0.25 --crossover 0.9 --cselect 0 --ctype 0 --reproduction 0.05 --rselect 0 --render 1024 --seed 245316
+./build/GPAudioTargetMatchingExperiment --target ./samples/SinWaveC51024.wav --verbose --precision 3 --values 622.25 --fft 1024 --fitnesstype 1 --enviter 3 --experiment 10 --generations 0 --erc --popsize 0 --mid 5 -- md 11 --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9 --mutation 0.05 --mtype 1 --mselectparam 0.25 --crossover 0.9 --cselect 0 --ctype 0 --reproduction 0.05 --rselect 0 --render 1024 --seed 245316
 
 #./build/GPAudioTargetMatchingExperiment --target ./samples/SinWaveC51024.wav --verbose --precision 3 --values 622.25 --fft 1024 --fitnesstype 1 --enviter 1 --experiment 10 --generations 0 --erc --popsize 0 --mid 5 -- md 11 --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9 --mutation 0.05 --mtype 1 --mselectparam 0.25 --crossover 0.9 --cselect 0 --ctype 0 --reproduction 0.05 --rselect 0 --render 1024 --seed 245316
 

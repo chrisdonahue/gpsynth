@@ -113,7 +113,12 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
+    // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
     if (params->experimentNumber == 10) {
+        // SAVE WAVEFORM
+        saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames));
+
+        // TEST FFT
         unsigned fftOutSize = 513;
         unsigned fftSize = 1024;
         float* freqAxis = (float*) malloc(sizeof(float) * fftOutSize);
@@ -126,6 +131,15 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         
         saveTextFile(String("./spectrum.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
 
+        // TEST WINDOWING
+        float* hannWindow = (float*) malloc(sizeof(float) * numTargetFrames);
+        float* windowed = (float*) malloc(sizeof(float) * numTargetFrames);
+        window("hann", numTargetFrames, hannWindow);
+        applyEnvelope(numTargetFrames, targetFrames, hannWindow, windowed);
+
+        saveTextFile(String("./windowed.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, windowed));
+
+        // TEST MOVING AVERAGE
         float* mac = (float*) malloc(sizeof(float) * fftOutSize);
         findMovingAverage(fftOutSize, magAxis, mac, 10);
         saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
@@ -134,7 +148,10 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         findMovingAverage(fftOutSize, magAxis, mac, 30);
         saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
 
+        // FREE AND DONT EVOLVE
         free(mac);
+        free(windowed);
+        free(hannWindow);
         free(magAxis);
         free(freqAxis);
         exit(-1);
@@ -369,7 +386,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         }
     }
     if (params->envelopeIterations > 0) {
-        saveTextFile(String("./envelope.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
+        saveTextFile(savePath + String("./targetEnvelope.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
         //saveWavFile(String("./envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
     }
 
@@ -651,10 +668,27 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
 }
 
 /*
-    =================
-    WAVEFORM ANALYSIS
-    =================
+    ===================
+    WAVEFORM OPERATIONS
+    ===================
 */
+
+void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
+    if (strcmp(type, "hann") == 0) {
+        // 0.5 * (1 - cos(2*pi*n)/(N-1))
+        double insideCosineValue = 0.0;
+        double increment = (2 * M_PI)/(n - 1);
+        for (unsigned i = 0; i < n; i++) {
+            windowBuffer[i] = 0.5 * (1 - cos(insideCosineValue));
+            insideCosineValue += increment;
+        }
+    }
+    else if (strcmp(type, "rect") == 0) {
+        for (unsigned i = 0; i < n; i++) {
+            windowBuffer[i] = 1.0;
+        }
+    }
+}
 
 void GPExperiment::findMovingAverage(unsigned n, float* buffer, float* movingaverage, unsigned R) {
     unsigned D = 2 * R;
@@ -697,6 +731,12 @@ void GPExperiment::findMovingAverage(unsigned n, float* buffer, float* movingave
 void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope) {
   for (unsigned i = 0; i < n; i++) {
     buffer[i] *= envelope[i];
+  }
+}
+
+void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope, float* envelopedBuffer) {
+  for (unsigned i = 0; i < n; i++) {
+    envelopedBuffer[i] = buffer[i] * envelope[i];
   }
 }
 

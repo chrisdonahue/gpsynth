@@ -5,6 +5,11 @@ import sys
 import os
 import itertools as it
 
+# if we need help
+if ('-h' in sys.argv or len(sys.argv) < 3):
+  print 'python graph2Axis.py "TITLE" data.txt data2.txt ...'
+  sys.exit(0)
+
 # set up graph
 fig = plt.figure(1)
 ax = fig.add_subplot(1,1,1)

@@ -99,9 +99,11 @@ private:
     unsigned calculateFftBufferSize(unsigned numFrames, unsigned n);
     void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase);
 
-    // WAVEFORM ANALYSIS
+    // WAVEFORM OPERATIONS
+    void window(const char* type, unsigned n, float* windowBuffer);
     void findMovingAverage(unsigned n, float* buffer, float* movingaverage, unsigned R);
     void applyEnvelope(unsigned n, float* buffer, float* envelope);
+    void applyEnvelope(unsigned n, float* buffer, float* envelope, float* windowedBuffer);
     void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
 
     // GRAPH HELPERS

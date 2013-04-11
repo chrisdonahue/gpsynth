@@ -57,9 +57,10 @@ TODO long run:
 
 NEXT EXPERIMENTS (by Wednesday):
     3. Run tests controlling the following variables:
-        redirect envelope saving to program path
         5. Fitness function
             Hanning window (wikipedia article)
+            apply window function to evaulations
+            overlap between fourier transform frames?
             Replace raw energy average with moving average for overshooting/undershooting calcs
             comparison to average for fitness function should be in log dB scale
             maybe change fitness function to measure partials relative to maximum instead of absolute
