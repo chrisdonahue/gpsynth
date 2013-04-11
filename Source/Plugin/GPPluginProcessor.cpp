@@ -133,7 +133,6 @@ public:
 				clearCurrentNote();
 			}
 			else {
-				double time = startSample / sampleRate;
 				for (int i = startSample; i < startSample + numSamples; i++) {
 				  t[i] = time;
 				  time += timeDeltaPerSample;
