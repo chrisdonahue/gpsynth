@@ -45,6 +45,7 @@ public:
     {
     }
 	
+	/*
 	~GPVoice()
 	{
         if (t != nullptr)
@@ -54,6 +55,7 @@ public:
         if (buffer != nullptr)
           free(buffer);
 	}
+	*/
 
     bool canPlaySound (SynthesiserSound* sound)
     {
@@ -80,8 +82,9 @@ public:
 		playing = true;
         tailOff = 0.0;
 
-        double cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
         //double cyclesPerSample = cyclesPerSecond / getSampleRate();
+        double cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
+		sampleRate = getSampleRate();
 		timeDeltaPerSample = 1 / sampleRate;
         cps = cyclesPerSecond;
 		for (int i = 0; i < blockSize; i++) {
