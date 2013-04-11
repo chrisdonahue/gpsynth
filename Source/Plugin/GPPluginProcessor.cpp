@@ -39,10 +39,21 @@ public:
           t(nullptr),
           v(nullptr),
           nv(0),
+		  playing(false),
           blockSize(0),
           tailOff (0.0)
     {
     }
+	
+	~GPVoice()
+	{
+        if (t != nullptr)
+          free(t);
+        if (v != nullptr)
+          free(v);
+        if (buffer != nullptr)
+          free(buffer);
+	}
 
     bool canPlaySound (SynthesiserSound* sound)
     {
@@ -55,21 +66,27 @@ public:
           free(t);
         if (v != nullptr)
           free(v);
+        if (buffer != nullptr)
+          free(buffer);	  
+		buffer = (float*) malloc(sizeof(float) * blockSize);
         t = (double*) malloc(sizeof(double) * blockSize);
         v = (double*) malloc(sizeof(double) * blockSize);
-        std::cout << "BLOCK SIZE SET TO: " << blockSize << " FOR " << this << std::endl;
     }
 
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
     {
         level = velocity * 0.15;
+		playing = true;
         tailOff = 0.0;
 
         double cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-        double cyclesPerSample = cyclesPerSecond / getSampleRate();
+        //double cyclesPerSample = cyclesPerSecond / getSampleRate();
+		timeDeltaPerSample = 1 / sampleRate;
         cps = cyclesPerSecond;
-        std::cout << "START NOTE: " << cps << " FOR " << this << std::endl;
+		for (int i = 0; i < blockSize; i++) {
+		  v[i] = cps;
+		}		
     }
 
     void stopNote (const bool allowTailOff)
@@ -89,7 +106,6 @@ public:
 
             clearCurrentNote();
         }
-        std::cout << "STOP NOTE: " << cps << " FOR " << this << std::endl;
     }
 
     void pitchWheelMoved (const int /*newValue*/)
@@ -104,37 +120,47 @@ public:
 
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
     {
-        // fill info buffers
-        double sampleRate = getSampleRate();
-        for (int i = startSample; i < startSample + numSamples; i++) {
-          t[i] = i / sampleRate;
-        }
-        for (int i = 0; i < numSamples; i++) {
-          v[i] = cps;
-        }
-        
-        // fill audio buffers
-        float* channel0Buffer = outputBuffer.getSampleData(0, startSample);
-        network->evaluateBlock(startSample, t, nv, v, numSamples, channel0Buffer);
-        for (int i = 1; i < outputBuffer.getNumChannels(); i++) {
-            float* channelBuffer = outputBuffer.getSampleData(i, startSample);
-            for (int j = 0; j < numSamples; j++) {
-                channelBuffer[j] = channel0Buffer[j];
-            }
-        }
+		if (playing) {
+			// fill info buffers
+			if (tailOff > 0) {
+				playing = false;
+				clearCurrentNote();
+			}
+			else {
+				double time = startSample / sampleRate;
+				for (int i = startSample; i < startSample + numSamples; i++) {
+				  t[i] = time;
+				  time += timeDeltaPerSample;
+				}
+			
+				// fill audio buffers
+				network->evaluateBlock(startSample, t, nv, v, numSamples, buffer);
+				for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
+					float* channelBuffer = outputBuffer.getSampleData(i, startSample);
+					for (int j = 0; j < numSamples; j++) {
+						channelBuffer[j] = buffer[j] * level;
+					}
+				}
+			}
+		}
     }
 
 private:
-// GP Network state
+	// GPSynthesis State
     GPNetwork* network;
-    int blockSize;
+	float* buffer;
     double* t;
     unsigned nv;
     double* v;
+	
+	// SynthesizerVoice State
+    int blockSize;
+	double sampleRate;
+	double timeDeltaPerSample;
     double cps;
-
-// default
-    double level, tailOff;
+	bool playing;
+    double level;
+	double tailOff;
 };
 
 
