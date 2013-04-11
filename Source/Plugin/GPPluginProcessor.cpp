@@ -45,7 +45,6 @@ public:
     {
     }
 	
-	/*
 	~GPVoice()
 	{
         if (t != nullptr)
@@ -55,15 +54,15 @@ public:
         if (buffer != nullptr)
           free(buffer);
 	}
-	*/
 
     bool canPlaySound (SynthesiserSound* sound)
     {
         return dynamic_cast <GPSound*> (sound) != 0;
     }
 
-    void setBlockSize (int bs) {
+    void setBlockSize (double sr, int bs) {
         blockSize = bs;
+		sampleRate = sr;
         if (t != nullptr)
           free(t);
         if (v != nullptr)
@@ -78,18 +77,22 @@ public:
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
     {
-        level = velocity * 0.15;
-		playing = true;
-        tailOff = 0.0;
-
         //double cyclesPerSample = cyclesPerSecond / getSampleRate();
-        double cyclesPerSecond = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-		sampleRate = getSampleRate();
+
+		// fill time info
+		time = 0.0;
 		timeDeltaPerSample = 1 / sampleRate;
-        cps = cyclesPerSecond;
+
+		// fill note info
+        cps = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
 		for (int i = 0; i < blockSize; i++) {
 		  v[i] = cps;
-		}		
+		}
+
+		// fill synth note state
+		playing = true;
+		level = velocity * 0.15;
+		tailOff = 0.0;
     }
 
     void stopNote (const bool allowTailOff)
@@ -156,9 +159,12 @@ private:
     unsigned nv;
     double* v;
 	
-	// SynthesizerVoice State
+	// Render Info
     int blockSize;
 	double sampleRate;
+
+	// Current note info
+	double time;
 	double timeDeltaPerSample;
     double cps;
 	bool playing;
@@ -271,7 +277,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
     for (unsigned i = 0; i < numSynthVoices; i++) {
-      synthVoices[i]->setBlockSize(samplesPerBlock);
+      synthVoices[i]->setBlockSize(sampleRate, samplesPerBlock);
     }
     keyboardState.reset();
     delayBuffer.clear();
