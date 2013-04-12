@@ -235,8 +235,6 @@ void ADSRNode::fillFromParams() {
     release = mutatableParams[6]->getValue();
     releaseFrames = sustainFrames + release * sampleRate;
 
-    std::cout << storeBuffer << ", " << delayFrames << ", " << attackFrames << ", " << decayFrames << ", " << sustainFrames << ", " << releaseFrames << std::endl;
-
     minimum = std::numeric_limits<double>::max();
     maximum = std::numeric_limits<double>::min();
 
