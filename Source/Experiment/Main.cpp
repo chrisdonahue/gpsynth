@@ -71,7 +71,7 @@ public:
         params->envelopeFollowerDecay = 3;
 
         // frequency domain fitness parametersi
-        params->windowType = "rect";
+        strncpy(params->windowType, "rect", 5);
         params->fftSize = 256;
         params->fftOverlap = 0;
         // phase penalty

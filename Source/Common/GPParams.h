@@ -31,7 +31,7 @@ struct GPParams {
     double envelopeFollowerDecay;
 
     // frequency domain fitness parameters
-    char windowType[4];
+    char windowType[5];
     unsigned fftSize;
     unsigned fftOverlap;
     // phase penalty
