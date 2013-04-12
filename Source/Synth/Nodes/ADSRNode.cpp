@@ -149,7 +149,6 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
             }
         }
         // if this is not a terminal node
-        // TODO: slight enhancement would be to not evaluateBlock here if release finished
         else {
             descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
             GPmultiplyCalculateRange(min, max, minimum, maximum, *min, *max);
@@ -183,24 +182,26 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 
 inline float ADSRNode::getEnvelopeValue(unsigned fn) {
     unsigned framesFilled = 0;
+    float ret = 0.0;
     if (fn < delayFrames) {
-        return 0.0;
+        ret = 0.0;
     }
     else if (fn < attackFrames) {
-        return ((fn - delayFrames) / (attackFrames)) * attackheight;
+        ret = ((fn - delayFrames) / float(attackFrames - delayFrames)) * attackheight;
     }
     else if (fn < decayFrames) {
-        return attackheight - (((fn - attackFrames) / (decayFrames)) * (attackheight - sustainheight));
+        ret = attackheight - (((fn - attackFrames) / float(decayFrames - attackFrames)) * (attackheight - sustainheight));
     }
     else if (fn < sustainFrames) {
-        return sustainheight;
+        ret = sustainheight;
     }
     else if (fn < releaseFrames) {
-        return sustainheight - (((fn - sustainFrames) / releaseFrames) * (sustainheight));
+        ret = sustainheight - (((fn - sustainFrames) / float(releaseFrames - sustainFrames)) * (sustainheight));
     }
     else {
-        return 0.0;
+        ret = 0.0;
     }
+    return ret;
 }
 
 void ADSRNode::toString(bool printRange, std::stringstream& ss) {
@@ -221,18 +222,20 @@ void ADSRNode::fillFromParams() {
     delayFrames = delay * sampleRate;
 
     attack = mutatableParams[1]->getValue();
-    attackFrames = attack * sampleRate;
+    attackFrames = delayFrames + attack * sampleRate;
     attackheight = mutatableParams[2]->getValue();
 
     decay = mutatableParams[3]->getValue();
-    decayFrames = decay * sampleRate;
+    decayFrames = attackFrames + decay * sampleRate;
 
     sustain = mutatableParams[4]->getValue();
-    sustainFrames = sustain * sampleRate;
+    sustainFrames = decayFrames + sustain * sampleRate;
     sustainheight = mutatableParams[5]->getValue();
 
     release = mutatableParams[6]->getValue();
-    releaseFrames = release * sampleRate;
+    releaseFrames = sustainFrames + release * sampleRate;
+
+    std::cout << storeBuffer << ", " << delayFrames << ", " << attackFrames << ", " << decayFrames << ", " << sustainFrames << ", " << releaseFrames << std::endl;
 
     minimum = std::numeric_limits<double>::max();
     maximum = std::numeric_limits<double>::min();
