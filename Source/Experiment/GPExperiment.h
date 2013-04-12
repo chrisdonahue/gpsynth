@@ -52,17 +52,22 @@ private:
     double penaltyFitness;
 
     // TARGET DATA CONTAINERS
+    // metadata
     double targetSampleRate;
     double targetNyquist;
     unsigned numTargetFrames;
+    // time domain
     float* targetFrames;
+    float* targetEnvelope;
+    // freq domain
     kiss_fft_cpx* targetSpectrum;
     double* targetSpectrumMagnitudes;
     double* targetSpectrumPhases;
+    // fitness function analysis
+    float* analysisWindow;
     double* weightMatrix;
     double* binOvershootingPenalty;
     double* binUndershootingPenalty;
-    float* targetEnvelope;
 
     // EVALUATION DATA
     double* sampleTimes;
@@ -96,14 +101,15 @@ private:
 
     // FOURIER TRANSFORM
     float dBRef;
-    unsigned calculateFftBufferSize(unsigned numFrames, unsigned n);
-    void FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase);
+    unsigned calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o);
+    void FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase);
 
     // WAVEFORM OPERATIONS
     void window(const char* type, unsigned n, float* windowBuffer);
     void findMovingAverage(unsigned n, float* buffer, float* movingaverage, unsigned R);
-    void applyEnvelope(unsigned n, float* buffer, float* envelope);
-    void applyEnvelope(unsigned n, float* buffer, float* envelope, float* windowedBuffer);
+    void applyWindow(unsigned n, kiss_fft_cpx* buffer, const float* window);
+    void applyEnvelope(unsigned n, float* buffer, const float* envelope);
+    void applyEnvelope(unsigned n, const float* buffer, const float* envelope, float* windowedBuffer);
     void followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate);
     void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
 

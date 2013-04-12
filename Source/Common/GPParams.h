@@ -5,36 +5,45 @@
 #include "GPFunctions.h"
 
 struct GPParams {
-    // auxillary parameters
-    bool verbose;
-    bool saveGenerationChampions;
-    unsigned printPrecision;
-    unsigned backupPrecision;
-    unsigned savePrecision;
-    unsigned wavFileBufferSize;
-    unsigned renderBlockSize;
-    unsigned fftSize;
-
-    // fitness function parameters
-    unsigned fitnessFunctionType;
-    unsigned penalizeBadMagnitude;
-    unsigned penalizeBadPhase;
-    double magnitudeWeight;
-    double phaseWeight;
-    double goodComparisonFactor;
-    double badComparisonFactor;
-    double baseComparisonFactor;
-
     // experiment parameters
     unsigned experimentNumber;
-    unsigned envelopeIterations;
-    bool saveTargetEnvelope;
+    unsigned fitnessFunctionType;
     unsigned numGenerations;
     double thresholdFitness;
     bool ephemeralRandomConstants;
 
+    // auxillary parameters
+    bool verbose;
+    bool saveGenerationChampions;
+    unsigned printPrecision;
+    unsigned savePrecision;
+    unsigned wavFileBufferSize;
+    unsigned renderBlockSize;
+
+    // fitness function weights
+    double magnitudeWeight;
+    double phaseWeight;
+    double envelopeWeight;
+
+    // time domain fitness parameters
+    bool saveTargetEnvelope;
+    double envelopeFollowerAttack;
+    double envelopeFollowerDecay;
+
+    // frequency domain fitness parameters
+    char windowType[4];
+    unsigned fftSize;
+    unsigned fftOverlap;
+    // phase penalty
+    unsigned penalizeBadPhase;
+    // magnitude penalty over/undershooting system
+    double goodComparisonFactor;
+    double badComparisonFactor;
+    double baseComparisonFactor;
+
     // synth evolution parameters
     bool backupAllNetworks;
+    unsigned backupPrecision;
     unsigned populationSize;
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;

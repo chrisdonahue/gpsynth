@@ -45,36 +45,45 @@ public:
 
         params = (GPParams*) malloc(sizeof(GPParams));
 
-        // auxillary params
-        params->verbose = false;
-        params->saveGenerationChampions = false;
-        params->printPrecision = 3;
-        params->backupPrecision = 100;
-        params->savePrecision = 4;
-        params->wavFileBufferSize = 256;
-        params->renderBlockSize = 256;
-        params->fftSize = 256;
-
-        // fitness function params
-        params->fitnessFunctionType = 1;
-        //params->penalizeBadMagnitude = 2;
-        params->penalizeBadPhase = 2;
-        params->magnitudeWeight = 1.0;
-        params->phaseWeight = 0.1;
-        params->goodComparisonFactor = 0.1;
-        params->badComparisonFactor = 1.1;
-        params->baseComparisonFactor = 0.9;
-
         // experiment params
         params->experimentNumber = 0;
-        params->saveTargetEnvelope = false;
-        params->envelopeIterations = 3;
+        params->fitnessFunctionType = 1;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
         params->ephemeralRandomConstants = true;
 
+        // auxillary params
+        params->verbose = false;
+        params->saveGenerationChampions = false;
+        params->printPrecision = 3;
+        params->savePrecision = 4;
+        params->wavFileBufferSize = 256;
+        params->renderBlockSize = 256;
+
+        // fitness function weights
+        params->magnitudeWeight = 1.0;
+        params->phaseWeight = 0.1;
+        params->envelopeWeight = 0.5;
+
+        // time domain fitness parameters
+        params->saveTargetEnvelope = false;
+        params->envelopeFollowerAttack = 1;
+        params->envelopeFollowerDecay = 3;
+
+        // frequency domain fitness parametersi
+        params->windowType = "rect";
+        params->fftSize = 256;
+        params->fftOverlap = 0;
+        // phase penalty
+        params->penalizeBadPhase = 2;
+        // magnitude penalty
+        params->goodComparisonFactor = 0.1;
+        params->badComparisonFactor = 1.1;
+        params->baseComparisonFactor = 0.9;
+
         // synth evolution params
         params->backupAllNetworks = false;
+        params->backupPrecision = 100;
         params->populationSize = 500;
         params->lowerFitnessIsBetter = true;
         params->bestPossibleFitness = 0;

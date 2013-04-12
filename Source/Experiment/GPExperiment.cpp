@@ -298,6 +298,7 @@ GPExperiment::~GPExperiment() {
     free(targetFrames);
     free(targetEnvelope);
     if (params->fitnessFunctionType == 1) {
+        free(analysisWindow);
         free(targetSpectrum);
         free(targetSpectrumMagnitudes);
         free(targetSpectrumPhases);
@@ -320,6 +321,7 @@ GPNetwork* GPExperiment::evolve() {
     GPNetwork* champ = NULL;
     GPNetwork* generationChamp = NULL;
     int numEvaluated = 0;
+    int numUnevaluatedThisGeneration = 0;
     double generationMinimumFitness = INFINITY;
     float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
 
@@ -358,7 +360,7 @@ GPNetwork* GPExperiment::evolve() {
             champ->fitness = minFitnessAchieved;
         }
 
-        int numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
+        numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
         if (numUnevaluatedThisGeneration == 0) {
             generationMinimumFitness = INFINITY;
 
@@ -386,8 +388,7 @@ GPNetwork* GPExperiment::evolve() {
     if (minFitnessAchieved <= fitnessThreshold) {
         std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
-    // TODO: add decimal precision to numEvaluatedGeneratinos
-    std::cerr << "Evolution completed " << numEvaluatedGenerations << " generations" << std::endl;
+    std::cerr << "Evolution ran for " << (numEvaluatedGenerations + (populationSize - numUnevaluatedThisGeneration)/float(populationSize)) << " generations" << std::endl;
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
@@ -428,26 +429,23 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
 
     // FILL ENVELOPE OF TARGET BUFFER
     targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
-    for (unsigned i = 0; i < params->envelopeIterations; i++) {
-        if (i == 0) {
-            findEnvelope(true, numTargetFrames, targetFrames, targetEnvelope);
-        }
-        else {
-            findEnvelope(true, numTargetFrames, targetEnvelope, targetEnvelope);
-        }
-    }
+    followEnvelope(numTargetFrames, targetFrames, params->envelopeFollowerAttack, params->envelopeFollowerDecay, targetSampleRate);
     if (params->saveTargetEnvelope) {
         char buffer[100];
         snprintf(buffer, 100, "%d.targetenvelope.txt", seed);
         saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
-        //saveWavFile(String("./envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
     }
 
     // FILL FREQUENCY SPECTRUM OF TARGET
     if (params->fitnessFunctionType > 0) {
-        // calculate with fft window size
+        // calculate with fft window size/overlap
         unsigned n = params->fftSize;
-        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
+        unsigned overlap = params->fftOverlap;
+        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n, overlap);
+        
+        // allocate window
+        analysisWindow = (float*) malloc(sizeof(float) * n);
+        window(params->windowType, n, analysisWindow);
 
         // allocate output buffers
         targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
@@ -458,7 +456,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
         // take fft of target data
-        FftReal(numTargetFrames, targetFrames, n, targetSpectrum, false, targetSpectrumMagnitudes, targetSpectrumPhases);
+        FftReal(numTargetFrames, analysisWindow, targetFrames, n, overlap, targetSpectrum, false, targetSpectrumMagnitudes, targetSpectrumPhases);
 
         // calculate stats on each frame
         double base = params->baseComparisonFactor;
@@ -467,6 +465,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         //std::cout << good << ", " << bad << std::endl;
         unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
+        float* mac = (float*) malloc(sizeof(float) * fftOutSize);
         for (unsigned i = 0; i < numFftFrames; i++) {
             // calculate frame average magnitude
             double sum = 0;
@@ -512,6 +511,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 */
             }
         }
+        free(mac);
     }
 }
 
@@ -620,13 +620,14 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
     }
     else if (type == 1) {
         unsigned n = params->fftSize;
+        unsigned overlap = params->fftOverlap;
 
         unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n);
         kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
         double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
-        FftReal(numTargetFrames, candidateFrames, n, output, false, magnitude, phase);
+        FftReal(numTargetFrames, analysisWindow, candidateFrames, n, overlap, output, false, magnitude, phase);
 
         double MSEmag = 0;
         double MSEph = 0;
@@ -666,19 +667,23 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
     ===========
 */
 
-unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n) {
-    unsigned numFftCalls = numFrames / n;
-    if (numFrames % n > 0)
+unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o) {
+    unsigned numFftCalls = 0;
+    unsigned shift = n - o;
+    for (unsigned i = 0; i < n;) {
         numFftCalls++;
+        i += shift;
+    }
     return numFftCalls * ((n/2) + 1);
 }
 
-void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase) {
+void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase) {
     kiss_fftr_cfg cfg;
     cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
     kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
 
     unsigned fftOutputSize = (n/2 + 1);
+    unsigned shift = n - overlap;
     int64 numCompleted = 0;
     int64 numRemaining = numFrames;
     int64 numFftOutputUsed = 0;
@@ -686,14 +691,17 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, k
         // fill the input buffer
         unsigned numToTransform = numRemaining > n ? n : numRemaining;
         for (size_t i = 0; i < numToTransform; i++) {
-            in[i] = input[numCompleted];
-            numCompleted++;
-            numRemaining--;
+            in[i] = input[numCompleted + i];
         }
+        numCompleted += shift;
+        numRemaining -= shift;
         // 0 out rest of input buffer if we're out of frames
         for (size_t i = numToTransform; i < n; i++) {
             in[i] = 0;
         }
+
+        // apply window
+        applyWindow(n, in, window);
 
         // perform fft
         kiss_fftr(cfg, in, out + numFftOutputUsed);
@@ -778,16 +786,21 @@ void GPExperiment::findMovingAverage(unsigned n, float* buffer, float* movingave
         movingaverage[i] = sumOfDiameter / (R + n - i);
         bufferIndexMinusRValue = buffer[i - R];
     }
-
 }
 
-void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope) {
+void GPExperiment::applyWindow(unsigned n, kiss_fft_cpx* buffer, const float* window) {
+    for (unsigned i = 0; i < n; i++) {
+        buffer[i] *= window[i];
+    }
+}
+
+void GPExperiment::applyEnvelope(unsigned n, float* buffer, const float* envelope) {
   for (unsigned i = 0; i < n; i++) {
     buffer[i] *= envelope[i];
   }
 }
 
-void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope, float* envelopedBuffer) {
+void GPExperiment::applyEnvelope(unsigned n, const float* buffer, const float* envelope, float* envelopedBuffer) {
   for (unsigned i = 0; i < n; i++) {
     envelopedBuffer[i] = buffer[i] * envelope[i];
   }
