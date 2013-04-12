@@ -130,20 +130,27 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         GPNode* ADSRnonterm = new ADSRNode(false, false, targetSampleRate, Delay->getCopy(), Attack->getCopy(), AttackHeight->getCopy(), Decay->getCopy(), Sustain->getCopy(), SustainHeight->getCopy(), Release->getCopy(), oscilPartialOne);
         GPNode* mult = new FunctionNode(multiply, oscilPartialOne, ADSRterm);
 
+        GPNetwork* OSCIL = new GPNetwork(oscilPartialOne);
+        OSCIL->traceNetwork();
+
         GPNetwork* ADSRTERM = new GPNetwork(mult);
         ADSRTERM->traceNetwork();
 
         GPNetwork* ADSRNONTERM = new GPNetwork(ADSRnonterm);
         ADSRNONTERM->traceNetwork();
 
+        float* oscil = (float*) malloc(sizeof(float) * numTargetFrames);
         float* term = (float*) malloc(sizeof(float) * numTargetFrames);
         float* nonterm = (float*) malloc(sizeof(float) * numTargetFrames);
+        renderIndividualByBlock(OSCIL, numTargetFrames, params->renderBlockSize, oscil);
         renderIndividualByBlock(ADSRTERM, numTargetFrames, params->renderBlockSize, term);
         renderIndividualByBlock(ADSRNONTERM, numTargetFrames, params->renderBlockSize, nonterm);
 
+        saveWavFile("./oscil.wav", String(OSCIL->toString(true, 10).c_str()), numTargetFrames, 44100, oscil);
         saveWavFile("./term.wav", String(ADSRTERM->toString(true, 10).c_str()), numTargetFrames, 44100, term);
         saveWavFile("./nonterm.wav", String(ADSRNONTERM->toString(true, 10).c_str()), numTargetFrames, 44100, nonterm);
 
+        free(oscil);
         free(nonterm);
         free(term);
         exit(-1);
