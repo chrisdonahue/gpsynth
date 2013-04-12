@@ -57,6 +57,7 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
 NEXT EXPERIMENTS (run on Friday before gig):
+    ADSR stuff
     1. Run tests controlling the following variables:
         Fitness function
             Compare spectral content:
