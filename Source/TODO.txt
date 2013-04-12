@@ -57,13 +57,14 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
 NEXT EXPERIMENTS (run on Friday before gig):
-    run experiment 8 and audacity nonterm and term.wav
+    figure out why submit node doesnt like preprocessor directives in GPRANDOM
     1. Run tests controlling the following variables:
+        performance version of ADSR
+        new windowing system/overlap system with parameters so its identical to old
         Fitness function
             Compare spectral content:
-                Apply window (Hann but start with Rectangular for comparison)
                 Moving average for under/over
-                amp dB FFT with n frames of overlap. 0 is no overlap, FFTSize-1 is max overlap
+                amp dB FFT
             Compare envelope:
                 Single iteration of envelope follower
                 Compare every n samples
