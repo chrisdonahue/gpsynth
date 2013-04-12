@@ -113,6 +113,22 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new ADSRNode(true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
+    // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
+    if (params->experimentNumber == 9) {
+        // SAVE WAVEFORM
+        //saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
+
+        // TEST ENVELOPE FOLLOWER
+        float* envelope = (float*) malloc(sizeof(float) * numTargetFrames);
+        float* smoothEnv = (float*) malloc(sizeof(float) * numTargetFrames);
+        followEnvelope(numTargetFrames, targetFrames, envelope, 1, 300, targetSampleRate);
+        findEnvelope(true, numTargetFrames, envelope, smoothEnv);
+        saveTextFile(String("./smoothenva1r300.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Envelope (amp)"), true, numTargetFrames, NULL, smoothEnv));
+
+        free(smoothEnv);
+        free(envelope);
+        exit(-1);
+    }
     // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
     if (params->experimentNumber == 10) {
         // SAVE WAVEFORM
@@ -738,6 +754,26 @@ void GPExperiment::applyEnvelope(unsigned n, float* buffer, float* envelope, flo
   for (unsigned i = 0; i < n; i++) {
     envelopedBuffer[i] = buffer[i] * envelope[i];
   }
+}
+
+// FROM: http://musicdsp.org/showArchiveComment.php?ArchiveID=136 
+void GPExperiment::followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate) {
+    double attack_coef = exp(log(0.01)/( attack_in_ms * samplerate * 0.001));
+    double release_coef = exp(log(0.01)/( release_in_ms * samplerate * 0.001));
+    
+    double currentValue;
+    envelope[0] = buffer[0];
+    double currentEnvelope = envelope[0];
+    for (unsigned i = 1; i < n; i++) {
+        currentValue = fabs(buffer[i]);
+        if (currentValue > currentEnvelope) {
+            currentEnvelope = attack_coef * (currentEnvelope - currentValue) + currentValue;
+        }
+        else {
+            currentEnvelope = release_coef * (currentEnvelope - currentValue) + currentValue;
+        }
+        envelope[i] = currentEnvelope;
+    }
 }
 
 void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env) {

@@ -104,6 +104,7 @@ private:
     void findMovingAverage(unsigned n, float* buffer, float* movingaverage, unsigned R);
     void applyEnvelope(unsigned n, float* buffer, float* envelope);
     void applyEnvelope(unsigned n, float* buffer, float* envelope, float* windowedBuffer);
+    void followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate);
     void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
 
     // GRAPH HELPERS

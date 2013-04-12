@@ -54,19 +54,16 @@ TODO long run:
     fleschter munsion? :/
     Check if numerical mutation is working...
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
+    fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
-NEXT EXPERIMENTS (by Wednesday):
-    3. Run tests controlling the following variables:
-        5. Fitness function
-            Hanning window (wikipedia article)
-            apply window function to evaulations
-            overlap between fourier transform frames?
-            Replace raw energy average with moving average for overshooting/undershooting calcs
-            comparison to average for fitness function should be in log dB scale
-            maybe change fitness function to measure partials relative to maximum instead of absolute
-            perhaps fitness function needs to consider different domains independently by a sum:
-                envelope comparison (RMS envelope tracking?)
-                spectral content
-                noise shaping
-                phase
-        6. Get filters/noise working again. Switch filter libs probably
+NEXT EXPERIMENTS (run on Friday before gig):
+    1. Run tests controlling the following variables:
+        Fitness function
+            Compare spectral content:
+                Apply window (Hann but start with Rectangular for comparison)
+                Moving average for under/over
+                amp dB FFT with n frames of overlap. 0 is no overlap, FFTSize-1 is max overlap
+            Compare envelope:
+                Single iteration of envelope follower
+                Compare every n samples
+    3. Get filters/noise working again. Switch filter libs probably
