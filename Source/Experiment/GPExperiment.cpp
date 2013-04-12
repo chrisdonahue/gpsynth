@@ -666,7 +666,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o) {
     unsigned numFftCalls = 0;
     unsigned shift = n - o;
-    for (unsigned i = 0; i < n;) {
+    for (unsigned i = 0; i < numFrames;) {
         numFftCalls++;
         i += shift;
     }
