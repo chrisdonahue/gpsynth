@@ -37,8 +37,9 @@ void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 }
 
 void VariableNode::toString(bool printRange, std::stringstream& ss) {
-	printRange;
-    ss << "(v" << variableNum << ")";
+	if (printRange) {
+        ss << "(v" << variableNum << ")";
+    }
 }
 
 void VariableNode::updateMutatedParams() {

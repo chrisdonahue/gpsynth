@@ -28,6 +28,7 @@ struct GPParams {
     // experiment parameters
     unsigned experimentNumber;
     unsigned envelopeIterations;
+    bool saveTargetEnvelope;
     unsigned numGenerations;
     double thresholdFitness;
     bool ephemeralRandomConstants;

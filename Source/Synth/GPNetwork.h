@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string.h>
 #include "GPNode.h"
+#include "Nodes/ADSRNode.h"
 #include "Nodes/ConstantNode.h"
 #include "Nodes/TimeNode.h"
 #include "Nodes/VariableNode.h"
@@ -26,7 +27,7 @@ class GPNetwork {
 public:
     // CONSTRUCTION
     GPNetwork(GPNode* r);
-    GPNetwork(GPParams* p, std::string netstring);
+    GPNetwork(GPParams* p, double sr, std::string netstring);
     ~GPNetwork();
     GPNetwork* getCopy();
 
@@ -58,6 +59,7 @@ private:
     std::vector<GPMutatableParam*> allMutatableParams;
 };
 
-extern GPNode* createSubtree(GPParams* p, char* tokenized);
+extern GPNode* createSubtree(GPParams* p, double sr, char* tokenized);
+extern GPMutatableParam* createMutatableParam(char* tokenized);
 
 #endif

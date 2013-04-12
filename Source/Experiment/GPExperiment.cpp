@@ -113,6 +113,41 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new ADSRNode(false, true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         nodes->push_back(new ADSRNode(false, false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
+    // TESTING NEW ADSR
+    if (params->experimentNumber == 8) {
+        GPMutatableParam* Delay = new GPMutatableParam("adsrdelay", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* Attack = new GPMutatableParam("adsrattack", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* AttackHeight = new GPMutatableParam("adsrattackheight", true, 0.8, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
+        GPMutatableParam* Decay = new GPMutatableParam("adsrdecay", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* Sustain = new GPMutatableParam("adsrsustain", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* SustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.5, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
+        GPMutatableParam* Release = new GPMutatableParam("adsrrelease", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
+
+        GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 5);
+
+        GPNode* oscilPartialOne = new OscilNode(true, partialOne, 0, NULL, NULL);
+        GPNode* ADSRterm = new ADSRNode(false, true, targetSampleRate, Delay->getCopy(), Attack->getCopy(), AttackHeight->getCopy(), Decay->getCopy(), Sustain->getCopy(), SustainHeight->getCopy(), Release->getCopy(), NULL);
+        GPNode* ADSRnonterm = new ADSRNode(false, false, targetSampleRate, Delay->getCopy(), Attack->getCopy(), AttackHeight->getCopy(), Decay->getCopy(), Sustain->getCopy(), SustainHeight->getCopy(), Release->getCopy(), oscilPartialOne);
+        GPNode* mult = new FunctionNode(multiply, oscilPartialOne, ADSRterm);
+
+        GPNetwork* ADSRTERM = new GPNetwork(mult);
+        ADSRTERM->traceNetwork();
+
+        GPNetwork* ADSRNONTERM = new GPNetwork(ADSRnonterm);
+        ADSRNONTERM->traceNetwork();
+
+        float* term = (float*) malloc(sizeof(float) * numTargetFrames);
+        float* nonterm = (float*) malloc(sizeof(float) * numTargetFrames);
+        renderIndividualByBlock(ADSRTERM, numTargetFrames, params->renderBlockSize, term);
+        renderIndividualByBlock(ADSRNONTERM, numTargetFrames, params->renderBlockSize, nonterm);
+
+        saveWavFile("./term.wav", String(ADSRTERM->toString(true, 10).c_str()), numTargetFrames, 44100, term);
+        saveWavFile("./nonterm.wav", String(ADSRNONTERM->toString(true, 10).c_str()), numTargetFrames, 44100, nonterm);
+
+        free(nonterm);
+        free(term);
+        exit(-1);
+    }
     // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
     if (params->experimentNumber == 9) {
         // SAVE WAVEFORM
@@ -401,8 +436,10 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             findEnvelope(true, numTargetFrames, targetEnvelope, targetEnvelope);
         }
     }
-    if (params->envelopeIterations > 0) {
-        saveTextFile(savePath + String("./targetEnvelope.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
+    if (params->saveTargetEnvelope) {
+        char buffer[100];
+        snprintf(buffer, 100, "%d.targetenvelope.txt", seed);
+        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
         //saveWavFile(String("./envelope.wav"), String("envelope"), numTargetFrames, targetSampleRate, targetEnvelope);
     }
 

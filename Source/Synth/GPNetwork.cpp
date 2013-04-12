@@ -25,13 +25,13 @@ GPNetwork::GPNetwork(GPNode* r) :
     depth = r->depth;
 }
 
-GPNetwork::GPNetwork(GPParams* p, std::string netstring) {
+GPNetwork::GPNetwork(GPParams* p, double sr, std::string netstring) {
     ID = -1;
     fitness = -1;
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
     std::copy(netstring.begin(), netstring.end(), expr);
     expr[netstring.size()] = '\0';
-    root = createSubtree(p, strtok(expr, " )("));
+    root = createSubtree(p, sr, strtok(expr, " )("));
     free(expr);
 }
 
@@ -135,30 +135,62 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->updateMutatedParams();
 }
 
+GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " {},")) {
+    std::cout << "----" << std::endl;
+    char* t = tokenized;
+    std::cout << t << std::endl;
+    // CONTINUOUS
+    if (strcmp(t, "C:") == 0) {
+        double min = std::atof(++t);
+        double val = std::atof(++t);
+        double max = std::atof(++t);
+        return new GPMutatableParam(std::string(""), true, val, min, max);
+    }
+    // DISCRETE
+    else if (strcmp(t, "D:") == 0) {
+        int min = std::atoi(++t);
+        int val = std::atoi(++t);
+        int max = std::atoi(++t);
+        return new GPMutatableParam(std::string(""), true, val, min, max);
+    }
+}
+
 // RECURSIVE CONSTRUCTION
-GPNode* createSubtree(GPParams* p, char* tokenized=strtok(NULL, " )(")) {
+GPNode* createSubtree(GPParams* p, double sr, char* tokenized=strtok(NULL, " )(")) {
     //std::cout << "----" << std::endl;
     char* t = tokenized;
+    double centerConstant = 1;
     //std::cout << t << std::endl;
+    // FUNCTION NODES
     if (strcmp(t, "+") == 0) {
-        return new FunctionNode(add, createSubtree(p), createSubtree(p));
+        return new FunctionNode(add, createSubtree(p, sr), createSubtree(p, sr));
     }
     else if (strcmp(t, "*") == 0) {
-        return new FunctionNode(multiply, createSubtree(p), createSubtree(p));
+        return new FunctionNode(multiply, createSubtree(p, sr), createSubtree(p, sr));
     }
     else if (strcmp(t, "sin") == 0) {
-        return new FunctionNode(sine, createSubtree(p), NULL);
+        return new FunctionNode(sine, createSubtree(p, sr), NULL);
     }
-    else if (strcmp(t, "pi") == 0) {
-        return new ConstantNode(new GPMutatableParam("pi", false, M_PI, 0.0, 0.0));
+    // ADSR NODES
+    else if (strcmp(t, "adsr*") == 0) {
+        return new ADSRNode(false, false, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createSubtree(p, sr));
     }
+    else if (strcmp(t, "adsr") == 0) {
+        return new ADSRNode(false, true, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), NULL);
+    }
+    // TIME NODE
     else if (strcmp(t, "time") == 0) {
         return new TimeNode();
     }
+    // VARIABLE NODE
     else if (strncmp(t, "v", 1) == 0) {
         return new VariableNode(std::atoi(t + 1), 0.0, 0.0);
     }
+    // CONSTANT NODES
+    else if (strcmp(t, "pi") == 0) {
+        return new ConstantNode(new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant));
+    }
     else {
-        return new ConstantNode(new GPMutatableParam("constantvalue", true, std::atof(t), p->valueNodeMinimum, p->valueNodeMaximum));
+        return new ConstantNode(createMutatableParam());
     }
 }
