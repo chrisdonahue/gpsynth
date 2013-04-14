@@ -21,6 +21,7 @@ public:
     NoiseNode* getCopy();
 
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
+	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
     void toString(bool printRange, std::stringstream& ss);
     void updateMutatedParams();
     void whitenoise(float* _fpDstBuffer, unsigned int _uiBufferSize, float _fLevel );

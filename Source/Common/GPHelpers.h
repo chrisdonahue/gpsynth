@@ -17,4 +17,22 @@ inline void continuousMapRange(double w, double x, double y, double z, double* m
     *b = (y - w * (*m));
 }
 
+inline void intervalMultiply(float* min, float* max, float zeromin, float zeromax, float onemin, float onemax) {
+    float products[4];
+    products[0] = zeromin * onemin;
+    products[1] = zeromin * onemax;
+    products[2] = zeromax * onemin;
+    products[3] = zeromax * onemax;
+
+	*min = products[0];
+	*max = products[0];
+
+    for (char i = 1; i < 4; i++) {
+        if (products[i] < *min)
+            *min = products[i];
+        if (products[i] > *max)
+            *max = products[i];
+    }
+}
+
 #endif

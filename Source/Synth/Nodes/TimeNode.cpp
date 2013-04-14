@@ -31,6 +31,10 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
+void TimeNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+
+}
+
 void TimeNode::toString(bool printRange, std::stringstream& ss) {
 	printRange;
     ss << "(time)";

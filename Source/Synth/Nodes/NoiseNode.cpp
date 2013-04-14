@@ -58,6 +58,10 @@ void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     */
 }
 
+void NoiseNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+
+}
+
 /*
     http://musicdsp.org/showArchiveComment.php?ArchiveID=216
 */

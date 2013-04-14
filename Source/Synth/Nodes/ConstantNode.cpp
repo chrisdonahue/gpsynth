@@ -37,6 +37,18 @@ void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
+void ConstantNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+	v;
+	nv;
+	t;
+	fn;
+    *min = minimum;
+    *max = maximum;
+    for (unsigned i = 0; i < n; i++) {
+        buffer[i] = value;
+    }
+}
+
 void ConstantNode::toString(bool printRange, std::stringstream& ss) {
     if (value == M_PI) {
         ss << "(pi)";

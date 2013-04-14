@@ -38,6 +38,7 @@ public:
 
     // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
     virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
+	virtual void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) = 0;
     virtual void toString(bool printRange, std::stringstream& ss) = 0;
     virtual GPNode* getCopy() = 0;
     virtual void updateMutatedParams() = 0;

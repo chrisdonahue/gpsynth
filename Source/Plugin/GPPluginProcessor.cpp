@@ -34,66 +34,47 @@ public:
 class GPVoice  : public SynthesiserVoice
 {
 public:
-    GPVoice(GPNetwork* net)
+    GPVoice(GPNetwork* net, unsigned nv)
         : network(net),
 		  buffer(nullptr),
-          t(nullptr),
-          nv(0),
-          v(nullptr),
-          blockSize(0),
-		  sampleRate(0.0),
-		  time(0.0),
-		  timeDeltaPerSample(0.0),
-		  cps(0.0),
-		  playing(false),
-		  level(0.0),
-          tailOff (0.0)
+		  numVariables(nv), variables(nullptr),
+          blockSize(0), sampleTimes(nullptr), blockSizeInBytes(0), sampleRate(0),
+		  frameNumber(0), cps(0.0), playing(false), level(0.0), tailOff(0.0)
     {
     }
 	
 	~GPVoice()
 	{
-        if (t != nullptr)
-          free(t);
-        if (v != nullptr)
-          free(v);
+        if (variables != nullptr)
+          free(variables);
         if (buffer != nullptr)
           free(buffer);
 	}
 
-    bool canPlaySound (SynthesiserSound* sound)
-    {
-        return dynamic_cast <GPSound*> (sound) != 0;
-    }
-
-    void setBlockSize (double sr, int bs) {
-        blockSize = bs;
+    void setRenderParams(double sr, int bs, int maxfn, float* t) {
 		sampleRate = sr;
-        if (t != nullptr)
-          free(t);
-        if (v != nullptr)
-          free(v);
+        blockSize = bs;
+		blockSizeInBytes = sizeof(float) * bs;
+		sampleTimes = t;
+
+        if (variables != nullptr)
+          free(variables);
         if (buffer != nullptr)
-          free(buffer);	  
+          free(buffer);
+
 		buffer = (float*) malloc(sizeof(float) * blockSize);
-        t = (double*) malloc(sizeof(double) * blockSize);
-        v = (double*) malloc(sizeof(double) * blockSize);
+		variables = (float*) malloc(sizeof(float) * numVariables);
     }
 
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
     {
-        //double cyclesPerSample = cyclesPerSecond / getSampleRate();
-
 		// fill time info
-		time = 0.0;
-		timeDeltaPerSample = 1 / sampleRate;
+		frameNumber = 0;
 
 		// fill note info
         cps = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-		for (int i = 0; i < blockSize; i++) {
-		  v[i] = cps;
-		}
+		variables[0] = cps;
 
 		// fill synth note state
 		playing = true;
@@ -138,39 +119,46 @@ public:
 				playing = false;
 				clearCurrentNote();
 			}
-			else {
-				for (int i = startSample; i < startSample + numSamples; i++) {
-				  t[i] = time;
-				  time += timeDeltaPerSample;
-				}
-			
+			else {			
 				// fill audio buffers
-				network->evaluateBlock(startSample, t, nv, v, numSamples, buffer);
+				network->evaluateBlockPerformance(frameNumber, sampleTimes + frameNumber, numVariables, variables, numSamples, buffer);
+
 				for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
 					float* channelBuffer = outputBuffer.getSampleData(i, startSample);
+					//memcpy(outputBuffer.getSampleData(i, startSample), buffer, blockSizeInBytes);
 					for (int j = 0; j < numSamples; j++) {
 						channelBuffer[j] = buffer[j] * level;
 					}
 				}
+				frameNumber += numSamples;
 			}
 		}
     }
 
+    bool canPlaySound (SynthesiserSound* sound)
+    {
+        return dynamic_cast <GPSound*> (sound) != 0;
+    }
+
 private:
-	// GPSynthesis State
+	// Algorithm
     GPNetwork* network;
+
+	// Render Buffer
 	float* buffer;
-    double* t;
-    unsigned nv;
-    double* v;
 	
-	// Render Info
+	// Control Variables
+    unsigned numVariables;
+    float* variables;
+	
+	// Render Parameters
     int blockSize;
+    float* sampleTimes;
+	size_t blockSizeInBytes;
 	double sampleRate;
 
 	// Current note info
-	double time;
-	double timeDeltaPerSample;
+	unsigned frameNumber;
     double cps;
 	bool playing;
     float level;
@@ -198,12 +186,12 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     sinwave->traceNetwork();
 
     // Initialise the synth...
-    numSynthVoices = 4;
+    numSynthVoices = 2;
     synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
     for (int i = numSynthVoices; --i >= 0;) {
         GPNetwork* sinCopy = sinwave->getCopy();
         sinCopy->traceNetwork();
-        GPVoice* newVoice = new GPVoice(sinCopy);
+        GPVoice* newVoice = new GPVoice(sinCopy, 0);
         synth.addVoice (newVoice);   // These voices will play our custom sine-wave sounds..
         synthVoices[i] = newVoice;
     }
@@ -281,8 +269,14 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
+	float maxNoteLengthInSeconds = 10;
+	unsigned maxNumSamples = maxNoteLengthInSeconds * sampleRate;
+	float* times = (float*) malloc(sizeof(float) * maxNumSamples);
+	for (unsigned i = 0; i < maxNumSamples; i++) {
+		times[i] = i / sampleRate;
+	}
     for (unsigned i = 0; i < numSynthVoices; i++) {
-      synthVoices[i]->setBlockSize(sampleRate, samplesPerBlock);
+      synthVoices[i]->setRenderParams(sampleRate, samplesPerBlock, maxNumSamples, times);
     }
     keyboardState.reset();
     delayBuffer.clear();

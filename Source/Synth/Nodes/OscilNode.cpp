@@ -61,6 +61,27 @@ void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
         for (unsigned i = 0; i < n; i++) {
             // equivalent to chowning 1973 FM synthesis assuming buffer is a sine wave
             buffer[i] = sin( (w * (t[i]) * (*currentIndex)) + (index * buffer[i]));
+			currentIndex += nv;
+        }
+    }
+}
+
+void OscilNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+    if (!terminalOscil) {
+        descendants[0]->evaluateBlockPerformance(fn, t, nv, v, min, max, n, buffer);
+    }
+    *min = -1;
+    *max = 1;
+    if (terminalOscil) {
+        for (unsigned i = 0; i < n; i++) {
+            // produce a sine wave at frequency *currentIndex * p
+            buffer[i] = sin(w * (t[i]) * (v[variableNum]));
+        }
+    }
+    else {
+        for (unsigned i = 0; i < n; i++) {
+            // equivalent to chowning 1973 FM synthesis assuming buffer is a sine wave
+            buffer[i] = sin( (w * (t[i]) * (v[variableNum])) + (index * buffer[i]));
         }
     }
 }

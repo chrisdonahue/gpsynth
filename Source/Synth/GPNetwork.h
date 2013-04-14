@@ -33,6 +33,7 @@ public:
 
     // EXAMINATION
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
+	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, unsigned n, float* buffer);
     unsigned getDepth();
     std::string toString(bool printRange, unsigned precision);
     GPNode* getRoot();

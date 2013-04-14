@@ -61,6 +61,10 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
+void FunctionNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+
+}
+
 void FunctionNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(" << gpfunction.symbol;
     for (unsigned i = 0; i < arity; i++) {

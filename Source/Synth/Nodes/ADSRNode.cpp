@@ -180,6 +180,66 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
+void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+    // if frame number is within the envelope
+    if (fn < framesInEnvelope)
+        releaseFinished = false;
+    else
+        releaseFinished = true;
+
+    // if this is a terminal node
+    if (terminalADSR) {
+        *min = minimum;
+        *max = maximum;
+        if (!releaseFinished) {
+            if (fn + n > framesInEnvelope) {
+                for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
+                    buffer[i] = envelope[fn + i];
+                }
+                for (unsigned i = framesInEnvelope - fn; i < n; i++) {
+                    buffer[i] = 0.0;
+                }
+                releaseFinished = true;
+            }
+            else {
+                for (unsigned i = 0; i < n; i++) {
+                    buffer[i] = envelope[fn + i];
+                }
+            }
+        }
+    }
+    // if this is not a terminal node
+    // TODO: slight enhancement would be to not evaluateBlock here if release finished
+    else {
+        descendants[0]->evaluateBlockPerformance(fn, t, nv, v, min, max, n, buffer);
+        intervalMultiply(min, max, minimum, maximum, *min, *max);
+        if (!releaseFinished) {
+            // if ADSR hasn't finished releasing but will within these n frames
+            if (fn + n > framesInEnvelope) {
+                for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
+                    buffer[i] = buffer[i] * envelope[fn + i];
+                }
+                for (unsigned i = framesInEnvelope - fn; i < n; i++) {
+                    buffer[i] = 0.0;
+                }
+                releaseFinished = true;
+            }
+            // else if ADSR hasn't finished releasing and won't within n
+            else {
+                for (unsigned i = 0; i < n; i++) {
+                    buffer[i] = buffer[i] * envelope[fn + i];
+                }
+            }
+        }
+    }
+    // else if ADSR has finished releasing for all n frames
+    if (releaseFinished) {
+        for (unsigned i = 0; i < n; i++) {
+            buffer[i] = 0.0;
+        }
+    }
+}
+
 inline float ADSRNode::getEnvelopeValue(unsigned fn) {
     unsigned framesFilled = 0;
     float ret = 0.0;

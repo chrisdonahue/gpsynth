@@ -57,6 +57,14 @@ void GPNetwork::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, un
     //printf("min: %.2lf max: %.2lf\n", min, max);
 }
 
+void GPNetwork::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, unsigned n, float* buffer) {
+	float min = std::numeric_limits<float>::min();
+    float max = std::numeric_limits<float>::max();
+    root->evaluateBlockPerformance(fn, t, nv, v, &min, &max, n, buffer);
+    //printf("min: %.2lf max: %.2lf\n", min, max);
+}
+
+
 unsigned GPNetwork::getDepth() {
     return depth;
 }

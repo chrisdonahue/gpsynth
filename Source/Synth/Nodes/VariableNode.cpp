@@ -36,6 +36,10 @@ void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
+void VariableNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+
+}
+
 void VariableNode::toString(bool printRange, std::stringstream& ss) {
 	if (printRange) {
         ss << "(v" << variableNum << ")";
