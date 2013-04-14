@@ -33,6 +33,7 @@ Interactive:
     Buttons to step backwards through evolution
     button to run random evolution for a while
     novelty search of new spectrum elements/spectral peak ratios
+    Add max noet length as a slider to GUI in order to make TimeNode potentially useful
 
 Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
