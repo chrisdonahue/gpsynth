@@ -35,6 +35,9 @@ Interactive:
     novelty search of new spectrum elements/spectral peak ratios
     Add max noet length as a slider to GUI in order to make TimeNode potentially useful
     link visual studio with boost
+    interval variable as primatives? (open 5th, 4th, etc).
+    are min/max always constant? do we need to have this be a param for evaluateBlockPerformance? Maybe it could be done during traceNetwork
+    variablenode interval for cps stuff is 1-nyquist
 
 Ideas:
     use GPHelper to map a range for OscilNode's index of modulation

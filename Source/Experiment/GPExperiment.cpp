@@ -261,11 +261,13 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // SET FF-VARYING PARAMS FROM FITNESS FUNCTION
     if (params->fitnessFunctionType == 0) {
         p->bestPossibleFitness = 0;
+        p->penaltyFitness = std::numeric_limits<float>::max();
         p->lowerFitnessIsBetter = true;
         lowerFitnessIsBetter = params->lowerFitnessIsBetter;
     }
     else {
         p->bestPossibleFitness = 0;
+        p->penaltyFitness = std::numeric_limits<float>::max();
         p->lowerFitnessIsBetter = true;
         lowerFitnessIsBetter = params->lowerFitnessIsBetter;
     }
