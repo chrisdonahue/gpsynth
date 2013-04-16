@@ -13,11 +13,7 @@
 
 #include <cmath>
 #include <iostream>
-#ifdef _WIN32
-#include <random>
-#else
 #include "boost/random.hpp"
-#endif
 
 class GPRandom {
 public:
@@ -32,13 +28,8 @@ public:
 
 private:
     const unsigned seed;
-#ifdef _WIN32
-	std::mt19937 engine;
-	std::uniform_real_distribution<double> uni_real;
-#else
 	boost::mt19937 engine;
     boost::uniform_real<double> uni_real;
-#endif
 
     // GNU GAUSS MEMBER VARIABLES
     double fac;

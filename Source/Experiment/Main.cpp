@@ -43,6 +43,7 @@ public:
         std::vector<double> constants(0);
         bool printExperimentInfo = false;
 
+        // init params
         params = (GPParams*) malloc(sizeof(GPParams));
 
         // experiment params
@@ -140,6 +141,7 @@ public:
         params->numVariables = 0;
 
         for (String* i = args.begin(); i < args.end(); i++) {
+            // temp fields
             if (i->equalsIgnoreCase("--target")) {
                 target = *(++i);
             }
@@ -148,18 +150,6 @@ public:
             }
             else if (i->equalsIgnoreCase("--seed")) {
                 seed = (++i)->getIntValue();
-            }
-            else if (i->equalsIgnoreCase("--verbose")) {
-                params->verbose = true;
-            }
-            else if (i->equalsIgnoreCase("--savegenchamps")) {
-                params->saveGenerationChampions = true;
-            }
-            else if (i->equalsIgnoreCase("--expinfo")) {
-                printExperimentInfo = true;
-            }
-            else if (i->equalsIgnoreCase("--precision")) {
-                params->printPrecision = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--values")) {
                 String* current = (++i);
@@ -170,17 +160,16 @@ public:
                 constants.push_back(current->getDoubleValue());
                 params->numVariables = constants.size();
             }
-            else if (i->equalsIgnoreCase("--fft")) {
-                params->fftSize = (++i)->getIntValue();
+            else if (i->equalsIgnoreCase("--expinfo")) {
+                printExperimentInfo = true;
             }
-            else if (i->equalsIgnoreCase("--render")) {
-                params->renderBlockSize = (++i)->getIntValue();
+
+            // experiment params
+            else if (i->equalsIgnoreCase("--experiment")) {
+                params->experimentNumber = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--fitnesstype")) {
                 params->fitnessFunctionType = (++i)->getIntValue();
-            }
-            else if (i->equalsIgnoreCase("--experiment")) {
-                params->experimentNumber = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--generations"))  {
                 params->numGenerations = (++i)->getIntValue();
@@ -191,8 +180,99 @@ public:
             else if (i->equalsIgnoreCase("--erc")) {
                 params->ephemeralRandomConstants = true;
             }
+
+            // auxillary params
+            else if (i->equalsIgnoreCase("--verbose")) {
+                params->verbose = true;
+            }
+            else if (i->equalsIgnoreCase("--savegenchamps")) {
+                params->saveGenerationChampions = true;
+            }
+            else if (i->equalsIgnoreCase("--printprecision")) {
+                params->printPrecision = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--saveprecision")) {
+                params->savePrecision = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--loadwavblock")) {
+                params->wavFileBufferSize = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--render")) {
+                params->renderBlockSize = (++i)->getIntValue();
+            }
+
+            // fitness function weights
+            else if (i->equalsIgnoreCase("--ffmagweight"))  {
+                params->magnitudeWeight = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--ffphaseweight"))  {
+                params->phaseWeight = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--ffenvweight"))  {
+                params->envelopeWeight = (++i)->getDoubleValue();
+            }
+
+            // time domain fitness params
+            else if (i->equalsIgnoreCase("--savetargetenv")) {
+                params->saveTargetEnvelope = true;
+            }
+            else if (i->equalsIgnoreCase("--envatk"))  {
+                params->envelopeFollowerAttack = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--envdcy"))  {
+                params->envelopeFollowerDecay = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--envskip")) {
+                params->compareEnvelopeNumSkipFrames = (++i)->getIntValue();
+            }
+
+            // frequency domain fitness params
+            else if (i->equalsIgnoreCase("--window"))  {
+                String* window = ++i;
+                if (window->equalsIgnoreCase("rect")) {
+                    strncpy(params->windowType, "rect", 5);
+                }
+                else if (window->equalsIgnoreCase("hann")) {
+                    strncpy(params->windowType, "hann", 5);
+                }
+            }
+            else if (i->equalsIgnoreCase("--fft")) {
+                params->fftSize = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--fftoverlap")) {
+                params->fftOverlap = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--phasepenalty"))  {
+                params->penalizeBadPhase = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--goodmagcomp"))  {
+                params->goodComparisonFactor = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--badmagcomp"))  {
+                params->badComparisonFactor = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--basemagcomp"))  {
+                params->baseComparisonFactor = (++i)->getDoubleValue();
+            }
+
+            // synth evolution parameters
+            else if (i->equalsIgnoreCase("--backup")) {
+                params->backupAllNetworks = true;
+            }
+            else if (i->equalsIgnoreCase("--backupprecision")) {
+                params->backupPrecision = (++i)->getIntValue();
+            }
             else if (i->equalsIgnoreCase("--popsize")) {
                 params->populationSize = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--lowerbetter")) {
+                params->lowerFitnessIsBetter = true;
+            }
+            else if (i->equalsIgnoreCase("--bestfitness"))  {
+                params->bestPossibleFitness = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--penaltyfitness"))  {
+                params->penaltyFitness = (++i)->getDoubleValue();
             }
             else if (i->equalsIgnoreCase("--mid")) {
                 params->maxInitialDepth = (++i)->getIntValue();
@@ -200,11 +280,17 @@ public:
             else if (i->equalsIgnoreCase("--md")) {
                 params->maxDepth = (++i)->getIntValue();
             }
-            else if (i->equalsIgnoreCase("--numericmutation")) {
-                params->proportionOfPopulationFromNumericMutation = (++i)->getDoubleValue();
+
+            // synth genetic params
+            else if (i->equalsIgnoreCase("--greedy"))  {
+                params->proportionOfPopulationForGreedySelection = (++i)->getDoubleValue();
             }
+            // numeric mutation
             else if (i->equalsIgnoreCase("--nmselect")) {
                 params->numericMutationSelectionType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--numericmutation")) {
+                params->proportionOfPopulationFromNumericMutation = (++i)->getDoubleValue();
             }
             else if (i->equalsIgnoreCase("--nmselectparam")) {
                 params->percentileOfPopulationToSelectFromForNumericMutation = (++i)->getDoubleValue();
@@ -212,32 +298,35 @@ public:
             else if (i->equalsIgnoreCase("--nmtemperature")) {
                 params->numericMutationTemperatureConstant = (++i)->getDoubleValue();
             }
-            else if (i->equalsIgnoreCase("--mutation")) {
-                params->proportionOfPopulationFromMutation = (++i)->getDoubleValue();
-            }
+            // mutation
             else if (i->equalsIgnoreCase("--mselect")) {
                 params->mutationSelectionType = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--mtype")) {
                 params->mutationType = (++i)->getIntValue();
             }
+            else if (i->equalsIgnoreCase("--mutation")) {
+                params->proportionOfPopulationFromMutation = (++i)->getDoubleValue();
+            }
             else if (i->equalsIgnoreCase("--mselectparam")) {
                 params->percentileOfPopulationToSelectFromForMutation = (++i)->getDoubleValue();
             }
-            else if (i->equalsIgnoreCase("--crossover")) {
-                params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
-            }
+            // crossover
             else if (i->equalsIgnoreCase("--cselect")) {
                 params->crossoverSelectionType = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--ctype")) {
                 params->crossoverType = (++i)->getIntValue();
             }
-            else if (i->equalsIgnoreCase("--reproduction")) {
-                params->proportionOfPopulationFromReproduction = (++i)->getDoubleValue();
+            else if (i->equalsIgnoreCase("--crossover")) {
+                params->proportionOfPopulationFromCrossover = (++i)->getDoubleValue();
             }
+            // reproduction
             else if (i->equalsIgnoreCase("--rselect")) {
                 params->reproductionSelectionType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--reproduction")) {
+                params->proportionOfPopulationFromReproduction = (++i)->getDoubleValue();
             }
         }
 

@@ -29,13 +29,14 @@ struct GPParams {
     bool saveTargetEnvelope;
     double envelopeFollowerAttack;
     double envelopeFollowerDecay;
+    unsigned compareEnvelopeNumSkipFrames;
 
     // frequency domain fitness parameters
     char windowType[5];
     unsigned fftSize;
     unsigned fftOverlap;
     // phase penalty
-    unsigned penalizeBadPhase;
+    double penalizeBadPhase;
     // magnitude penalty over/undershooting system
     double goodComparisonFactor;
     double badComparisonFactor;
