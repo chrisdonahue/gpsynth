@@ -50,9 +50,8 @@ OBJECTS := \
   $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/ADSRNode.o \
   $(OBJDIR)/OscilNode.o \
-  $(OBJDIR)/ModOscilNode.o \
-  $(OBJDIR)/FilterNode.o \
   $(OBJDIR)/NoiseNode.o \
+  $(OBJDIR)/FilterNode.o \
   $(OBJDIR)/FunctionNode.o \
   $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/TimeNode.o \

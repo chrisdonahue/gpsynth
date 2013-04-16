@@ -155,6 +155,10 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     free(cfbuffer);
 }
 
+void FilterNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+
+}
+
 void FilterNode::toString(bool printRange, std::stringstream& ss) {
     if (type == 0) {
         ss << "(lowpass ";
