@@ -34,6 +34,7 @@ Interactive:
     button to run random evolution for a while
     novelty search of new spectrum elements/spectral peak ratios
     Add max noet length as a slider to GUI in order to make TimeNode potentially useful
+    link visual studio with boost
 
 Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
@@ -58,7 +59,6 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
 NEXT EXPERIMENTS (run on Friday before gig):
-    figure out why submit node doesnt like preprocessor directives in GPRANDOM
     1. Run tests controlling the following variables:
         performance version of ADSR
         new windowing system/overlap system with parameters so its identical to old
