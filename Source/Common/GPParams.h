@@ -43,9 +43,9 @@ struct GPParams {
     double baseComparisonFactor;
 
     // synth evolution parameters
+    unsigned populationSize;
     bool backupAllNetworks;
     unsigned backupPrecision;
-    unsigned populationSize;
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;
     double penaltyFitness;

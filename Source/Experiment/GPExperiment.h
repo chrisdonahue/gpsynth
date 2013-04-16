@@ -48,7 +48,6 @@ private:
     float fitnessThreshold;
     int numGenerations;
     bool lowerFitnessIsBetter;
-    double bestPossibleFitness;
     double penaltyFitness;
 
     // TARGET DATA CONTAINERS

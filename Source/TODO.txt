@@ -58,12 +58,12 @@ TODO long run:
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
-NEXT EXPERIMENTS (run on Friday before gig):
+NEXT EXPERIMENTS:
+    test param values uninitialized by commenting out defaults and running valgrind. make sure command line params are working
     1. Run tests controlling the following variables:
-        performance version of ADSR
-        new windowing system/overlap system with parameters so its identical to old
         Fitness function
             Compare spectral content:
+                hann window
                 Moving average for under/over
                 amp dB FFT
             Compare envelope:

@@ -65,11 +65,6 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
     if (params->experimentNumber == 3) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
         // PARAMS
         GPMutatableParam* partialThree = new GPMutatableParam("", false, 3, 0, 5);
         GPMutatableParam* filterLow = new GPMutatableParam("", false, 11.9511, 10.0, 15.0);
@@ -96,11 +91,6 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     }
     // Eb5 Trumpet Additive Experiment
     if (params->experimentNumber == 4) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(add, NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
@@ -216,11 +206,6 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     }
     // filtered noise test
     if (params->experimentNumber == 5) {
-        // ASSIGN SPECIAL FITNESS VALUES
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-
         GPNode* noiseNode = new NoiseNode(rng);
         GPNode* constantNode = new ConstantNode(constantValue->getCopy());
         //GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
@@ -273,10 +258,17 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
     }
 
-    // EXPERIMENT PARAMS THAT VARY BY EXPERIMENT NUMBER
-    bestPossibleFitness = params->bestPossibleFitness;
-    penaltyFitness = params->penaltyFitness;
-    lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+    // SET FF-VARYING PARAMS FROM FITNESS FUNCTION
+    if (params->fitnessFunctionType == 0) {
+        p->bestPossibleFitness = 0;
+        p->lowerFitnessIsBetter = true;
+        lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+    }
+    else {
+        p->bestPossibleFitness = 0;
+        p->lowerFitnessIsBetter = true;
+        lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+    }
 
     // INITIALIZE SYNTH
     synth = new GPSynth(rng, p, nodes);
@@ -350,11 +342,6 @@ GPNetwork* GPExperiment::evolve() {
             generationChamp = candidate->getCopy();
             generationChamp->ID = backupID;
             generationChamp->fitness = fitness;
-        }
-
-        if (fitness > penaltyFitness) {
-            penaltyFitness = fitness;
-            params->penaltyFitness = penaltyFitness;
         }
 
         if (fitness < minFitnessAchieved) {

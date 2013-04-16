@@ -83,9 +83,9 @@ public:
         params->baseComparisonFactor = 0.9;
 
         // synth evolution params
+        params->populationSize = 500;
         params->backupAllNetworks = false;
         params->backupPrecision = 100;
-        params->populationSize = 500;
         params->lowerFitnessIsBetter = true;
         params->bestPossibleFitness = 0;
         params->penaltyFitness = std::numeric_limits<float>::max();
@@ -256,23 +256,20 @@ public:
             }
 
             // synth evolution parameters
+            else if (i->equalsIgnoreCase("--popsize")) {
+                params->populationSize = (++i)->getIntValue();
+            }
             else if (i->equalsIgnoreCase("--backup")) {
                 params->backupAllNetworks = true;
+            }
+            else if (i->equalsIgnoreCase("--nobackup")) {
+                params->backupAllNetworks = false;
             }
             else if (i->equalsIgnoreCase("--backupprecision")) {
                 params->backupPrecision = (++i)->getIntValue();
             }
-            else if (i->equalsIgnoreCase("--popsize")) {
-                params->populationSize = (++i)->getIntValue();
-            }
-            else if (i->equalsIgnoreCase("--lowerbetter")) {
-                params->lowerFitnessIsBetter = true;
-            }
             else if (i->equalsIgnoreCase("--bestfitness"))  {
                 params->bestPossibleFitness = (++i)->getDoubleValue();
-            }
-            else if (i->equalsIgnoreCase("--penaltyfitness"))  {
-                params->penaltyFitness = (++i)->getDoubleValue();
             }
             else if (i->equalsIgnoreCase("--mid")) {
                 params->maxInitialDepth = (++i)->getIntValue();
