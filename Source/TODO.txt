@@ -73,3 +73,4 @@ NEXT EXPERIMENTS:
                 Single iteration of envelope follower
                 Compare every n samples
     3. Get filters/noise working again. Switch filter libs probably
+    more sounds!
