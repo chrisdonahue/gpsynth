@@ -74,16 +74,16 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         // NODES
         GPNode* noiseNode = new NoiseNode(rng);
         GPNode* oscilPartialThree = new OscilNode(true, partialThree, 0, NULL, NULL);
-        GPNode* filter = new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterLow, filterHigh, bandwidth, noiseNode, oscilPartialThree, NULL);
+        //GPNode* filter = new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterLow, filterHigh, bandwidth, noiseNode, oscilPartialThree, NULL);
 
         // NETWORK
-        GPNetwork* fucked = new GPNetwork(filter);
-        fucked->traceNetwork();
+        //GPNetwork* fucked = new GPNetwork(filter);
+        //fucked->traceNetwork();
 
         float* fuckedBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        renderIndividualByBlock(fucked, numTargetFrames, params->renderBlockSize, fuckedBuffer);
+        //renderIndividualByBlock(fucked, numTargetFrames, params->renderBlockSize, fuckedBuffer);
 
-        saveWavFile("./fucked.wav", String(fucked->toString(false, 10).c_str()), numTargetFrames, 44100, fuckedBuffer);
+        //saveWavFile("./fucked.wav", String(fucked->toString(false, 10).c_str()), numTargetFrames, 44100, fuckedBuffer);
 
         free(fuckedBuffer);
 
@@ -209,28 +209,28 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         GPNode* noiseNode = new NoiseNode(rng);
         GPNode* constantNode = new ConstantNode(constantValue->getCopy());
         //GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
-        GPNode* bandPass = new FilterNode(2, 3, 11000, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
-        GPNode* bandStop = new FilterNode(3, 3, 1024, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
+        //GPNode* bandPass = new FilterNode(2, 3, 11000, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
+        //GPNode* bandStop = new FilterNode(3, 3, 1024, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
 
         GPNetwork* noiseNetwork = new GPNetwork(noiseNode);
         noiseNetwork->traceNetwork();
-        GPNetwork* bandStopNoiseNetwork = new GPNetwork(bandStop);
-        bandStopNoiseNetwork->ephemeralRandom(rng);
-        bandStopNoiseNetwork->traceNetwork();
-        GPNetwork* bandPassNoiseNetwork = new GPNetwork(bandPass);
-        bandPassNoiseNetwork->ephemeralRandom(rng);
-        bandPassNoiseNetwork->traceNetwork();
+        //GPNetwork* bandStopNoiseNetwork = new GPNetwork(bandStop);
+        //bandStopNoiseNetwork->ephemeralRandom(rng);
+        //bandStopNoiseNetwork->traceNetwork();
+        //GPNetwork* bandPassNoiseNetwork = new GPNetwork(bandPass);
+        //bandPassNoiseNetwork->ephemeralRandom(rng);
+        //bandPassNoiseNetwork->traceNetwork();
 
         float* noise = (float*) malloc(sizeof(float) * numTargetFrames);
         float* passNoise = (float*) malloc(sizeof(float) * numTargetFrames);
         float* stopNoise = (float*) malloc(sizeof(float) * numTargetFrames);
         renderIndividualByBlock(noiseNetwork, numTargetFrames, params->renderBlockSize, noise);
-        renderIndividualByBlock(bandPassNoiseNetwork, numTargetFrames, params->renderBlockSize, passNoise);
-        renderIndividualByBlock(bandStopNoiseNetwork, numTargetFrames, params->renderBlockSize, stopNoise);
+        //renderIndividualByBlock(bandPassNoiseNetwork, numTargetFrames, params->renderBlockSize, passNoise);
+        //renderIndividualByBlock(bandStopNoiseNetwork, numTargetFrames, params->renderBlockSize, stopNoise);
 
         saveWavFile("./noise.wav", String(noiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, noise);
-        saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, stopNoise);
-        saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, passNoise);
+        //saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, stopNoise);
+        //saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, passNoise);
 
         free(stopNoise);
         free(passNoise);
@@ -253,8 +253,8 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new NoiseNode(rng));
-        nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+        //nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+        //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         nodes->push_back(new ConstantNode(constantValue->getCopy()));
     }
 

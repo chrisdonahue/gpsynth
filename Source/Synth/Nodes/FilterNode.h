@@ -42,8 +42,6 @@ private:
     double bandwidthQualityMaximum;
 
     double maxGain;
-    Dsp::Filter* filter;
-    Dsp::Params params;
 };
 
 #endif

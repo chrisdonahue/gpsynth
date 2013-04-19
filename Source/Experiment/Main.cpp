@@ -69,7 +69,8 @@ public:
         // time domain fitness parameters
         params->saveTargetEnvelope = false;
         params->envelopeFollowerAttack = 1;
-        params->envelopeFollowerDecay = 3;
+        params->envelopeFollowerDecay = 300;
+        params->compareEnvelopeNumSkipFrames = 15;
 
         // frequency domain fitness parametersi
         strncpy(params->windowType, "rect", 5);
@@ -86,9 +87,9 @@ public:
         params->populationSize = 500;
         params->backupAllNetworks = false;
         params->backupPrecision = 100;
-        params->lowerFitnessIsBetter = true;
-        params->bestPossibleFitness = 0;
-        params->penaltyFitness = std::numeric_limits<float>::max();
+        //params->lowerFitnessIsBetter = true; should be done in experiment
+        //params->bestPossibleFitness = 0; should be done in experiment
+        //params->penaltyFitness = std::numeric_limits<float>::max(); experiment
         params->maxInitialDepth = 5;
         params->maxDepth = 12;
 
@@ -98,7 +99,7 @@ public:
         params->numericMutationSelectionType = 1;
         params->proportionOfPopulationFromNumericMutation = 0.05;
         params->percentileOfPopulationToSelectFromForNumericMutation = 0.05;
-        params->numericMutationTemperatureConstant = 0.02;
+        params->numericMutationTemperatureConstant = 0.9;
         // mutation
         params->mutationSelectionType = 1;
         params->mutationType = 0;

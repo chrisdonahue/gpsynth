@@ -22,7 +22,7 @@
 #include "../Synth/Nodes/VariableNode.h"
 #include "../Synth/Nodes/FunctionNode.h"
 #include "../Synth/Nodes/OscilNode.h"
-#include "../Synth/Nodes/FilterNode.h"
+//#include "../Synth/Nodes/FilterNode.h"
 #include "../Synth/Nodes/NoiseNode.h"
 
 #include "../Dependencies/kissfft/kiss_fftr.h"

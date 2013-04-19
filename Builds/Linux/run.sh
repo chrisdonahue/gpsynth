@@ -39,29 +39,55 @@ COMMENT
 # LOCAL TRUMPET TEST
 #<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
+  temp fields\
   --target ./samples/TrumpetEb5.wav\
   --path ./\
   --seed 245316\
-  --verbose\
-  --savegenchamps\
-  --expinfo\
-  --precision 3\
   --values 622.25\
-  --fft 1024\
-  --fitnesstype 1\
-  --enviter 3\
+  --expinfo\
+  experiment params\
   --experiment 4\
+  --fitnesstype 1\
   --generations 100\
   --threshold 0.1\
   --erc\
+  auxillary params\
+  --verbose\
+  --savegenchamps\
+  --printprecision 3\
+  --saveprecision 5\
+  --loadwavblock 512\
+  --render 1024\
+  ff weights\
+  --ffmagweight 1.0\
+  --ffphaseweight 0.2\
+  --ffenvweight 0.5\
+  t-domain params\
+  --savetargetenv
+  --envatk 1\
+  --envdcy 300\
+  --envskip 15\
+  f-domain params\
+  --window rect\
+  --fft 1024\
+  --fftoverlap 0\
+  --phasepenalty 2.0\
+  --goodmagcomp 0.1\
+  --badmagcomp 1.1\
+  --basemagcomp 0.9\
+  synth evo params\
   --popsize 2000\
+  --nobackup\
+  --backupprecision 50\
+  --bestfitness 0.0\
   --mid 5\
   --md 11\
+  synth genetic params\
+  --greedy 0.0\
   --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
-  --mutation 0.05 --mtype 1 --mselctparam 0.25\
+  --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.9 --cselect 0 --ctype 0\
   --reproduction 0.05 --rselect 0\
-  --render 1024
 #COMMENT
 
 # LOCAL BASSOON TEST
