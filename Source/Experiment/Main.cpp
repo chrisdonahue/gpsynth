@@ -181,13 +181,22 @@ public:
             else if (i->equalsIgnoreCase("--erc")) {
                 params->ephemeralRandomConstants = true;
             }
+            else if (i->equalsIgnoreCase("--noerc")) {
+                params->ephemeralRandomConstants = false;
+            }
 
             // auxillary params
             else if (i->equalsIgnoreCase("--verbose")) {
                 params->verbose = true;
             }
+            else if (i->equalsIgnoreCase("--succinct")) {
+                params->verbose = false;
+            }
             else if (i->equalsIgnoreCase("--savegenchamps")) {
                 params->saveGenerationChampions = true;
+            }
+            else if (i->equalsIgnoreCase("--nosavegenchamps")) {
+                params->saveGenerationChampions = false;
             }
             else if (i->equalsIgnoreCase("--printprecision")) {
                 params->printPrecision = (++i)->getIntValue();
@@ -216,6 +225,9 @@ public:
             // time domain fitness params
             else if (i->equalsIgnoreCase("--savetargetenv")) {
                 params->saveTargetEnvelope = true;
+            }
+            else if (i->equalsIgnoreCase("--nosavetargetenv")) {
+                params->saveTargetEnvelope = false;
             }
             else if (i->equalsIgnoreCase("--envatk"))  {
                 params->envelopeFollowerAttack = (++i)->getDoubleValue();

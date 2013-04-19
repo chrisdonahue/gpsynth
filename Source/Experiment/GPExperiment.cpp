@@ -382,7 +382,12 @@ GPNetwork* GPExperiment::evolve() {
     if (minFitnessAchieved <= fitnessThreshold) {
         std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
-    std::cerr << "Evolution ran for " << (numEvaluatedGenerations + (params->populationSize - numUnevaluatedThisGeneration)/float(params->populationSize)) << " generations" << std::endl;
+
+    if (numUnevaluatedThisGeneration != 0)
+        std::cerr << "Evolution ran for " << numEvaluatedGenerations + (params->populationSize - numUnevaluatedThisGeneration)/float(params->populationSize) << " generations" << std::endl;
+    else
+        std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
+
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();

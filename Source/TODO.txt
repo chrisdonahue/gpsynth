@@ -62,7 +62,6 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
 NEXT EXPERIMENTS:
-    test param values uninitialized by commenting out defaults and running valgrind. make sure command line params are working
     1. Run tests controlling the following variables:
         Fitness function
             Compare spectral content:

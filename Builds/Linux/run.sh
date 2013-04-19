@@ -5,6 +5,54 @@ set -e
 # DEBUG MEMORY
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrindAll.txt" ./build/GPAudioTargetMatchingExperiment --target ./samples/SinWaveC51024.wav --seed 0 --fft 1024 --exp 4 --threshold 0.1 --fitnesstype 1 --numgenerations 2 --values 523.251 --popsize 5 --mid 4 --md 10 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0 --verbose > 2GenValgrindAll.txt
 
+# DEBUG MEMORY
+<<COMMENT
+valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"\
+  ./build/GPAudioTargetMatchingExperiment\
+  --target ./samples/TrumpetEb5.wav\
+  --path ./\
+  --seed 245316\
+  --values 622.25\
+  --expinfo\
+  --experiment 4\
+  --fitnesstype 1\
+  --generations 2\
+  --threshold 0.1\
+  --erc\
+  --verbose\
+  --nosavegenchamps\
+  --printprecision 3\
+  --saveprecision 5\
+  --loadwavblock 512\
+  --render 1024\
+  --ffmagweight 1.0\
+  --ffphaseweight 0.2\
+  --ffenvweight 0.5\
+  --nosavetargetenv\
+  --envatk 1\
+  --envdcy 300\
+  --envskip 15\
+  --window rect\
+  --fft 1024\
+  --fftoverlap 0\
+  --phasepenalty 2.0\
+  --goodmagcomp 0.1\
+  --badmagcomp 1.1\
+  --basemagcomp 0.9\
+  --popsize 16\
+  --nobackup\
+  --backupprecision 50\
+  --bestfitness 0.0\
+  --mid 5\
+  --md 11\
+  --greedy 0.0\
+  --numericmutation 0.25 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
+  --mutation 0.25 --mselect 1 --mtype 1 --mselectparam 0.25\
+  --crossover 0.25 --cselect 0 --ctype 0\
+  --reproduction 0.25 --rselect 0\
+  > 2GenValgrind.txt
+COMMENT
+
 # DEBUG HEAP
 <<COMMENT
 valgrind -v --tool=massif --log-file="3GenValgrindMassif.txt"\
@@ -35,39 +83,38 @@ valgrind -v --tool=massif --log-file="3GenValgrindMassif.txt"\
   > 3GenValgrindMassif.txt
 COMMENT
 
-
 # LOCAL TRUMPET TEST
 #<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
-  temp fields\
+  TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
   --path ./\
   --seed 245316\
   --values 622.25\
   --expinfo\
-  experiment params\
+  EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
   --generations 100\
   --threshold 0.1\
   --erc\
-  auxillary params\
+  AUXILLARY PARAMS\
   --verbose\
   --savegenchamps\
   --printprecision 3\
   --saveprecision 5\
   --loadwavblock 512\
   --render 1024\
-  ff weights\
+  FITNESS FUNCTION WEIGHTS\
   --ffmagweight 1.0\
   --ffphaseweight 0.2\
   --ffenvweight 0.5\
-  t-domain params\
-  --savetargetenv
+  TIME DOMAIN PARAMS\
+  --nosavetargetenv\
   --envatk 1\
   --envdcy 300\
   --envskip 15\
-  f-domain params\
+  FREQUENCY DOMAIN PARAMS\
   --window rect\
   --fft 1024\
   --fftoverlap 0\
@@ -75,19 +122,19 @@ COMMENT
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
   --basemagcomp 0.9\
-  synth evo params\
+  SYNTH EVO PARAMS\
   --popsize 2000\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\
   --mid 5\
   --md 11\
-  synth genetic params\
+  SYNTH GENETIC PARAMS\
   --greedy 0.0\
   --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
   --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.9 --cselect 0 --ctype 0\
-  --reproduction 0.05 --rselect 0\
+  --reproduction 0.05 --rselect 0
 #COMMENT
 
 # LOCAL BASSOON TEST
