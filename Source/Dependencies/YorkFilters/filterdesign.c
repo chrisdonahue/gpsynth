@@ -36,14 +36,11 @@ struct pzrep {
 };
 
 static pzrep splane, zplane;
-static int order;
-static double raw_alpha1, raw_alpha2, raw_alphaz;
 static complex dc_gain, fc_gain, hf_gain;
 static uint options;
 static double warped_alpha1, warped_alpha2, chebrip, qfactor;
 static bool infq;
 static uint polemask;
-static double xcoeffs[MAXPZ+1], ycoeffs[MAXPZ+1];
 
 static c_complex bessel_poles[] = {
     /* table produced by /usr/fisher/bessel --	N.B. only one member of each C.Conj. pair is listed */
@@ -139,6 +136,35 @@ static void readcmdline(char *argv[]) {
         }
         options |= m;
     }
+}
+
+/*
+  CHRIS ADDED METHOD
+*/
+static void getFilterCoefficients(char* type, double sr, float cf, float width, unsigned order, float* xcoeffs, float* ycoeffs) {
+	assert(cf < sr/2 && cf + width < sr/2);
+	double alpha1 = cf/sr;
+	double alpha2 = (cf + bw)/sr;
+    if (strcmp(type, "lp") == 0) {
+    	compute_s();
+    	prewarp();
+    	normalize();
+    }
+    else if (strcmp(type, "hp") == 0) {
+    	compute_s();
+    	prewarp();
+    	normalize();
+    }
+    else if (strcmp(type, "bp") == 0) {
+    	compute_bpres();
+    }
+    else if (strcmp(type, "bs") == 0) {
+    	compute_notch();
+    }
+    else if (strcmp(type, "ap") == 0) {
+    	compute_apres();
+    }
+    expandpoly();
 }
 
 static uint decodeoptions(char *s) {

@@ -12,7 +12,7 @@
 #define FILTERNODE_H
 
 #include "../GPNode.h"
-#include "../../Dependencies/DSPFilters/Dsp.h"
+#include "../../Dependencies/YorkFilters/filterdesign.h"
 
 class FilterNode: public GPNode {
 public:

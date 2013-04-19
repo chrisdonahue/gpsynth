@@ -16,7 +16,7 @@
     ==============
 */
 
-FilterNode::FilterNode(unsigned t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center, GPNode* bandwidth) :
+FilterNode::FilterNode(char* t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center) :
     params()
 {
     type = t;
@@ -33,8 +33,6 @@ FilterNode::FilterNode(unsigned t, unsigned o, unsigned fpc, double sr, int vn, 
 
     descendants.push_back(signal);
     descendants.push_back(center);
-    //descendants.push_back(bandwidth);
-    //arity = 3;
     arity = 2;
 
     if (type == 0) {

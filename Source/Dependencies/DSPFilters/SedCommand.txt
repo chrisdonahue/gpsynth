@@ -1,1 +1,0 @@
-find . -name "*.h" -exec sed -i "s/DspFilters\///g" '{}' \;
