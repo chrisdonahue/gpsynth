@@ -35,20 +35,18 @@ FilterNode::FilterNode(char* t, unsigned o, unsigned fpc, double sr, int vn, GPM
     descendants.push_back(center);
     arity = 2;
 
-    if (type == 0) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::LowPass <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
+    if (strcmp(t, "lp") == 0) {
+        
     }
-    else if (type == 1) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::HighPass <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
+    else if (strcmp(t, "hp") == 0) {
+    
     }
-    else if (type == 2) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
+    else if (strcmp(t, "bp") == 0) {
+        
     }
-    else if (type == 3) {
-        filter = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandStop <3>, 1, Dsp::DirectFormII> (fadeParameterChanges);
+    else if (strcmp(t, "bs") == 0) {
+    
     }
-    params[0] = sampleRate;
-    params[1] = order;
 
     fillFromParams();
 }
@@ -58,7 +56,6 @@ FilterNode::~FilterNode() {
 }
 
 FilterNode* FilterNode::getCopy() {
-    //return new FilterNode(type, order, fadeParameterChanges, sampleRate, variableNum, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), descendants[2] == NULL ? NULL : descendants[2]->getCopy());
     return new FilterNode(type, order, fadeParameterChanges, sampleRate, variableNum, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), NULL);
 }
 
@@ -70,11 +67,9 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
 
     // evaluate center frequency signal
     float* cfbuffer = (float*) malloc(sizeof(float) * n);
-    //float* cfbuffer = (float*) malloc(sizeof(float) * 1);
     double cfmin = std::numeric_limits<double>::min();
     double cfmax = std::numeric_limits<double>::max();
     descendants[1]->evaluateBlock(fn, t, nv, v, &cfmin, &cfmax, n, cfbuffer);
-    //descendants[1]->evaluateBlock(fn + (n-1), t + (n-1), nv, v + (n-1), &cfmin, &cfmax, 1, cfbuffer);
 
     // create mapping from center frequency signal to center frequency multiplier
     double cfm = 0;
@@ -158,19 +153,8 @@ void FilterNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, fl
 }
 
 void FilterNode::toString(bool printRange, std::stringstream& ss) {
-    if (type == 0) {
-        ss << "(lowpass ";
-    }
-    else if (type == 1) {
-        ss << "(highpass ";
-    }
-    else if (type == 2) {
-        ss << "(bandpass ";
-    }
-    else if (type == 3) {
-        ss << "(bandstop ";
-    }
-    ss << "[";
+    ss << "(" << type;
+    ss << " [";
     mutatableParams[0]->toString(printRange, ss);
     ss <<  ", ";
     mutatableParams[1]->toString(printRange, ss);
@@ -180,8 +164,6 @@ void FilterNode::toString(bool printRange, std::stringstream& ss) {
     descendants[0]->toString(printRange, ss);
     ss << " ";
     descendants[1]->toString(printRange, ss);
-    //ss << " ";
-    //descendants[2]->toString(ss);
     ss << ")";
 }
 
@@ -194,11 +176,6 @@ void FilterNode::fillFromParams() {
         centerFrequencyMultiplierMax = centerFrequencyMultiplierMin;
     }
     bandwidthQuality = mutatableParams[2]->getValue();
-
-    // remake filter
-    //params[2] = centerFrequencyMultiplier * 1.0;
-    //params[3] = bandwidthQuality;
-    //filter->setParams(params);
 }
 
 void FilterNode::updateMutatedParams() {
@@ -207,5 +184,4 @@ void FilterNode::updateMutatedParams() {
     // call on descendants
     descendants[0]->updateMutatedParams();
     descendants[1]->updateMutatedParams();
-    //descendants[2]->updateMutatedParams();
 }
