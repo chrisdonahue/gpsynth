@@ -35,6 +35,7 @@ struct GPParams {
     char windowType[5];
     unsigned fftSize;
     unsigned fftOverlap;
+    bool dBMagnitude;
     // phase penalty
     double penalizeBadPhase;
     // magnitude penalty over/undershooting system

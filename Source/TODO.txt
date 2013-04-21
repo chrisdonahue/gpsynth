@@ -65,7 +65,6 @@ NEXT EXPERIMENTS:
     1. Run tests controlling the following variables:
         Fitness function
             Compare spectral content:
-                hann window
                 Moving average for under/over
                 amp dB FFT
             Compare envelope:

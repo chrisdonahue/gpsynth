@@ -113,17 +113,18 @@ COMMENT
   --nosavetargetenv\
   --envatk 1\
   --envdcy 300\
-  --envskip 15\
+  --envskip 9\
   FREQUENCY DOMAIN PARAMS\
-  --window rect\
+  --window hann\
   --fft 1024\
   --fftoverlap 0\
+  --dbmag\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   SYNTH EVO PARAMS\
-  --popsize 20\
+  --popsize 200\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\

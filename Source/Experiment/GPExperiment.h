@@ -100,7 +100,7 @@ private:
     // FOURIER TRANSFORM
     float dBRef;
     unsigned calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o);
-    void FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase);
+    void FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase);
 
     // WAVEFORM OPERATIONS
     void window(const char* type, unsigned n, float* windowBuffer);

@@ -456,7 +456,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
         // take fft of target data
-        FftReal(numTargetFrames, targetFrames, n, overlap, analysisWindow, targetSpectrum, false, targetSpectrumMagnitudes, targetSpectrumPhases);
+        FftReal(numTargetFrames, targetFrames, n, overlap, analysisWindow, targetSpectrum, params->dBMagnitude, dBRef, targetSpectrumMagnitudes, targetSpectrumPhases);
 
         // calculate stats on each frame
         double base = params->baseComparisonFactor;
@@ -633,7 +633,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
-        FftReal(numTargetFrames, candidateFrames, n, overlap, analysisWindow, output, false, magnitude, phase);
+        FftReal(numTargetFrames, candidateFrames, n, overlap, analysisWindow, output, params->dBMagnitude, dBRef, magnitude, phase);
 
         double MSEmag = 0;
         double MSEph = 0;
@@ -683,7 +683,7 @@ unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n, un
     return numFftCalls * ((n/2) + 1);
 }
 
-void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase) {
+void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase) {
     kiss_fftr_cfg cfg;
     cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
     kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
@@ -714,19 +714,29 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, u
 
         // analyze output
         //printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
-        for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
-            if (dB)
-                magnitude[bin] = 10 * log10(out[bin].r * out[bin].r + out[bin].i * out[bin].i) - dBRef;
-            else
+        if (dB) {
+            for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
+                magnitude[bin] = 10 * log10(out[bin].r * out[bin].r + out[bin].i * out[bin].i) - dBref;
+                if (out[bin].r == 0 && out[bin].i == 0) {
+                    phase[bin] = 0;
+                }
+                else {
+                    phase[bin] = atan(out[bin].i / out[bin].r);
+                }
+            }
+        }
+        else {
+            for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
                 magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
-            if (out[bin].r == 0 && out[bin].i == 0) {
-                phase[bin] = 0;
+                if (out[bin].r == 0 && out[bin].i == 0) {
+                    phase[bin] = 0;
+                }
+                else {
+                    phase[bin] = atan(out[bin].i / out[bin].r);
+                }
+            //    printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
+                //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
             }
-            else {
-                phase[bin] = atan(out[bin].i / out[bin].r);
-            }
-        //    printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
-            //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
         }
         numFftOutputUsed += fftOutputSize;
     }

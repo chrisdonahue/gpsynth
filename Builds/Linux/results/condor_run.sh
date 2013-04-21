@@ -36,6 +36,7 @@ set -e
   --window hann\
   --fft 1024\
   --fftoverlap 0\
+  --dbmag\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
@@ -49,10 +50,10 @@ set -e
   --md 11\
   GENETIC PARAMS \
   --greedy 0.0\
-  --nmselect 1 --numericmutation 0.05 --nmselectparam 0.05 --nmtemperature 0.9\
-  --mselect 1 --mtype 1 --mutation 0.05 --mselectparam 0.25\
-  --cselect 0 --ctype 0 --crossover 0.9\
-  --rselect 0 --reproduction 0.05
+  --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
+  --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
+  --crossover 0.9 --cselect 0 --ctype 0\
+  --reproduction 0.05 --rselect 0
 
 set +e
 

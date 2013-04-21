@@ -76,6 +76,7 @@ public:
         strncpy(params->windowType, "rect", 5);
         params->fftSize = 256;
         params->fftOverlap = 0;
+        params->dBMagnitude = false;
         // phase penalty
         params->penalizeBadPhase = 2;
         // magnitude penalty
@@ -254,6 +255,12 @@ public:
             }
             else if (i->equalsIgnoreCase("--fftoverlap")) {
                 params->fftOverlap = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--dbmag")) {
+                params->dBMagnitude = true;
+            }
+            else if (i->equalsIgnoreCase("--ampmag")) {
+                params->dBMagnitude = false;
             }
             else if (i->equalsIgnoreCase("--phasepenalty"))  {
                 params->penalizeBadPhase = (++i)->getDoubleValue();
