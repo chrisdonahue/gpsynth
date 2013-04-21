@@ -3,7 +3,7 @@
 set -e
 
 ~/mount.sh
-#rm ~/windows/*.wav
+rm ~/windows/*.wav
 cp *.wav ~/windows
 
 set +e

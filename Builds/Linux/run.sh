@@ -95,7 +95,7 @@ COMMENT
   EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
-  --generations 100\
+  --generations 10\
   --threshold 0.1\
   --erc\
   AUXILLARY PARAMS\
@@ -123,7 +123,7 @@ COMMENT
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   SYNTH EVO PARAMS\
-  --popsize 2000\
+  --popsize 20\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\
