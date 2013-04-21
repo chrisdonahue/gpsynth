@@ -13,7 +13,7 @@ set -e
   EXP PARAMS \
   --experiment 4\
   --fitnesstype 1\
-  --generations 100\
+  --generations 200\
   --threshold 0.1\
   --erc\
   AUX PARAMS \
@@ -33,7 +33,7 @@ set -e
   --envdcy 300\
   --envskip 9\
   FREQ DOMAIN \
-  --window rect\
+  --window hann\
   --fft 1024\
   --fftoverlap 0\
   --phasepenalty 2.0\
@@ -41,7 +41,7 @@ set -e
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   EVO PARAMS \
-  --popsize 2000\
+  --popsize 4000\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\

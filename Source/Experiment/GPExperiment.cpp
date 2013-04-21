@@ -523,6 +523,9 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
 
 void GPExperiment::getWavFileInfo(String path, unsigned* numFrames, double* sampleRate) {
     File input(path);
+    if (!(input.existsAsFile())) {
+        std::cerr << "Invalid input file: " << path << std::endl;
+    }
     assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
@@ -534,6 +537,9 @@ void GPExperiment::getWavFileInfo(String path, unsigned* numFrames, double* samp
 
 void GPExperiment::loadWavFile(String path, unsigned n, float* buffer) {
     File input(path);
+    if (!(input.existsAsFile())) {
+        std::cerr << "Invalid input file: " << path << std::endl;
+    }
     assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
