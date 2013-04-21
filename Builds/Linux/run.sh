@@ -95,7 +95,7 @@ COMMENT
   EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
-  --generations 10\
+  --generations 1\
   --threshold 0.1\
   --erc\
   AUXILLARY PARAMS\

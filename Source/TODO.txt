@@ -66,7 +66,7 @@ NEXT EXPERIMENTS:
         Fitness function
             Compare spectral content:
                 Moving average for under/over
-                amp dB FFT
+                amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
             Compare envelope:
                 Single iteration of envelope follower
                 Compare every n samples

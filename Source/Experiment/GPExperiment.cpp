@@ -648,7 +648,11 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
                 else {
                     MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
                 }
-                MSEph += pow(abs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
+                MSEph += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
+                if (MSEmag >= INFINITY) {
+                    std::cout << magnitude[binIndex] << ", " << targetSpectrumMagnitudes[binIndex] << ", " << binUndershootingPenalty[binIndex] << ", " << binOvershootingPenalty[binIndex] << std::endl;
+                }
+                assert(MSEmag < INFINITY);
             }
         }
         //MSEmag = MSEmag / n;
