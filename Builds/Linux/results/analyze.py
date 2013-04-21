@@ -102,7 +102,7 @@ plt.ylabel('Average of Averages Across All Runs')
 plt.xlim(0, max(lengthsOfEachRun))
 plt.ylim(min(averages), max(averages))
 plt.savefig(trialaveragesgraphpath)
-plt.show()
+#plt.show()
 plt.clf()
 
 # MAKE GRAPH OF BESTS ACROSS ALL RUNS
@@ -113,7 +113,7 @@ plt.ylabel('Best of Generation Across All Runs')
 plt.xlim(0, max(lengthsOfEachRun))
 plt.ylim(0, max(bests))
 plt.savefig(trialbestsgraphpath)
-plt.show()
+#plt.show()
 plt.clf()
 
 info.close()
