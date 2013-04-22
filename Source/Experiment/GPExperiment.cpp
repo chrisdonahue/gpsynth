@@ -151,14 +151,14 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
     if (params->experimentNumber == 9) {
         // SAVE WAVEFORM
-        //saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
+        //saveTextFile(String("./waveform.txt"), buffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
 
         // TEST ENVELOPE FOLLOWER
         float* envelope = (float*) malloc(sizeof(float) * numTargetFrames);
         float* smoothEnv = (float*) malloc(sizeof(float) * numTargetFrames);
         followEnvelope(numTargetFrames, targetFrames, envelope, 1, 300, targetSampleRate);
         findEnvelope(true, numTargetFrames, envelope, smoothEnv);
-        saveTextFile(String("./smoothenva1r300.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Envelope (amp)"), true, numTargetFrames, NULL, smoothEnv));
+        saveTextFile(String("./smoothenva1r300.txt"), buffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Envelope (amp)"), true, numTargetFrames, NULL, smoothEnv, NULL));
 
         free(smoothEnv);
         free(envelope);
@@ -167,7 +167,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
     if (params->experimentNumber == 10) {
         // SAVE WAVEFORM
-        saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames));
+        saveTextFile(String("./waveform.txt"), buffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames, NULL));
 
         // TEST FFT
         unsigned fftOutSize = 513;
@@ -180,7 +180,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
             magAxis[i] = (float) targetSpectrumMagnitudes[i];
         }
         
-        saveTextFile(String("./spectrum.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis));
+        saveTextFile(String("./spectrum.txt"), buffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis, NULL));
 
         // TEST WINDOWING
         float* hannWindow = (float*) malloc(sizeof(float) * numTargetFrames);
@@ -188,16 +188,16 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         window("hann", numTargetFrames, hannWindow);
         applyEnvelope(numTargetFrames, targetFrames, hannWindow, windowed);
 
-        saveTextFile(String("./windowed.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, windowed));
+        saveTextFile(String("./windowed.txt"), buffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, windowed, NULL));
 
         // TEST MOVING AVERAGE
         float* mac = (float*) malloc(sizeof(float) * fftOutSize);
         //findMovingAverage(fftOutSize, magAxis, mac, 10);
-        saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
+        saveTextFile(String("./mac10.txt"), buffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
         //findMovingAverage(fftOutSize, magAxis, mac, 20);
-        saveTextFile(String("./mac20.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
+        saveTextFile(String("./mac20.txt"), buffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
         //findMovingAverage(fftOutSize, magAxis, mac, 30);
-        saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
+        saveTextFile(String("./mac30.txt"), buffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
 
         // FREE AND DONT EVOLVE
         free(mac);
@@ -276,7 +276,8 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     }
 
     // INITIALIZE SYNTH
-    synth = new GPSynth(rng, p, nodes);
+    if (numGenerations != 0)
+        synth = new GPSynth(rng, p, nodes);
 
     // DELETE ORIGIN GPMUTATABLEPARAMS
     delete constantValue;
@@ -433,7 +434,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
     if (params->saveTargetEnvelope) {
         char buffer[100];
         snprintf(buffer, 100, "%d.targetenvelope.txt", seed);
-        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope));
+        saveTextFile(savePath + String(buffer), buffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope, NULL));
     }
 
     // FILL FREQUENCY SPECTRUM OF TARGET
@@ -467,30 +468,11 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         unsigned numFftFrames = fftOutputBufferSize / numBins;
         double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
         for (unsigned i = 0; i < numFftFrames; i++) {
-            /*
-            // calculate frame average magnitude
-            double sum = 0;
-            double maxBin = std::numeric_limits<double>::min();
-            double minBin = std::numeric_limits<double>::max();
-            // EXCLUDE DC OFFSET
-            for (unsigned j = 1; j < numBins; j++) {
-                double binMagnitude = targetSpectrumMagnitudes[(i * numBins) + j];
-                sum += binMagnitude;
-                if (binMagnitude > maxBin)
-                    maxBin = binMagnitude;
-                if (binMagnitude < minBin)
-                    minBin = binMagnitude;
-            }
-            double frameAverageMagnitude = sum / ((double) numBins);
-            //std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
-            */
-
             // find moving average
-            double maxDeviationAboveMean = 0.0;
-            double maxDeviationBelowMean = 0.0;
+            double maxDeviationAboveMean, maxDeviationBelowMean;
             findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAverageRadius, &maxDeviationAboveMean, &maxDeviationBelowMean);
 
-            // compare each bin EXCEPT DC OFFSET to the average magnitude
+            // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
                 unsigned binIndex = (i * numBins) + j;
                 double binMagnitude = targetSpectrumMagnitudes[binIndex];
@@ -518,6 +500,13 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 }
                 */
             }
+
+            // TEST MOVING AVERAGE
+            float* freqAxis = (float*) malloc(sizeof(float) * numBins);
+            fillFrequencyAxisBuffer(n, targetSampleRate, freqAxis);
+            saveTextFile(String("./spectrumUndershootingPenalites.txt"), weirdBuffersToGraphText(String("x> y^ xf yf zc"), String("Bin Number"), String("Magnitude"), true, numBins - 1, NULL, freqAxis + 1, binUndershootingPenalty + (i * numBins)));
+            saveTextFile(String("./spectrumOvershootingPenalites.txt"), weirdBuffersToGraphText(String("x> y^ xf yf zc"), String("Bin Number"), String("Magnitude"), true, numBins - 1, NULL, freqAxis + 1, binOvershootingPenalty + (i * numBins)));
+            free(freqAxis);
         }
         free(mac);
     }
@@ -953,7 +942,7 @@ void GPExperiment::fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* b
     }
 }
 
-String GPExperiment::floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, float* x, float* y) {
+String GPExperiment::buffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z) {
     String ret;
     ret += options;
     ret += "\n";
@@ -966,8 +955,40 @@ String GPExperiment::floatBuffersToGraphText(String options, String xlab, String
             ret += String(i);
         else
             ret += String(x[i]);
-        ret += "\t";
-        ret += String(y[i]);
+        if (y != NULL) {
+            ret += "\t";
+            ret += String(y[i]);
+        }
+        if (z != NULL) {
+            ret += "\t";
+            ret += String(z[i]);
+        }
+        ret += "\n";
+    }
+    return ret;
+}
+
+String GPExperiment::weirdBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const double* x, const float* y, const double* z) {
+    String ret;
+    ret += options;
+    ret += "\n";
+    ret += xlab;
+    ret += "\t";
+    ret += ylab;
+    ret += "\n";
+    for (unsigned i = 0; i < n; i++) {
+        if (indexAsX)
+            ret += String(i);
+        else
+            ret += String(x[i]);
+        if (y != NULL) {
+            ret += "\t";
+            ret += String(y[i]);
+        }
+        if (z != NULL) {
+            ret += "\t";
+            ret += String(z[i]);
+        }
         ret += "\n";
     }
     return ret;
