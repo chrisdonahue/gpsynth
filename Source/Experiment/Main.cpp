@@ -77,6 +77,8 @@ public:
         params->fftSize = 256;
         params->fftOverlap = 0;
         params->dBMagnitude = false;
+        params->averageComparisonType = 1;
+        params->movingAverageRadius = 10;
         // phase penalty
         params->penalizeBadPhase = 2;
         // magnitude penalty
@@ -261,6 +263,12 @@ public:
             }
             else if (i->equalsIgnoreCase("--ampmag")) {
                 params->dBMagnitude = false;
+            }
+            else if (i->equalsIgnoreCase("--averagetype")) {
+                params->averageComparisonType = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--averageradius")) {
+                params->movingAverageRadius = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--phasepenalty"))  {
                 params->penalizeBadPhase = (++i)->getDoubleValue();

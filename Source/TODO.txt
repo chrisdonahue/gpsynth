@@ -62,6 +62,9 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
 
 NEXT EXPERIMENTS:
+    graph color map for penalty stuff to see if its working/compare to old
+    moving average for under/over 
+    
     1. Run tests controlling the following variables:
         Fitness function
             Compare spectral content:
@@ -72,3 +75,5 @@ NEXT EXPERIMENTS:
                 Compare every n samples
     3. Get filters/noise working again. Switch filter libs probably
     more sounds!
+
+"a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"

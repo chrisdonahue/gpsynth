@@ -192,11 +192,11 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
         // TEST MOVING AVERAGE
         float* mac = (float*) malloc(sizeof(float) * fftOutSize);
-        findMovingAverage(fftOutSize, magAxis, mac, 10);
+        //findMovingAverage(fftOutSize, magAxis, mac, 10);
         saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
-        findMovingAverage(fftOutSize, magAxis, mac, 20);
+        //findMovingAverage(fftOutSize, magAxis, mac, 20);
         saveTextFile(String("./mac20.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
-        findMovingAverage(fftOutSize, magAxis, mac, 30);
+        //findMovingAverage(fftOutSize, magAxis, mac, 30);
         saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac));
 
         // FREE AND DONT EVOLVE
@@ -465,8 +465,9 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         //std::cout << good << ", " << bad << std::endl;
         unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
-        float* mac = (float*) malloc(sizeof(float) * numBins);
+        double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
         for (unsigned i = 0; i < numFftFrames; i++) {
+            /*
             // calculate frame average magnitude
             double sum = 0;
             double maxBin = std::numeric_limits<double>::min();
@@ -482,15 +483,22 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             }
             double frameAverageMagnitude = sum / ((double) numBins);
             //std::cout << i << ": [" << minBin << ", " << maxBin << "] " << frameAverageMagnitude << std::endl;
+            */
+
+            // find moving average
+            double maxDeviationAboveMean = 0.0;
+            double maxDeviationBelowMean = 0.0;
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAverageRadius, &maxDeviationAboveMean, &maxDeviationBelowMean);
 
             // compare each bin EXCEPT DC OFFSET to the average magnitude
             for (unsigned j = 1; j < numBins; j++) {
                 unsigned binIndex = (i * numBins) + j;
                 double binMagnitude = targetSpectrumMagnitudes[binIndex];
+                double binAverage = mac[j - 1];
 
                 // if we are above the mean penalize undershooting more
-                if (binMagnitude > frameAverageMagnitude) {
-                    double proportionOfMax = (binMagnitude - frameAverageMagnitude) / (maxBin - frameAverageMagnitude);
+                if (binMagnitude > binAverage) {
+                    double proportionOfMax = (binMagnitude - binAverage) / maxDeviationAboveMean;
                     //std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax << std::endl;
                     binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
                     binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
@@ -498,7 +506,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
 
                 // if we are below the mean penalize overshooting more
                 else {
-                    double proportionOfMin = (frameAverageMagnitude - binMagnitude) / (frameAverageMagnitude - minBin);
+                    double proportionOfMin = (binAverage - binMagnitude) / maxDeviationBelowMean;
                     //std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin << std::endl;
                     binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
                     binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
@@ -649,10 +657,6 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
                     MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
                 }
                 MSEph += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
-                if (MSEmag >= INFINITY) {
-                    std::cout << magnitude[binIndex] << ", " << targetSpectrumMagnitudes[binIndex] << ", " << binUndershootingPenalty[binIndex] << ", " << binOvershootingPenalty[binIndex] << std::endl;
-                }
-                assert(MSEmag < INFINITY);
             }
         }
         //MSEmag = MSEmag / n;
@@ -771,40 +775,62 @@ void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
     }
 }
 
-void GPExperiment::findMovingAverage(unsigned n, float* buffer, float* movingaverage, unsigned R) {
-    unsigned D = 2 * R;
-    assert(n > D);
-    // based on http://radonc.wustl.edu/research/physics/5d/Papers/Lu_Medphys_Oct2006.pdf
-    // TOP PART OF FORMULA FROM WEBSITE
-    double firstRSum = 0.0;
-    for (unsigned i = 0; i < R; i++) {
-        firstRSum += buffer[i];
+void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned R, double* maxdeviationabove, double* maxdeviationbelow) {
+    if (type == 0) {
+        double sum = 0;
+        double max = std::numeric_limits<double>::min();
+        double min = std::numeric_limits<double>::max();
+        // EXCLUDE DC OFFSET
+        for (unsigned i = 0; i < n; i++) {
+            double magnitude = buffer[i];
+            sum += magnitude;
+            if (magnitude > max)
+                max = magnitude;
+            if (magnitude < min)
+                min = magnitude;
+        }
+        double average = sum / ((double) n);
+        for (unsigned i = 0; i < n; i++) {
+            movingaverage[i] = average;
+        }
+        *maxdeviationabove = max - average;
+        *maxdeviationbelow = average - min;
     }
-    double firstRAvg = firstRSum / R;
-    for (unsigned i = 0; i < R; i++) {
-        firstRSum += buffer[i + R];
-        movingaverage[i] = firstRSum / (i + R);
-    }
+    else if (type == 1) {
+        unsigned D = 2 * R;
+        assert(n > D);
+        // based on http://radonc.wustl.edu/research/physics/5d/Papers/Lu_Medphys_Oct2006.pdf
+        // TOP PART OF FORMULA FROM WEBSITE
+        double firstRSum = 0.0;
+        for (unsigned i = 0; i < R; i++) {
+            firstRSum += buffer[i];
+        }
+        double firstRAvg = firstRSum / R;
+        for (unsigned i = 0; i < R; i++) {
+            firstRSum += buffer[i + R];
+            movingaverage[i] = firstRSum / (i + R);
+        }
 
-    // MIDDLE PART OF FORMULA FROM WEBSITE
-    double bufferIndexMinusRValue = buffer[0];
-    double sumOfDiameter = 0.0;
-    for (unsigned i = 0; i <= D; i++) {
-        sumOfDiameter += buffer[i];
-    }
-    movingaverage[R] = sumOfDiameter / (D + 1);
-    for (unsigned i = R + 1; i < n - R; i++) {
-        sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
-        sumOfDiameter = sumOfDiameter + buffer[i + R];
-        movingaverage[i] = sumOfDiameter / (D + 1);
-        bufferIndexMinusRValue = buffer[i - R];
-    }
+        // MIDDLE PART OF FORMULA FROM WEBSITE
+        double bufferIndexMinusRValue = buffer[0];
+        double sumOfDiameter = 0.0;
+        for (unsigned i = 0; i <= D; i++) {
+            sumOfDiameter += buffer[i];
+        }
+        movingaverage[R] = sumOfDiameter / (D + 1);
+        for (unsigned i = R + 1; i < n - R; i++) {
+            sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
+            sumOfDiameter = sumOfDiameter + buffer[i + R];
+            movingaverage[i] = sumOfDiameter / (D + 1);
+            bufferIndexMinusRValue = buffer[i - R];
+        }
 
-    // BOTTOM PART OF FORMULA FROM WEBSITE
-    for (unsigned i = n - R; i < n; i++) {
-        sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
-        movingaverage[i] = sumOfDiameter / (R + n - i);
-        bufferIndexMinusRValue = buffer[i - R];
+        // BOTTOM PART OF FORMULA FROM WEBSITE
+        for (unsigned i = n - R; i < n; i++) {
+            sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
+            movingaverage[i] = sumOfDiameter / (R + n - i);
+            bufferIndexMinusRValue = buffer[i - R];
+        }
     }
 }
 

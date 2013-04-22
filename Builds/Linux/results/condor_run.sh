@@ -36,7 +36,9 @@ set -e
   --window hann\
   --fft 1024\
   --fftoverlap 0\
-  --dbmag\
+  --ampmag\
+  --averagetype 0\
+  --averageradius 10\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
