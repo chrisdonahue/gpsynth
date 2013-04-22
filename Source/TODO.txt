@@ -72,6 +72,7 @@ NEXT EXPERIMENTS:
             Compare envelope:
                 Single iteration of envelope follower
                 Compare every n samples
+    2. Overlap needs to be in the picture... need to graph FFT over time and compare to foobar
     3. Get filters/noise working again. Switch filter libs probably
     more sounds!
 
