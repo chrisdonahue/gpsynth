@@ -472,7 +472,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
             double maxDeviationAboveMean, maxDeviationBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAverageRadius, &maxDeviationAboveMean, &maxDeviationBelowMean);
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAverageRadius, params->movingAverageRadius, &maxDeviationAboveMean, &maxDeviationBelowMean);
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
@@ -767,7 +767,8 @@ void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
     }
 }
 
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned R, double* maxdeviationabove, double* maxdeviationbelow) {
+void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double* maxdeviationabove, double* maxdeviationbelow) {
+    // NON-MOVING AVERAGE
     if (type == 0) {
         double sum = 0;
         double max = std::numeric_limits<double>::min();
@@ -787,43 +788,55 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
         }
         *maxdeviationabove = max - average;
         *maxdeviationbelow = average - min;
+        return;
     }
-    else if (type == 1) {
-        unsigned D = 2 * R;
-        assert(n > D);
-        // based on http://radonc.wustl.edu/research/physics/5d/Papers/Lu_Medphys_Oct2006.pdf
-        // TOP PART OF FORMULA FROM WEBSITE
-        double firstRSum = 0.0;
-        for (unsigned i = 0; i < R; i++) {
-            firstRSum += buffer[i];
-        }
-        double firstRAvg = firstRSum / R;
-        for (unsigned i = 0; i < R; i++) {
-            firstRSum += buffer[i + R];
-            movingaverage[i] = firstRSum / (i + R);
-        }
+    
+    // CREATE TEMPORARY BUFFER FOR WEIGHTS
+    unsigned weightArraySize = (pastRadius + futureRadius) + 1;
+    float* weights = (float*) malloc(sizeof(float) * weightArraySize);
 
-        // MIDDLE PART OF FORMULA FROM WEBSITE
-        double bufferIndexMinusRValue = buffer[0];
-        double sumOfDiameter = 0.0;
-        for (unsigned i = 0; i <= D; i++) {
-            sumOfDiameter += buffer[i];
-        }
-        movingaverage[R] = sumOfDiameter / (D + 1);
-        for (unsigned i = R + 1; i < n - R; i++) {
-            sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
-            sumOfDiameter = sumOfDiameter + buffer[i + R];
-            movingaverage[i] = sumOfDiameter / (D + 1);
-            bufferIndexMinusRValue = buffer[i - R];
-        }
-
-        // BOTTOM PART OF FORMULA FROM WEBSITE
-        for (unsigned i = n - R; i < n; i++) {
-            sumOfDiameter = sumOfDiameter - bufferIndexMinusRValue;
-            movingaverage[i] = sumOfDiameter / (R + n - i);
-            bufferIndexMinusRValue = buffer[i - R];
+    // ASSIGN WEIGHTS BY TYPE
+    if (type == 1) {
+        for (unsigned i = 0; i < weightArraySize; i++) {
+            weights[i] = 1.0;
         }
     }
+
+    // CALCULATE MOVING AVERAGE BASED ON WEIGHTS
+    int leftrad = pastRadius;
+    int rightrad = futureRadius;
+    for (int i = 0; i < (int) n; i++) {
+        int lowerIndex = i - leftrad < 0 ? 0 : i - leftrad;
+        int upperIndex = i + rightrad + 1 > n ? n : i + rightrad + 1;
+        int weightIndex = i - leftrad < 0 ? leftrad - i: 0;
+        double sum = 0.0;
+        double weightsum = 0.0;
+        //std::cerr << i << ": (" << lowerIndex << ", " << upperIndex << ", " << weightIndex << ")" << std::endl;
+        for (int j = lowerIndex, k = weightIndex; j < upperIndex; j++, k++) {
+            sum += buffer[j] * weights[k];
+            weightsum += weights[k];
+        }
+        movingaverage[i] = (sum / weightsum);
+    }
+
+    // CALCULATE MIN/MAX DEVIATION INEFFICIENTLY
+    double maxdeva = std::numeric_limits<double>::min();
+    double maxdevb = std::numeric_limits<double>::min();
+    for (unsigned i = 0; i < n; i++) {
+        double pointValue = buffer[i];
+        double pointAverage = movingaverage[i];
+        // if value is below average
+        if (pointValue < pointAverage) {
+            if (pointAverage - pointValue > maxdevb)
+                maxdevb = pointAverage - pointValue;
+        }
+        else {
+            if (pointValue - pointAverage > maxdeva)
+                maxdeva = pointValue - pointAverage;
+        }
+    }
+    *maxdeviationabove = maxdeva;
+    *maxdeviationbelow = maxdevb;
 }
 
 void GPExperiment::applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window) {
