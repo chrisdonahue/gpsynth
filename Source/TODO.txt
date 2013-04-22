@@ -62,6 +62,8 @@ TODO long run:
 
 NEXT EXPERIMENTS:
     try log comparison to minimum/maximum deviation to spread out penalty over a larger area
+    add command line flag to print spectrum overshooting/undershooting penalties for all target frames as well as spectrum overlap
+    interpolate comparison data for under/over stuff
     1. Run tests controlling the following variables:
         Fitness function
             amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this

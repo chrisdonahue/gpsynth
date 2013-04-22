@@ -9,7 +9,7 @@ import itertools as it
 
 # if we need help
 if ('-h' in sys.argv or len(sys.argv) < 6):
-  print 'python graphSpectrumComparison.py "Title" min3rdAxis max3rdAxis movingAverage.txt colormapped3Axis.txt'
+  print 'python graphSpectrumComparison.py "Title" min3rdAxis max3rdAxis movingAverage.txt colormapped3Axis.txt --interp multiplier'
   sys.exit(0)
 
 # use command line arg file
@@ -18,6 +18,9 @@ penaltyMin = float(sys.argv[2])
 penaltyMax = float(sys.argv[3])
 movingaveragefilepath = sys.argv[4]
 colordatafilepath = sys.argv[5]
+interpAmount = 0
+if ('--interp' in sys.argv):
+  interpAmount = sys.argv[7]
 
 # float raw string
 fp = r"([+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
@@ -58,11 +61,25 @@ yMax = max(yMax, max(ydata))
 yMin = min(yMin, min(ydata))
 
 # format data for graphs
+interpolatedx = []
+for i in range(len(xdata) - 1):
+  xi = xdata[i]
+  xf = xdata[i + 1]
+  interpolatedx.append(xi)
+  xd = (xf - xi) / float(interpAmount + 1)
+  for j in range(interpAmount):
+    interpolatedx.append(xi + xd)
+interpolatedx.append(xdata[len(xdata) - 1])
+
+print interpolatedx
+
+# temp
 xarr = np.array(xdata)
 yarr = np.array(ydata)
+interpolated = [xarr, yarr]
 
 # plot line
-points = np.array([xarr, yarr]).T.reshape(-1, 1, 2)
+points = np.array(interpolated).T.reshape(-1, 1, 2)
 segments = np.concatenate([points[:-1], points[1:]], axis=1)
 lc = LineCollection(segments, cmap=plt.get_cmap('cool'), norm=plt.Normalize(penaltyMin, penaltyMax))
 lc.set_array(np.array(penalties))
