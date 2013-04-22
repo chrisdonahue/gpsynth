@@ -37,8 +37,10 @@ set -e
   --fft 1024\
   --fftoverlap 0\
   --ampmag\
-  --averagetype 0\
-  --averageradius 10\
+  --averagetype 2\
+  --averagepastradius 40\
+  --averagefutureradius 40\
+  --alpha 0.95\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\

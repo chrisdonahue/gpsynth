@@ -472,7 +472,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
             double maxDeviationAboveMean, maxDeviationBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAverageRadius, params->movingAverageRadius, &maxDeviationAboveMean, &maxDeviationBelowMean);
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean);
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
@@ -767,7 +767,7 @@ void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
     }
 }
 
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double* maxdeviationabove, double* maxdeviationbelow) {
+void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow) {
     // NON-MOVING AVERAGE
     if (type == 0) {
         double sum = 0;
@@ -796,11 +796,31 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     float* weights = (float*) malloc(sizeof(float) * weightArraySize);
 
     // ASSIGN WEIGHTS BY TYPE
+    // CONSTANT WEIGHT
     if (type == 1) {
         for (unsigned i = 0; i < weightArraySize; i++) {
             weights[i] = 1.0;
         }
     }
+    // EXPONENTIAL WEIGHT
+    else if (type == 2) {
+        for (unsigned i = 0; i < pastRadius; i++) {
+            unsigned numAlpha = pastRadius - i + 1;
+            weights[i] = pow(alpha, numAlpha);
+        }
+        weights[pastRadius] = alpha;
+        for (unsigned i = pastRadius + 1; i < weightArraySize; i++) {
+            unsigned numAlpha = i - pastRadius + 1;
+            weights[i] = pow(alpha, numAlpha);
+        }
+    }
+    
+    // PRINT WEIGHT ARRAY
+    /*
+    for (unsigned i = 0; i < weightArraySize; i++) {
+        std::cerr << weights[i] << std::endl;
+    }
+    */
 
     // CALCULATE MOVING AVERAGE BASED ON WEIGHTS
     int leftrad = pastRadius;
@@ -820,6 +840,7 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     }
 
     // CALCULATE MIN/MAX DEVIATION INEFFICIENTLY
+    // TODO: incorporate above
     double maxdeva = std::numeric_limits<double>::min();
     double maxdevb = std::numeric_limits<double>::min();
     for (unsigned i = 0; i < n; i++) {

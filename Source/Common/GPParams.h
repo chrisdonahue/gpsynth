@@ -37,7 +37,9 @@ struct GPParams {
     unsigned fftOverlap;
     bool dBMagnitude;
     unsigned averageComparisonType;
-    unsigned movingAverageRadius;
+    unsigned movingAveragePastRadius;
+    unsigned movingAverageFutureRadius;
+    double exponentialMovingAverageAlpha;
     // phase penalty
     double penalizeBadPhase;
     // magnitude penalty over/undershooting system
