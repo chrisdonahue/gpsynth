@@ -113,8 +113,8 @@ private:
 
     // GRAPH HELPERS
     void fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer);
-    String buffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z);
-    String weirdBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const double* x, const float* y, const double* z);
+    String floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z);
+    String doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const float* x, const double* y, const double* z);
 };
 
 #endif
