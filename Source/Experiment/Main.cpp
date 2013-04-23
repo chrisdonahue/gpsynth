@@ -77,10 +77,14 @@ public:
         params->fftSize = 256;
         params->fftOverlap = 0;
         params->dBMagnitude = false;
+        // moving average
         params->averageComparisonType = 1;
         params->movingAveragePastRadius = 50;
         params->movingAverageFutureRadius = 50;
         params->exponentialMovingAverageAlpha = 0.2;
+        params->saveTargetSpectrum = false;
+        params->compareToMaxDeviation = true;
+        params->logPenaltyComparison = true;
         // phase penalty
         params->penalizeBadPhase = 2;
         // magnitude penalty
@@ -277,6 +281,24 @@ public:
             }
             else if (i->equalsIgnoreCase("--alpha"))  {
                 params->exponentialMovingAverageAlpha = (++i)->getDoubleValue();
+            }
+            else if (i->equalsIgnoreCase("--savetargetspectrum")) {
+                params->saveTargetSpectrum = true;
+            }
+            else if (i->equalsIgnoreCase("--nosavetargetspectrum")) {
+                params->saveTargetSpectrum = false;
+            }
+            else if (i->equalsIgnoreCase("--comparedev")) {
+                params->compareToMaxDeviation = true;
+            }
+            else if (i->equalsIgnoreCase("--compareavg")) {
+                params->compareToMaxDeviation = false;
+            }
+            else if (i->equalsIgnoreCase("--logpenalty")) {
+                params->logPenaltyComparison = true;
+            }
+            else if (i->equalsIgnoreCase("--linpenalty")) {
+                params->logPenaltyComparison = false;
             }
             else if (i->equalsIgnoreCase("--phasepenalty"))  {
                 params->penalizeBadPhase = (++i)->getDoubleValue();

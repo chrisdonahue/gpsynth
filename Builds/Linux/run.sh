@@ -157,6 +157,9 @@ COMMENT
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
+  --nosavetargetspectrum\
+  --comparedev\
+  --logpenalty\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\

@@ -64,6 +64,7 @@ NEXT EXPERIMENTS:
     try log comparison to minimum/maximum deviation to spread out penalty over a larger area
     add command line flag to print spectrum overshooting/undershooting penalties for all target frames as well as spectrum overlap
     add command line flag to toggle between comparing to max deviation from moving average and comparing to current value of moving average
+    add command line flag for log comparison or not
     interpolate comparison data for under/over stuff
     1. Run tests controlling the following variables:
         Fitness function
