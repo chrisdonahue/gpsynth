@@ -112,5 +112,6 @@ for num, colordatafilepath in zip(range(len(colorfiles)), colorfiles):
   plt.ylim(min([yMin, yMax]), max([yMin, yMax]))
   plt.xlabel(xLabel)
   plt.ylabel(yLabel)
-  plt.savefig(fileName + '.png')
+  #plt.gcf().set_size_inches(4, 3)
+  plt.savefig(fileName + '.png')#, dpi=300)
   plt.clf()
