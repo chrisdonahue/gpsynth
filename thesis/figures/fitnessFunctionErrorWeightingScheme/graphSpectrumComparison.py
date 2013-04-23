@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.colors import Normalize
+from scipy import interpolate
 import numpy as np
 import re
 import sys
@@ -8,8 +9,8 @@ import os
 import itertools as it
 
 # if we need help
-if ('-h' in sys.argv or len(sys.argv) < 6):
-  print 'python graphSpectrumComparison.py "Title" min3rdAxis max3rdAxis movingAverage.txt colormapped3Axis.txt --interp multiplier'
+if ('-h' in sys.argv or len(sys.argv) < 7):
+  print 'python graphSpectrumComparison.py "Title" min3rdAxis max3rdAxis movingAverage.txt colormapped3Axis.txt interpAmount'
   sys.exit(0)
 
 # use command line arg file
@@ -18,9 +19,7 @@ penaltyMin = float(sys.argv[2])
 penaltyMax = float(sys.argv[3])
 movingaveragefilepath = sys.argv[4]
 colordatafilepath = sys.argv[5]
-interpAmount = 0
-if ('--interp' in sys.argv):
-  interpAmount = sys.argv[7]
+interpAmount = int(sys.argv[6])
 
 # float raw string
 fp = r"([+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
@@ -65,24 +64,34 @@ interpolatedx = []
 for i in range(len(xdata) - 1):
   xi = xdata[i]
   xf = xdata[i + 1]
-  interpolatedx.append(xi)
   xd = (xf - xi) / float(interpAmount + 1)
-  for j in range(interpAmount):
-    interpolatedx.append(xi + xd)
+  for j in range(interpAmount + 1):
+    interpolatedx.append(xi + j*xd)
 interpolatedx.append(xdata[len(xdata) - 1])
 
-print interpolatedx
+yf = interpolate.interp1d(xdata, ydata, 'cubic')
+interpolatedy = yf(interpolatedx)
+pf = interpolate.interp1d(xdata, penalties, 'cubic')
+interpolatedp = pf(interpolatedx)
+
+#interpolatedcoordinates = [(interpolatedx[i], interpolatedy[i], interpolatedp[i]) for i in range(len(interpolatedx))]
+#print interpolatedx
+#print interpolatedy
+#print interpolatedp
+#print interpolatedcoordinates
 
 # temp
-xarr = np.array(xdata)
-yarr = np.array(ydata)
-interpolated = [xarr, yarr]
+#xarr = np.array(xdata)
+#yarr = np.array(ydata)
+interpolated = [interpolatedx, interpolatedy]
+#interpolated = [xarr, yarr]
 
 # plot line
 points = np.array(interpolated).T.reshape(-1, 1, 2)
 segments = np.concatenate([points[:-1], points[1:]], axis=1)
 lc = LineCollection(segments, cmap=plt.get_cmap('cool'), norm=plt.Normalize(penaltyMin, penaltyMax))
-lc.set_array(np.array(penalties))
+lc.set_array(interpolatedp)
+#lc.set_array(np.array(penalties))
 lc.set_linewidth(2)
 
 # PARSE MOVING AVERAGE DATA FILE

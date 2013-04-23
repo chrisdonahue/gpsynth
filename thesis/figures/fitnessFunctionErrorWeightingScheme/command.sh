@@ -5,7 +5,7 @@
 
 set -e
 
-python graphSpectrumComparison.py "Error Comparison Exponent For Undershooting" 0.9 2.0 $1 $2
-python graphSpectrumComparison.py "Error Comparison Exponent For Overshooting" 0.9 2.0 $1 $3
+python graphSpectrumComparison.py "Error Comparison Exponent For Undershooting" 0.9 2.0 $1 $2 100
+python graphSpectrumComparison.py "Error Comparison Exponent For Overshooting" 0.9 2.0 $1 $3 100
 
 set +e
