@@ -482,7 +482,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
 
                 // if we are above the mean penalize undershooting more
                 if (binMagnitude > binAverage) {
-                    double proportionOfMax = (binMagnitude - binAverage) / maxDeviationAboveMean;
+                    double proportionOfMax = log((binMagnitude - binAverage)) / log(maxDeviationAboveMean);
                     //std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax << std::endl;
                     binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
                     binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
@@ -490,7 +490,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
 
                 // if we are below the mean penalize overshooting more
                 else {
-                    double proportionOfMin = (binAverage - binMagnitude) / maxDeviationBelowMean;
+                    double proportionOfMin = log((binAverage - binMagnitude)) / log(maxDeviationBelowMean);
                     //std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin << std::endl;
                     binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
                     binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
