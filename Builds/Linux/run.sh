@@ -5,7 +5,7 @@ set -e
 # DEBUG MOVING AVERAGE STUFF
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
-  --target ./samples/TrumpetEb51024.wav\
+  --target ./samples/TrumpetEb5.wav\
   --path ./\
   --seed 1\
   --values 622.25\

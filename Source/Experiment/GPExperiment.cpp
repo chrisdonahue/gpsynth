@@ -475,8 +475,9 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         fillFrequencyAxisBuffer(n, targetSampleRate, freqAxis);
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
+            unsigned dataOffset = (i * numBins) + 1;
             double maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, minRatioBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &minRatioBelowMean);
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &minRatioBelowMean);
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
@@ -534,10 +535,10 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 char buffer[200];
                 snprintf(buffer, 200, "targetInfo/%d.", i);
                 String tag(buffer);
-                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, NULL));
+                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, NULL));
                 saveTextFile(savePath + tag + String("movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
-                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, binUndershootingPenalty + (i * numBins) + 1));
-                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, binOvershootingPenalty + (i * numBins) + 1));
+                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binUndershootingPenalty + dataOffset));
+                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binOvershootingPenalty + dataOffset));
             }
         }
         free(freqAxis);
