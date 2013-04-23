@@ -15,6 +15,7 @@ struct GPParams {
     // auxillary parameters
     bool verbose;
     bool saveGenerationChampions;
+    bool backupTarget;
     unsigned printPrecision;
     unsigned savePrecision;
     unsigned wavFileBufferSize;

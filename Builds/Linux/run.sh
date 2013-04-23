@@ -18,7 +18,7 @@ set -e
   --ffphaseweight 0.2\
   --ffenvweight 0.5\
   TIME DOMAIN PARAMS\
-  --nosavetargetenv\
+  --savetargetenv\
   --envatk 1\
   --envdcy 300\
   --envskip 9\
@@ -31,6 +31,7 @@ set -e
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
+  --savetargetspectrum\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
@@ -135,6 +136,7 @@ COMMENT
   AUXILLARY PARAMS\
   --verbose\
   --savegenchamps\
+  --backuptarget\
   --printprecision 3\
   --saveprecision 5\
   --loadwavblock 512\

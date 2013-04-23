@@ -32,6 +32,9 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     targetNyquist = targetSampleRate / 2;
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
     loadWavFile(target, numTargetFrames, targetFrames);
+    if (params->backupTarget)
+        saveWavFile(savePath + String("target.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
+
     fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
 
     // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
@@ -435,8 +438,8 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
     followEnvelope(numTargetFrames, targetFrames, targetEnvelope, params->envelopeFollowerAttack, params->envelopeFollowerDecay, targetSampleRate);
     if (params->saveTargetEnvelope) {
         char buffer[100];
-        snprintf(buffer, 100, "%d.targetenvelope.txt", seed);
-        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope, NULL));
+        snprintf(buffer, 100, "targetInfo/targetenvelope.txt");
+        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample Number"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope, NULL));
     }
 
     // FILL FREQUENCY SPECTRUM OF TARGET
@@ -461,56 +464,83 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         // take fft of target data
         FftReal(numTargetFrames, targetFrames, n, overlap, analysisWindow, targetSpectrum, params->dBMagnitude, dBRef, targetSpectrumMagnitudes, targetSpectrumPhases);
 
-        // calculate stats on each frame
+        // calculate penalties for each frame
         double base = params->baseComparisonFactor;
         double good = params->goodComparisonFactor;
         double bad = params->badComparisonFactor;
-        //std::cout << good << ", " << bad << std::endl;
         unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
         double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
+        float* freqAxis = (float*) malloc(sizeof(float) * numBins);
+        fillFrequencyAxisBuffer(n, targetSampleRate, freqAxis);
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
-            double maxDeviationAboveMean, maxDeviationBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean);
+            double maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, minRatioBelowMean;
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + 1, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &minRatioBelowMean);
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
                 unsigned binIndex = (i * numBins) + j;
                 double binMagnitude = targetSpectrumMagnitudes[binIndex];
                 double binAverage = mac[j - 1];
+                
+                // calculate bin comparison metric data
+                double numerator, denominator, proportion;
+                if (params->compareToMaxDeviation) {
+                    numerator = fabs(binMagnitude - binAverage);
+                    if (binMagnitude > binAverage) {
+                        denominator = maxDeviationAboveMean;
+                    }
+                    else {
+                        denominator = maxDeviationBelowMean;
+                    }
+                }
+                else {
+                    if (binMagnitude > binAverage) {
+                        numerator = fabs(binAverage) / fabs(binMagnitude);
+                        denominator = maxRatioAboveMean;
+                    }
+                    else {
+                        numerator = fabs(binMagnitude) / fabs(binAverage);
+                        denominator = minRatioBelowMean;
+                    }
+                }
+
+                // calculate bin proportion for penalty assignments
+                if (params->logPenaltyComparison) {
+                    proportion = log(numerator) / log(denominator);
+                }
+                else {
+                    proportion = numerator / denominator;
+                }
 
                 // if we are above the mean penalize undershooting more
                 if (binMagnitude > binAverage) {
-                    double proportionOfMax = log((binMagnitude - binAverage)) / log(maxDeviationAboveMean);
-                    //std::cout << "ABOVE AVERAGE: " << j << ", " << proportionOfMax << std::endl;
-                    binUndershootingPenalty[binIndex] = (proportionOfMax * bad) + base;
-                    binOvershootingPenalty[binIndex] = (proportionOfMax * good) + base;
+                    //double proportionOfMax = log((binMagnitude - binAverage)) / log(maxDeviationAboveMean);
+                    binUndershootingPenalty[binIndex] = (proportion * bad) + base;
+                    binOvershootingPenalty[binIndex] = (proportion * good) + base;
                 }
 
                 // if we are below the mean penalize overshooting more
                 else {
-                    double proportionOfMin = log((binAverage - binMagnitude)) / log(maxDeviationBelowMean);
-                    //std::cout << "BELOW AVERAGE: " << j << ", " << proportionOfMin << std::endl;
-                    binUndershootingPenalty[binIndex] = (proportionOfMin * good) + base;
-                    binOvershootingPenalty[binIndex] = (proportionOfMin * bad) + base;
+                    //double proportionOfMin = log((binAverage - binMagnitude)) / log(maxDeviationBelowMean);
+                    binUndershootingPenalty[binIndex] = (proportion * good) + base;
+                    binOvershootingPenalty[binIndex] = (proportion * bad) + base;
                 }
-                /*
-                if (i == 3) {
-                    std::cout << "BIN " << j << " MAG: " << binMagnitude;
-                    std::cout << ", OVERSHOOT: " << binOvershootingPenalty[binIndex] << ", UNDERSHOOT: " << binUndershootingPenalty[binIndex] << std::endl;
-                }
-                */
             }
 
-            // TEST MOVING AVERAGE
-            float* freqAxis = (float*) malloc(sizeof(float) * numBins);
-            fillFrequencyAxisBuffer(n, targetSampleRate, freqAxis);
-            saveTextFile(String("./spectrumUndershootingPenalites.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, binUndershootingPenalty + (i * numBins) + 1));
-            saveTextFile(String("./spectrumOvershootingPenalites.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, binOvershootingPenalty + (i * numBins) + 1));
-            saveTextFile(String("./movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
-            free(freqAxis);
+            // print average
+            if (params->saveTargetSpectrum) {
+                char buffer[200];
+                snprintf(buffer, 200, "targetInfo/%d.", i);
+                String tag(buffer);
+                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, NULL));
+                saveTextFile(savePath + tag + String("movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
+                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, binUndershootingPenalty + (i * numBins) + 1));
+                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + (i * numBins) + 1, binOvershootingPenalty + (i * numBins) + 1));
+            }
         }
+        free(freqAxis);
         free(mac);
     }
 }
@@ -767,7 +797,7 @@ void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
     }
 }
 
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow) {
+void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* minratiobelow) {
     // NON-MOVING AVERAGE
     if (type == 0) {
         double sum = 0;
@@ -843,6 +873,8 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     // TODO: incorporate above
     double maxdeva = std::numeric_limits<double>::min();
     double maxdevb = std::numeric_limits<double>::min();
+    double maxrata = std::numeric_limits<double>::min();
+    double minratb = std::numeric_limits<double>::max();
     for (unsigned i = 0; i < n; i++) {
         double pointValue = buffer[i];
         double pointAverage = movingaverage[i];
@@ -850,14 +882,20 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
         if (pointValue < pointAverage) {
             if (pointAverage - pointValue > maxdevb)
                 maxdevb = pointAverage - pointValue;
+            if (pointValue/pointAverage < minratb)
+                minratb = pointValue/pointAverage;
         }
         else {
             if (pointValue - pointAverage > maxdeva)
                 maxdeva = pointValue - pointAverage;
+            if (pointAverage/pointValue > maxrata)
+                maxrata = pointAverage/pointValue;
         }
     }
     *maxdeviationabove = maxdeva;
     *maxdeviationbelow = maxdevb;
+    *maxratioabove = maxrata;
+    *minratiobelow = minratb;
 }
 
 void GPExperiment::applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window) {

@@ -104,7 +104,7 @@ private:
 
     // WAVEFORM OPERATIONS
     void window(const char* type, unsigned n, float* windowBuffer);
-    void findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow);
+    void findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* minratiobelow);
     void applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window);
     void applyEnvelope(unsigned n, float* buffer, const float* envelope);
     void applyEnvelope(unsigned n, const float* buffer, const float* envelope, float* windowedBuffer);

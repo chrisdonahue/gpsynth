@@ -19,6 +19,7 @@ set -e
   AUX PARAMS \
   --verbose\
   --nosavegenchamps\
+  --nobackuptarget\
   --printprecision 3\
   --saveprecision 10\
   --loadwavblock 256\

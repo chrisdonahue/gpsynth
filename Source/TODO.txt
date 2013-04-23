@@ -59,21 +59,18 @@ TODO long run:
     Check if numerical mutation is working...
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
+    amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
 
 NEXT EXPERIMENTS:
-    try log comparison to minimum/maximum deviation to spread out penalty over a larger area
-    add command line flag to print spectrum overshooting/undershooting penalties for all target frames as well as spectrum overlap
-    add command line flag to toggle between comparing to max deviation from moving average and comparing to current value of moving average
-    add command line flag for log comparison or not
-    interpolate comparison data for under/over stuff
+    tag target info stuff with target name instead of seed?
+    test changes made to printing of magnitude/target/new command line flags
+        make batch processing graph scripts with quick organization of graph images in mind
     1. Run tests controlling the following variables:
         Fitness function
-            amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
             Compare envelope:
                 attack/decay envelope follower
                 Compare every n samples
     2. Overlap needs to be in the picture... need to graph FFT over time and compare to foobar
-    3. Get filters/noise working again. Switch filter libs probably
-    more sounds!
+    3. Get filters (simple)/noise working again. Switch filter libs probably
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"

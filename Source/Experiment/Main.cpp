@@ -56,6 +56,7 @@ public:
         // auxillary params
         params->verbose = false;
         params->saveGenerationChampions = false;
+        params->backupTarget = false;
         params->printPrecision = 3;
         params->savePrecision = 4;
         params->wavFileBufferSize = 256;
@@ -206,6 +207,12 @@ public:
             }
             else if (i->equalsIgnoreCase("--nosavegenchamps")) {
                 params->saveGenerationChampions = false;
+            }
+            else if (i->equalsIgnoreCase("--backuptarget")) {
+                params->backupTarget = true;
+            }
+            else if (i->equalsIgnoreCase("--nobackuptarget")) {
+                params->backupTarget = false;
             }
             else if (i->equalsIgnoreCase("--printprecision")) {
                 params->printPrecision = (++i)->getIntValue();
