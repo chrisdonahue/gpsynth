@@ -62,9 +62,9 @@ TODO long run:
     amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
 
 NEXT EXPERIMENTS:
+    weight each bin comparison by difference from target average magnitude across all frames/bins? This way more important transient framebins are weighted higher than sustained framebins
     tag target info stuff with target name instead of seed?
     test changes made to printing of magnitude/target/new command line flags
-        make batch processing graph scripts with quick organization of graph images in mind
     1. Run tests controlling the following variables:
         Fitness function
             Compare envelope:
