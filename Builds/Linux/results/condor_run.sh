@@ -3,7 +3,7 @@
 set -e
 
 # LOCAL TRUMPET TEST
-../../build/GPAudioTargetMatchingExperiment\
+../../build/GPAudioTargetMatchingExperimentCondor\
   TEMP PARAMS \
   --target ../../samples/TrumpetEb5.wav\
   --path ./\

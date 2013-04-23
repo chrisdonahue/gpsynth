@@ -684,7 +684,16 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         }
         //MSEmag = MSEmag / n;
         //MSEph = MSEph / n;
-        ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
+        // test INFINITY stuff
+        if (params->magnitudeWeight == 0) {
+            ret = params->phaseWeight * MSEph;
+        }
+        else if (params->phaseWeight == 0) {
+            ret = params->magnitudeWeight * MSEmag;
+        }
+        else {
+            ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
+        }
         free(phase);
         free(magnitude);
         free(output);
