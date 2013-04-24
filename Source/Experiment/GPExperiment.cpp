@@ -545,7 +545,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 }
             }
 
-            // print average
+            // save spectrum files if requested
             if (params->saveTargetSpectrum) {
                 char buffer[200];
                 snprintf(buffer, 200, "targetInfo/%d.", i);
@@ -568,10 +568,19 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         
         // calculate frame weights
         double frameAverage = frameAverageSum / double(numFftFrames);
-        std::cerr << "average: " << frameAverage << std::endl;
-        for (unsigned i = 0; i < numFftFrames; i++) {
-            fftFrameWeight[i] = frameAverage / fftFrameWeight[i];
-            std::cerr << i << " weight: " << fftFrameWeight[i] << ", " << pow(fftFrameWeight[i], 1/double(2)) << std::endl;
+        if (params->weightFftFrames) {
+            //std::cerr << "average: " << frameAverage << std::endl;
+            for (unsigned i = 0; i < numFftFrames; i++) {
+                fftFrameWeight[i] = frameAverage / fftFrameWeight[i];
+                //std::cerr << i << " weight: " << fftFrameWeight[i] << std::endl;
+                fftFrameWeight[i] = pow(fftFrameWeight[i], params->frameWeightExponent);
+                //std::cerr << i << " power weight: " << fftFrameWeight[i] << std::endl;
+            }
+        }
+        else {
+            for (unsigned i = 0; i < numFftFrames; i++) {
+                fftFrameWeight[i] = 1.0;
+            }
         }
     }
 }
@@ -696,41 +705,32 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 
         FftReal(numTargetFrames, candidateFrames, n, overlap, analysisWindow, output, params->dBMagnitude, dBRef, magnitude, phase);
 
-        double MSEmag = 0;
-        double MSEph = 0;
+        double magnitudeError = 0;
+        double phaseError = 0;
         unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
         for (unsigned i = 0; i < numFftFrames; i++) {
+            double frameMagnitudeError = 0;
+            double framePhaseError = 0;
+            unsigned frameIndex = (i * numBins);
             for (unsigned j = 1; j < numBins; j++) {
-                unsigned binIndex = (i * numBins) + j;
+                unsigned binIndex = frameIndex + j;
                 if (magnitude[binIndex] < targetSpectrumMagnitudes[binIndex]) {
-                    MSEmag += pow(targetSpectrumMagnitudes[binIndex] - magnitude[binIndex], binUndershootingPenalty[binIndex]);
+                    frameMagnitudeError += pow(targetSpectrumMagnitudes[binIndex] - magnitude[binIndex], binUndershootingPenalty[binIndex]);
                 }
                 else {
-                    MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
+                    frameMagnitudeError += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
                 }
-                MSEph += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
-                /*
-                if (MSEmag >= INFINITY || MSEph >= INFINITY) {
-                    std::cout << "(" << i << ", " << j << "): " << MSEmag << ", " << MSEph << ", " << targetSpectrumMagnitudes[binIndex] << ", " << magnitude[binIndex] << ", " << binUndershootingPenalty[binIndex] << ", " << binOvershootingPenalty[binIndex] << ", " << targetSpectrumPhases[binIndex] << "," << phase[binIndex] << std::endl;
-                }
-                assert (MSEmag < INFINITY && MSEph < INFINITY);
-                */
+                framePhaseError += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
             }
+            magnitudeError += fftFrameWeight[i] * frameMagnitudeError;
+            phaseError += framePhaseError;
         }
-        //MSEmag = MSEmag / n;
-        //MSEph = MSEph / n;
-        ret = params->magnitudeWeight * MSEmag + params->phaseWeight * MSEph;
+        ret = params->magnitudeWeight * magnitudeError + params->phaseWeight * phaseError;
         free(phase);
         free(magnitude);
         free(output);
     }
-    /*
-    //std::cout << "SILENCE TEST: " << silenceTest << std::endl;
-    if (silenceTest == 0)
-        return penaltyFitness;
-    else
-        */
     return ret;
 }
 

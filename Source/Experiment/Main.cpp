@@ -85,7 +85,9 @@ public:
         params->exponentialMovingAverageAlpha = 0.2;
         params->saveTargetSpectrum = false;
         params->compareToMaxDeviation = true;
-        params->logPenaltyComparison = true;
+        params->logPenaltyComparison = false;
+        params->weightFftFrames = false;
+        params->frameWeightExponent = 0.5;
         // phase penalty
         params->penalizeBadPhase = 2;
         // magnitude penalty
@@ -306,6 +308,15 @@ public:
             }
             else if (i->equalsIgnoreCase("--linpenalty")) {
                 params->logPenaltyComparison = false;
+            }
+            else if (i->equalsIgnoreCase("--weightframes")) {
+                params->weightFftFrames = true;
+            }
+            else if (i->equalsIgnoreCase("--noweightframes")) {
+                params->weightFftFrames = false;
+            }
+            else if (i->equalsIgnoreCase("--frameweightexp"))  {
+                params->frameWeightExponent = (++i)->getDoubleValue();
             }
             else if (i->equalsIgnoreCase("--phasepenalty"))  {
                 params->penalizeBadPhase = (++i)->getDoubleValue();

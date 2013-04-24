@@ -45,6 +45,8 @@ set -e
   --nosavetargetspectrum\
   --comparedev\
   --linpenalty\
+  --noweightframes\
+  --frameweightexp 0.5\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\

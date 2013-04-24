@@ -45,6 +45,8 @@ struct GPParams {
     bool saveTargetSpectrum;
     bool compareToMaxDeviation;
     bool logPenaltyComparison;
+    bool weightFftFrames;
+    double frameWeightExponent;
     // phase penalty
     double penalizeBadPhase;
     // magnitude penalty over/undershooting system

@@ -32,6 +32,8 @@ set -e
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
+  --weightframes\
+  --frameweightexp 0.33\
   --comparedev\
   --nosavetargetspectrum\
   --phasepenalty 2.0\
@@ -165,6 +167,8 @@ COMMENT
   --nosavetargetspectrum\
   --comparedev\
   --linpenalty\
+  --noweightframes\
+  --frameweightexp 0.5\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
