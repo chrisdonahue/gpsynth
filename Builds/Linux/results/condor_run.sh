@@ -44,7 +44,7 @@ set -e
   --alpha 0.95\
   --nosavetargetspectrum\
   --comparedev\
-  --logpenalty\
+  --linpenalty\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
