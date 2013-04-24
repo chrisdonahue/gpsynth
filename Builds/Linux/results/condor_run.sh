@@ -44,7 +44,7 @@ set -e
   --alpha 0.95\
   --nosavetargetspectrum\
   --comparedev\
-  --linpenalty\
+  --penaltycompexp 1.0\
   --noweightframes\
   --frameweightexp 0.5\
   --phasepenalty 2.0\

@@ -44,7 +44,7 @@ struct GPParams {
     double exponentialMovingAverageAlpha;
     bool saveTargetSpectrum;
     bool compareToMaxDeviation;
-    bool logPenaltyComparison;
+    double penaltyComparisonExponent;
     bool weightFftFrames;
     double frameWeightExponent;
     // phase penalty

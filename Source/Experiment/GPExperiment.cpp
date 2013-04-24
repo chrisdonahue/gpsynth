@@ -520,12 +520,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 }
 
                 // calculate bin proportion for penalty assignments
-                if (params->logPenaltyComparison) {
-                    proportion = pow(numerator / denominator, 2);
-                }
-                else {
-                    proportion = numerator / denominator;
-                }
+                proportion = pow(numerator / denominator, params->penaltyComparisonExponent);
 
                 // check to make sure proportions are correct
                 assert(proportion <= 1);

@@ -166,6 +166,7 @@ COMMENT
   --alpha 0.95\
   --nosavetargetspectrum\
   --comparedev\
+  --penaltycompexp 1.0\
   --linpenalty\
   --noweightframes\
   --frameweightexp 0.5\
