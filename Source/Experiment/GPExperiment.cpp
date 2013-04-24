@@ -719,6 +719,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
                 framePhaseError += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
             }
             magnitudeError += fftFrameWeight[i] * frameMagnitudeError;
+            //std::cerr << i << ": " << fftFrameWeight[i] << ", " << frameMagnitudeError << ", " << magnitudeError << std::endl;
             phaseError += framePhaseError;
         }
         ret = params->magnitudeWeight * magnitudeError + params->phaseWeight * phaseError;

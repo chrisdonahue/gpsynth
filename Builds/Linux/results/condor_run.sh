@@ -46,7 +46,7 @@ set -e
   --comparedev\
   --penaltycompexp 1.0\
   --noweightframes\
-  --frameweightexp 0.5\
+  --frameweightexp 0.33\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\

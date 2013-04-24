@@ -87,7 +87,7 @@ public:
         params->compareToMaxDeviation = true;
         params->penaltyComparisonExponent = 1.0;
         params->weightFftFrames = false;
-        params->frameWeightExponent = 0.5;
+        params->frameWeightExponent = 0.33;
         // phase penalty
         params->penalizeBadPhase = 2;
         // magnitude penalty
