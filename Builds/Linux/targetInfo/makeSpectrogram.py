@@ -10,19 +10,15 @@ import itertools as it
 import glob
 
 # if we need help
-if ('-h' in sys.argv or len(sys.argv) < 2):
-  print 'python makeSpectrogram.py "Title"'
+if ('-h' in sys.argv or len(sys.argv) < 3):
+  print 'python makeSpectrogram.py "Title" interpAmount'
   sys.exit(0)
 
 # use command line args
 title = sys.argv[1]
-colorfiles = glob.glob('*' + magnitudes + '*.txt')
-colorfiles.sort()
-yMin = float(sys.argv[3])
-yMax = float(sys.argv[4])
-penaltyMin = float(sys.argv[5])
-penaltyMax = float(sys.argv[6])
-interpAmount = int(sys.argv[7])
+magnitudefiles = glob.glob('*magnitude.txt')
+magnitudefiles.sort()
+interpAmount = int(sys.argv[2])
 
 # float raw string
 fp = r"([+-]? *(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
@@ -30,23 +26,26 @@ threeDlinematch = fp + '\t' + fp + '\t' + fp
 twoDlinematch = fp + '\t' + fp
 
 # set up containers for graph options
-xLabel = 'Frequency (Hz)'
-yLabel = 'Magnitude (Amp' + u"\u00B2" + ')'
+xLabel = 'Time (s)'
+yLabel = 'Frequency (Hz)'
+magLabel = 'Magnitude (Amp' + u"\u00B2" + ')'
 xMax = float('-inf')
 xMin = float('inf')
 yMax = float('-inf')
 yMin = float('inf')
+magMax = float('-inf')
+magMin = float('inf')
 
 # PARSE COLOR DATA FILE
-for num, colordatafilepath in zip(range(len(colorfiles)), colorfiles):
+for num, magnitudefilepath in zip(range(len(magnitudefiles)), magnitudefiles):
   # set up axis containers
   xdata = []
   ydata = []
-  penalties = []
+  magnitudes = []
 
-  print 'PARSING: ' + colordatafilepath
-  fileName, fileExtension = os.path.splitext(colordatafilepath)
-  with open(colordatafilepath, 'r') as f:
+  print 'PARSING: ' + magnitudefilepath
+  fileName, fileExtension = os.path.splitext(magnitudefilepath)
+  with open(magnitudefilepath, 'r') as f:
     for line in f:
       match = re.search(threeDlinematch, line)
 
@@ -55,63 +54,55 @@ for num, colordatafilepath in zip(range(len(colorfiles)), colorfiles):
         y = float(match.group(2))
         xdata.append(x)
         ydata.append(y)
-        penalty = float(match.group(3))
-        penalties.append(penalty)
+        magnitude = float(match.group(3))
+        magnitudes.append(magnitude)
     f.close()
 
   xMax = max(xMax, max(xdata))
   xMin = min(xMin, min(xdata))
+  yMax = max(yMax, max(ydata))
+  yMin = min(yMin, min(ydata))
+  magMax = max(magMax, max(magnitudes))
+  magMin = min(magMin, min(magnitudes))
   
   # format data for graphs
-  interpolatedx = []
-  for i in range(len(xdata) - 1):
-    xi = xdata[i]
-    xf = xdata[i + 1]
-    xd = (xf - xi) / float(interpAmount + 1)
-    for j in range(interpAmount + 1):
-      interpolatedx.append(xi + j*xd)
-  interpolatedx.append(xdata[len(xdata) - 1])
+  
+  #interpolatedx = []
+  #for i in range(len(xdata) - 1):
+  #  xi = xdata[i]
+  #  xf = xdata[i + 1]
+  #  xd = (xf - xi) / float(interpAmount + 1)
+  #  for j in range(interpAmount + 1):
+  #    interpolatedx.append(xi + j*xd)
+  #interpolatedx.append(xdata[len(xdata) - 1])
 
   # interpolate
-  yf = interpolate.interp1d(xdata, ydata, 'cubic')
-  interpolatedy = yf(interpolatedx)
-  pf = interpolate.interp1d(xdata, penalties, 'cubic')
-  interpolatedp = pf(interpolatedx)
-  interpolated = [interpolatedx, interpolatedy]
+  #yf = interpolate.interp1d(xdata, ydata, 'cubic')
+  #interpolatedy = yf(interpolatedx)
+  #pf = interpolate.interp1d(xdata, magnitudes, 'cubic')
+  #interpolatedp = pf(interpolatedx)
+  #interpolated = [interpolatedx, interpolatedy]
+  interpolated = [np.array(xdata), np.array(ydata)]
   
   # plot line
   points = np.array(interpolated).T.reshape(-1, 1, 2)
   segments = np.concatenate([points[:-1], points[1:]], axis=1)
-  lc = LineCollection(segments, cmap=plt.get_cmap('cool'), norm=plt.Normalize(penaltyMin, penaltyMax))
-  lc.set_array(interpolatedp)
-#lc.set_array(np.array(penalties))
-  lc.set_linewidth(2)
-  
-  # PLOT MOVING AVERAGE DATA FILE
-  movingaveragefilepath = macfiles[num]
-  print 'PARSING: ' + movingaveragefilepath
-  xdata = []
-  ydata = []
-  with open(movingaveragefilepath, 'r') as f:
-    for line in f:
-      match = re.search(twoDlinematch, line)
-
-      if match:
-        x = float(match.group(1))
-        y = float(match.group(2))
-        xdata.append(x)
-        ydata.append(y)
-  f.close()
-  plt.plot(np.array(xdata), np.array(ydata), color='red', linewidth=2.0)
+  lc = LineCollection(segments, cmap=plt.get_cmap('jet'), norm=plt.Normalize(magMin, magMax))
+  #lc.set_array(interpolatedp)
+  lc.set_array(np.array(magnitudes))
+  lc.set_linewidth(interpAmount)
     
   # plot figure
   plt.gca().add_collection(lc)
-  plt.colorbar(lc)
   plt.title(title)
   plt.xlim(min([xMin, xMax]), max([xMin, xMax]))
   plt.ylim(min([yMin, yMax]), max([yMin, yMax]))
   plt.xlabel(xLabel)
   plt.ylabel(yLabel)
-  #plt.gcf().set_size_inches(4, 3)
-  plt.savefig(sys.argv[2] + '.' + fileName.split(r'.')[0] + '.penalty.png')#, dpi=300)
-  plt.clf()
+
+cb1 = plt.colorbar(lc)
+cb1.set_label(magLabel)
+#plt.gcf().set_size_inches(4, 3)
+plt.savefig('spectrum.png')#, dpi=300)
+#plt.show()
+plt.clf()

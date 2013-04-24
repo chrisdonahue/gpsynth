@@ -33,7 +33,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
     loadWavFile(target, numTargetFrames, targetFrames);
     if (params->backupTarget)
-        saveWavFile(savePath + String("target.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
+        saveWavFile(savePath + String("targetcopy.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
 
     fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
 
