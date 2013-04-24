@@ -3,7 +3,7 @@
 set -e
 
 # DEBUG MOVING AVERAGE STUFF
-<<COMMENT
+#<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
@@ -26,7 +26,7 @@ set -e
   FREQUENCY DOMAIN PARAMS\
   --window hann\
   --fft 1024\
-  --fftoverlap 0\
+  --fftoverlap 512\
   --ampmag\
   --averagetype 2\
   --averagepastradius 40\
@@ -37,7 +37,7 @@ set -e
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
   --basemagcomp 0.9
-COMMENT
+#COMMENT
 
 # DEBUG MEMORY
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrindAll.txt" ./build/GPAudioTargetMatchingExperiment --target ./samples/SinWaveC51024.wav --seed 0 --fft 1024 --exp 4 --threshold 0.1 --fitnesstype 1 --numgenerations 2 --values 523.251 --popsize 5 --mid 4 --md 10 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0 --verbose > 2GenValgrindAll.txt
@@ -121,7 +121,7 @@ valgrind -v --tool=massif --log-file="3GenValgrindMassif.txt"\
 COMMENT
 
 # LOCAL TRUMPET TEST
-#<<COMMENT
+<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
@@ -132,7 +132,7 @@ COMMENT
   EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
-  --generations 2\
+  --generations 200\
   --threshold 0.1\
   --erc\
   AUXILLARY PARAMS\
@@ -181,7 +181,7 @@ COMMENT
   --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.9 --cselect 0 --ctype 0\
   --reproduction 0.05 --rselect 0
-#COMMENT
+COMMENT
 
 # LOCAL BASSOON TEST
 <<COMMENT

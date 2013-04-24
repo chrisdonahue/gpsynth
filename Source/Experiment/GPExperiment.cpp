@@ -464,15 +464,23 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         // take fft of target data
         FftReal(numTargetFrames, targetFrames, n, overlap, analysisWindow, targetSpectrum, params->dBMagnitude, dBRef, targetSpectrumMagnitudes, targetSpectrumPhases);
 
+        // allocate buffers
+        unsigned numBins = (n/2) + 1;
+        unsigned numFftFrames = fftOutputBufferSize / numBins;
+        double* timeAxis = (double*) malloc(sizeof(double) * (numBins - 1));
+        double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
+        float* floatFreqAxis = (float*) malloc(sizeof(float) * numBins);
+        fillFrequencyAxisBuffer(n, targetSampleRate, floatFreqAxis);
+        double* freqAxis = (double*) malloc(sizeof(double) * (numBins));
+        for (unsigned i = 0; i < numBins; i++) {
+            freqAxis[i] = floatFreqAxis[i];
+        }
+        free(floatFreqAxis);
+
         // calculate penalties for each frame
         double base = params->baseComparisonFactor;
         double good = params->goodComparisonFactor;
         double bad = params->badComparisonFactor;
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
-        double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
-        float* freqAxis = (float*) malloc(sizeof(float) * numBins);
-        fillFrequencyAxisBuffer(n, targetSampleRate, freqAxis);
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
             unsigned dataOffset = (i * numBins) + 1;
@@ -539,7 +547,12 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 char buffer[200];
                 snprintf(buffer, 200, "targetInfo/%d.", i);
                 String tag(buffer);
-                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, NULL));
+                double time = i * (n - overlap);
+                time = double(time)/targetSampleRate;
+                for (unsigned j = 0; j < numBins - 1; j++) {
+                    timeAxis[j] = time;
+                }
+                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetSpectrumMagnitudes + dataOffset));
                 saveTextFile(savePath + tag + String("movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
                 saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binUndershootingPenalty + dataOffset));
                 saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binOvershootingPenalty + dataOffset));
@@ -547,6 +560,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         }
         free(freqAxis);
         free(mac);
+        free(timeAxis);
     }
 }
 
@@ -1069,7 +1083,7 @@ String GPExperiment::floatBuffersToGraphText(String options, String xlab, String
     return ret;
 }
 
-String GPExperiment::doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const float* x, const double* y, const double* z) {
+String GPExperiment::doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z) {
     String ret;
     ret += options;
     ret += "\n";

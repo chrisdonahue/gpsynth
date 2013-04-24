@@ -10,16 +10,14 @@ import itertools as it
 import glob
 
 # if we need help
-if ('-h' in sys.argv or len(sys.argv) < 8):
-  print 'python graphAllPenalties.py "Title" "under/over" ymin ymax penaltymin penaltymax interpAmount'
+if ('-h' in sys.argv or len(sys.argv) < 2):
+  print 'python makeSpectrogram.py "Title"'
   sys.exit(0)
 
 # use command line args
 title = sys.argv[1]
-colorfiles = glob.glob('*' + sys.argv[2] + '*.txt')
+colorfiles = glob.glob('*' + magnitudes + '*.txt')
 colorfiles.sort()
-macfiles = glob.glob('*moving*')
-macfiles.sort()
 yMin = float(sys.argv[3])
 yMax = float(sys.argv[4])
 penaltyMin = float(sys.argv[5])
@@ -36,6 +34,8 @@ xLabel = 'Frequency (Hz)'
 yLabel = 'Magnitude (Amp' + u"\u00B2" + ')'
 xMax = float('-inf')
 xMin = float('inf')
+yMax = float('-inf')
+yMin = float('inf')
 
 # PARSE COLOR DATA FILE
 for num, colordatafilepath in zip(range(len(colorfiles)), colorfiles):
