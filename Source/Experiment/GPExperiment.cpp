@@ -476,8 +476,8 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
             unsigned dataOffset = (i * numBins) + 1;
-            double maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, minRatioBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &minRatioBelowMean);
+            double maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, maxRatioBelowMean;
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
@@ -502,8 +502,9 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                         denominator = maxRatioAboveMean;
                     }
                     else {
-                        numerator = fabs(binMagnitude / binAverage);
-                        denominator = minRatioBelowMean;
+                        double binAbsMagnitude = (binAverage - binMagnitude) + binAverage;
+                        numerator = fabs(binAverage / binAbsMagnitude);
+                        denominator = maxRatioBelowMean;
                     }
                 }
 
@@ -514,6 +515,9 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 else {
                     proportion = numerator / denominator;
                 }
+
+                // check to make sure proportions are correct
+                assert(proportion <= 1);
 
                 // if we are above the mean penalize undershooting more
                 if (binMagnitude > binAverage) {
@@ -811,7 +815,7 @@ void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
     }
 }
 
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* minratiobelow) {
+void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* maxratiobelow) {
     // NON-MOVING AVERAGE
     if (type == 0) {
         double sum = 0;
@@ -888,7 +892,7 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     double maxdeva = std::numeric_limits<double>::min();
     double maxdevb = std::numeric_limits<double>::min();
     double maxrata = std::numeric_limits<double>::min();
-    double minratb = std::numeric_limits<double>::max();
+    double maxratb = std::numeric_limits<double>::min();
     for (unsigned i = 0; i < n; i++) {
         double pointValue = buffer[i];
         double pointAverage = movingaverage[i];
@@ -896,8 +900,11 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
         if (pointValue < pointAverage) {
             if (pointAverage - pointValue > maxdevb)
                 maxdevb = pointAverage - pointValue;
-            if (pointValue/pointAverage < minratb)
-                minratb = pointValue/pointAverage;
+
+            // absolute value over moving average
+            double absValue = (pointAverage - pointValue) + pointAverage;
+            if (pointAverage/absValue > maxratb)
+                maxratb = pointAverage/absValue;
         }
         else {
             if (pointValue - pointAverage > maxdeva)
@@ -909,7 +916,7 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     *maxdeviationabove = maxdeva;
     *maxdeviationbelow = maxdevb;
     *maxratioabove = maxrata;
-    *minratiobelow = minratb;
+    *maxratiobelow = maxratb;
 }
 
 void GPExperiment::applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window) {

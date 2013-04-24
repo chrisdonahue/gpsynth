@@ -132,7 +132,7 @@ COMMENT
   EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
-  --generations 0\
+  --generations 2\
   --threshold 0.1\
   --erc\
   AUXILLARY PARAMS\
@@ -145,7 +145,7 @@ COMMENT
   --render 1024\
   FITNESS FUNCTION WEIGHTS\
   --ffmagweight 1.0\
-  --ffphaseweight 1.0\
+  --ffphaseweight 0.5\
   --ffenvweight 0.5\
   TIME DOMAIN PARAMS\
   --nosavetargetenv\
@@ -162,7 +162,7 @@ COMMENT
   --averagefutureradius 40\
   --alpha 0.95\
   --nosavetargetspectrum\
-  --compareavg\
+  --comparedev\
   --linpenalty\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
