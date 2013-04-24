@@ -415,6 +415,13 @@ public:
         experiment = new GPExperiment(new GPRandom(seed), seed, target, saveFilesTo, params, constants.data(), &requestedQuit);
 
         // TODO start a new thread to do this
+        //juce::Thread experiment(String("evolution"));
+        GPNetwork* champion = experiment->evolve();
+        delete champion;
+        quit();
+    }
+
+    void runEvolution() {
         GPNetwork* champion = experiment->evolve();
         delete champion;
         quit();
