@@ -902,9 +902,9 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
         }
         movingaverage[i] = (sum / weightsum);
     }
+    free(weights);
 
     // CALCULATE MIN/MAX DEVIATION INEFFICIENTLY
-    // TODO: incorporate above
     double maxdeva = std::numeric_limits<double>::min();
     double maxdevb = std::numeric_limits<double>::min();
     double maxrata = std::numeric_limits<double>::min();

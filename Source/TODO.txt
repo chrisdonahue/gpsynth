@@ -1,6 +1,5 @@
 Main.cpp:
     Add command line for Envelope stuff somehow
-    Add command line for all GPParams
     --help
     check argument ranges
       renderBlockSize > frames in file?
@@ -23,6 +22,7 @@ GPSynth.cpp:
 Node subclasses:
     DelayNode
     ConditionalNode
+    NoiseNode other types of noise
     consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
 
 Interactive:
@@ -54,14 +54,12 @@ TODO long run:
     update README
     implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
     figure out how to start without being in initialise method (new thread)
-    confirm removed DC offset from fitness function
     fleschter munsion? :/
     Check if numerical mutation is working...
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
     fitness function compares candidate/target envelopes
     amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
-    fix --logcompare stuff
     commandline flag --condorbackup which saves certain files only if seed == 0 or something
     try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
     exponential ADSR?
