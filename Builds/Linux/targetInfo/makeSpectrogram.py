@@ -102,6 +102,7 @@ for num, magnitudefilepath in zip(range(len(magnitudefiles)), magnitudefiles):
 
 cb1 = plt.colorbar(lc)
 cb1.set_label(magLabel)
-#plt.gcf().set_size_inches(4, 3)
+plt.yscale('log', subsx=[2,3,4,5,6,7,8,9])
+plt.gcf().set_size_inches(12, 9)
 plt.savefig('spectrum.png')#, dpi=300)
 plt.clf()

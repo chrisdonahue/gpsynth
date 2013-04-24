@@ -112,6 +112,7 @@ for num, colordatafilepath in zip(range(len(colorfiles)), colorfiles):
   plt.ylim(min([yMin, yMax]), max([yMin, yMax]))
   plt.xlabel(xLabel)
   plt.ylabel(yLabel)
-  #plt.gcf().set_size_inches(4, 3)
+  plt.xscale('log', subsx=[2,3,4,5,6,7,8,9])
+  plt.gcf().set_size_inches(12, 9)
   plt.savefig(sys.argv[2] + '.' + fileName.split(r'.')[0] + '.penalty.png')#, dpi=300)
   plt.clf()

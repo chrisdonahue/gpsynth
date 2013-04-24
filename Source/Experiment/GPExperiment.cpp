@@ -312,9 +312,9 @@ GPExperiment::~GPExperiment() {
         free(targetSpectrum);
         free(targetSpectrumMagnitudes);
         free(targetSpectrumPhases);
-        free(weightMatrix);
         free(binOvershootingPenalty);
         free(binUndershootingPenalty);
+        free(fftFrameWeight);
     }
     free(sampleTimes);
     free(specialValuesByFrame);
@@ -448,6 +448,8 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         unsigned n = params->fftSize;
         unsigned overlap = params->fftOverlap;
         unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n, overlap);
+        unsigned numBins = (n/2) + 1;
+        unsigned numFftFrames = fftOutputBufferSize / numBins;
         
         // allocate window
         analysisWindow = (float*) malloc(sizeof(float) * n);
@@ -457,16 +459,14 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
         targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        weightMatrix = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        fftFrameWeight = (double*) malloc(sizeof(double) * numFftFrames);
 
         // take fft of target data
         FftReal(numTargetFrames, targetFrames, n, overlap, analysisWindow, targetSpectrum, params->dBMagnitude, dBRef, targetSpectrumMagnitudes, targetSpectrumPhases);
 
         // allocate buffers
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
         double* timeAxis = (double*) malloc(sizeof(double) * (numBins - 1));
         double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
         float* floatFreqAxis = (float*) malloc(sizeof(float) * numBins);
@@ -481,11 +481,14 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
         double base = params->baseComparisonFactor;
         double good = params->goodComparisonFactor;
         double bad = params->badComparisonFactor;
+        double frameAverageSum = 0.0;
         for (unsigned i = 0; i < numFftFrames; i++) {
             // find moving average
             unsigned dataOffset = (i * numBins) + 1;
-            double maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, maxRatioBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
+            double frameAverage, maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, maxRatioBelowMean;
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &frameAverage, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
+            fftFrameWeight[i] = frameAverage;
+            frameAverageSum += frameAverage;
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
@@ -558,9 +561,18 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binOvershootingPenalty + dataOffset));
             }
         }
+        // free temp buffers
         free(freqAxis);
         free(mac);
         free(timeAxis);
+        
+        // calculate frame weights
+        double frameAverage = frameAverageSum / double(numFftFrames);
+        std::cerr << "average: " << frameAverage << std::endl;
+        for (unsigned i = 0; i < numFftFrames; i++) {
+            fftFrameWeight[i] = frameAverage / fftFrameWeight[i];
+            std::cerr << i << " weight: " << fftFrameWeight[i] << ", " << pow(fftFrameWeight[i], 1/double(2)) << std::endl;
+        }
     }
 }
 
@@ -822,7 +834,7 @@ void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
     }
 }
 
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* maxratiobelow) {
+void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* maxratiobelow) {
     // NON-MOVING AVERAGE
     if (type == 0) {
         double sum = 0;
@@ -843,6 +855,7 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
         }
         *maxdeviationabove = max - average;
         *maxdeviationbelow = average - min;
+        *frameaverage = average;
         return;
     }
     
@@ -900,8 +913,10 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     double maxdevb = std::numeric_limits<double>::min();
     double maxrata = std::numeric_limits<double>::min();
     double maxratb = std::numeric_limits<double>::min();
+    double sum = 0.0;
     for (unsigned i = 0; i < n; i++) {
         double pointValue = buffer[i];
+        sum += pointValue;
         double pointAverage = movingaverage[i];
         // if value is below average
         if (pointValue < pointAverage) {
@@ -924,6 +939,7 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     *maxdeviationbelow = maxdevb;
     *maxratioabove = maxrata;
     *maxratiobelow = maxratb;
+    *frameaverage = sum / double(n);
 }
 
 void GPExperiment::applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window) {

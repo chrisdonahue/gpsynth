@@ -61,19 +61,9 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
     amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
     fix --logcompare stuff
-    weight each bin comparison by difference from target average magnitude across all frames? This way more important transient frames are weighted higher than sustain frames
     commandline flag --condorbackup which saves certain files only if seed == 0 or something
 
 NEXT EXPERIMENTS:
-    Fix graphPenalty and makeSpectrogram to have logarithmic axes
-    Figure out issue with makeSpectrogram ladder pattern thing
-    Figure out printing the graphs in various resolutions
-    Make and compare under/over GIFs for following:
-        FftSize
-        FftOverlap
-        ExponentialMovingAverageAlpha
-        CompareToMaxDeviation/CompareToMaxRatio
-        LogPenaltyComparison
     Run tests controlling the following variables:
         Fitness function
             Compare envelope:

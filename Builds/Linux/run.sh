@@ -26,13 +26,14 @@ set -e
   FREQUENCY DOMAIN PARAMS\
   --window hann\
   --fft 1024\
-  --fftoverlap 512\
+  --fftoverlap 0\
   --ampmag\
   --averagetype 2\
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
-  --savetargetspectrum\
+  --comparedev\
+  --nosavetargetspectrum\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
