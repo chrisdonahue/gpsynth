@@ -498,18 +498,18 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
                 }
                 else {
                     if (binMagnitude > binAverage) {
-                        numerator = fabs(binAverage) / fabs(binMagnitude);
+                        numerator = fabs(binAverage / binMagnitude);
                         denominator = maxRatioAboveMean;
                     }
                     else {
-                        numerator = fabs(binMagnitude) / fabs(binAverage);
+                        numerator = fabs(binMagnitude / binAverage);
                         denominator = minRatioBelowMean;
                     }
                 }
 
                 // calculate bin proportion for penalty assignments
                 if (params->logPenaltyComparison) {
-                    proportion = log(numerator) / log(denominator);
+                    proportion = pow(numerator / denominator, 2);
                 }
                 else {
                     proportion = numerator / denominator;
@@ -680,6 +680,10 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
                     MSEmag += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
                 }
                 MSEph += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
+                if (MSEmag >= INFINITY || MSEph >= INFINITY) {
+                    std::cout << "(" << i << ", " << j << "): " << MSEmag << ", " << MSEph << ", " << targetSpectrumMagnitudes[binIndex] << ", " << magnitude[binIndex] << ", " << binUndershootingPenalty[binIndex] << ", " << binOvershootingPenalty[binIndex] << ", " << targetSpectrumPhases[binIndex] << "," << phase[binIndex] << std::endl;
+                }
+                assert (MSEmag < INFINITY && MSEph < INFINITY);
             }
         }
         //MSEmag = MSEmag / n;
