@@ -56,6 +56,8 @@ public:
         // auxillary params
         params->verbose = false;
         params->saveGenerationChampions = false;
+        params->saveTargetEnvelope = false;
+        params->saveTargetSpectrum = false;
         params->backupTarget = false;
         params->printPrecision = 3;
         params->savePrecision = 4;
@@ -68,7 +70,6 @@ public:
         params->envelopeWeight = 0.5;
 
         // time domain fitness parameters
-        params->saveTargetEnvelope = false;
         params->envelopeFollowerAttack = 1;
         params->envelopeFollowerDecay = 300;
         params->compareEnvelopeNumSkipFrames = 15;
@@ -83,7 +84,6 @@ public:
         params->movingAveragePastRadius = 50;
         params->movingAverageFutureRadius = 50;
         params->exponentialMovingAverageAlpha = 0.2;
-        params->saveTargetSpectrum = false;
         params->compareToMaxDeviation = true;
         params->penaltyComparisonExponent = 1.0;
         params->weightFftFrames = false;
@@ -210,6 +210,18 @@ public:
             else if (i->equalsIgnoreCase("--nosavegenchamps")) {
                 params->saveGenerationChampions = false;
             }
+            else if (i->equalsIgnoreCase("--savetargetenv")) {
+                params->saveTargetEnvelope = true;
+            }
+            else if (i->equalsIgnoreCase("--nosavetargetenv")) {
+                params->saveTargetEnvelope = false;
+            }
+            else if (i->equalsIgnoreCase("--savetargetspectrum")) {
+                params->saveTargetSpectrum = true;
+            }
+            else if (i->equalsIgnoreCase("--nosavetargetspectrum")) {
+                params->saveTargetSpectrum = false;
+            }
             else if (i->equalsIgnoreCase("--backuptarget")) {
                 params->backupTarget = true;
             }
@@ -241,12 +253,6 @@ public:
             }
 
             // time domain fitness params
-            else if (i->equalsIgnoreCase("--savetargetenv")) {
-                params->saveTargetEnvelope = true;
-            }
-            else if (i->equalsIgnoreCase("--nosavetargetenv")) {
-                params->saveTargetEnvelope = false;
-            }
             else if (i->equalsIgnoreCase("--envatk"))  {
                 params->envelopeFollowerAttack = (++i)->getDoubleValue();
             }
@@ -290,12 +296,6 @@ public:
             }
             else if (i->equalsIgnoreCase("--alpha"))  {
                 params->exponentialMovingAverageAlpha = (++i)->getDoubleValue();
-            }
-            else if (i->equalsIgnoreCase("--savetargetspectrum")) {
-                params->saveTargetSpectrum = true;
-            }
-            else if (i->equalsIgnoreCase("--nosavetargetspectrum")) {
-                params->saveTargetSpectrum = false;
             }
             else if (i->equalsIgnoreCase("--comparedev")) {
                 params->compareToMaxDeviation = true;

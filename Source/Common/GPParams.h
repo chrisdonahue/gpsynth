@@ -15,6 +15,8 @@ struct GPParams {
     // auxillary parameters
     bool verbose;
     bool saveGenerationChampions;
+    bool saveTargetEnvelope;
+    bool saveTargetSpectrum;
     bool backupTarget;
     unsigned printPrecision;
     unsigned savePrecision;
@@ -27,7 +29,6 @@ struct GPParams {
     double envelopeWeight;
 
     // time domain fitness parameters
-    bool saveTargetEnvelope;
     double envelopeFollowerAttack;
     double envelopeFollowerDecay;
     unsigned compareEnvelopeNumSkipFrames;
@@ -42,7 +43,6 @@ struct GPParams {
     unsigned movingAveragePastRadius;
     unsigned movingAverageFutureRadius;
     double exponentialMovingAverageAlpha;
-    bool saveTargetSpectrum;
     bool compareToMaxDeviation;
     double penaltyComparisonExponent;
     bool weightFftFrames;

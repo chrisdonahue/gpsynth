@@ -19,6 +19,8 @@ set -e
   AUX PARAMS \
   --verbose\
   --nosavegenchamps\
+  --nosavetargetenv\
+  --nosavetargetspectrum\
   --nobackuptarget\
   --printprecision 3\
   --saveprecision 10\
@@ -29,7 +31,6 @@ set -e
   --ffphaseweight 0.2\
   --ffenvweight 0.5\
   TIME DOMAIN \
-  --nosavetargetenv\
   --envatk 1\
   --envdcy 300\
   --envskip 9\
@@ -42,7 +43,6 @@ set -e
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
-  --nosavetargetspectrum\
   --comparedev\
   --penaltycompexp 1.0\
   --noweightframes\

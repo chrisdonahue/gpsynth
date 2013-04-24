@@ -63,7 +63,7 @@ TODO long run:
     amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
     fix --logcompare stuff
     commandline flag --condorbackup which saves certain files only if seed == 0 or something
-    try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made
+    try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
     exponential ADSR?
 
 NEXT EXPERIMENTS:

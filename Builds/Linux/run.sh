@@ -3,13 +3,15 @@
 set -e
 
 # DEBUG MOVING AVERAGE STUFF
-<<COMMENT
+#<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
   --path ./\
   --seed 1\
   --values 622.25\
+  AUX PARAMS\
+  --savetargetspectrum\
   EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
@@ -32,15 +34,15 @@ set -e
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
+  --comparedev\
+  --penaltycompexp 1.0\
   --weightframes\
   --frameweightexp 0.33\
-  --comparedev\
-  --nosavetargetspectrum\
   --phasepenalty 2.0\
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
   --basemagcomp 0.9
-COMMENT
+#COMMENT
 
 # DEBUG MEMORY
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrindAll.txt" ./build/GPAudioTargetMatchingExperiment --target ./samples/SinWaveC51024.wav --seed 0 --fft 1024 --exp 4 --threshold 0.1 --fitnesstype 1 --numgenerations 2 --values 523.251 --popsize 5 --mid 4 --md 10 --ctype 0 --rselect 0 --cselect 0 --crosspercent 0.9 --mutatechance 0.0 --verbose > 2GenValgrindAll.txt
@@ -124,7 +126,7 @@ valgrind -v --tool=massif --log-file="3GenValgrindMassif.txt"\
 COMMENT
 
 # LOCAL TRUMPET TEST
-#<<COMMENT
+<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
@@ -135,12 +137,14 @@ COMMENT
   EXPERIMENT PARAMS\
   --experiment 4\
   --fitnesstype 1\
-  --generations 1\
+  --generations 10\
   --threshold 0.1\
   --erc\
   AUXILLARY PARAMS\
   --verbose\
   --savegenchamps\
+  --nosavetargetenv\
+  --nosavetargetspectrum\
   --backuptarget\
   --printprecision 3\
   --saveprecision 5\
@@ -151,7 +155,6 @@ COMMENT
   --ffphaseweight 0.5\
   --ffenvweight 0.5\
   TIME DOMAIN PARAMS\
-  --nosavetargetenv\
   --envatk 1\
   --envdcy 300\
   --envskip 9\
@@ -164,7 +167,6 @@ COMMENT
   --averagepastradius 40\
   --averagefutureradius 40\
   --alpha 0.95\
-  --nosavetargetspectrum\
   --comparedev\
   --penaltycompexp 1.0\
   --weightframes\
@@ -174,7 +176,7 @@ COMMENT
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   SYNTH EVO PARAMS\
-  --popsize 1\
+  --popsize 200\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\
@@ -186,7 +188,7 @@ COMMENT
   --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.9 --cselect 0 --ctype 0\
   --reproduction 0.05 --rselect 0
-#COMMENT
+COMMENT
 
 # LOCAL BASSOON TEST
 <<COMMENT
