@@ -23,8 +23,6 @@ delayLine(n)
     numSamples = n;
 
     left = l;
-    isBinary = false;
-    isTerminal = false;
 }
 
 DelayNode::~DelayNode() {

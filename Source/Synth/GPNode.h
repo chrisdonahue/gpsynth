@@ -50,9 +50,8 @@ public:
     GPNode* parent;
     std::vector<GPNode*> descendants;
 
-    // INDICATORS ABOUT TYPE
+    // ARITY
     unsigned arity;
-    bool isTerminal;
 
     // MUTATABLE PARAMS
     std::vector<GPMutatableParam*> mutatableParams;
