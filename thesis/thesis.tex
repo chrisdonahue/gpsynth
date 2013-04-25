@@ -135,13 +135,19 @@ otherwise render the next generation of individuals using traditional genetic pr
 \subsubsection{Initial Population}
 The random generation of the initial population is a mostly unmodified implementation of Koza's ramped half and half method used to generate diversity in the initial population \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions. The performance gain from not evaluating the same S-expression more than once does not seem to be worth the performance hit of comparing each new S-expression to all existing ones. I am using the technique of ephemeral random constants to propagate random constants throughout the initial population.
 \subsubsection{Fitness Function}
-The fitness function used for these tests was designed to best compare the five parameters listed in \ref{INTRO}. The target wave form is partitioned into groups of $n$ frames with $o$ overlapping. These groups are analyzed using a discrete, real-optimized Fourier transform which produces spectral data at $n/2$ bins equally spaced between $0$ and $sample rate/2$ Hertz. The exponential moving average and highest deviation above and below the exponential moving average is calculated for each group $i$ of $n/2$.
+The fitness function used for these tests was designed to best compare the five parameters listed in \ref{INTRO}. The target samples are partitioned into groups of $n$ with $o$ overlap. These groups are analyzed using a discrete Fourier transform which produces spectral data at $n/2$ bins equally spaced between $0$ and $sample rate/2$ Hertz. The exponential moving average and highest deviation above and below the exponential moving average is calculated for each group $i$ of $n/2$.
+
+Each group $i$ has the following values:
+\begin{enumerate}
+$MAXABOVE_{i}$: $\max{MAG_{i, j} - EMAC_{i, j}}$
+$MAXBELOW_{i}$: $\max{EMAC_{i, j} - MAG_{i, j}}$
+\end{enumerate}
 
 Each bin $j$ of group $i$ now has the following values:
 \begin{enumerate}
-$EMAC_{i, j}$: Exponential moving average curve at that group/bin
-$MAG_{i, j}$: Magnitude of the frequency component at that group/bin
-$PHS_{i, j}$: Phase of the frequency component at that group/bin
+$EMAC_{i, j}$: Exponential moving average curve at group $i$ bin $j$
+$MAG_{i, j}$: Magnitude of the frequency component at group $i$ bin $j$
+$PHS_{i, j}$: Phase of the frequency component at group $i$ bin $j$
 \end{enumerate}
 
 The following values are calculated and stored for bin $j$ of group $i$:
@@ -149,6 +155,18 @@ The following values are calculated and stored for bin $j$ of group $i$:
 $UNDER_{i, j}$: Penalty a candidate receieves for undershooting that particular bin/group
 $OVER_{i, j}$: Penalty a candidate receives for overshooting that particular bin/group
 \end{enumerate}
+
+\begin{equation}
+if MAG_{i, j} <= EMAC_{i, j}:
+	UNDER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * good) + base;
+	OVER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * bad) + base
+if MAG_{i, j} > EMAC_{i, j}:
+	UNDER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * bad) + base
+	OVER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * good) + base
+\end{equation}
+
+Every candidate is assigned a fitness score in the following way:
+	
 
 \subsubsection{Genetic Operations}
 The utilized genetic operations are those typically associated with genetic programming. Individuals are selected proportionally to their assigned fitnesses (where lower is better due to the fact that fitness is a calculation of error). During the reproduction stage, part of the next generation is produced by selecting two parents, swapping two randomly selected subtrees from within them and adding both resultant trees to the next generation. This method is very powerful as the depths of the resultant children can range from 0 to the sum of the depths of the parents. The remaining part of the population is produced by selecting one parent in the same fitness-proportional manner and cloning it without mutation into the next generation. TODO: edit once finalized/include figures from Koza/discuss mutation/numerical mutation

@@ -6,7 +6,7 @@ set -e
 #<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
-  --target ./samples/TrumpetEb5.wav\
+  --target ./samples/BassoonC2.wav\
   --path ./\
   --seed 1\
   --values 622.25\
@@ -33,7 +33,7 @@ set -e
   --averagetype 2\
   --averagepastradius 40\
   --averagefutureradius 40\
-  --alpha 0.8\
+  --alpha 0.95\
   --comparedev\
   --penaltycompexp 0.4\
   --weightframes\
