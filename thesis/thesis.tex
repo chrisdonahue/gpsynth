@@ -133,25 +133,21 @@ If $best\ fitness\ found\ <\ threshold\ ||\ number of generations\ >=\ limit$, F
 otherwise render the next generation of individuals using traditional genetic programming operations and return to LOOP START
 \end{enumerate}
 \subsubsection{Initial Population}
-The random generation of the initial population is a mostly unmodified implementation of Koza's ramped half and half method used to generate diversity in the initial population \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions. The performance gain from not evaluating the same S-expression more than once does not seem to be worth the performance hit of comparing each new S-expression to all existing ones. I am using the technique of ephemeral random constants to propagate random constants throughout the initial population.
+The random generation of the initial population is a mostly unmodified implementation of Koza's ramped half and half method used to generate diversity in the initial population \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions. The performance gain from not evaluating the same S-expression more than once does not seem to be worth the performance hit of comparing each new S-expression to all existing ones. I am using the technique of ephemeral random constants to propagate random values throughout the initial population.
 \subsubsection{Fitness Function}
-The fitness function used for these tests was designed to best compare the five parameters listed in \ref{INTRO}. The target samples are partitioned into groups of $n$ with $o$ overlap. These groups are analyzed using a discrete Fourier transform which produces spectral data at $n/2$ bins equally spaced between $0$ and $sample rate/2$ Hertz. The exponential moving average and highest deviation above and below the exponential moving average is calculated for each group $i$ of $n/2$.
+The fitness function used for these tests was designed with the five parameters listed in \ref{INTRO} in mind. The target samples are partitioned into groups of $n$ with $o$ overlap between groups. These groups are analyzed using a discrete Fourier transform which can be used to determine magnitude and phase at $n/2$ frequency bins equally spaced between $0$ and $sample rate/2$ Hertz.
 
-Each group $i$ has the following values:
+The following values are calculated for each group $i$:
 \begin{enumerate}
 $MAXABOVE_{i}$: $\max{MAG_{i, j} - EMAC_{i, j}}$
 $MAXBELOW_{i}$: $\max{EMAC_{i, j} - MAG_{i, j}}$
 \end{enumerate}
 
-Each bin $j$ of group $i$ now has the following values:
+The following values are calculated for each bin $j$ of group $i$:
 \begin{enumerate}
-$EMAC_{i, j}$: Exponential moving average curve at group $i$ bin $j$
-$MAG_{i, j}$: Magnitude of the frequency component at group $i$ bin $j$
-$PHS_{i, j}$: Phase of the frequency component at group $i$ bin $j$
-\end{enumerate}
-
-The following values are calculated and stored for bin $j$ of group $i$:
-\begin{enumerate}
+$EMAC_{i, j}$: Exponential moving average value
+$MAG_{i, j}$: Magnitude of the frequency bin
+$PHS_{i, j}$: Phase of the frequency bin
 $UNDER_{i, j}$: Penalty a candidate receieves for undershooting that particular bin/group
 $OVER_{i, j}$: Penalty a candidate receives for overshooting that particular bin/group
 \end{enumerate}

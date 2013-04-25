@@ -15,3 +15,8 @@
     Filter design? How to calculate max filter gain from poles/zeroes?
 
     Talk about fitness function more/spectral leakage/STFT/overlapping transform. What do you think about emphasizing peaks and valley and weighting the middle less so? Penalizing undershooting or overshooting based on peaks/valleys?
+    
+3/25/13:
+    How to get butterworth coefficients to move over time?
+    Talk about fitness function
+    Discuss what he thinks about a presentation in a week.
