@@ -31,12 +31,13 @@ University of Texas at Austin\vspace{-2ex}
 
 \usepackage{natbib}
 \usepackage{verbatim}
+\usepackage{amsmath}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-This paper presents a system for evolving sound synthesis algorithms using the technique of genetic programming. The investigation of this topic will consist of two parts. The first is to determine if genetic programming can be used to evolve sound synthesis algorithms whose output matches the timbre of a target sound. Typically this task involves many hours of human labor to determine an efficient way to mimic a given sound. The second goal is to determine if genetic programming can be used interactively and accessibly by musicians to help them explore the space of synthesis timbres. This would allow electronic composers access to a wide array of novel sounds instead of restricting them to the synthesis algorithms they have available.
+This paper presents a system for evolving sound synthesis algorithms using the technique of genetic programming. The primary goal of this paper is to determine if genetic programming can be used to evolve sound synthesis algorithms whose output matches the timbre of a target sound. Typically this task involves many hours of human labor to determine an efficient way to mimic a given sound. An automation of this task would provide a useful, ``out of the box'' tool for matching target sounds and perhaps allow generalization to other center frequencies. This could be utilized as an enhanced sampling technique by electronic composers who wish to use a sound that they only have a recording of and not the instrument it was produced on.
 \end{abstract}
 
 \section{Timbre Matching Sound Synthesis Algorithms}
@@ -65,7 +66,7 @@ Chowning summarized the motivations for timbre matching research in his paper de
 \begin{quote}
 Of interest in both acoustical re-search and electronic music is the synthesis of natural sound. For the researcher, it is the ultimate test of acoustical theory, while for the composer of electronic music it is an extraordinarily rich point of departure in the domain of timbre, or tone quality. \citep{chowning1973synthesis}
 \end{quote}
-Acoustic instruments are something of a rigor test for any new synthesis technique. They represent well-known ``problems'' that can be used to demonstrate the adaptability of any new algorithm and the scope of sounds that it can create. In the past, there have been many attempts to solve these problems by hand using a variety of synthesis techniques. This paper will present a system that allows one to supply a target sound and automatically receive a synthesis algorithm that mimics its timbral characteristics. The system will also allow the user to examine, test and adjust these discovered algorithms to improve their fit.
+Acoustic instruments are something of a rigor test for any new synthesis technique. They represent well-known ``problems'' that can be used to demonstrate the adaptability of any new algorithm and the scope of sounds that it can create. In the past, there have been many attempts to solve these problems by hand using a variety of synthesis techniques. This paper will present a system that allows one to supply a target sound and automatically receive a synthesis algorithm that mimics its timbral characteristics.
 
 \subsection{Sound Synthesis Algorithms}\label{SSA}
 Sound synthesis algorithms (SSA's) are typically numerical algorithms for rendering sonically interesting sounds \citep{tolonen1998evaluation}. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as $sin (2 \times \pi \times f \times t)$ where $f$ is the desired frequency of the sine wave and $t$ is the time since the start of the sine wave in seconds. In the digital domain, time at the $n$th sample would be $n/sample rate$.
@@ -93,15 +94,15 @@ In 1993, Horner demonstrated a system to automate timbre matching using a geneti
 \paragraph{Genetic Programming}
 John Koza's 1994 book defined a new class of genetic algorithms altogether \citep{koza1992genetic}. Koza borrowed concepts from traditional genetic algorithms to evolve computer programs and called the technique genetic programming (GP). The computer programs that GP evolves are represented as S-expressions. An S-expression is a tree representation of a program which can be anything from a simple mathematical expression to much more complicated algorithms involving logic operators and domain-specific operations. TODO: EXPLAIN GENETIC PROGRAMMING
 			
-The domain-specific applications of genetic programming are intriguing for sound synthesis as nodes of the S-expression could represent functional units such as sin wave oscillators and time-varying signal filters as discussed previously. In 2000, Ricardo Garcia successfully demonstrated the technique of GP in the domain of target-matching sound synthesis algorithms \citep{garcia2000towards}.
+The domain-specific applications of genetic programming are intriguing for sound synthesis as nodes of the S-expression could represent functional units such as sin wave oscillators and time-varying filters as discussed previously. In 2000, Ricardo Garcia successfully demonstrated the technique of GP in the domain of target-matching sound synthesis algorithms \citep{garcia2000towards}.
 
 Garcia's approach evolved trees that represented a set of instructions for building sound synthesis topologies such as the topology depicted in figure (TODO: FIGURE ABOVE FROM \ref{SSA}). This indirect encoding was motivated by the fact that sound synthesis topologies can be cyclical and S-expressions cannot be. However, these non-cyclical ``instruction trees'' could contain instructions to build a cyclical synthesis topology and therefore allow unmodified genetic programming to be utilized to create cyclical synthesis algorithms.
 
-Garcia makes the following statement about his instruction trees "every [instruction] tree maps into a single topology... but a topology can be represented by many different [instruction] trees." \citep{garcia2012automatic}. This leads me to believe that this approach is perhaps not the ideal way to apply GP to sound synthesis as this representation is searching through a larger space of S-expressions that map into a smaller space of synthesis algorithms. The author has also not encountered any examples of hand-designed SSA's that utilize cyclic topologies to mimic acoustic instruments. Regardless, cyclic behavior could also be represented non-cyclically by the use of a delay buffer primitive if it is found to be necessary. Additionally, Garcia uses sub-optimization of a known number of constants once a topology has been produced. This is an interesting strategy but  could theoretically be encoded into GP itself by using ephemeral random constants with numeric mutation \citep{evett1998numeric}.
+Garcia made the following statement about his instruction trees ``every [instruction] tree maps into a single topology... but a topology can be represented by many different [instruction] trees.'' \citep{garcia2012automatic}. This leads me to believe that this approach is perhaps not the ideal way to apply GP to sound synthesis as this representation is searching through a larger space of S-expressions that map into a smaller space of synthesis algorithms. No examples of hand-designed SSA's that utilize cyclic topologies to mimic acoustic instruments were found in the research for this paper which also suggests that the cost of search efficiency is not worth this feature. Regardless, cyclic behavior could also be represented non-cyclically by the use of a delay buffer primitive if it is found to be necessary. Additionally, Garcia uses sub-optimization of a known number of constants once a topology had been produced. This is an interesting strategy but could theoretically be encoded into GP itself by using ephemeral random constants with numeric mutation \citep{evett1998numeric}.
 
 \subsection{Target-Matching Genetic Programming Search for Sound Synthesis Algorithms}
 \subsubsection{Method}
-This experiment will use genetic programming to evolve synthesis algorithms directly, utilizing a set of primitives identified as essential components for mimicking timbres. The inputs to this system are a recorded target sound represented by a WAV file and the fundamental frequency of the target sound. This method differs from Garcia's whose representation of the problem did not involve inputting the fundamental frequency. I argue that providing the fundamental frequency is a good addition to the inputs of the system as it prevents the algorithm from having to waste search time to find the fundamental and allows the experimenter to test how well the discovered algorithm generalizes to other pitches.
+This experiment will use genetic programming to evolve synthesis algorithms directly, utilizing a set of primitives identified as essential components for mimicking timbres. The inputs to this system are a recorded target sound represented by a WAV file and the fundamental frequency of the target sound. This method differs from Garcia's whose representation did not involve the fundamental frequency as input. I argue that providing the fundamental frequency is a good addition to the inputs of the system as it prevents the algorithm from having to waste search time to find the fundamental and allows the experimenter to test how well the discovered algorithm generalizes to other pitches.
 \subsubsection{Available primitives}
 Arity is the number of input arguments a particular primitive requires. Primitives with arity of $0$ are the terminal nodes of S-expressions. These are the primitives used in all tests unless otherwise noted. TODO: add/remove primatives found to be necessary/not useful
 \begin{center}
@@ -117,6 +118,7 @@ White noise & 0 \\ \hline
 Ephemeral random constants & 0 \\ \hline
 \end{tabular}
 \end{center}
+TODO: params
 \subsubsection{Loop}
 The process of this experiment will involve the following main loop:
 \begin{enumerate}
@@ -132,40 +134,98 @@ If $best\ fitness\ found\ <\ threshold\ ||\ number of generations\ >=\ limit$, F
 \item
 otherwise render the next generation of individuals using traditional genetic programming operations and return to LOOP START
 \end{enumerate}
+TODO: params
 \subsubsection{Initial Population}
 The random generation of the initial population is a mostly unmodified implementation of Koza's ramped half and half method used to generate diversity in the initial population \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions. The performance gain from not evaluating the same S-expression more than once does not seem to be worth the performance hit of comparing each new S-expression to all existing ones. I am using the technique of ephemeral random constants to propagate random values throughout the initial population.
+TODO: params
 \subsubsection{Fitness Function}
-The fitness function used for these tests was designed with the five parameters listed in \ref{INTRO} in mind. The target samples are partitioned into groups of $n$ with $o$ overlap between groups. These groups are analyzed using a discrete Fourier transform which can be used to determine magnitude and phase at $n/2$ frequency bins equally spaced between $0$ and $sample rate/2$ Hertz.
-
-The following values are calculated for each group $i$:
-\begin{enumerate}
-$MAXABOVE_{i}$: $\max{MAG_{i, j} - EMAC_{i, j}}$
-$MAXBELOW_{i}$: $\max{EMAC_{i, j} - MAG_{i, j}}$
-\end{enumerate}
+The fitness function used for these tests was designed with the five parameters listed in \ref{INTRO} in mind. The target samples are partitioned into $m$ groups of $n$ samples with $o$ overlap between groups. These groups are analyzed using a discrete Fourier transform which can be used to determine magnitude and phase at $n/2$ frequency bins equally spaced between $0$ and $\frac{sample rate}{2}$ $Hz$.
 
 The following values are calculated for each bin $j$ of group $i$:
-\begin{enumerate}
-$EMAC_{i, j}$: Exponential moving average value
-$MAG_{i, j}$: Magnitude of the frequency bin
-$PHS_{i, j}$: Phase of the frequency bin
-$UNDER_{i, j}$: Penalty a candidate receieves for undershooting that particular bin/group
-$OVER_{i, j}$: Penalty a candidate receives for overshooting that particular bin/group
-\end{enumerate}
+\begin{itemize}
+\addtolength{\itemindent}{1cm}
+\vspace{-3mm}
+\item $EMAC_{(i, j)}$: Exponential moving average value at the bin
+\vspace{-3mm}
+\item $TMAG_{(i, j)}$: Magnitude of the bin
+\vspace{-3mm}
+\item $TPHS_{(i, j)}$: Phase of the bin
+\vspace{-3mm}
+\item $UNDER_{(i, j)}$: Penalty for candidate undershooting the bin
+\vspace{-3mm}
+\item $OVER_{(i, j)}$: Penalty for candidate overshooting the bin
+\vspace{-2mm}
+\end{itemize}
 
-\begin{equation}
-if MAG_{i, j} <= EMAC_{i, j}:
-	UNDER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * good) + base;
-	OVER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * bad) + base
-if MAG_{i, j} > EMAC_{i, j}:
-	UNDER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * bad) + base
-	OVER_{i, j} =  ({\abs{MAG_{i, j} - EMAC_{i, j}}}/{MIN{I}} * good) + base
-\end{equation}
+The following values are calculated for each group $i$:
+\begin{itemize}
+\addtolength{\itemindent}{1cm}
+\vspace{-3mm} 
+\item $MAXABOVE_{(i)}$: $\max{(MAG_{(i, j)} - EMAC_{(i, j)})}$
+\vspace{-3mm} 
+\item $MAXBELOW_{(i)}$: $\max{(EMAC_{(i, j)} - MAG_{(i, j)})}$
+\vspace{-2mm}
+\end{itemize}
 
-Every candidate is assigned a fitness score in the following way:
-	
+$UNDER_{(i, j)}$ and $OVER_{(i, j)}$ are calculated for each bin $j$ of group $i$ in the following way:
+\vspace{-3mm} 
+\begin{align*}
+if (TMAG_{(i, j)} \le EMAC_{(i, j)}): \\
+UNDER_{(i, j)} &= \frac{EMAC_{(i, j)} - TMAG_{(i, j)}}{MAXBELOW_{(i)}} * good + base \\
+OVER_{(i, j)} &= \frac{EMAC_{(i, j)} - TMAG_{(i, j)}}{MAXBELOW_{(i)}} * bad + base \\
+if (TMAG_{(i, j)} > EMAC_{(i, j)}): \\
+UNDER_{(i, j)} &= \frac{TMAG_{(i, j)} - EMAC_{(i, j)}}{MAXABOVE_{(i)}} * bad + base \\
+OVER_{(i, j)} &= \frac{TMAG_{(i, j)} - EMAC_{(i, j)}}{MAXABOVE_{(i)}} * good + base
+\end{align*}
+\vspace{-2mm}
 
+Each candidate S-expression is rendered to produce a candidate wave form with the same number of samples as the target. The candidate samples are partitioned into groups of $n$ with $o$ overlap in the same way as the target samples.
+
+The following values are calculated for each bin $j$ of group $i$ from the candidate samples:
+\begin{itemize}
+\addtolength{\itemindent}{1cm}
+\vspace{-3mm} 
+\item $CMAG_{(i, j)}$: Magnitude of the frequency bin
+\vspace{-3mm} 
+\item $CPHS_{(i, j)}$: Phase of the frequency bin
+\vspace{-2mm}
+\end{itemize}
+
+Each candidate is assigned fitness in the following way:
+\vspace{-2mm} 
+\begin{align*}
+PHSERROR_{(i, j)} &= (|TPHS_{(i, j)} - CPHS_{(i, j)}|)^{PHASEPENALTY} \\
+if (CMAG_{(i, j)} \le TMAG_{(i, j)}): \\
+MAGERROR_{(i, j)} &= (TMAG_{(i, j)} - CMAG_{(i, j)})^{UNDER_{(i, j)}} \\
+if (CMAG_{(i, j)} > TMAG_{(i, j)}): \\
+MAGERROR_{(i, j)} &= (CMAG_{(i, j)} - TMAG_{(i, j)})^{OVER_{(i, j)}}
+\end{align*}
+\vspace{-8mm}
+\begin{align*}
+FITNESS &= PHASEWEIGHT * (\sum_{i=1}^{m} \sum_{j=1}^{\frac{n}{2} - 1} PHSERROR_{(i, j)}) \\
+        &+ MAGWEIGHT * (\sum_{i=1}^{m} \sum_{j=1}^{\frac{n}{2} - 1} MAGERROR_{(i, j)})
+\end{align*}
+\vspace{-4mm}
+
+The motivations for this fitness function come from the attributes of timbre listed in \ref{INTRO}. At a high level, the weighting system is giving a higher penalty for a candidate overshooting a target valley and a higher penalty for a candidate undershooting a target peak. Penalty scaling is constant for a candidate undershooting a target valley and overshooting a target peak. This has the two-pronged effect of ensuring that better candidates in the early generations emphasize spectral peaks and don't try to match noisy bins. Later in the generations when the population begins to converge, the GA can continue to optimize by reducing the error at peaks and filling in lower magnitude spectral content.
+
+This fitness function was empirically found to produce spectral content that roughly matched the sustain portion of targets but was worse at matching overall amplitude envelope. Experiments were performed where groups were weighted by their magnitude average's difference from the average magnitude across all groups. This placed higher fitness emphasis on transient groups, where the amplitude spectrum was the most different from the average (usually the attack/decay periods of the target). However, this technique was empirically found to lower the quality of the spectral matching.
+
+TODO: params
 \subsubsection{Genetic Operations}
-The utilized genetic operations are those typically associated with genetic programming. Individuals are selected proportionally to their assigned fitnesses (where lower is better due to the fact that fitness is a calculation of error). During the reproduction stage, part of the next generation is produced by selecting two parents, swapping two randomly selected subtrees from within them and adding both resultant trees to the next generation. This method is very powerful as the depths of the resultant children can range from 0 to the sum of the depths of the parents. The remaining part of the population is produced by selecting one parent in the same fitness-proportional manner and cloning it without mutation into the next generation. TODO: edit once finalized/include figures from Koza/discuss mutation/numerical mutation
+The utilized genetic operations are those typically associated with genetic programming. Individuals are selected proportionally to their assigned fitnesses (where lower is better due to the fact that fitness is a calculation of error).
+\begin{itemize}
+\item
+Crossover: Select two parents, swapping two randomly selected subtrees from within them and adding both resultant trees to the next generation. This operation is quite expressive as the heights of the resultant children can range from 0 to the sum of the heights of the parents. It can produce radically different children even if the parents are the same
+\item
+Reproduction: Select one algorithm and clone it without mutation into the next generation.
+\item
+Mutation: Select one algorithm and select one node $s$ from it uniformly at random. Replace this node with a new subtree with the $Grow$ method and max height of $maxheight - s.depth$.
+\item
+Numerical mutation: Select one algorithm and numerically mutate all of its coefficients.
+
+TODO: params/include figures from Koza/elaborate on numerical mutation
+\end{itemize}
 \subsubsection{Experiments}
 \begin{comment}
 Ideally one would ``clean'' the WAV file as much as possible by removing areas of silence, removing any DC offset and normalizing.
@@ -205,11 +265,12 @@ This experiment will use genetic programming to evolve synthesis algorithms dire
 \end{comment}
 
 \section{Implementation}
-An early prototype for the interactive system was built using Cabbage, Csound and Python. After several performance limitations with this setup were encountered the implementation was switched to C++ and utilized the JUCE audio/GUI library. JUCE is a popular open-source library for developing audio plug-ins and was used as the core audio engine of this implementation as well as the graphics toolkit for the interactive GA. This project could not have been possible without JUCE and author/maintainer Jules's unrelenting demand for quality. Filter primitives were developed using the DSPFilters Library written and maintained by Vinnie Falco. Spectrum analysis for the fitness function was made possible by Kiss FFT, a relatively fast and extremely lightweight implementation of the Fast Fourier transform.
-	
-Target-matching tests were run on the UT Condor Computing Cluster and each test took between MIN HOURS and MAX HOURS to complete. \begin{comment}Interactive evolution tests were run on a variety of different machines. TODO: fill in with actual data \end{comment}
+An early prototype for the interactive system was built using Cabbage, Csound and Python. After several performance limitations with this setup were encountered the implementation was switched to C++ and utilized the JUCE audio/GUI library. JUCE is a popular open-source library for developing audio plug-ins and was used as the core audio engine of the implementation. This project could not have been possible without JUCE and author/maintainer Jules's relentless demand for quality. Filter primitives were developed by modifying Tony Fisher's filter design C program. Spectrum analysis for the fitness function was performed by Kiss FFT, a relatively fast and extremely lightweight implementation of the Fast Fourier transform.
+
+Target-matching tests were run on the UT Condor Computing Cluster. \begin{comment}Interactive evolution tests were run on a variety of different machines. TODO: fill in with actual data \end{comment}
 
 \section{Future Work}
+The system will also allow the user to examine, test and adjust these discovered algorithms to improve their fit.
 
 \section{Acknowledgements}
 The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for advice on the genetic algorithm aspects of this project. Thanks to Ashvin Bashyam for his advice on the subtleties of working in a frequency domain representation of a signal. 

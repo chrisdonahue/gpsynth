@@ -63,6 +63,7 @@ TODO long run:
     commandline flag --condorbackup which saves certain files only if seed == 0 or something
     try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
     exponential ADSR?
+    consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
     go through 4.24.13.b results iteratively and see what worked and what didnt. test a lot of instruments of a lot of different types on this to see what it can come up with.
