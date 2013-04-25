@@ -33,9 +33,9 @@ set -e
   --averagetype 2\
   --averagepastradius 40\
   --averagefutureradius 40\
-  --alpha 0.95\
+  --alpha 0.8\
   --comparedev\
-  --penaltycompexp 1.0\
+  --penaltycompexp 0.4\
   --weightframes\
   --frameweightexp 0.33\
   --phasepenalty 2.0\
