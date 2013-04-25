@@ -41,7 +41,7 @@ This paper presents a system for evolving sound synthesis algorithms using the t
 
 \section{Timbre Matching Sound Synthesis Algorithms}
 
-\subsection{Introduction}
+\subsection{Introduction}\label{INTRO}
 Timbre is a collection of physical properties of a sound and is frequently explained in terms of its human utility rather than its underlying components. The American National Standards Institute defined timbre as ``that attribute of auditory sensation in terms of which a listener can judge that two sounds similarly presented and having the same loudness and pitch are dissimilar'' \citep{american1960american}. The ambiguity lies in determining what exactly ``that attribute'' is and what physical phenomena cause it. This psychoacoustic debate continues to this day; the advent of computer technology has introduced both a great road block and a great opportunity in our understand of timbre \citep{erickson1975sound}. Computers have the ability to render any sound representable by a discrete waveform and thus the umbrella term timbre can no longer be interpreted as a direct association between certain sounds and the concrete characteristics of the objects that produce them.
 
 Early attempts to characterize the physical components of timbre mostly focused on the relative amplitudes and ratios of partial tones. These assumptions were based perhaps too heavily on Fourier's theorem that any periodic waveform can be decomposed into simple sin wave components \citep{helmholtz1857physiological, helmholtz1954sensations}. Like most aspects of music however, humans interpret not the absolute values of individual notes or frequencies but the way their relations change over time. Characterizations of timbre that place full emphasis on instantaneous spectral relationships are antiquated and have been augmented by multidimensional descriptions made up of several components with codependencies \citep{erickson1975sound}. One such description was proposed by J. F. Schouten in 1968 and involves five characteristics \citep{schouten1968perception, erickson1975sound}:
@@ -135,15 +135,21 @@ otherwise render the next generation of individuals using traditional genetic pr
 \subsubsection{Initial Population}
 The random generation of the initial population is a mostly unmodified implementation of Koza's ramped half and half method used to generate diversity in the initial population \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions. The performance gain from not evaluating the same S-expression more than once does not seem to be worth the performance hit of comparing each new S-expression to all existing ones. I am using the technique of ephemeral random constants to propagate random constants throughout the initial population.
 \subsubsection{Fitness Function}
-The fitness function I am using is a variation of the fitness function that Garcia used for his system. The target wave form is partitioned into groups of $n$ non-overlapping frames. These groups are analyzed using a discrete Fourier transform which produces spectral data at $n/2$ bins equally spaced between $0$ and $sample rate/2$ Hertz. Each group $i$ of $n/2$ bins is analyzed to find the minimum magnitude bin $Min_{i}$, maximum magnitude bin $Max_{i}$, and average magnitude $Avg_{i}$. Each bin $j$ is assigned a penalty for a candidate overshooting that particular bin and a penalty for a candidate undershooting that particular bin in the following way.
+The fitness function used for these tests was designed to best compare the five parameters listed in \ref{INTRO}. The target wave form is partitioned into groups of $n$ frames with $o$ overlapping. These groups are analyzed using a discrete, real-optimized Fourier transform which produces spectral data at $n/2$ bins equally spaced between $0$ and $sample rate/2$ Hertz. The exponential moving average and highest deviation above and below the exponential moving average is calculated for each group $i$ of $n/2$.
 
-$|T_{ij}|$ is the magnitude of bin $j$ from group $i$.
+Each bin $j$ of group $i$ now has the following values:
+\begin{enumerate}
+$EMAC_{i, j}$: Exponential moving average curve at that group/bin
+$MAG_{i, j}$: Magnitude of the frequency component at that group/bin
+$PHS_{i, j}$: Phase of the frequency component at that group/bin
+\end{enumerate}
 
-If $|T_{ij}| > Avg_{i}$:
-$Overshoot_{ij} = $
-$Undershoot_{ij} = $
+The following values are calculated and stored for bin $j$ of group $i$:
+\begin{enumerate}
+$UNDER_{i, j}$: Penalty a candidate receieves for undershooting that particular bin/group
+$OVER_{i, j}$: Penalty a candidate receives for overshooting that particular bin/group
+\end{enumerate}
 
-TODO: finish writing this up.
 \subsubsection{Genetic Operations}
 The utilized genetic operations are those typically associated with genetic programming. Individuals are selected proportionally to their assigned fitnesses (where lower is better due to the fact that fitness is a calculation of error). During the reproduction stage, part of the next generation is produced by selecting two parents, swapping two randomly selected subtrees from within them and adding both resultant trees to the next generation. This method is very powerful as the depths of the resultant children can range from 0 to the sum of the depths of the parents. The remaining part of the population is produced by selecting one parent in the same fitness-proportional manner and cloning it without mutation into the next generation. TODO: edit once finalized/include figures from Koza/discuss mutation/numerical mutation
 \subsubsection{Experiments}
