@@ -15,18 +15,12 @@
 #include "../Common/GPParams.h"
 #include "../Common/GPHelpers.h"
 
+#include "../Synth/GPNode.h"
+#include "../Synth/GPPrimitives.h"
 #include "../Synth/GPSynth.h"
-#include "../Synth/Nodes/ADSRNode.h"
-#include "../Synth/Nodes/ConstantNode.h"
-#include "../Synth/Nodes/TimeNode.h"
-#include "../Synth/Nodes/VariableNode.h"
-#include "../Synth/Nodes/FunctionNode.h"
-#include "../Synth/Nodes/OscilNode.h"
-//#include "../Synth/Nodes/FilterNode.h"
-#include "../Synth/Nodes/NoiseNode.h"
 
-#include "../Dependencies/kissfft/kiss_fftr.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Dependencies/kissfft/kiss_fftr.h"
 
 #include <limits>
 #include <fstream>

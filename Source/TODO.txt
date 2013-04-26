@@ -47,6 +47,12 @@ Ideas:
     framework to change constants over time that depend on pop convergence
 
 Thoughts:
+    Don't necessarily have to foray into filters too much. For now focus on best possible FM synthesis recreation
+    Maybe can do filterednoise primative at a later point
+    Add spline to likely replace ADSR
+    LFO nodes too
+    Multiple variable nodes to population... replace v0 oscil node with frequency determined by child
+    make min/max stuff constant. dont have to set it every time... might not even need this
 
 TODO long run:
     calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
@@ -66,9 +72,9 @@ TODO long run:
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
+    test random
     go through 4.24.13.b results iteratively and see what worked and what didnt. test a lot of instruments of a lot of different types on this to see what it can come up with.
     THESIS WORK
     Get filters (simple) working again. Switch filter libs probably
-	Tag networks with a char for how they were produced so i can print it on the bests and see how it changes over time.
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"

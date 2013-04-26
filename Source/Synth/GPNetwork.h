@@ -14,19 +14,14 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
-#include <string.h>
+#include <string>
 #include "GPNode.h"
-#include "Nodes/ADSRNode.h"
-#include "Nodes/ConstantNode.h"
-#include "Nodes/TimeNode.h"
-#include "Nodes/VariableNode.h"
-#include "Nodes/FunctionNode.h"
-#include "Nodes/OscilNode.h"
+#include "GPPrimitives.h"
 
 class GPNetwork {
 public:
     // CONSTRUCTION
-    GPNetwork(GPNode* r);
+    GPNetwork(GPNode* r, std::string o);
     GPNetwork(GPParams* p, double sr, std::string netstring);
     ~GPNetwork();
     GPNetwork* getCopy();
@@ -34,7 +29,6 @@ public:
     // EXAMINATION
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, unsigned n, float* buffer);
-    unsigned getDepth();
     std::string toString(bool printRange, unsigned precision);
     GPNode* getRoot();
     bool equals(GPNetwork* other);
@@ -50,11 +44,16 @@ public:
 
     // PUBLIC STATE
     int ID;
+    std::string origin;
+    int height;
     double fitness;
+    
+    // interval
+    float minimum;
+    float maximum;
 
 private:
     // PRIVATE STATE
-    unsigned depth;
     GPNode* root;
     std::vector<GPNode*> allNodes;
     std::vector<GPMutatableParam*> allMutatableParams;

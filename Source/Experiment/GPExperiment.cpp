@@ -127,13 +127,13 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         GPNode* ADSRnonterm = new ADSRNode(false, false, targetSampleRate, Delay->getCopy(), Attack->getCopy(), AttackHeight->getCopy(), Decay->getCopy(), Sustain->getCopy(), SustainHeight->getCopy(), Release->getCopy(), oscilPartialOne);
         GPNode* mult = new FunctionNode(multiply, oscilPartialOne, ADSRterm);
 
-        GPNetwork* OSCIL = new GPNetwork(oscilPartialOne);
+        GPNetwork* OSCIL = new GPNetwork(oscilPartialOne, "test");
         OSCIL->traceNetwork();
 
-        GPNetwork* ADSRTERM = new GPNetwork(mult);
+        GPNetwork* ADSRTERM = new GPNetwork(mult, "test");
         ADSRTERM->traceNetwork();
 
-        GPNetwork* ADSRNONTERM = new GPNetwork(ADSRnonterm);
+        GPNetwork* ADSRNONTERM = new GPNetwork(ADSRnonterm, "test");
         ADSRNONTERM->traceNetwork();
 
         float* oscil = (float*) malloc(sizeof(float) * numTargetFrames);
@@ -219,7 +219,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         //GPNode* bandPass = new FilterNode(2, 3, 11000, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
         //GPNode* bandStop = new FilterNode(3, 3, 1024, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
 
-        GPNetwork* noiseNetwork = new GPNetwork(noiseNode);
+        GPNetwork* noiseNetwork = new GPNetwork(noiseNode, "test");
         noiseNetwork->traceNetwork();
         //GPNetwork* bandStopNoiseNetwork = new GPNetwork(bandStop);
         //bandStopNoiseNetwork->ephemeralRandom(rng);
@@ -248,7 +248,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         // RENDER AND SAVE ONE NETWORk
         GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 5);
         GPNode* oscilPartialOne = new OscilNode(true, partialOne, 0, NULL, NULL);
-        GPNetwork* oscil = new GPNetwork(oscilPartialOne);
+        GPNetwork* oscil = new GPNetwork(oscilPartialOne, "test");
         oscil->traceNetwork();
         float* oscilBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         //renderEnvelopeAndEvaluate(true, oscil, oscilBuffer);

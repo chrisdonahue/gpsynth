@@ -16,16 +16,18 @@
     ============
 */
 
-GPNetwork::GPNetwork(GPNode* r) :
-    allNodes(), allMutatableParams()
+GPNetwork::GPNetwork(GPNode* r, std::string o) :
+    ID(-1), origin(o), height(-1), fitness(-1),
+    minimum(-INFINITY), maximum(INFINITY),
+    root(r), allNodes(0), allMutatableParams(0)
 {
-    ID = -1;
-    fitness = -1;
-    root = r;
-    depth = r->depth;
 }
 
-GPNetwork::GPNetwork(GPParams* p, double sr, std::string netstring) {
+GPNetwork::GPNetwork(GPParams* p, double sr, std::string netstring) :
+    ID(-1), origin("string"), height(-1), fitness(-1),
+    minimum(-INFINITY), maximum(INFINITY),
+    allNodes(0), allMutatableParams(0)
+{
     ID = -1;
     fitness = -1;
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
@@ -65,10 +67,6 @@ void GPNetwork::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, flo
 }
 
 
-unsigned GPNetwork::getDepth() {
-    return depth;
-}
-
 std::string GPNetwork::toString(bool printRange, unsigned precision) {
     std::stringstream ss;
     ss.precision(precision);
@@ -105,8 +103,7 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
 void GPNetwork::traceNetwork() {
     allNodes.clear();
     allMutatableParams.clear();
-    depth = 0;
-    root->traceSubtree(&allNodes, &allMutatableParams, NULL, &depth, 0);
+    root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
 }
 
 /*
