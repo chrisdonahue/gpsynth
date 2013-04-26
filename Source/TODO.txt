@@ -69,5 +69,6 @@ NEXT EXPERIMENTS:
     go through 4.24.13.b results iteratively and see what worked and what didnt. test a lot of instruments of a lot of different types on this to see what it can come up with.
     THESIS WORK
     Get filters (simple) working again. Switch filter libs probably
+	Tag networks with a char for how they were produced so i can print it on the bests and see how it changes over time.
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"
