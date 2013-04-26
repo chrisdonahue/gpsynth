@@ -350,7 +350,7 @@ GPNetwork* GPExperiment::evolve() {
             delete generationChamp;
 
             int backupID = candidate->ID;
-            generationChamp = candidate->getCopy();
+            generationChamp = candidate->getCopy(candidate->origin);
             generationChamp->ID = backupID;
             generationChamp->fitness = fitness;
         }
@@ -360,7 +360,7 @@ GPNetwork* GPExperiment::evolve() {
             delete champ;
 
             int backupID = candidate->ID;
-            champ = candidate->getCopy();
+            champ = candidate->getCopy(candidate->origin);
             champ->ID = backupID;
             champ->fitness = minFitnessAchieved;
         }

@@ -56,8 +56,8 @@ set -e
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\
-  --mid 5\
-  --md 11\
+  --maxinitheight 5\
+  --maxheight 11\
   GENETIC PARAMS \
   --greedy 0.0\
   --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\

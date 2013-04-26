@@ -1,30 +1,31 @@
 /*
   ==============================================================================
 
-    ADSRNode.h
+    SplineNode.h
     Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef ADSRNODE_H
-#define ADSRNODE_H
+#ifndef SPLINENODE_H
+#define SPLINENODE_H
 
 #include "../GPNode.h"
 
-class ADSRNode: public GPNode {
+class SplineNode: public GPNode {
 public:
-    ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
-    ~ADSRNode();
-    ADSRNode* getCopy();
+    SplineNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    ~SplineNode();
 
+	// overrides
+    SplineNode* getCopy();
+	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
-    inline float getEnvelopeValue(unsigned fn);
+	void getRange(float* min, float* max);
+	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
-    void fillFromParams();
-    void updateMutatedParams();
 
 private:
     bool storeBuffer;

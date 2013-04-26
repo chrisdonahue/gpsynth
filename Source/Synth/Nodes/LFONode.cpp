@@ -111,3 +111,10 @@ void LFONode::updateMutatedParams() {
         descendants[0]->updateMutatedParams();
     }
 }
+
+void LFONode::prepareToPlay() {
+}
+
+void LFONode::getRange(float* min, float* max) {
+
+}

@@ -18,13 +18,18 @@ class NoiseNode: public GPNode {
 public:
     NoiseNode(GPRandom* r);
     ~NoiseNode();
-    NoiseNode* getCopy();
 
+	// overrides
+    NoiseNode* getCopy();
+	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
+	void getRange(float* min, float* max);
+	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
-    void updateMutatedParams();
-    void whitenoise(float* _fpDstBuffer, unsigned int _uiBufferSize, float _fLevel );
+
+	// class specific
+	void whitenoise(float* _fpDstBuffer, unsigned int _uiBufferSize, float _fLevel );
 
 private:
     GPRandom* rng;

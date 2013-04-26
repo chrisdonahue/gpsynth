@@ -17,14 +17,19 @@ class ADSRNode: public GPNode {
 public:
     ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
     ~ADSRNode();
-    ADSRNode* getCopy();
 
+	// overrides
+    ADSRNode* getCopy();
+	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
-    inline float getEnvelopeValue(unsigned fn);
+	void getRange(float* min, float* max);
+	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
+
+	// class specific
     void fillFromParams();
-    void updateMutatedParams();
+    inline float getEnvelopeValue(unsigned fn);
 
 private:
     bool storeBuffer;

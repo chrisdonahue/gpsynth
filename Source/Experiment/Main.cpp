@@ -102,8 +102,8 @@ public:
         //params->lowerFitnessIsBetter = true; should be done in experiment
         //params->bestPossibleFitness = 0; should be done in experiment
         //params->penaltyFitness = std::numeric_limits<float>::max(); experiment
-        params->maxInitialDepth = 5;
-        params->maxDepth = 12;
+        params->maxInitialHeight = 5;
+        params->maxHeight = 12;
 
         // synth genetic params
         params->proportionOfPopulationForGreedySelection = 0.0;
@@ -344,11 +344,11 @@ public:
             else if (i->equalsIgnoreCase("--bestfitness"))  {
                 params->bestPossibleFitness = (++i)->getDoubleValue();
             }
-            else if (i->equalsIgnoreCase("--mid")) {
-                params->maxInitialDepth = (++i)->getIntValue();
+            else if (i->equalsIgnoreCase("--maxinitheight")) {
+                params->maxInitialHeight = (++i)->getIntValue();
             }
-            else if (i->equalsIgnoreCase("--md")) {
-                params->maxDepth = (++i)->getIntValue();
+            else if (i->equalsIgnoreCase("--maxheight")) {
+                params->maxHeight = (++i)->getIntValue();
             }
 
             // synth genetic params

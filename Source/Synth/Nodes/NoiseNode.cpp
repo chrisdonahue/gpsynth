@@ -87,3 +87,11 @@ void NoiseNode::toString(bool printRange, std::stringstream& ss) {
 
 void NoiseNode::updateMutatedParams() {
 }
+
+
+void NoiseNode::prepareToPlay() {
+}
+
+void NoiseNode::getRange(float* min, float* max) {
+
+}

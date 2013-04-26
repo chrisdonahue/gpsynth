@@ -63,3 +63,11 @@ void ConstantNode::toString(bool printRange, std::stringstream& ss) {
 void ConstantNode::updateMutatedParams() {
     value = mutatableParams[0]->getValue();
 }
+
+
+void ConstantNode::prepareToPlay() {
+}
+
+void ConstantNode::getRange(float* min, float* max) {
+
+}

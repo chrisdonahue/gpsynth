@@ -17,12 +17,15 @@ class OscilNode: public GPNode {
 public:
     OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod);
     ~OscilNode();
-    OscilNode* getCopy();
 
+	// overrides
+    OscilNode* getCopy();
+	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
+	void getRange(float* min, float* max);
+	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
-    void updateMutatedParams();
 
 private:
     bool terminalOscil;

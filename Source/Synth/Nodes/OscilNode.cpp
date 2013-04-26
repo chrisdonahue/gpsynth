@@ -112,3 +112,11 @@ void OscilNode::updateMutatedParams() {
         descendants[0]->updateMutatedParams();
     }
 }
+
+
+void OscilNode::prepareToPlay() {
+}
+
+void OscilNode::getRange(float* min, float* max) {
+
+}

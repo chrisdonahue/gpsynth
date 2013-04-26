@@ -146,3 +146,11 @@ void DifferenceEquationNode::updateMutatedParams() {
 
     descendants[0]->updateMutatedParams();
 }
+
+
+void DifferenceEquationNode::prepareToPlay() {
+}
+
+void DifferenceEquationNode::getRange(float* min, float* max) {
+
+}

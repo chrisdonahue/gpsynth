@@ -41,8 +41,8 @@ GPNetwork::~GPNetwork() {
     delete root;
 }
 
-GPNetwork* GPNetwork::getCopy() {
-    GPNetwork* copy = new GPNetwork(root->getCopy());
+GPNetwork* GPNetwork::getCopy(std::string neworigin) {
+    GPNetwork* copy = new GPNetwork(root->getCopy(), neworigin);
     return copy;
 }
 

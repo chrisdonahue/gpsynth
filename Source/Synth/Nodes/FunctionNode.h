@@ -18,12 +18,15 @@ class FunctionNode: public GPNode {
 public:
     FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one);
     ~FunctionNode();
-    FunctionNode* getCopy();
 
+	// overrides
+    FunctionNode* getCopy();
+	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
+	void getRange(float* min, float* max);
+	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
-    void updateMutatedParams();
 
 private:
     GPFunction gpfunction;

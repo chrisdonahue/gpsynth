@@ -48,3 +48,11 @@ void VariableNode::toString(bool printRange, std::stringstream& ss) {
 
 void VariableNode::updateMutatedParams() {
 }
+
+
+void VariableNode::prepareToPlay() {
+}
+
+void VariableNode::getRange(float* min, float* max) {
+
+}

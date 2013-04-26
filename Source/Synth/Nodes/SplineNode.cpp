@@ -1,14 +1,14 @@
 /*
   ==============================================================================
 
-    ADSRNode.cpp
+    SplineNode.cpp
     Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#include "ADSRNode.h"
+#include "SplineNode.h"
 
 /*
     ==============
@@ -16,11 +16,11 @@
     ==============
 */
 
-ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
+SplineNode::SplineNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
     sampleRate(sr)
 {
     storeBuffer = store;
-    terminalADSR = terminal;
+    terminalSpline = terminal;
     sampleRate = sr;
     releaseFinished = false;
     framesInEnvelope = 0;
@@ -34,7 +34,7 @@ ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, 
     mutatableParams.push_back(sush);
     mutatableParams.push_back(rel);
 
-    if (terminalADSR) {
+    if (terminalSpline) {
         arity = 0;
     }
     else {
@@ -45,22 +45,22 @@ ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, 
     fillFromParams();
 }
 
-ADSRNode::~ADSRNode() {
+SplineNode::~SplineNode() {
     if (storeBuffer) {
         free(envelope);
     }
 }
 
-ADSRNode* ADSRNode::getCopy() {
-    if (terminalADSR) {
-        return new ADSRNode(storeBuffer, terminalADSR, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
+SplineNode* SplineNode::getCopy() {
+    if (terminalSpline) {
+        return new SplineNode(storeBuffer, terminalSpline, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
     }
     else {
-        return new ADSRNode(storeBuffer, terminalADSR, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+        return new SplineNode(storeBuffer, terminalSpline, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     }
 }
 
-void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+void SplineNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
     if (storeBuffer) {
         // if frame number is within the envelope
         if (fn < framesInEnvelope)
@@ -69,7 +69,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
             releaseFinished = true;
 
         // if this is a terminal node
-        if (terminalADSR) {
+        if (terminalSpline) {
             *min = minimum;
             *max = maximum;
             if (!releaseFinished) {
@@ -95,7 +95,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
             descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
             GPmultiplyCalculateRange(min, max, minimum, maximum, *min, *max);
             if (!releaseFinished) {
-                // if ADSR hasn't finished releasing but will within these n frames
+                // if Spline hasn't finished releasing but will within these n frames
                 if (fn + n > framesInEnvelope) {
                     for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
                         buffer[i] = buffer[i] * envelope[fn + i];
@@ -105,7 +105,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
                     }
                     releaseFinished = true;
                 }
-                // else if ADSR hasn't finished releasing and won't within n
+                // else if Spline hasn't finished releasing and won't within n
                 else {
                     for (unsigned i = 0; i < n; i++) {
                         buffer[i] = buffer[i] * envelope[fn + i];
@@ -113,7 +113,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
                 }
             }
         }
-        // else if ADSR has finished releasing for all n frames
+        // else if Spline has finished releasing for all n frames
         if (releaseFinished) {
             for (unsigned i = 0; i < n; i++) {
                 buffer[i] = 0.0;
@@ -128,7 +128,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
             releaseFinished = true;
 
         // if this is a terminal node
-        if (terminalADSR) {
+        if (terminalSpline) {
             *min = minimum;
             *max = maximum;
             if (!releaseFinished) {
@@ -153,7 +153,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
             descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
             GPmultiplyCalculateRange(min, max, minimum, maximum, *min, *max);
             if (!releaseFinished) {
-                // if ADSR hasn't finished releasing but will within these n frames
+                // if Spline hasn't finished releasing but will within these n frames
                 if (fn + n > framesInEnvelope) {
                     for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
                         buffer[i] = buffer[i] * getEnvelopeValue(fn + i);
@@ -163,7 +163,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
                     }
                     releaseFinished = true;
                 }
-                // else if ADSR hasn't finished releasing and won't within n
+                // else if Spline hasn't finished releasing and won't within n
                 else {
                     for (unsigned i = 0; i < n; i++) {
                         buffer[i] = buffer[i] * getEnvelopeValue(fn + i);
@@ -171,7 +171,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
                 }
             }
         }
-        // else if ADSR has finished releasing for all n frames
+        // else if Spline has finished releasing for all n frames
         if (releaseFinished) {
             for (unsigned i = 0; i < n; i++) {
                 buffer[i] = 0.0;
@@ -180,7 +180,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void SplineNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
     // if frame number is within the envelope
     if (fn < framesInEnvelope)
         releaseFinished = false;
@@ -188,7 +188,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
         releaseFinished = true;
 
     // if this is a terminal node
-    if (terminalADSR) {
+    if (terminalSpline) {
         *min = minimum;
         *max = maximum;
         if (!releaseFinished) {
@@ -214,7 +214,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
         descendants[0]->evaluateBlockPerformance(fn, t, nv, v, min, max, n, buffer);
         intervalMultiply(min, max, minimum, maximum, *min, *max);
         if (!releaseFinished) {
-            // if ADSR hasn't finished releasing but will within these n frames
+            // if Spline hasn't finished releasing but will within these n frames
             if (fn + n > framesInEnvelope) {
                 for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
                     buffer[i] = buffer[i] * envelope[fn + i];
@@ -224,7 +224,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
                 }
                 releaseFinished = true;
             }
-            // else if ADSR hasn't finished releasing and won't within n
+            // else if Spline hasn't finished releasing and won't within n
             else {
                 for (unsigned i = 0; i < n; i++) {
                     buffer[i] = buffer[i] * envelope[fn + i];
@@ -232,7 +232,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
             }
         }
     }
-    // else if ADSR has finished releasing for all n frames
+    // else if Spline has finished releasing for all n frames
     if (releaseFinished) {
         for (unsigned i = 0; i < n; i++) {
             buffer[i] = 0.0;
@@ -240,7 +240,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
     }
 }
 
-inline float ADSRNode::getEnvelopeValue(unsigned fn) {
+inline float SplineNode::getEnvelopeValue(unsigned fn) {
     unsigned framesFilled = 0;
     float ret = 0.0;
     if (fn < delayFrames) {
@@ -264,20 +264,20 @@ inline float ADSRNode::getEnvelopeValue(unsigned fn) {
     return ret;
 }
 
-void ADSRNode::toString(bool printRange, std::stringstream& ss) {
-    ss << "(adsr";
+void SplineNode::toString(bool printRange, std::stringstream& ss) {
+    ss << "(Spline";
     for (unsigned i = 0; i < mutatableParams.size(); i++) {
       ss << " ";
       mutatableParams[i]->toString(printRange, ss);
     }
-    if (!terminalADSR) {
+    if (!terminalSpline) {
         ss << " ";
         descendants[0]->toString(printRange, ss);
     }
     ss << ")";
 }
 
-void ADSRNode::fillFromParams() {
+void SplineNode::fillFromParams() {
     delay = mutatableParams[0]->getValue();
     delayFrames = delay * sampleRate;
 
@@ -353,9 +353,17 @@ void ADSRNode::fillFromParams() {
     }
 }
 
-void ADSRNode::updateMutatedParams() {
+void SplineNode::updateMutatedParams() {
     fillFromParams();
 
-    if (!terminalADSR)
+    if (!terminalSpline)
         descendants[0]->updateMutatedParams();
+}
+
+
+void SplineNode::prepareToPlay() {
+}
+
+void SplineNode::getRange(float* min, float* max) {
+
 }

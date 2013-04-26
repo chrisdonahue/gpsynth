@@ -359,3 +359,10 @@ void ADSRNode::updateMutatedParams() {
     if (!terminalADSR)
         descendants[0]->updateMutatedParams();
 }
+
+void ADSRNode::prepareToPlay() {
+}
+
+void ADSRNode::getRange(float* min, float* max) {
+
+}

@@ -73,6 +73,11 @@ TODO long run:
 
 NEXT EXPERIMENTS:
     test random
+    test numerical mutation
+    figure out why simple average fitness function seems to work the best
+    fix time node
+    go through all Node.cpp files and arrange them according to the h file
+    print new tag system in std::cerr and std::cout
     go through 4.24.13.b results iteratively and see what worked and what didnt. test a lot of instruments of a lot of different types on this to see what it can come up with.
     THESIS WORK
     Get filters (simple) working again. Switch filter libs probably

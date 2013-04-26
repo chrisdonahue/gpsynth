@@ -61,8 +61,8 @@ struct GPParams {
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;
     double penaltyFitness;
-    unsigned maxInitialDepth;
-    unsigned maxDepth;
+    unsigned maxInitialHeight;
+    unsigned maxHeight;
 
     // synth genetic parameters
     double proportionOfPopulationForGreedySelection;

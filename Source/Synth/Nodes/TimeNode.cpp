@@ -42,3 +42,10 @@ void TimeNode::toString(bool printRange, std::stringstream& ss) {
 
 void TimeNode::updateMutatedParams() {
 }
+
+void TimeNode::prepareToPlay() {
+}
+
+void TimeNode::getRange(float* min, float* max) {
+
+}

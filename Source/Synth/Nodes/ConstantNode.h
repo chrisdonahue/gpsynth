@@ -17,12 +17,15 @@ class ConstantNode: public GPNode {
 public:
     ConstantNode(GPMutatableParam* v);
     ~ConstantNode();
-    ConstantNode* getCopy();
 
+	// overrides
+    ConstantNode* getCopy();
+	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
+	void getRange(float* min, float* max);
+	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
-    void updateMutatedParams();
 
 private:
     double value;

@@ -79,3 +79,11 @@ void FunctionNode::updateMutatedParams() {
     if (arity == 2)
         descendants[1]->updateMutatedParams();
 }
+
+
+void FunctionNode::prepareToPlay() {
+}
+
+void FunctionNode::getRange(float* min, float* max) {
+
+}

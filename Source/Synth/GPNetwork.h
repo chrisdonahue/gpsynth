@@ -15,6 +15,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <string.h>
 #include "GPNode.h"
 #include "GPPrimitives.h"
 
@@ -24,7 +25,7 @@ public:
     GPNetwork(GPNode* r, std::string o);
     GPNetwork(GPParams* p, double sr, std::string netstring);
     ~GPNetwork();
-    GPNetwork* getCopy();
+    GPNetwork* getCopy(std::string neworigin);
 
     // EXAMINATION
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);

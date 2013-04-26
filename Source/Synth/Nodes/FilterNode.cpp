@@ -185,3 +185,11 @@ void FilterNode::updateMutatedParams() {
     descendants[0]->updateMutatedParams();
     descendants[1]->updateMutatedParams();
 }
+
+
+void FilterNode::prepareToPlay() {
+}
+
+void FilterNode::getRange(float* min, float* max) {
+
+}

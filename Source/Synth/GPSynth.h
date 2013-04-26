@@ -72,8 +72,8 @@ private:
     double generationBestFitness;
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;
-    unsigned maxInitialDepth;
-    unsigned maxDepth;
+    unsigned maxInitialHeight;
+    unsigned maxHeight;
     unsigned mutationType;
     unsigned crossoverType;
 

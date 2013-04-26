@@ -70,7 +70,7 @@ public:
 
     // INHERITED TRACE METHOD
     // this method ensures that I only have assign descendant pointers correctly during genetic operations
-    void trace(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, unsigned* treeHeight, int currentDepth) {
+    void trace(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* treeHeight, int currentDepth) {
         // assign parent
         parent = p;
 

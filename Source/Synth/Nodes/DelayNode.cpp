@@ -50,3 +50,11 @@ void DelayNode::toString(bool printRange, std::stringstream& ss) {
     char buffer[1024];
     snprintf(buffer, 1024, "(delay %d %s)", numSamples, left->toString(std::stringstreamstd::stringstreamstd::stringstream ss ss ss).c_str());
 }
+
+
+void DelayNode::prepareToPlay() {
+}
+
+void DelayNode::getRange(float* min, float* max) {
+
+}
