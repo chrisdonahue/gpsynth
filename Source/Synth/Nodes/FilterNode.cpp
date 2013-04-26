@@ -11,9 +11,9 @@
 #include "FilterNode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 FilterNode::FilterNode(char* t, unsigned o, unsigned fpc, double sr, int vn, GPMutatableParam* cfmultmin, GPMutatableParam* cfmultmax, GPMutatableParam* bwq, GPNode* signal, GPNode* center) :
@@ -55,8 +55,18 @@ FilterNode::~FilterNode() {
     delete filter;
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 FilterNode* FilterNode::getCopy() {
     return new FilterNode(type, order, fadeParameterChanges, sampleRate, variableNum, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy(), NULL);
+}
+
+void FilterNode::prepareToPlay() {
+
 }
 
 void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -148,8 +158,20 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     free(cfbuffer);
 }
 
+void FilterNode::getRange(float* min, float* max) {
+
+}
+
 void FilterNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
 
+}
+
+void FilterNode::updateMutatedParams() {
+    fillFromParams();
+
+    // call on descendants
+    descendants[0]->updateMutatedParams();
+    descendants[1]->updateMutatedParams();
 }
 
 void FilterNode::toString(bool printRange, std::stringstream& ss) {
@@ -167,6 +189,12 @@ void FilterNode::toString(bool printRange, std::stringstream& ss) {
     ss << ")";
 }
 
+/*
+    ==============
+    CLASS SPECIFIC
+    ==============
+*/
+
 void FilterNode::fillFromParams() {
     // update mutated params
     centerFrequencyMultiplierMin = mutatableParams[0]->getValue();
@@ -176,20 +204,4 @@ void FilterNode::fillFromParams() {
         centerFrequencyMultiplierMax = centerFrequencyMultiplierMin;
     }
     bandwidthQuality = mutatableParams[2]->getValue();
-}
-
-void FilterNode::updateMutatedParams() {
-    fillFromParams();
-
-    // call on descendants
-    descendants[0]->updateMutatedParams();
-    descendants[1]->updateMutatedParams();
-}
-
-
-void FilterNode::prepareToPlay() {
-}
-
-void FilterNode::getRange(float* min, float* max) {
-
 }

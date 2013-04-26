@@ -11,9 +11,9 @@
 #include "SplineNode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 SplineNode::SplineNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
@@ -51,6 +51,12 @@ SplineNode::~SplineNode() {
     }
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 SplineNode* SplineNode::getCopy() {
     if (terminalSpline) {
         return new SplineNode(storeBuffer, terminalSpline, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
@@ -58,6 +64,10 @@ SplineNode* SplineNode::getCopy() {
     else {
         return new SplineNode(storeBuffer, terminalSpline, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     }
+}
+
+void SplineNode::prepareToPlay() {
+
 }
 
 void SplineNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -240,28 +250,15 @@ void SplineNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, fl
     }
 }
 
-inline float SplineNode::getEnvelopeValue(unsigned fn) {
-    unsigned framesFilled = 0;
-    float ret = 0.0;
-    if (fn < delayFrames) {
-        ret = 0.0;
-    }
-    else if (fn < attackFrames) {
-        ret = ((fn - delayFrames) / float(attackFrames - delayFrames)) * attackheight;
-    }
-    else if (fn < decayFrames) {
-        ret = attackheight - (((fn - attackFrames) / float(decayFrames - attackFrames)) * (attackheight - sustainheight));
-    }
-    else if (fn < sustainFrames) {
-        ret = sustainheight;
-    }
-    else if (fn < releaseFrames) {
-        ret = sustainheight - (((fn - sustainFrames) / float(releaseFrames - sustainFrames)) * (sustainheight));
-    }
-    else {
-        ret = 0.0;
-    }
-    return ret;
+void SplineNode::getRange(float* min, float* max) {
+
+}
+
+void SplineNode::updateMutatedParams() {
+    fillFromParams();
+
+    if (!terminalSpline)
+        descendants[0]->updateMutatedParams();
 }
 
 void SplineNode::toString(bool printRange, std::stringstream& ss) {
@@ -276,6 +273,12 @@ void SplineNode::toString(bool printRange, std::stringstream& ss) {
     }
     ss << ")";
 }
+
+/*
+    ==============
+    CLASS SPECIFIC
+    ==============
+*/
 
 void SplineNode::fillFromParams() {
     delay = mutatableParams[0]->getValue();
@@ -353,17 +356,26 @@ void SplineNode::fillFromParams() {
     }
 }
 
-void SplineNode::updateMutatedParams() {
-    fillFromParams();
-
-    if (!terminalSpline)
-        descendants[0]->updateMutatedParams();
-}
-
-
-void SplineNode::prepareToPlay() {
-}
-
-void SplineNode::getRange(float* min, float* max) {
-
+inline float SplineNode::getEnvelopeValue(unsigned fn) {
+    unsigned framesFilled = 0;
+    float ret = 0.0;
+    if (fn < delayFrames) {
+        ret = 0.0;
+    }
+    else if (fn < attackFrames) {
+        ret = ((fn - delayFrames) / float(attackFrames - delayFrames)) * attackheight;
+    }
+    else if (fn < decayFrames) {
+        ret = attackheight - (((fn - attackFrames) / float(decayFrames - attackFrames)) * (attackheight - sustainheight));
+    }
+    else if (fn < sustainFrames) {
+        ret = sustainheight;
+    }
+    else if (fn < releaseFrames) {
+        ret = sustainheight - (((fn - sustainFrames) / float(releaseFrames - sustainFrames)) * (sustainheight));
+    }
+    else {
+        ret = 0.0;
+    }
+    return ret;
 }

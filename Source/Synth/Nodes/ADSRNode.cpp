@@ -11,9 +11,9 @@
 #include "ADSRNode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
@@ -51,6 +51,12 @@ ADSRNode::~ADSRNode() {
     }
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 ADSRNode* ADSRNode::getCopy() {
     if (terminalADSR) {
         return new ADSRNode(storeBuffer, terminalADSR, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
@@ -58,6 +64,10 @@ ADSRNode* ADSRNode::getCopy() {
     else {
         return new ADSRNode(storeBuffer, terminalADSR, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     }
+}
+
+void ADSRNode::prepareToPlay() {
+
 }
 
 void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -240,28 +250,15 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
     }
 }
 
-inline float ADSRNode::getEnvelopeValue(unsigned fn) {
-    unsigned framesFilled = 0;
-    float ret = 0.0;
-    if (fn < delayFrames) {
-        ret = 0.0;
-    }
-    else if (fn < attackFrames) {
-        ret = ((fn - delayFrames) / float(attackFrames - delayFrames)) * attackheight;
-    }
-    else if (fn < decayFrames) {
-        ret = attackheight - (((fn - attackFrames) / float(decayFrames - attackFrames)) * (attackheight - sustainheight));
-    }
-    else if (fn < sustainFrames) {
-        ret = sustainheight;
-    }
-    else if (fn < releaseFrames) {
-        ret = sustainheight - (((fn - sustainFrames) / float(releaseFrames - sustainFrames)) * (sustainheight));
-    }
-    else {
-        ret = 0.0;
-    }
-    return ret;
+void ADSRNode::getRange(float* min, float* max) {
+
+}
+
+void ADSRNode::updateMutatedParams() {
+    fillFromParams();
+
+    if (!terminalADSR)
+        descendants[0]->updateMutatedParams();
 }
 
 void ADSRNode::toString(bool printRange, std::stringstream& ss) {
@@ -276,6 +273,12 @@ void ADSRNode::toString(bool printRange, std::stringstream& ss) {
     }
     ss << ")";
 }
+
+/*
+    ==============
+    CLASS SPECIFIC
+    ==============
+*/
 
 void ADSRNode::fillFromParams() {
     delay = mutatableParams[0]->getValue();
@@ -353,16 +356,28 @@ void ADSRNode::fillFromParams() {
     }
 }
 
-void ADSRNode::updateMutatedParams() {
-    fillFromParams();
-
-    if (!terminalADSR)
-        descendants[0]->updateMutatedParams();
+inline float ADSRNode::getEnvelopeValue(unsigned fn) {
+    unsigned framesFilled = 0;
+    float ret = 0.0;
+    if (fn < delayFrames) {
+        ret = 0.0;
+    }
+    else if (fn < attackFrames) {
+        ret = ((fn - delayFrames) / float(attackFrames - delayFrames)) * attackheight;
+    }
+    else if (fn < decayFrames) {
+        ret = attackheight - (((fn - attackFrames) / float(decayFrames - attackFrames)) * (attackheight - sustainheight));
+    }
+    else if (fn < sustainFrames) {
+        ret = sustainheight;
+    }
+    else if (fn < releaseFrames) {
+        ret = sustainheight - (((fn - sustainFrames) / float(releaseFrames - sustainFrames)) * (sustainheight));
+    }
+    else {
+        ret = 0.0;
+    }
+    return ret;
 }
 
-void ADSRNode::prepareToPlay() {
-}
 
-void ADSRNode::getRange(float* min, float* max) {
-
-}

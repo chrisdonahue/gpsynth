@@ -11,9 +11,9 @@
 #include "NoiseNode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 NoiseNode::NoiseNode(GPRandom* r) {
@@ -23,8 +23,18 @@ NoiseNode::NoiseNode(GPRandom* r) {
 NoiseNode::~NoiseNode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 NoiseNode* NoiseNode::getCopy() {
     return new NoiseNode(rng);
+}
+
+void NoiseNode::prepareToPlay() {
+
 }
 
 void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -62,6 +72,24 @@ void NoiseNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, flo
 
 }
 
+void NoiseNode::getRange(float* min, float* max) {
+
+}
+
+void NoiseNode::updateMutatedParams() {
+}
+
+void NoiseNode::toString(bool printRange, std::stringstream& ss) {
+	printRange;
+    ss << "(whitenoise)";
+}
+
+/*
+    ==============
+    CLASS SPECIFIC
+    ==============
+*/
+
 /*
     http://musicdsp.org/showArchiveComment.php?ArchiveID=216
 */
@@ -78,20 +106,4 @@ void NoiseNode::whitenoise(
         *_fpDstBuffer++ = g_x2 * _fLevel;
         g_x2 += g_x1;
     }
-}
-
-void NoiseNode::toString(bool printRange, std::stringstream& ss) {
-	printRange;
-    ss << "(whitenoise)";
-}
-
-void NoiseNode::updateMutatedParams() {
-}
-
-
-void NoiseNode::prepareToPlay() {
-}
-
-void NoiseNode::getRange(float* min, float* max) {
-
 }

@@ -11,9 +11,9 @@
 #include "LFONode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 LFONode::LFONode(GPMutatableParam* f) {
@@ -35,11 +35,21 @@ LFONode::LFONode(GPMutatableParam* f) {
 LFONode::~LFONode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 LFONode* LFONode::getCopy() {
     if (terminalOscil)
         return new LFONode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, NULL, NULL);
     else
         return new LFONode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+}
+
+void LFONode::prepareToPlay() {
+
 }
 
 void LFONode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -85,6 +95,20 @@ void LFONode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float
     }
 }
 
+void LFONode::getRange(float* min, float* max) {
+
+}
+
+void LFONode::updateMutatedParams() {
+    partial = mutatableParams[0]->getDValue();
+    w = 2.0 * M_PI * partial;
+
+    if (!terminalOscil) {
+        index = mutatableParams[1]->getCValue();
+        descendants[0]->updateMutatedParams();
+    }
+}
+
 void LFONode::toString(bool printRange, std::stringstream& ss) {
     if (terminalOscil) {
         ss << "(osc p";
@@ -100,21 +124,4 @@ void LFONode::toString(bool printRange, std::stringstream& ss) {
         descendants[0]->toString(printRange, ss);
         ss << ")";
     }
-}
-
-void LFONode::updateMutatedParams() {
-    partial = mutatableParams[0]->getDValue();
-    w = 2.0 * M_PI * partial;
-
-    if (!terminalOscil) {
-        index = mutatableParams[1]->getCValue();
-        descendants[0]->updateMutatedParams();
-    }
-}
-
-void LFONode::prepareToPlay() {
-}
-
-void LFONode::getRange(float* min, float* max) {
-
 }

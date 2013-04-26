@@ -10,6 +10,12 @@
 
 #include "VariableNode.h"
 
+/*
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
+*/
+
 VariableNode::VariableNode(int vn, double min, double max) {
     variableNum = vn;
 
@@ -20,8 +26,18 @@ VariableNode::VariableNode(int vn, double min, double max) {
 VariableNode::~VariableNode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 VariableNode* VariableNode::getCopy() {
     return new VariableNode(variableNum, minimum, maximum);
+}
+
+void VariableNode::prepareToPlay() {
+
 }
 
 void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -40,19 +56,16 @@ void VariableNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, 
 
 }
 
+void VariableNode::getRange(float* min, float* max) {
+
+}
+
+void VariableNode::updateMutatedParams() {
+
+}
+
 void VariableNode::toString(bool printRange, std::stringstream& ss) {
 	if (printRange) {
         ss << "(v" << variableNum << ")";
     }
-}
-
-void VariableNode::updateMutatedParams() {
-}
-
-
-void VariableNode::prepareToPlay() {
-}
-
-void VariableNode::getRange(float* min, float* max) {
-
 }

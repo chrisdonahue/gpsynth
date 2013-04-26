@@ -11,9 +11,9 @@
 #include "OscilNode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 OscilNode::OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod) {
@@ -36,11 +36,21 @@ OscilNode::OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatablePara
 OscilNode::~OscilNode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 OscilNode* OscilNode::getCopy() {
     if (terminalOscil)
         return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, NULL, NULL);
     else
         return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+}
+
+void OscilNode::prepareToPlay() {
+
 }
 
 void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -86,6 +96,20 @@ void OscilNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, flo
     }
 }
 
+void OscilNode::getRange(float* min, float* max) {
+
+}
+
+void OscilNode::updateMutatedParams() {
+    partial = mutatableParams[0]->getDValue();
+    w = 2.0 * M_PI * partial;
+
+    if (!terminalOscil) {
+        index = mutatableParams[1]->getCValue();
+        descendants[0]->updateMutatedParams();
+    }
+}
+
 void OscilNode::toString(bool printRange, std::stringstream& ss) {
     if (terminalOscil) {
         ss << "(osc p";
@@ -101,22 +125,4 @@ void OscilNode::toString(bool printRange, std::stringstream& ss) {
         descendants[0]->toString(printRange, ss);
         ss << ")";
     }
-}
-
-void OscilNode::updateMutatedParams() {
-    partial = mutatableParams[0]->getDValue();
-    w = 2.0 * M_PI * partial;
-
-    if (!terminalOscil) {
-        index = mutatableParams[1]->getCValue();
-        descendants[0]->updateMutatedParams();
-    }
-}
-
-
-void OscilNode::prepareToPlay() {
-}
-
-void OscilNode::getRange(float* min, float* max) {
-
 }

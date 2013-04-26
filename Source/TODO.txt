@@ -72,6 +72,8 @@ TODO long run:
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
+    probably remove getRange() and just have it return minimum/maximum set by constructors
+    update H files to correspond to new CPP for node subclasses
     test random
     test numerical mutation
     figure out why simple average fitness function seems to work the best

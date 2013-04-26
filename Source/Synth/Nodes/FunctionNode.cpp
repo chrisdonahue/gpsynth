@@ -11,9 +11,9 @@
 #include "FunctionNode.h"
 
 /*
-    ==============
-    PUBLIC METHODS
-    ==============
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
 */
 
 FunctionNode::FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one) {
@@ -33,9 +33,19 @@ FunctionNode::FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one) {
 FunctionNode::~FunctionNode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 FunctionNode* FunctionNode::getCopy() {
     FunctionNode* ret = new FunctionNode(gpfunction, descendants[0] == NULL ? NULL : descendants[0]->getCopy(), descendants[1] == NULL ? NULL : descendants[1]->getCopy());
     return ret;
+}
+
+void FunctionNode::prepareToPlay() {
+
 }
 
 void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -65,6 +75,10 @@ void FunctionNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, 
 
 }
 
+void FunctionNode::getRange(float* min, float* max) {
+
+}
+
 void FunctionNode::toString(bool printRange, std::stringstream& ss) {
     ss << "(" << gpfunction.symbol;
     for (unsigned i = 0; i < arity; i++) {
@@ -78,12 +92,4 @@ void FunctionNode::updateMutatedParams() {
     descendants[0]->updateMutatedParams();
     if (arity == 2)
         descendants[1]->updateMutatedParams();
-}
-
-
-void FunctionNode::prepareToPlay() {
-}
-
-void FunctionNode::getRange(float* min, float* max) {
-
 }

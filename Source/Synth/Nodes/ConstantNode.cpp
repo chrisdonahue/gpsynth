@@ -10,6 +10,12 @@
 
 #include "ConstantNode.h"
 
+/*
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
+*/
+
 ConstantNode::ConstantNode(GPMutatableParam* v) {
     value = v->getValue();
     mutatableParams.push_back(v);
@@ -21,8 +27,17 @@ ConstantNode::ConstantNode(GPMutatableParam* v) {
 ConstantNode::~ConstantNode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 ConstantNode* ConstantNode::getCopy() {
     return new ConstantNode(mutatableParams[0]->getCopy());
+}
+
+void ConstantNode::prepareToPlay() {
 }
 
 void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -49,6 +64,14 @@ void ConstantNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, 
     }
 }
 
+void ConstantNode::getRange(float* min, float* max) {
+
+}
+
+void ConstantNode::updateMutatedParams() {
+    value = mutatableParams[0]->getValue();
+}
+
 void ConstantNode::toString(bool printRange, std::stringstream& ss) {
     if (value == M_PI) {
         ss << "(pi)";
@@ -58,16 +81,4 @@ void ConstantNode::toString(bool printRange, std::stringstream& ss) {
         mutatableParams[0]->toString(printRange, ss);
         ss << ")";
     }
-}
-
-void ConstantNode::updateMutatedParams() {
-    value = mutatableParams[0]->getValue();
-}
-
-
-void ConstantNode::prepareToPlay() {
-}
-
-void ConstantNode::getRange(float* min, float* max) {
-
 }

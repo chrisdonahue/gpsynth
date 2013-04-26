@@ -10,14 +10,30 @@
 
 #include "TimeNode.h"
 
+/*
+    ========================
+    CONSTRUCTION/DESTRUCTION
+    ========================
+*/
+
 TimeNode::TimeNode() {
 }
 
 TimeNode::~TimeNode() {
 }
 
+/*
+    =========
+    OVERRIDES
+    =========
+*/
+
 TimeNode* TimeNode::getCopy() {
     return new TimeNode();
+}
+
+void TimeNode::prepareToPlay() {
+
 }
 
 void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -35,17 +51,15 @@ void TimeNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
 
 }
 
-void TimeNode::toString(bool printRange, std::stringstream& ss) {
-	printRange;
-    ss << "(time)";
+void TimeNode::getRange(float* min, float* max) {
+
 }
 
 void TimeNode::updateMutatedParams() {
+
 }
 
-void TimeNode::prepareToPlay() {
-}
-
-void TimeNode::getRange(float* min, float* max) {
-
+void TimeNode::toString(bool printRange, std::stringstream& ss) {
+	printRange;
+    ss << "(time)";
 }
