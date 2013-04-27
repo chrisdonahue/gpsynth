@@ -75,7 +75,7 @@ void FunctionNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, 
 
 }
 
-void FunctionNode::getRange(float* min, float* max) {
+void FunctionNode::getRangeTemp(float* min, float* max) {
 
 }
 

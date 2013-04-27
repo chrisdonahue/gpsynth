@@ -96,7 +96,7 @@ void OscilNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, flo
     }
 }
 
-void OscilNode::getRange(float* min, float* max) {
+void OscilNode::getRangeTemp(float* min, float* max) {
 
 }
 

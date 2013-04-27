@@ -250,7 +250,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
     }
 }
 
-void ADSRNode::getRange(float* min, float* max) {
+void ADSRNode::getRangeTemp(float* min, float* max) {
 
 }
 

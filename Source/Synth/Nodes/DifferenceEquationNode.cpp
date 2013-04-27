@@ -151,6 +151,6 @@ void DifferenceEquationNode::updateMutatedParams() {
 void DifferenceEquationNode::prepareToPlay() {
 }
 
-void DifferenceEquationNode::getRange(float* min, float* max) {
+void DifferenceEquationNode::getRangeTemp(float* min, float* max) {
 
 }

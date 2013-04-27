@@ -158,7 +158,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     free(cfbuffer);
 }
 
-void FilterNode::getRange(float* min, float* max) {
+void FilterNode::getRangeTemp(float* min, float* max) {
 
 }
 

@@ -51,7 +51,7 @@ void TimeNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
 
 }
 
-void TimeNode::getRange(float* min, float* max) {
+void TimeNode::getRangeTemp(float* min, float* max) {
 
 }
 

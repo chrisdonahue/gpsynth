@@ -95,7 +95,7 @@ void LFONode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float
     }
 }
 
-void LFONode::getRange(float* min, float* max) {
+void LFONode::getRangeTemp(float* min, float* max) {
 
 }
 

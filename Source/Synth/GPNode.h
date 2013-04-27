@@ -43,7 +43,7 @@ public:
     virtual void prepareToPlay() = 0;
     virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
 	virtual void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) = 0;
-    virtual void getRange(float* min, float* max) = 0;
+    virtual void getRangeTemp(float* min, float* max) = 0;
     virtual void updateMutatedParams() = 0;
     virtual void toString(bool printRange, std::stringstream& ss) = 0;
 
@@ -57,6 +57,13 @@ public:
 
     // MUTATABLE PARAMS
     std::vector<GPMutatableParam*> mutatableParams;
+    float minimum;
+    float maximum;
+
+    void getRange(float* min, float* max) {
+        *min = minimum;
+        *max = maximum;
+    };
 
     // PROPOGATE EPHEMERAL RANDOM CONSTANTS
     void ephemeralRandom(GPRandom* r) {

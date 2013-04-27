@@ -72,7 +72,7 @@ void NoiseNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, flo
 
 }
 
-void NoiseNode::getRange(float* min, float* max) {
+void NoiseNode::getRangeTemp(float* min, float* max) {
 
 }
 

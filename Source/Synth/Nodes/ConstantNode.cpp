@@ -64,7 +64,7 @@ void ConstantNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, 
     }
 }
 
-void ConstantNode::getRange(float* min, float* max) {
+void ConstantNode::getRangeTemp(float* min, float* max) {
 
 }
 
