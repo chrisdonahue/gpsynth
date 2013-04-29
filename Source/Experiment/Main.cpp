@@ -129,6 +129,9 @@ public:
         params->valueNodeMinimum = -1.0;
         params->valueNodeMaximum = 1.0;
 
+        // time node params
+        params->timeNodeMaxSeconds = 10.0;
+
         // oscil node params
         params->oscilNodeMaxPartial = 30;
         params->oscilNodeMinIndexOfModulation = 0.0;

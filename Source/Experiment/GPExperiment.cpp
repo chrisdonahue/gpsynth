@@ -432,6 +432,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
         }
     }
+    params->timeNodeMaxSeconds = (float) sampleTimes[numTargetFrames - 1];
 
     // FILL ENVELOPE OF TARGET BUFFER
     targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);

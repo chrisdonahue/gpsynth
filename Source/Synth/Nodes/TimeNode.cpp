@@ -16,7 +16,8 @@
     ========================
 */
 
-TimeNode::TimeNode() {
+TimeNode::TimeNode(GPMutatableParam* tmax) {
+    mutatableParams.push_back(tmax);
 }
 
 TimeNode::~TimeNode() {
@@ -29,7 +30,7 @@ TimeNode::~TimeNode() {
 */
 
 TimeNode* TimeNode::getCopy() {
-    return new TimeNode();
+    return new TimeNode(mutatableParams[0]->getCopy());
 }
 
 void TimeNode::prepareToPlay() {
@@ -40,7 +41,7 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 	v;
 	nv;
 	fn;
-	max;
+	*max = maximum;
     *min = 0;
     for (unsigned i = 0; i < n; i++) {
         buffer[i] = t[i];
@@ -56,7 +57,7 @@ void TimeNode::getRangeTemp(float* min, float* max) {
 }
 
 void TimeNode::updateMutatedParams() {
-
+    maximum = mutatableParams[0]->getValue();
 }
 
 void TimeNode::toString(bool printRange, std::stringstream& ss) {

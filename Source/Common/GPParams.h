@@ -88,6 +88,9 @@ struct GPParams {
     double valueNodeMinimum;
     double valueNodeMaximum;
 
+    // time node
+    float timeNodeMaxSeconds;
+
     // oscil node
     unsigned oscilNodeMaxPartial;
     double oscilNodeMinIndexOfModulation;

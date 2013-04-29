@@ -185,7 +185,7 @@ GPNode* createSubtree(GPParams* p, double sr, char* tokenized=strtok(NULL, " )("
     }
     // TIME NODE
     else if (strcmp(t, "time") == 0) {
-        return new TimeNode();
+        return new TimeNode(createMutatableParam());
     }
     // VARIABLE NODE
     else if (strncmp(t, "v", 1) == 0) {

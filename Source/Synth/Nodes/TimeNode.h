@@ -15,7 +15,7 @@
 
 class TimeNode: public GPNode {
 public:
-    TimeNode();
+    TimeNode(GPMutatableParam* tmax);
     ~TimeNode();
 
 	// overrides
