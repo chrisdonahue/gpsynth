@@ -329,6 +329,7 @@ GPExperiment::~GPExperiment() {
 
 GPNetwork* GPExperiment::evolve() {
     GPNetwork* champ = NULL;
+    unsigned champGeneration = 0;
     GPNetwork* generationChamp = NULL;
     int numEvaluated = 0;
     int numUnevaluatedThisGeneration = 0;
@@ -363,6 +364,7 @@ GPNetwork* GPExperiment::evolve() {
             champ = candidate->getCopy(candidate->origin);
             champ->ID = backupID;
             champ->fitness = minFitnessAchieved;
+            champGeneration = numEvaluatedGenerations;
         }
 
         numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
@@ -401,7 +403,7 @@ GPNetwork* GPExperiment::evolve() {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->traceNetwork();
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
-        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " with network " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
+        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champGeneration << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
         snprintf(buffer, 100, "%d.champion.wav", seed);
         saveWavFile(savePath + String(buffer), String(champ->toString(false, params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);

@@ -240,7 +240,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with structure " << champ->toString(true, params->savePrecision) << std::endl;
+    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with height " << champ->height << " and structure " << champ->toString(true, params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -420,7 +420,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
         // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
-            std::cout << "Algorithm " << net->ID << " with height " << net->height << " and structure " << net->toString(false, params->printPrecision) << " was reproduced from algorithm " << oldID << " from last generation." << std::endl;
+            std::cout << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << net->toString(false, params->printPrecision) << " which was algorithm " << oldID << " from the previous generation." << std::endl;
         assignFitness(net, net->fitness);
     }
     else {
