@@ -16,11 +16,10 @@
     ========================
 */
 
-VariableNode::VariableNode(int vn, double min, double max) {
+VariableNode::VariableNode(int vn, GPMutatableParam* range) {
     variableNum = vn;
 
-    minimum = min;
-    maximum = max;
+    mutatableParams.push_back(range);
 
     arity = 0;
 }
@@ -35,7 +34,7 @@ VariableNode::~VariableNode() {
 */
 
 VariableNode* VariableNode::getCopy() {
-    return new VariableNode(variableNum, minimum, maximum);
+    return new VariableNode(variableNum, mutatableParams[0]->getCopy());
 }
 
 void VariableNode::prepareToPlay() {
@@ -63,11 +62,14 @@ void VariableNode::getRangeTemp(float* min, float* max) {
 }
 
 void VariableNode::updateMutatedParams() {
-
+    minimum = mutatableParams[0]->getCMin();
+    maximum = mutatableParams[0]->getCMax();
 }
 
 void VariableNode::toString(bool printRange, std::stringstream& ss) {
 	if (printRange) {
-        ss << "(v" << variableNum << ")";
+        ss << "(v " << variableNum;
+        mutatableParams[0]->toString(printRange, ss);
+        ss << ")";
     }
 }

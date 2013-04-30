@@ -51,9 +51,6 @@ private:
     unsigned releaseFrames;
     double attackheight;
     double sustainheight;
-
-    double minimum;
-    double maximum;
 };
 
 #endif

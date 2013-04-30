@@ -16,14 +16,21 @@
     ========================
 */
 
-ConstantNode::ConstantNode(GPMutatableParam* v) {
-    value = v->getValue();
+ConstantNode::ConstantNode(bool terminal, GPMutatableParam* v, GPNode* signal) {
+	terminalConstant = terminal;
+    
     mutatableParams.push_back(v);
 
-    minimum = v->getMin();
-    maximum = v->getMax();
+	if (terminalConstant) {
+    	arity = 0;
+   	}
+  	else {
+  		arity = 1;
+  		descendants.push_back(signal);
+  	}
 
-    arity = 0;
+    minimum = v->getCMin();
+    maximum = v->getCMax();
 }
 
 ConstantNode::~ConstantNode() {
@@ -36,34 +43,61 @@ ConstantNode::~ConstantNode() {
 */
 
 ConstantNode* ConstantNode::getCopy() {
-    return new ConstantNode(mutatableParams[0]->getCopy());
+	if (terminalConstant) {
+    	return new ConstantNode(terminalConstant, mutatableParams[0]->getCopy(), NULL);
+    }
+    else {
+    	return new ConstantNode(terminalConstant, mutatableParams[0]->getCopy(), descendants[0]->getCopy());
+    }
 }
 
 void ConstantNode::prepareToPlay() {
 }
 
 void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
+	// use unused variables
 	v;
 	nv;
 	t;
 	fn;
-    *min = minimum;
-    *max = maximum;
-    for (unsigned i = 0; i < n; i++) {
-        buffer[i] = value;
-    }
+	
+	// if this is a leaf constant
+	if (terminalConstant) {
+		for (unsigned i = 0; i < n; i++) {
+		    buffer[i] = value;
+		}
+	}
+	// if this is an enveloping constant
+	else {
+		descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
+		for (unsigned i = 0; i < n; i++) {
+			buffer[i] *= value;
+		}
+	}
+	*min = minimum;
+	*max = maximum;
 }
 
 void ConstantNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-	v;
-	nv;
-	t;
-	fn;
-    *min = minimum;
-    *max = maximum;
-    for (unsigned i = 0; i < n; i++) {
-        buffer[i] = value;
-    }
+	// use unused variables
+	firstFrameNumber;
+	sampleTimes;
+	numConstantVariables;
+	constantVariables;
+
+	// if this is a leaf constant	
+	if (terminalConstant) {
+		for (unsigned i = 0; i < numSamples; i++) {
+		    buffer[i] = value;
+		}
+	}
+	// if this is an enveloping constant
+	else {
+		descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
+		for (unsigned i = 0; i < numSamples; i++) {
+			buffer[i] *= value;
+		}
+	}
 }
 
 void ConstantNode::getRangeTemp(float* min, float* max) {
@@ -71,16 +105,40 @@ void ConstantNode::getRangeTemp(float* min, float* max) {
 }
 
 void ConstantNode::updateMutatedParams() {
-    value = mutatableParams[0]->getValue();
+    value = mutatableParams[0]->getCValue();
+    if (terminalConstant) {
+		minimum = mutatableParams[0]->getCMin();
+		maximum = mutatableParams[0]->getCMax();
+	}
+	else {
+        descendants[0]->updateMutatedParams();
+        intervalMultiply(&minimum, &maximum, mutatableParams[0]->getCMin(), mutatableParams[0]->getCMax(), descendants[0]->minimum, descendants[0]->maximum);
+	}
 }
 
 void ConstantNode::toString(bool printRange, std::stringstream& ss) {
     if (value == M_PI) {
-        ss << "(pi)";
+    	if (terminalConstant) {
+        	ss << "(pi";
+        }
+        else {
+			ss << "(pi* ";
+        	descendants[0]->toString(printRange, ss);
+		}
+		ss << ")";
     }
     else {
-        ss << "(";
+    	if (terminalConstant) {
+        	ss << "(const ";
+       	}
+       	else {
+       		ss << "(const* ";
+       	}
         mutatableParams[0]->toString(printRange, ss);
+        if (!terminalConstant) {
+        	ss << " ";
+        	descendants[0]->toString(printRange, ss);
+        }
         ss << ")";
     }
 }

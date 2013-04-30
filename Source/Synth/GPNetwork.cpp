@@ -166,15 +166,24 @@ GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=str
     double centerConstant = 1;
     //std::cout << t << std::endl;
     // ADSR NODES
-    if (strcmp(t, "adsr*") == 0) {
+    if (strcmp(t, "adsr") == 0) {
+        return new ADSRNode(true, true, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), NULL);
+    }
+    else if (strcmp(t, "adsr*") == 0) {
         return new ADSRNode(false, false, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createSubtree(p, rng, sr));
     }
-    else if (strcmp(t, "adsr") == 0) {
-        return new ADSRNode(false, true, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), NULL);
-    }
-    // SPECIAL CONSTANT NODES
+    // CONSTANT NODE
     else if (strcmp(t, "pi") == 0) {
-        return new ConstantNode(new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant));
+        return new ConstantNode(true, new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant), NULL);
+    }
+    else if (strcmp(t, "pi*") == 0) {
+        return new ConstantNode(false, new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant), createSubtree(p, rng, sr));
+    }
+    else if (strcmp(t, "const") == 0) {
+        return new ConstantNode(true, createMutatableParam(), NULL);
+    }
+    else if (strcmp(t, "const*") == 0) {
+        return new ConstantNode(false, createMutatableParam(), createSubtree(p, rng, sr));
     }
     // FUNCTION NODES
     else if (strcmp(t, "+") == 0) {
@@ -203,10 +212,6 @@ GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=str
     }
     // VARIABLE NODE
     else if (strncmp(t, "v", 1) == 0) {
-        return new VariableNode(std::atoi(t + 1), 0.0, 0.0);
-    }
-    // REGULAR CONSTANT NODE
-    else {
-        return new ConstantNode(createMutatableParam());
+        return new VariableNode(std::atoi(t + 1), createMutatableParam());
     }
 }

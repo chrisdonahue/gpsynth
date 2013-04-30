@@ -190,28 +190,26 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 
 void ADSRNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     // if frame number is within the envelope
-    if (fn < framesInEnvelope)
+    if (firstFrameNumber < framesInEnvelope)
         releaseFinished = false;
     else
         releaseFinished = true;
 
     // if this is a terminal node
     if (terminalADSR) {
-        *min = minimum;
-        *max = maximum;
         if (!releaseFinished) {
-            if (fn + n > framesInEnvelope) {
-                for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
-                    buffer[i] = envelope[fn + i];
+            if (firstFrameNumber + numSamples > framesInEnvelope) {
+                for (unsigned i = 0; firstFrameNumber + i < framesInEnvelope; i++) {
+                    buffer[i] = envelope[firstFrameNumber + i];
                 }
-                for (unsigned i = framesInEnvelope - fn; i < n; i++) {
+                for (unsigned i = framesInEnvelope - firstFrameNumber; i < numSamples; i++) {
                     buffer[i] = 0.0;
                 }
                 releaseFinished = true;
             }
             else {
-                for (unsigned i = 0; i < n; i++) {
-                    buffer[i] = envelope[fn + i];
+                for (unsigned i = 0; i < numSamples; i++) {
+                    buffer[i] = envelope[firstFrameNumber + i];
                 }
             }
         }
@@ -220,29 +218,28 @@ void ADSRNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numS
     // TODO: slight enhancement would be to not evaluateBlock here if release finished
     else {
         descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
-        intervalMultiply(min, max, minimum, maximum, *min, *max);
         if (!releaseFinished) {
             // if ADSR hasn't finished releasing but will within these n frames
-            if (fn + n > framesInEnvelope) {
-                for (unsigned i = 0; fn + i < framesInEnvelope; i++) {
-                    buffer[i] = buffer[i] * envelope[fn + i];
+            if (firstFrameNumber + numSamples > framesInEnvelope) {
+                for (unsigned i = 0; firstFrameNumber + i < framesInEnvelope; i++) {
+                    buffer[i] = buffer[i] * envelope[firstFrameNumber + i];
                 }
-                for (unsigned i = framesInEnvelope - fn; i < n; i++) {
+                for (unsigned i = framesInEnvelope - firstFrameNumber; i < numSamples; i++) {
                     buffer[i] = 0.0;
                 }
                 releaseFinished = true;
             }
             // else if ADSR hasn't finished releasing and won't within n
             else {
-                for (unsigned i = 0; i < n; i++) {
-                    buffer[i] = buffer[i] * envelope[fn + i];
+                for (unsigned i = 0; i < numSamples; i++) {
+                    buffer[i] = buffer[i] * envelope[firstFrameNumber + i];
                 }
             }
         }
     }
     // else if ADSR has finished releasing for all n frames
     if (releaseFinished) {
-        for (unsigned i = 0; i < n; i++) {
+        for (unsigned i = 0; i < numSamples; i++) {
             buffer[i] = 0.0;
         }
     }
@@ -253,14 +250,37 @@ void ADSRNode::getRangeTemp(float* min, float* max) {
 }
 
 void ADSRNode::updateMutatedParams() {
-    fillFromParams();
-
-    if (!terminalADSR)
+	// get minimum value for attack or sustain
+    float minAttackHeight = mutatableParams[2]->getCMin();
+    if (mutatableParams[5]->getCMin() < minAttackHeight)
+    	minAttackHeight = mutatableParams[5]->getCMin();
+    
+    // get maximum value for attack or sustain
+    float maxAttackHeight = mutatableParams[2]->getCMax();
+    if (mutatableParams[5]->getCMax() > maxAttackHeight)
+    	maxAttackHeight = mutatableParams[5]->getCMax();
+    
+    // update min/max of terminal ADSR 
+    if (terminalADSR) {
+		minimum = minAttackHeight;
+		maximum = maxAttackHeight;
+	}
+	// update descendants and min/max of non-terminal ADSR
+	else {
         descendants[0]->updateMutatedParams();
+        intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
+	}
+
+    fillFromParams();
 }
 
 void ADSRNode::toString(bool printRange, std::stringstream& ss) {
-    ss << "(adsr";
+	if (terminalADSR) {
+	    ss << "(adsr";
+	}
+	else {
+		ss << "(adsr*";
+	}
     for (unsigned i = 0; i < mutatableParams.size(); i++) {
       ss << " ";
       mutatableParams[i]->toString(printRange, ss);
@@ -279,52 +299,28 @@ void ADSRNode::toString(bool printRange, std::stringstream& ss) {
 */
 
 void ADSRNode::fillFromParams() {
-    delay = mutatableParams[0]->getValue();
+	// update class values from mutatable params
+    delay = mutatableParams[0]->getCValue();
     delayFrames = delay * sampleRate;
 
-    attack = mutatableParams[1]->getValue();
+    attack = mutatableParams[1]->getCValue();
     attackFrames = delayFrames + attack * sampleRate;
-    attackheight = mutatableParams[2]->getValue();
+    attackheight = mutatableParams[2]->getCValue();
 
-    decay = mutatableParams[3]->getValue();
+    decay = mutatableParams[3]->getCValue();
     decayFrames = attackFrames + decay * sampleRate;
 
-    sustain = mutatableParams[4]->getValue();
+    sustain = mutatableParams[4]->getCValue();
     sustainFrames = decayFrames + sustain * sampleRate;
-    sustainheight = mutatableParams[5]->getValue();
+    sustainheight = mutatableParams[5]->getCValue();
 
-    release = mutatableParams[6]->getValue();
+    release = mutatableParams[6]->getCValue();
     releaseFrames = sustainFrames + release * sampleRate;
 
-    minimum = std::numeric_limits<double>::max();
-    maximum = std::numeric_limits<double>::min();
-
-    // calculate minimum
-    if (mutatableParams[2]->getMin() < minimum)
-	minimum = mutatableParams[2]->getMin();
-    if (mutatableParams[2]->getMax() < minimum)
-	minimum = mutatableParams[2]->getMax();
-    if (mutatableParams[5]->getMin() < minimum)
-	minimum = mutatableParams[5]->getMin();
-    if (mutatableParams[5]->getMax() < minimum)
-	minimum = mutatableParams[5]->getMax();
-    if (0 < minimum)
-	minimum = 0;
-
-    // calculate maximum
-    if (mutatableParams[2]->getMin() > maximum)
-	maximum = mutatableParams[2]->getMin();
-    if (mutatableParams[2]->getMax() > maximum)
-	maximum = mutatableParams[2]->getMax();
-    if (mutatableParams[5]->getMin() > maximum)
-	maximum = mutatableParams[5]->getMin();
-    if (mutatableParams[5]->getMax() > maximum)
-	minimum = mutatableParams[5]->getMax();
-    if (0 > maximum)
-	maximum = 0;
-
+	// calculate the length of the envelope in frames
     framesInEnvelope = (unsigned) (delay * sampleRate) + (unsigned) (attack * sampleRate) + (unsigned) (decay * sampleRate) + (unsigned) (sustain * sampleRate) + (unsigned) (release * sampleRate);
 
+	// if we are pre-rendering the buffer for efficiency do so here
     if (storeBuffer) {
         if (envelope != NULL)
             free(envelope);

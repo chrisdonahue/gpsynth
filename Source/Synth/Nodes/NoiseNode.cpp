@@ -18,7 +18,11 @@
 
 NoiseNode::NoiseNode(GPRandom* r) {
     rng = r;
+    
     arity = 0;
+    
+    minimum = -1;
+    maximum = 1;
 }
 
 NoiseNode::~NoiseNode() {
@@ -43,8 +47,8 @@ void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
 	nv;
 	t;
 
-    *min = -1;
-    *max = 1;
+    *min = minimum;
+    *max = maximum;
 
     if (fn == 0) {
         g_fScale = 2.0f / 0xffffffff;

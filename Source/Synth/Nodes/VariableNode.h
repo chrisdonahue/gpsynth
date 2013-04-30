@@ -15,7 +15,7 @@
 
 class VariableNode: public GPNode {
 public:
-    VariableNode(int vn, double min, double max);
+    VariableNode(int vn, GPMutatableParam* range);
     ~VariableNode();
 
 	// overrides
@@ -30,8 +30,6 @@ public:
 
 private:
     int variableNum;
-    double minimum;
-    double maximum;
 };
 
 #endif

@@ -15,7 +15,7 @@
 
 class ConstantNode: public GPNode {
 public:
-    ConstantNode(GPMutatableParam* v);
+    ConstantNode(bool terminal, GPMutatableParam* v, GPNode* signal);
     ~ConstantNode();
 
 	// overrides
@@ -28,9 +28,8 @@ public:
     void toString(bool printRange, std::stringstream& ss);
 
 private:
+	bool terminalConstant;
     double value;
-    double minimum;
-    double maximum;
 };
 
 #endif

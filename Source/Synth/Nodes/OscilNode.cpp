@@ -18,10 +18,7 @@
 
 OscilNode::OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod) {
     terminalOscil = terminal;
-    partial = p->getDValue();
     variableNum = vn;
-    w = 2.0 * M_PI * partial;
-    index = 0;
 
     mutatableParams.push_back(p);
 
@@ -29,12 +26,13 @@ OscilNode::OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatablePara
         arity = 0;
     }
     else {
-        index = i->getCValue();
         mutatableParams.push_back(i);
         descendants.push_back(mod);
         arity = 1;
     }
     
+    minimum = -1;
+    maximum = 1;   
 }
 
 OscilNode::~OscilNode() {
@@ -84,18 +82,16 @@ void OscilNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
     if (!terminalOscil) {
         descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
     }
-    *min = -1;
-    *max = 1;
     if (terminalOscil) {
-        for (unsigned i = 0; i < n; i++) {
+        for (unsigned i = 0; i < numSamples; i++) {
             // produce a sine wave at frequency *currentIndex * p
-            buffer[i] = sin(w * (t[i]) * (v[variableNum]));
+            buffer[i] = sin(w * (sampleTimes[i]) * (constantVariables[variableNum]));
         }
     }
     else {
-        for (unsigned i = 0; i < n; i++) {
+        for (unsigned i = 0; i < numSamples; i++) {
             // equivalent to chowning 1973 FM synthesis assuming buffer is a sine wave
-            buffer[i] = sin( (w * (t[i]) * (v[variableNum])) + (index * buffer[i]));
+            buffer[i] = sin( (w * (sampleTimes[i]) * (constantVariables[variableNum])) + (index * buffer[i]));
         }
     }
 }
@@ -105,13 +101,17 @@ void OscilNode::getRangeTemp(float* min, float* max) {
 }
 
 void OscilNode::updateMutatedParams() {
+	// update angular frequency constant
     partial = mutatableParams[0]->getDValue();
     w = 2.0 * M_PI * partial;
-
+	
+	// update index of modulation and descendant if this is an FM oscillator
     if (!terminalOscil) {
         index = mutatableParams[1]->getCValue();
         descendants[0]->updateMutatedParams();
     }
+    
+    // minimum/maximum constant and declared in constructor
 }
 
 void OscilNode::toString(bool printRange, std::stringstream& ss) {

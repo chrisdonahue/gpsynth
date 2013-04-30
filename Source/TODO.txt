@@ -52,7 +52,8 @@ Thoughts:
     Add spline to likely replace ADSR
     LFO nodes too
     Multiple variable nodes to population... replace v0 oscil node with frequency determined by child
-    make min/max stuff constant. dont have to set it every time... might not even need this
+    should variablenum in VariableNode be a mutatable param?
+    for fitness function, lower the average is on the frequency domain the better. probably want to do exponential moving average with like n/2 lookahead/behind in order to allow it to decrease towards the end to capture tiny partials
 
 TODO long run:
     calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
@@ -73,7 +74,6 @@ TODO long run:
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
-    fix ADSR printing
     create test suite to confirm that all primitives are working correctly
     move champ tracking to GPSynth not GPEXperiment
     probably remove getRange() and just have it return minimum/maximum set by constructors

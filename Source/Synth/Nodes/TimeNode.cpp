@@ -64,7 +64,7 @@ void TimeNode::updateMutatedParams() {
 
 void TimeNode::toString(bool printRange, std::stringstream& ss) {
 	printRange;
-    ss << "(time "
-    ss << mutatableParams[0]->toString(printRange, ss);
+    ss << "(time ";
+    mutatableParams[0]->toString(printRange, ss);
     ss << ")";
 }

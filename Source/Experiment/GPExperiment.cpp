@@ -101,7 +101,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new FunctionNode(add, NULL, NULL));
         nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new ConstantNode(constantValue->getCopy()));
+        nodes->push_back(new ConstantNode(true, constantValue->getCopy(), NULL));
         nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
         nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
         nodes->push_back(new NoiseNode(rng));
@@ -214,7 +214,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // filtered noise test
     if (params->experimentNumber == 5) {
         GPNode* noiseNode = new NoiseNode(rng);
-        GPNode* constantNode = new ConstantNode(constantValue->getCopy());
+        GPNode* constantNode = new ConstantNode(true, constantValue->getCopy(), NULL);
         //GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
         //GPNode* bandPass = new FilterNode(2, 3, 11000, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
         //GPNode* bandStop = new FilterNode(3, 3, 1024, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
@@ -262,7 +262,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ConstantNode(constantValue->getCopy()));
+        nodes->push_back(new ConstantNode(true, constantValue->getCopy(), NULL));
     }
 
     // SET FF-VARYING PARAMS FROM FITNESS FUNCTION
