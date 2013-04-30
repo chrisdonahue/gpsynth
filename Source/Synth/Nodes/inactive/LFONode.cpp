@@ -78,9 +78,9 @@ void LFONode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, doub
     }
 }
 
-void LFONode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void LFONode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     if (!terminalOscil) {
-        descendants[0]->evaluateBlockPerformance(fn, t, nv, v, min, max, n, buffer);
+        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
     }
     *min = -1;
     *max = 1;

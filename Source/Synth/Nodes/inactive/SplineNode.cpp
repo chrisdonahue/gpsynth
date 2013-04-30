@@ -190,7 +190,7 @@ void SplineNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     }
 }
 
-void SplineNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void SplineNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     // if frame number is within the envelope
     if (fn < framesInEnvelope)
         releaseFinished = false;
@@ -221,7 +221,7 @@ void SplineNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, fl
     // if this is not a terminal node
     // TODO: slight enhancement would be to not evaluateBlock here if release finished
     else {
-        descendants[0]->evaluateBlockPerformance(fn, t, nv, v, min, max, n, buffer);
+        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
         intervalMultiply(min, max, minimum, maximum, *min, *max);
         if (!releaseFinished) {
             // if Spline hasn't finished releasing but will within these n frames

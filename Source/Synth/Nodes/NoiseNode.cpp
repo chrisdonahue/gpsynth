@@ -69,7 +69,7 @@ void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
     */
 }
 
-void NoiseNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void NoiseNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
 
 }
 

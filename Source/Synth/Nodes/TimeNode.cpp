@@ -50,7 +50,7 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-void TimeNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void TimeNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
 
 }
 

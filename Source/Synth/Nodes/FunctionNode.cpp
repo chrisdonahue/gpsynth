@@ -71,7 +71,7 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
     }
 }
 
-void FunctionNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void FunctionNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
 
 }
 

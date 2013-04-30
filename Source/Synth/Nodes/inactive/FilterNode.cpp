@@ -163,7 +163,7 @@ void FilterNode::getRangeTemp(float* min, float* max) {
 
 }
 
-void FilterNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void FilterNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
 
 }
 

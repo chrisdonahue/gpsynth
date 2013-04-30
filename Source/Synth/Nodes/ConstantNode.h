@@ -22,7 +22,7 @@ public:
     ConstantNode* getCopy();
 	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-	void evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer);
+	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 	void getRangeTemp(float* min, float* max);
 	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);

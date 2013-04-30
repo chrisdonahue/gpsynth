@@ -41,8 +41,6 @@ ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, 
         arity = 1;
         descendants.push_back(signal);
     }
-
-    fillFromParams();
 }
 
 ADSRNode::~ADSRNode() {
@@ -190,7 +188,7 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
     }
 }
 
-void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, float* v, float* min, float* max, unsigned n, float* buffer) {
+void ADSRNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     // if frame number is within the envelope
     if (fn < framesInEnvelope)
         releaseFinished = false;
@@ -221,7 +219,7 @@ void ADSRNode::evaluateBlockPerformance(unsigned fn, float* t, unsigned nv, floa
     // if this is not a terminal node
     // TODO: slight enhancement would be to not evaluateBlock here if release finished
     else {
-        descendants[0]->evaluateBlockPerformance(fn, t, nv, v, min, max, n, buffer);
+        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
         intervalMultiply(min, max, minimum, maximum, *min, *max);
         if (!releaseFinished) {
             // if ADSR hasn't finished releasing but will within these n frames
