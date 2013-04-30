@@ -1,1 +1,11 @@
-What do you think of my idea to use an array-based representation of an expression tree in order to mutate trees?
+Only one clone of an individual should be reproduced into next gen
+PIPE evolutionary strategy
+MOSES
+Optimization algorithms:
+    Hill climbing
+    Floating point GA
+    Gradient descent
+    CMA-ES
+    Policy search
+Wesley Tansey
+Cooperative Coevolution
