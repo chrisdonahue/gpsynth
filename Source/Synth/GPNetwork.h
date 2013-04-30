@@ -23,7 +23,7 @@ class GPNetwork {
 public:
     // CONSTRUCTION
     GPNetwork(GPNode* r, std::string o);
-    GPNetwork(GPParams* p, double sr, std::string netstring);
+    GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstring);
     ~GPNetwork();
     GPNetwork* getCopy(std::string neworigin);
 
@@ -60,7 +60,7 @@ private:
     std::vector<GPMutatableParam*> allMutatableParams;
 };
 
-extern GPNode* createSubtree(GPParams* p, double sr, char* tokenized);
+extern GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized);
 extern GPMutatableParam* createMutatableParam(char* tokenized);
 
 #endif

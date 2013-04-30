@@ -116,14 +116,14 @@ void OscilNode::updateMutatedParams() {
 
 void OscilNode::toString(bool printRange, std::stringstream& ss) {
     if (terminalOscil) {
-        ss << "(osc p";
+        ss << "(osc ";
         mutatableParams[0]->toString(printRange, ss);
-        ss << " v" << variableNum << ")";
+        ss << " " << variableNum << ")";
     }
     else {
-        ss << "(fm p"; 
+        ss << "(fm "; 
         mutatableParams[0]->toString(printRange, ss);
-        ss << " v" << variableNum << " ";
+        ss << " " << variableNum << " ";
         mutatableParams[1]->toString(printRange, ss);
         ss << " ";
         descendants[0]->toString(printRange, ss);

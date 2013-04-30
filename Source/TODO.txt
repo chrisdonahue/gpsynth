@@ -73,6 +73,7 @@ TODO long run:
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
+    create test suite to confirm that all primitives are working correctly
     move champ tracking to GPSynth not GPEXperiment
     probably remove getRange() and just have it return minimum/maximum set by constructors
         change updateMutatedParams() to updateSubtree() which will:

@@ -23,7 +23,7 @@ GPNetwork::GPNetwork(GPNode* r, std::string o) :
 {
 }
 
-GPNetwork::GPNetwork(GPParams* p, double sr, std::string netstring) :
+GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstring) :
     ID(-1), origin("string"), height(-1), fitness(-1),
     minimum(-INFINITY), maximum(INFINITY),
     allNodes(0), allMutatableParams(0)
@@ -33,7 +33,7 @@ GPNetwork::GPNetwork(GPParams* p, double sr, std::string netstring) :
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
     std::copy(netstring.begin(), netstring.end(), expr);
     expr[netstring.size()] = '\0';
-    root = createSubtree(p, sr, strtok(expr, " )("));
+    root = createSubtree(p, rng, sr, strtok(expr, " )("));
     free(expr);
 }
 
@@ -138,7 +138,7 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->updateMutatedParams();
 }
 
-GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " {},")) {
+GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " }{")) {
     std::cout << "----" << std::endl;
     char* t = tokenized;
     std::cout << t << std::endl;
@@ -159,40 +159,53 @@ GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " {},")) {
 }
 
 // RECURSIVE CONSTRUCTION
-GPNode* createSubtree(GPParams* p, double sr, char* tokenized=strtok(NULL, " )(")) {
+GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=strtok(NULL, " )(")) {
     //std::cout << "----" << std::endl;
     char* t = tokenized;
+    // doesn't matter what this value is. just places it in the middle
     double centerConstant = 1;
     //std::cout << t << std::endl;
-    // FUNCTION NODES
-    if (strcmp(t, "+") == 0) {
-        return new FunctionNode(add, createSubtree(p, sr), createSubtree(p, sr));
-    }
-    else if (strcmp(t, "*") == 0) {
-        return new FunctionNode(multiply, createSubtree(p, sr), createSubtree(p, sr));
-    }
-    else if (strcmp(t, "sin") == 0) {
-        return new FunctionNode(sine, createSubtree(p, sr), NULL);
-    }
     // ADSR NODES
-    else if (strcmp(t, "adsr*") == 0) {
-        return new ADSRNode(false, false, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createSubtree(p, sr));
+    if (strcmp(t, "adsr*") == 0) {
+        return new ADSRNode(false, false, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createSubtree(p, rng, sr));
     }
     else if (strcmp(t, "adsr") == 0) {
         return new ADSRNode(false, true, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), NULL);
+    }
+    // SPECIAL CONSTANT NODES
+    else if (strcmp(t, "pi") == 0) {
+        return new ConstantNode(new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant));
+    }
+    // FUNCTION NODES
+    else if (strcmp(t, "+") == 0) {
+        return new FunctionNode(add, createSubtree(p, rng, sr), createSubtree(p, rng, sr));
+    }
+    else if (strcmp(t, "*") == 0) {
+        return new FunctionNode(multiply, createSubtree(p, rng, sr), createSubtree(p, rng, sr));
+    }
+    else if (strcmp(t, "sin") == 0) {
+        return new FunctionNode(sine, createSubtree(p, rng, sr), NULL);
     }
     // TIME NODE
     else if (strcmp(t, "time") == 0) {
         return new TimeNode(createMutatableParam());
     }
+    // NOISE NODE
+    else if (strcmp(t, "whitenoise") == 0) {
+        return new NoiseNode(rng);
+    }
+    // OSCIL NODE
+    else if (strcmp(t, "fm") == 0) {
+        return new OscilNode(false, createMutatableParam(), std::atoi(t + 2), createMutatableParam(), createSubtree(p, rng, sr));
+    }
+    else if (strcmp(t, "osc") == 0) {
+        return new OscilNode(true, createMutatableParam(), std::atoi(t + 2), NULL, NULL);
+    }
     // VARIABLE NODE
     else if (strncmp(t, "v", 1) == 0) {
         return new VariableNode(std::atoi(t + 1), 0.0, 0.0);
     }
-    // CONSTANT NODES
-    else if (strcmp(t, "pi") == 0) {
-        return new ConstantNode(new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant));
-    }
+    // REGULAR CONSTANT NODE
     else {
         return new ConstantNode(createMutatableParam());
     }
