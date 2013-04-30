@@ -31,9 +31,6 @@ FilterNode::FilterNode(char* t, unsigned o, unsigned fpc, double sr, int vn, GPM
     mutatableParams.push_back(cfmultmax);
     mutatableParams.push_back(bwq);
 
-    descendants.push_back(signal);
-    descendants.push_back(center);
-    arity = 2;
 
     if (strcmp(t, "lp") == 0) {
         
@@ -47,6 +44,10 @@ FilterNode::FilterNode(char* t, unsigned o, unsigned fpc, double sr, int vn, GPM
     else if (strcmp(t, "bs") == 0) {
     
     }
+
+    arity = 2;
+    descendants.push_back(signal);
+    descendants.push_back(center);
 
     fillFromParams();
 }

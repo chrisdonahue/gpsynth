@@ -18,6 +18,7 @@
 
 NoiseNode::NoiseNode(GPRandom* r) {
     rng = r;
+    arity = 0;
 }
 
 NoiseNode::~NoiseNode() {

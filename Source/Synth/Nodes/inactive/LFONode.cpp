@@ -24,11 +24,14 @@ LFONode::LFONode(GPMutatableParam* f) {
 
     mutatableParams.push_back(p);
 
-    if (!terminalOscil) {
+    if (terminalOscil) {
+        arity = 0;
+    }
+    else {
         index = i->getCValue();
         mutatableParams.push_back(i);
-        descendants.push_back(mod);
         arity = 1;
+        descendants.push_back(mod);
     }
 }
 

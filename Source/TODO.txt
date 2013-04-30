@@ -69,21 +69,24 @@ TODO long run:
     commandline flag --condorbackup which saves certain files only if seed == 0 or something
     try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
     exponential ADSR?
+    Get filters (simple) working again. Switch filter libs probably
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
     probably remove getRange() and just have it return minimum/maximum set by constructors
-    update H files to correspond to new CPP for node subclasses
+        change updateMutatedParams() to updateSubtree() which will:
+            update mutated params
+            update new min/max values from children
+        updateSubtree() will be called either in GPNetwork traceNetwork or in addNetworkToPopulation
+
+        when am i CALLING updateMutatedParams()?!
+            do I need to be calling it in addNetworkToPopulation? for mutation?
+        move all minimum maximum calculations to float and in updateParams()/fillFromParams()
+
     test random
-    test numerical mutation
+    test numerical mutation/consider CMAES
     figure out why simple average fitness function seems to work the best
-    fix time node
-    print new tag system in std::cerr and std::cout
-    move all minimum maximum calculations to float and in updateParams()/fillFromParams()
-    when am i CALLING updateMutatedParams()?!
-        do I need to be calling it in addNetworkToPopulation? for mutation?
     go through 4.24.13.b results iteratively and see what worked and what didnt. test a lot of instruments of a lot of different types on this to see what it can come up with.
     THESIS WORK
-    Get filters (simple) working again. Switch filter libs probably
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"

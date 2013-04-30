@@ -23,6 +23,8 @@ delayLine(n)
     numSamples = n;
 
     left = l;
+    
+    arity = 1;
 }
 
 DelayNode::~DelayNode() {

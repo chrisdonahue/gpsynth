@@ -21,6 +21,8 @@ VariableNode::VariableNode(int vn, double min, double max) {
 
     minimum = min;
     maximum = max;
+
+    arity = 0;
 }
 
 VariableNode::~VariableNode() {

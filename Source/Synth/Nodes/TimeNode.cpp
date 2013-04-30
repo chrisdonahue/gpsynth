@@ -18,6 +18,8 @@
 
 TimeNode::TimeNode(GPMutatableParam* tmax) {
     mutatableParams.push_back(tmax);
+
+    arity = 0;
 }
 
 TimeNode::~TimeNode() {

@@ -52,6 +52,7 @@ DifferenceEquationNode::DifferenceEquationNode(unsigned m, unsigned n, GPRandom*
     delete p;
 
     // add signal to descendants
+    arity = 1;
     descendants.push_back(signal);
 }
 

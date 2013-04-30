@@ -38,8 +38,8 @@ ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, 
         arity = 0;
     }
     else {
-        descendants.push_back(signal);
         arity = 1;
+        descendants.push_back(signal);
     }
 
     fillFromParams();

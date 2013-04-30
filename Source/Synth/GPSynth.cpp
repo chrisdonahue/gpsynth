@@ -166,7 +166,7 @@ GPNetwork* GPSynth::getIndividual() {
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
     if (params->verbose)
-        std::cout << "Testing algorithm " << ret->ID << " with height " << ret->height << " and structure " << ret->toString(false, params->printPrecision) << std::endl;
+        std::cout << "Testing algorithm " << ret->ID << " made by " << ret->origin << " with height " << ret->height << " and structure " << ret->toString(false, params->printPrecision) << std::endl;
     return ret;
 }
 
@@ -240,7 +240,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " with structure " << champ->toString(true, params->savePrecision) << std::endl;
+    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with structure " << champ->toString(true, params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -420,7 +420,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
         // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
-            std::cout << "Algorithm " << oldID << " with height " << net->height << " and structure " << net->toString(false, params->printPrecision) << " was reproduced into next generation with new ID " << net->ID << std::endl;
+            std::cout << "Algorithm " << net->ID << " with height " << net->height << " and structure " << net->toString(false, params->printPrecision) << " was reproduced from algorithm " << oldID << " from last generation." << std::endl;
         assignFitness(net, net->fitness);
     }
     else {

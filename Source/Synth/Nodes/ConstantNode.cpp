@@ -22,6 +22,8 @@ ConstantNode::ConstantNode(GPMutatableParam* v) {
 
     minimum = v->getMin();
     maximum = v->getMax();
+
+    arity = 0;
 }
 
 ConstantNode::~ConstantNode() {

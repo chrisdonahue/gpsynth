@@ -20,13 +20,13 @@ FunctionNode::FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one) {
     gpfunction = gpfun;
 
     if (gpfunction.isBinary) {
+        arity = 2;
         descendants.push_back(zero);
         descendants.push_back(one);
-        arity = 2;
     }
     else {
-        descendants.push_back(zero);
         arity = 1;
+        descendants.push_back(zero);
     }
 }
 
