@@ -28,7 +28,7 @@ GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstrin
     minimum(-INFINITY), maximum(INFINITY),
     allNodes(0), allMutatableParams(0)
 {
-    std::vector<std::string> tokens = split(netstring, ' ');
+    std::vector<std::string> tokens = split(netstring, " }{)(");
     for (unsigned i = 0; i < tokens.size(); i++) {
         std::cout << tokens[i] << std::endl;
     }
@@ -244,13 +244,43 @@ GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=str
 }
 */
 
+#define tokenizer tokens, (*currentIndex)++
+#define subtreeArgs p, rng, sr
+
 GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr) {
-    // get "(type" token
-    std::string type = tokens[consume];
-    
-    // confirm that it begins with a "("
-    if (type.compare(0, 1, "(") == 0) {
-        
-    }
+    /*
+    // fields for tokens
+    std::string first = tokens[consume];
+    std::string type;
+    std::string last;
+
+    // ret
+    GPNode* ret;
+
+    // radius around constant nodes (any nonzero value should be the same)
     double constantRadius = 1;
+
+    // PARSE OPEN PAREN DELIM
+    if (first.compare(0, 1, "(") == 0) {
+        type = first.substr(1, std::string::npos);
+    }
+    else {
+        ret = NULL;
+    }
+
+    // PARSE CONTENTS
+    // ADSR nodes
+    if (type.compare("adsr") == 0) {
+        return new ADSRNode(true, true, sr, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), NULL);
+    }
+    else if (type.compare("adsr*") == 0) {
+        return new ADSRNode(true, true, sr, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createSubtree(tokenizer, subtreeArgs);
+    }
+    // constant nodes
+    else if (type.compare("pi") == 0) {
+        return new ConstantNode(true, new GPMutatableParam
+    }
+
+    // PARSE CLOSE PAREN DELIM
+*/
 }

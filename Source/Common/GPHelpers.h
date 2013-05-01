@@ -39,18 +39,23 @@ inline void intervalMultiply(float* min, float* max, float zeromin, float zeroma
 }
 
 // http://stackoverflow.com/a/236803
-inline std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
+inline std::vector<std::string> &split(const std::string &s, std::vector<std::string> &elems, const char* delims) {
+    //std::stringstream ss(s);
+    //std::string item;
+    unsigned start = 0;
+    unsigned end = s.find_first_of(delims);
+    while (end != std::string::npos) {
+        std::string token = s.substr(start, end);
+        elems.push_back(token);
+        start = end;
+        end = s.find_first_of(delims, end + 1);
     }
     return elems;
 }
 
-inline std::vector<std::string> split(const std::string &s, char delim) {
+inline std::vector<std::string> split(const std::string &s, const char* delims) {
     std::vector<std::string> elems;
-    split(s, delim, elems);
+    split(s, elems, delims);
     return elems;
 }
 
