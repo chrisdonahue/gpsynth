@@ -2,6 +2,13 @@
 
 set -e
 
+./build/GPAudioTargetMatchingExperiment\
+  --target ./samples/BassoonC2.wav\
+  --values 622.25\
+  --path ./\
+  --experiment 2\
+  --generations 0\
+
 # DEBUG MOVING AVERAGE STUFF
 <<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
@@ -126,7 +133,7 @@ valgrind -v --tool=massif --log-file="3GenValgrindMassif.txt"\
 COMMENT
 
 # LOCAL TRUMPET TEST
-#<<COMMENT
+<<COMMENT
 #gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
@@ -189,7 +196,7 @@ COMMENT
   --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.9 --cselect 0 --ctype 0\
   --reproduction 0.05 --rselect 0
-#COMMENT
+COMMENT
 
 # LOCAL BASSOON TEST
 <<COMMENT
