@@ -61,7 +61,9 @@ private:
     std::vector<GPMutatableParam*> allMutatableParams;
 };
 
-extern GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized);
-extern GPMutatableParam* createMutatableParam(char* tokenized);
+//extern GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized);
+//extern GPMutatableParam* createMutatableParam(char* tokenized);
+extern GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr);
+extern GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, std::string type);
 
 #endif

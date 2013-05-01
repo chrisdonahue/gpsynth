@@ -32,6 +32,8 @@ GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstrin
     for (unsigned i = 0; i < tokens.size(); i++) {
         std::cout << tokens[i] << std::endl;
     }
+    unsigned index = 0;
+    std::cout << createMutatableParam(tokens, &index, "test");
     /*
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
     std::copy(netstring.begin(), netstring.end(), expr);
@@ -152,7 +154,6 @@ GPMutatableParam* createMutatableParam(std::string paramstring) {
     }
     // DISCRETE
 }
-*/
 
 GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " }{")) {
     std::cout << "----" << std::endl;
@@ -173,7 +174,46 @@ GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " }{")) {
         return new GPMutatableParam(std::string(""), true, val, min, max);
     }
 }
+*/
 
+GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, std::string type) {
+    GPMutatableParam* ret;
+
+    // get tokens
+    std::string tag = tokens[*currentIndex++];
+    std::string minstr = tokens[*currentIndex++];
+    std::string valstr = tokens[*currentIndex++];
+    std::string maxstr = tokens[*currentIndex++];
+
+    // verify that it ends with }
+    unsigned lastdelim = maxstr.find("}");
+    if (lastdelim == std::string::npos) {
+        std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
+        ret = NULL;
+    }
+    else {
+        maxstr = maxstr.substr(0, lastdelim);
+        if (tag.compare(0, 3, "{C:", 0, 3) == 0) {
+            double min = std::atof(minstr.c_str());
+            double val = std::atof(valstr.c_str());
+            double max = std::atof(maxstr.c_str());
+            ret = new GPMutatableParam(type, true, val, min, max);
+        }
+        else if (tag.compare(0, 3, "{D:", 0, 3) == 0) {
+            int min = std::atoi(minstr.c_str());
+            int val = std::atoi(valstr.c_str());
+            int max = std::atoi(maxstr.c_str());
+            ret = new GPMutatableParam(type, true, val, min, max);
+        }
+        else {
+            std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
+            ret = NULL;
+        }
+    }
+    return ret;
+}
+
+/*
 // RECURSIVE CONSTRUCTION
 GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=strtok(NULL, " )(")) {
     //std::cout << "----" << std::endl;
@@ -230,4 +270,10 @@ GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=str
     else if (strncmp(t, "v", 1) == 0) {
         return new VariableNode(std::atoi(t + 1), createMutatableParam());
     }
+}
+*/
+
+GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr) {
+    std::string type = tokens[*currentIndex++];
+    double constantRadius = 1;
 }
