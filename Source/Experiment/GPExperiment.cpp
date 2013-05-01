@@ -74,7 +74,13 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // TOKENIZER TESTING
     if (params->experimentNumber == 2) {
         std::string test("(* (osc p{D: 1, 7, 30} v0) (fm p{D: 1, 1, 30} v0 {C: 0, 0.5085205656, 2} (adsr {C: 0, 0.5368210763, 1.837041667} {C: 0, 0.2216074715, 1.837041667} {C: 0, 0.7151587039, 1} {C: 0, 1.437187618, 1.837041667} {C: 0, 0.720859915, 1.837041667} {C: 0, 0.5448837112, 1} {C: 0, 0.2467096959, 1.837041667})))");
-        std::vector<std::string> tokens = split(test, ' ');
+        std::string mutatabletest("{C: 0 0.720849915 1.837041667}");
+        std::vector<std::string> tokens = split(mutatabletest, ' ');
+        unsigned index = 0;
+        std::stringstream ss;
+        ss.precision(10);
+        createMutatableParam(tokens, &index, "test")->toString(true, ss);
+        std::cerr << ss.str() << std::endl;
         for (unsigned i = 0; i < tokens.size(); i++) {
             std::cout << tokens[i] << std::endl;
         }
@@ -761,6 +767,7 @@ unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n, un
 void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase) {
     kiss_fftr_cfg cfg;
     cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
+    // TODO: allocate this on the stack.
     kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
 
     unsigned fftOutputSize = (n/2 + 1);

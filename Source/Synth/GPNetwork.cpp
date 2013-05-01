@@ -144,46 +144,17 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->updateMutatedParams();
 }
 
-/*
-GPMutatableParam* createMutatableParam(std::string paramstring) {
-    //std::cout << paramstring << std::endl;
-    
-    // CONTINUOUS
-    if (paramstring.compare(0, 3, "{C:", 0, 3) == 0) {
-        paramstring.findFirstOf
-    }
-    // DISCRETE
-}
-
-GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " }{")) {
-    std::cout << "----" << std::endl;
-    char* t = tokenized;
-    std::cout << t << std::endl;
-    // CONTINUOUS
-    if (strcmp(t, "C:") == 0) {
-        double min = std::atof(++t);
-        double val = std::atof(++t);
-        double max = std::atof(++t);
-        return new GPMutatableParam(std::string(""), true, val, min, max);
-    }
-    // DISCRETE
-    else if (strcmp(t, "D:") == 0) {
-        int min = std::atoi(++t);
-        int val = std::atoi(++t);
-        int max = std::atoi(++t);
-        return new GPMutatableParam(std::string(""), true, val, min, max);
-    }
-}
-*/
+// MACRO for consuming tokens
+#define consume (*currentIndex)++
 
 GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, std::string type) {
     GPMutatableParam* ret;
 
     // get tokens
-    std::string tag = tokens[*currentIndex++];
-    std::string minstr = tokens[*currentIndex++];
-    std::string valstr = tokens[*currentIndex++];
-    std::string maxstr = tokens[*currentIndex++];
+    std::string tag = tokens[consume];
+    std::string minstr = tokens[consume];
+    std::string valstr = tokens[consume];
+    std::string maxstr = tokens[consume];
 
     // verify that it ends with }
     unsigned lastdelim = maxstr.find("}");
@@ -193,13 +164,13 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
     }
     else {
         maxstr = maxstr.substr(0, lastdelim);
-        if (tag.compare(0, 3, "{C:", 0, 3) == 0) {
+        if (tag.compare(0, 3, "{C:") == 0) {
             double min = std::atof(minstr.c_str());
             double val = std::atof(valstr.c_str());
             double max = std::atof(maxstr.c_str());
             ret = new GPMutatableParam(type, true, val, min, max);
         }
-        else if (tag.compare(0, 3, "{D:", 0, 3) == 0) {
+        else if (tag.compare(0, 3, "{D:") == 0) {
             int min = std::atoi(minstr.c_str());
             int val = std::atoi(valstr.c_str());
             int max = std::atoi(maxstr.c_str());
@@ -274,6 +245,12 @@ GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=str
 */
 
 GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr) {
-    std::string type = tokens[*currentIndex++];
+    // get "(type" token
+    std::string type = tokens[consume];
+    
+    // confirm that it begins with a "("
+    if (type.compare(0, 1, "(") == 0) {
+        
+    }
     double constantRadius = 1;
 }
