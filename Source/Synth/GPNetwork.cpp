@@ -28,13 +28,17 @@ GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstrin
     minimum(-INFINITY), maximum(INFINITY),
     allNodes(0), allMutatableParams(0)
 {
-    ID = -1;
-    fitness = -1;
+    std::vector<std::string> tokens = split(netstring, ' ');
+    for (unsigned i = 0; i < tokens.size(); i++) {
+        std::cout << tokens[i] << std::endl;
+    }
+    /*
     char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
     std::copy(netstring.begin(), netstring.end(), expr);
     expr[netstring.size()] = '\0';
     root = createSubtree(p, rng, sr, strtok(expr, " )("));
     free(expr);
+    */
 }
 
 GPNetwork::~GPNetwork() {
@@ -137,6 +141,18 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->ephemeralRandom(r);
     root->updateMutatedParams();
 }
+
+/*
+GPMutatableParam* createMutatableParam(std::string paramstring) {
+    //std::cout << paramstring << std::endl;
+    
+    // CONTINUOUS
+    if (paramstring.compare(0, 3, "{C:", 0, 3) == 0) {
+        paramstring.findFirstOf
+    }
+    // DISCRETE
+}
+*/
 
 GPMutatableParam* createMutatableParam(char* tokenized=strtok(NULL, " }{")) {
     std::cout << "----" << std::endl;

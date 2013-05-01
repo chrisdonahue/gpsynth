@@ -18,6 +18,7 @@
 #include <string.h>
 #include "GPNode.h"
 #include "GPPrimitives.h"
+#include "../Common/GPHelpers.h"
 
 class GPNetwork {
 public:
