@@ -43,8 +43,8 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 	v;
 	nv;
 	fn;
-	*max = maximum;
     *min = 0;
+	*max = maximum;
     if (t[n - 1] < maximum) {
         for (unsigned i = 0; i < n; i++) {
             buffer[i] = t[i];

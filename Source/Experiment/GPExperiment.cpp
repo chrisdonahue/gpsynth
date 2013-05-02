@@ -71,19 +71,31 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
     GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
-    // TOKENIZER TESTING
+    // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
-        std::string sintest("(sin (* (* ((const {d 1 2 5}) (pi)) (* (time {c 0 5 10}) (const {c 0 440 22050}))))");
-        std::string mutatabletest("{c 0 0.720849915 1.837041667}");
-        GPNetwork* sintestnet = new GPNetwork(p, rng, targetSampleRate, sintest);
-        sintestnet->traceNetwork();
-        std::cout << "From string: " << sintestnet->toString(true, 10) << std::endl;
-        float* testBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        renderIndividualByBlock(sintestnet, numTargetFrames, params->renderBlockSize, testBuffer);
-        saveWavFile("./sintest.wav", String(sintestnet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
-        free(testBuffer);
+        std::string sinTest = "(sin (* (* ((const {d 1 2 5}) (pi)) (* (time {c 0 5 10}) (const {c 0 440 22050}))))";
+        std::string storeADSRTest = "";
+        std::string noStoreADSRTest = "";
+        std::string constantNodeEnvelopeTest = "";
+        std::string additiveSynthesisTest = "";
+        std::string noiseTest = "";
+        std::string variableNodeTest = "";
+        std::string fmSynthesisTest = "";
 
-        exit(-1);
+        // buffer for tests
+        float* testBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+
+        // sin test network
+        GPNetwork* sinTestNet = new GPNetwork(p, rng, targetSampleRate, sinTest);
+        sinTestNet->traceNetwork();
+        std::cout << "sinTest network: " << sinTestNet->toString(true, 10) << std::endl;
+        renderIndividualByBlockPerformance(sinTestNet, numTargetFrames, params->renderBlockSize, testBuffer);
+        saveWavFile("./sinTest.wav", String(sinTestNet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
+
+        // adsr test network
+
+        // free test buffer
+        free(testBuffer);
     }
     if (params->experimentNumber == 3) {
         // PARAMS
@@ -687,6 +699,10 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
         numRemaining -= numToRender;
         numCompleted += numToRender;
     }
+}
+
+void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numSamples, float* sampletimes, float* buffer) {
+
 }
 
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
