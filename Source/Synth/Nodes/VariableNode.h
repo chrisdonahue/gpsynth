@@ -15,7 +15,7 @@
 
 class VariableNode: public GPNode {
 public:
-    VariableNode(int vn, GPMutatableParam* range);
+    VariableNode(GPMutatableParam* vn, GPMutatableParam* range);
     ~VariableNode();
 
 	// overrides
@@ -26,7 +26,6 @@ public:
 	void getRangeTemp(float* min, float* max);
 	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
-
 
 private:
     int variableNum;

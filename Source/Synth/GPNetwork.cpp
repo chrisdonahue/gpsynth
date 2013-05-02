@@ -144,12 +144,16 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->updateMutatedParams();
 }
 
-// MACRO for consuming tokens
+/*
+    ====================
+    S-EXPRESSION PARSING
+    ====================
+*/
+
+// macro to "consume" a token when we observe it
 #define consume (*currentIndex)++
 
 GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, std::string type) {
-    GPMutatableParam* ret;
-
     // get tokens
     std::string tag = tokens[consume];
     std::string minstr = tokens[consume];
@@ -161,118 +165,84 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
         double min = std::atof(minstr.c_str());
         double val = std::atof(valstr.c_str());
         double max = std::atof(maxstr.c_str());
-        ret = new GPMutatableParam(type, true, val, min, max);
+        return new GPMutatableParam(type, true, val, min, max);
     }
     else if (tag.compare(0, 3, "D:") == 0) {
         int min = std::atoi(minstr.c_str());
         int val = std::atoi(valstr.c_str());
         int max = std::atoi(maxstr.c_str());
-        ret = new GPMutatableParam(type, true, val, min, max);
+        return new GPMutatableParam(type, true, val, min, max);
     }
     else {
         std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
-        ret = NULL;
-    }
-    return ret;
-}
-
-/*
-// RECURSIVE CONSTRUCTION
-GPNode* createSubtree(GPParams* p, GPRandom* rng, double sr, char* tokenized=strtok(NULL, " )(")) {
-    //std::cout << "----" << std::endl;
-    char* t = tokenized;
-    // doesn't matter what this value is. just places it in the middle
-    double centerConstant = 1;
-    //std::cout << t << std::endl;
-    // ADSR NODES
-    if (strcmp(t, "adsr") == 0) {
-        return new ADSRNode(true, true, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), NULL);
-    }
-    else if (strcmp(t, "adsr*") == 0) {
-        return new ADSRNode(false, false, sr, createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createMutatableParam(), createSubtree(p, rng, sr));
-    }
-    // CONSTANT NODE
-    else if (strcmp(t, "pi") == 0) {
-        return new ConstantNode(true, new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant), NULL);
-    }
-    else if (strcmp(t, "pi*") == 0) {
-        return new ConstantNode(false, new GPMutatableParam("pi", false, M_PI, M_PI - centerConstant, M_PI + centerConstant), createSubtree(p, rng, sr));
-    }
-    else if (strcmp(t, "const") == 0) {
-        return new ConstantNode(true, createMutatableParam(), NULL);
-    }
-    else if (strcmp(t, "const*") == 0) {
-        return new ConstantNode(false, createMutatableParam(), createSubtree(p, rng, sr));
-    }
-    // FUNCTION NODES
-    else if (strcmp(t, "+") == 0) {
-        return new FunctionNode(add, createSubtree(p, rng, sr), createSubtree(p, rng, sr));
-    }
-    else if (strcmp(t, "*") == 0) {
-        return new FunctionNode(multiply, createSubtree(p, rng, sr), createSubtree(p, rng, sr));
-    }
-    else if (strcmp(t, "sin") == 0) {
-        return new FunctionNode(sine, createSubtree(p, rng, sr), NULL);
-    }
-    // TIME NODE
-    else if (strcmp(t, "time") == 0) {
-        return new TimeNode(createMutatableParam());
-    }
-    // NOISE NODE
-    else if (strcmp(t, "whitenoise") == 0) {
-        return new NoiseNode(rng);
-    }
-    // OSCIL NODE
-    else if (strcmp(t, "fm") == 0) {
-        return new OscilNode(false, createMutatableParam(), std::atoi(t + 2), createMutatableParam(), createSubtree(p, rng, sr));
-    }
-    else if (strcmp(t, "osc") == 0) {
-        return new OscilNode(true, createMutatableParam(), std::atoi(t + 2), NULL, NULL);
-    }
-    // VARIABLE NODE
-    else if (strncmp(t, "v", 1) == 0) {
-        return new VariableNode(std::atoi(t + 1), createMutatableParam());
+        return NULL;
     }
 }
-*/
 
-#define tokenizer tokens, (*currentIndex)++
+// macro for standard structure of vector of tokens/index
+#define tokenizer tokens, currentIndex
+// macro for calling createSubtree easily
 #define subtreeArgs p, rng, sr
 
 GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr) {
-    /*
     // fields for tokens
-    std::string first = tokens[consume];
-    std::string type;
+    std::string type = tokens[consume];
     std::string last;
-
-    // ret
-    GPNode* ret;
 
     // radius around constant nodes (any nonzero value should be the same)
     double constantRadius = 1;
 
-    // PARSE OPEN PAREN DELIM
-    if (first.compare(0, 1, "(") == 0) {
-        type = first.substr(1, std::string::npos);
-    }
-    else {
-        ret = NULL;
-    }
-
-    // PARSE CONTENTS
     // ADSR nodes
     if (type.compare("adsr") == 0) {
         return new ADSRNode(true, true, sr, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), NULL);
     }
     else if (type.compare("adsr*") == 0) {
-        return new ADSRNode(true, true, sr, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createSubtree(tokenizer, subtreeArgs);
+        return new ADSRNode(true, true, sr, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createSubtree(tokenizer, subtreeArgs));
     }
     // constant nodes
     else if (type.compare("pi") == 0) {
-        return new ConstantNode(true, new GPMutatableParam
+        return new ConstantNode(true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), NULL);
     }
-
-    // PARSE CLOSE PAREN DELIM
-*/
+    else if (type.compare("pi*") == 0) {
+        return new ConstantNode(true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), createSubtree(tokenizer, subtreeArgs));
+    }
+    else if (type.compare("const") == 0) {
+        return new ConstantNode(true, createMutatableParam(tokenizer, ""), NULL);
+    }
+    else if (type.compare("const*") == 0) {
+        return new ConstantNode(false, createMutatableParam(tokenizer, ""), createSubtree(tokenizer, subtreeArgs));
+    }
+    // function nodes
+    else if (type.compare("+") == 0) {
+        return new FunctionNode(add, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+    }
+    else if (type.compare("*") == 0) {
+        return new FunctionNode(multiply, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+    }
+    else if (type.compare("sin") == 0) {
+        return new FunctionNode(sine, createSubtree(tokenizer, subtreeArgs), NULL);
+    }
+    // time node
+    else if (type.compare("time") == 0) {
+        return new TimeNode(createMutatableParam(tokenizer, ""));
+    }
+    // noise node
+    else if (type.compare("whitenoise") == 0) {
+        return new NoiseNode(rng);
+    }
+    // oscil node
+    else if (type.compare("fm") == 0) {
+        return new OscilNode(false, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), createSubtree(tokenizer, subtreeArgs));
+    }
+    else if (type.compare("osc") == 0) {
+        return new OscilNode(true, createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""), NULL, NULL);
+    }
+    // variable node
+    else if (type.compare("var") == 0) {
+        return new VariableNode(createMutatableParam(tokenizer, ""), createMutatableParam(tokenizer, ""));
+    }
+    else {
+        std::cerr << "Tried to build S-expression from improperly formatted string" << std::endl;
+        return NULL;
+    }
 }

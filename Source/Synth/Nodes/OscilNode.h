@@ -15,7 +15,7 @@
 
 class OscilNode: public GPNode {
 public:
-    OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod);
+    OscilNode(bool terminal, GPMutatableParam* p, GPMutatableParam* vn, GPMutatableParam* i, GPNode* mod);
     ~OscilNode();
 
 	// overrides

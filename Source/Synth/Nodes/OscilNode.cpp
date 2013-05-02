@@ -16,11 +16,13 @@
     ========================
 */
 
-OscilNode::OscilNode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod) {
+OscilNode::OscilNode(bool terminal, GPMutatableParam* p, GPMutatableParam* vn, GPMutatableParam* i, GPNode* mod) {
     terminalOscil = terminal;
-    variableNum = vn;
 
     mutatableParams.push_back(p);
+    assert(!(vn->isMutatable));
+    variableNum = vn->getDValue();
+    mutatableParams.push_back(vn);
 
     if (terminalOscil) {
         arity = 0;
@@ -46,9 +48,9 @@ OscilNode::~OscilNode() {
 
 OscilNode* OscilNode::getCopy() {
     if (terminalOscil)
-        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, NULL, NULL);
+        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), NULL, NULL);
     else
-        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), variableNum, mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
 void OscilNode::prepareToPlay() {
@@ -118,13 +120,17 @@ void OscilNode::toString(bool printRange, std::stringstream& ss) {
     if (terminalOscil) {
         ss << "(osc ";
         mutatableParams[0]->toString(printRange, ss);
-        ss << " " << variableNum << ")";
+        ss << " ";
+        mutatableParams[1]->toString(printRange, ss);
+        ss << ")";
     }
     else {
         ss << "(fm "; 
         mutatableParams[0]->toString(printRange, ss);
-        ss << " " << variableNum << " ";
+        ss << " ";
         mutatableParams[1]->toString(printRange, ss);
+        ss << " ";
+        mutatableParams[2]->toString(printRange, ss);
         ss << " ";
         descendants[0]->toString(printRange, ss);
         ss << ")";

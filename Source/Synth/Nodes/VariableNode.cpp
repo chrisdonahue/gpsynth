@@ -16,9 +16,10 @@
     ========================
 */
 
-VariableNode::VariableNode(int vn, GPMutatableParam* range) {
-    variableNum = vn;
-
+VariableNode::VariableNode(GPMutatableParam* vn, GPMutatableParam* range) {
+    assert(!(vn->isMutatable));
+    variableNum = vn->getDValue();
+    mutatableParams.push_back(vn);
     mutatableParams.push_back(range);
 
     arity = 0;
@@ -34,7 +35,7 @@ VariableNode::~VariableNode() {
 */
 
 VariableNode* VariableNode::getCopy() {
-    return new VariableNode(variableNum, mutatableParams[0]->getCopy());
+    return new VariableNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy());
 }
 
 void VariableNode::prepareToPlay() {
@@ -62,14 +63,14 @@ void VariableNode::getRangeTemp(float* min, float* max) {
 }
 
 void VariableNode::updateMutatedParams() {
-    minimum = mutatableParams[0]->getCMin();
-    maximum = mutatableParams[0]->getCMax();
+    minimum = mutatableParams[1]->getCMin();
+    maximum = mutatableParams[1]->getCMax();
 }
 
 void VariableNode::toString(bool printRange, std::stringstream& ss) {
-	if (printRange) {
-        ss << "(v " << variableNum;
-        mutatableParams[0]->toString(printRange, ss);
-        ss << ")";
-    }
+    ss << "(var " << variableNum;
+    mutatableParams[0]->toString(printRange, ss);
+    ss << " ";
+    mutatableParams[1]->toString(printRange, ss);
+    ss << ")";
 }
