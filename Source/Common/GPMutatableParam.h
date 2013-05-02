@@ -46,10 +46,10 @@ public:
         if (printRange) {
           ss << "{";
           if (isContinuous) {
-            ss << "C: " << cminimum << " " << cvalue << " " << cmaximum;
+            ss << "c " << cminimum << " " << cvalue << " " << cmaximum;
           }
           else {
-            ss << "D: " << dminimum << " " << dvalue << " " << dmaximum;
+            ss << "d " << dminimum << " " << dvalue << " " << dmaximum;
           }
           ss << "}";
         }

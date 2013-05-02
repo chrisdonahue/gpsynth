@@ -153,19 +153,21 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
     std::string valstr = tokens[consume];
     std::string maxstr = tokens[consume];
 
-    // verify that it ends with }
-    if (tag.compare(0, 3, "C:") == 0) {
+    // if the param is continuous
+    if (tag.compare(0, 3, "c") == 0) {
         double min = std::atof(minstr.c_str());
         double val = std::atof(valstr.c_str());
         double max = std::atof(maxstr.c_str());
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
-    else if (tag.compare(0, 3, "D:") == 0) {
+    // else if the param is discrete
+    else if (tag.compare(0, 3, "d") == 0) {
         int min = std::atoi(minstr.c_str());
         int val = std::atoi(valstr.c_str());
         int max = std::atoi(maxstr.c_str());
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
+    // else something went wrong
     else {
         std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
         return NULL;

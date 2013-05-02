@@ -73,9 +73,8 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
     // TOKENIZER TESTING
     if (params->experimentNumber == 2) {
-        std::string sintest("(sin (* (* ((const {D: 1 2 5}) (pi)) (* (time {C: 0 5 10}) (const {C: 0 440 22050}))))");
-        std::string test("(* (osc p{D: 1, 7, 30} v0) (fm p{D: 1, 1, 30} v0 {C: 0, 0.5085205656, 2} (adsr {C: 0, 0.5368210763, 1.837041667} {C: 0, 0.2216074715, 1.837041667} {C: 0, 0.7151587039, 1} {C: 0, 1.437187618, 1.837041667} {C: 0, 0.720859915, 1.837041667} {C: 0, 0.5448837112, 1} {C: 0, 0.2467096959, 1.837041667})))");
-        std::string mutatabletest("{C: 0 0.720849915 1.837041667}");
+        std::string sintest("(sin (* (* ((const {d 1 2 5}) (pi)) (* (time {c 0 5 10}) (const {c 0 440 22050}))))");
+        std::string mutatabletest("{c 0 0.720849915 1.837041667}");
         GPNetwork* sintestnet = new GPNetwork(p, rng, targetSampleRate, sintest);
         sintestnet->traceNetwork();
         sintestnet->updateMutatedParams();
