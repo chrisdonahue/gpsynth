@@ -587,7 +587,6 @@ void GPSynth::numericallyMutate(GPNetwork* one) {
             p->setDValue((int) (value + mutationAmount));
         }
     }
-    one->updateMutatedParams();
     //std::cout << "AFTER NUMERIC MUTATION " << one->toString() << std::endl;
 }
 

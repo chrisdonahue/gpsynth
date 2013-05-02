@@ -88,7 +88,7 @@ private:
     void saveTextFile(String path, String text);
 
     // FITNESS FUNCTION
-    void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer);
+    void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned renderBlockSize, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 
     // FOURIER TRANSFORM

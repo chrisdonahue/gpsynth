@@ -77,7 +77,6 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::string mutatabletest("{c 0 0.720849915 1.837041667}");
         GPNetwork* sintestnet = new GPNetwork(p, rng, targetSampleRate, sintest);
         sintestnet->traceNetwork();
-        sintestnet->updateMutatedParams();
         std::cout << "From string: " << sintestnet->toString(true, 10) << std::endl;
         float* testBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         renderIndividualByBlock(sintestnet, numTargetFrames, params->renderBlockSize, testBuffer);
@@ -677,15 +676,14 @@ void GPExperiment::saveTextFile(String path, String text) {
     ================
 */
 
-void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned n, float* buffer) {
+void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned renderBlockSize, float* buffer) {
     int64 numRemaining = numSamples;
     int64 numCompleted = 0;
     int64 bufferIndex = 0;
     unsigned numToRender;
     while (numRemaining > 0) {
-        numToRender = n < numRemaining ? n : numRemaining;
+        numToRender = renderBlockSize < numRemaining ? renderBlockSize : numRemaining;
         candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
-        std::cout << buffer[numCompleted] << std::endl;
         numRemaining -= numToRender;
         numCompleted += numToRender;
     }

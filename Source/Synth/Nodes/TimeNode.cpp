@@ -45,13 +45,30 @@ void TimeNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
 	fn;
 	*max = maximum;
     *min = 0;
-    for (unsigned i = 0; i < n; i++) {
-        buffer[i] = t[i];
+    if (t[n - 1] < maximum) {
+        for (unsigned i = 0; i < n; i++) {
+            buffer[i] = t[i];
+        }
+    }
+    else if (t[n - 1] > maximum) {
+        unsigned i = 0;
+        while (t[i] < maximum) {
+            buffer[i] = t[i];
+            i++;
+        }
+        for (; i < n; i++) {
+            buffer[i] = maximum;
+        }
     }
 }
 
 void TimeNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-
+    firstFrameNumber;
+    numConstantVariables;
+    constantVariables;
+    for (unsigned i = 0; i < numSamples; i++) {
+        buffer[i] = sampleTimes[i];
+    }
 }
 
 void TimeNode::getRangeTemp(float* min, float* max) {

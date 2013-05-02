@@ -101,6 +101,9 @@ void GPNetwork::traceNetwork() {
     allNodes.clear();
     allMutatableParams.clear();
     root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
+    root->updateMutatedParams();
+    minimum = root->minimum;
+    maximum = root->maximum;
 }
 
 /*
@@ -128,13 +131,8 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
     nu->parent = old->parent;
 }
 
-void GPNetwork::updateMutatedParams() {
-    root->updateMutatedParams();
-}
-
 void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->ephemeralRandom(r);
-    root->updateMutatedParams();
 }
 
 /*
