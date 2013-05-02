@@ -157,29 +157,21 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
     std::string maxstr = tokens[consume];
 
     // verify that it ends with }
-    unsigned lastdelim = maxstr.find("}");
-    if (lastdelim == std::string::npos) {
-        std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
-        ret = NULL;
+    if (tag.compare(0, 3, "C:") == 0) {
+        double min = std::atof(minstr.c_str());
+        double val = std::atof(valstr.c_str());
+        double max = std::atof(maxstr.c_str());
+        ret = new GPMutatableParam(type, true, val, min, max);
+    }
+    else if (tag.compare(0, 3, "D:") == 0) {
+        int min = std::atoi(minstr.c_str());
+        int val = std::atoi(valstr.c_str());
+        int max = std::atoi(maxstr.c_str());
+        ret = new GPMutatableParam(type, true, val, min, max);
     }
     else {
-        maxstr = maxstr.substr(0, lastdelim);
-        if (tag.compare(0, 3, "{C:") == 0) {
-            double min = std::atof(minstr.c_str());
-            double val = std::atof(valstr.c_str());
-            double max = std::atof(maxstr.c_str());
-            ret = new GPMutatableParam(type, true, val, min, max);
-        }
-        else if (tag.compare(0, 3, "{D:") == 0) {
-            int min = std::atoi(minstr.c_str());
-            int val = std::atoi(valstr.c_str());
-            int max = std::atoi(maxstr.c_str());
-            ret = new GPMutatableParam(type, true, val, min, max);
-        }
-        else {
-            std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
-            ret = NULL;
-        }
+        std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
+        ret = NULL;
     }
     return ret;
 }
