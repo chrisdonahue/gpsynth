@@ -75,7 +75,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     if (params->experimentNumber == 2) {
         std::string test("(* (osc p{D: 1, 7, 30} v0) (fm p{D: 1, 1, 30} v0 {C: 0, 0.5085205656, 2} (adsr {C: 0, 0.5368210763, 1.837041667} {C: 0, 0.2216074715, 1.837041667} {C: 0, 0.7151587039, 1} {C: 0, 1.437187618, 1.837041667} {C: 0, 0.720859915, 1.837041667} {C: 0, 0.5448837112, 1} {C: 0, 0.2467096959, 1.837041667})))");
         std::string mutatabletest("{C: 0 0.720849915 1.837041667}");
-        std::vector<std::string> tokens = split(mutatabletest, " }{)(");
+        std::vector<std::string> tokens = split(mutatabletest, "\{ })\(");
         //unsigned index = 0;
         //std::stringstream ss;
         //ss.precision(10);

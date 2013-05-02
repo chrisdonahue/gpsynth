@@ -2,7 +2,7 @@
 
 set -e
 
-gdb --args \
+#gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
   --target ./samples/BassoonC2.wav\
   --values 622.25\

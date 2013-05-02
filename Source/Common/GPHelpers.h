@@ -43,12 +43,15 @@ inline std::vector<std::string> &split(const std::string &s, std::vector<std::st
     //std::stringstream ss(s);
     //std::string item;
     unsigned start = 0;
-    unsigned end = s.find_first_of(delims);
+    unsigned end = s.find_first_of(delims, start + 1);
+    std::cout << s << ", length: " << s.size() << ", delims " << delims << std::endl;
+    std::cout << "---tokens---" << std::endl;
     while (end != std::string::npos) {
-        std::string token = s.substr(start, end);
+        std::string token = s.substr(start, end - start);
+        std::cout << "s: " << start << ", e: " << end << ", " << token << std::endl;
         elems.push_back(token);
         start = end;
-        end = s.find_first_of(delims, end + 1);
+        end = s.find_first_of(delims, start + 1);
     }
     return elems;
 }
