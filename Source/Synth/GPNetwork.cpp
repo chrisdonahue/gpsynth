@@ -30,17 +30,10 @@ GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstrin
 {
     std::vector<std::string> tokens = split(netstring, " }{)(");
     for (unsigned i = 0; i < tokens.size(); i++) {
-        std::cout << tokens[i] << std::endl;
+        //std::cout << tokens[i] << std::endl;
     }
     unsigned index = 0;
-    std::cout << createMutatableParam(tokens, &index, true, "test");
-    /*
-    char* expr = (char*) malloc(sizeof(char) * (netstring.size() + 1));
-    std::copy(netstring.begin(), netstring.end(), expr);
-    expr[netstring.size()] = '\0';
-    root = createSubtree(p, rng, sr, strtok(expr, " )("));
-    free(expr);
-    */
+    root = createSubtree(tokens, &index, p, rng, sr);
 }
 
 GPNetwork::~GPNetwork() {
@@ -188,6 +181,8 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     // fields for tokens
     std::string type = tokens[consume];
     std::string last;
+
+    std::cout << type << std::endl;
 
     // radius around constant nodes (any nonzero value should be the same)
     double constantRadius = 1;

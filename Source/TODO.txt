@@ -75,6 +75,10 @@ TODO long run:
 
 NEXT EXPERIMENTS:
     create test suite to confirm that all primitives are working correctly
+        copy construct
+        make sure all silent before updateMutatedParams which will become updateSubtree maybe
+        figure out printing (pi) stuff
+        figure out why sin wave sounds aliased (probably pi as double deal)
     move champ tracking to GPSynth not GPEXperiment
     probably remove getRange() and just have it return minimum/maximum set by constructors
         change updateMutatedParams() to updateSubtree() which will:

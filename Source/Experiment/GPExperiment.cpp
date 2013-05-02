@@ -73,17 +73,18 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
     // TOKENIZER TESTING
     if (params->experimentNumber == 2) {
+        std::string sintest("(sin (* (* ((const {D: 1 2 5}) (pi)) (* (time {C: 0 5 10}) (const {C: 0 440 22050}))))");
         std::string test("(* (osc p{D: 1, 7, 30} v0) (fm p{D: 1, 1, 30} v0 {C: 0, 0.5085205656, 2} (adsr {C: 0, 0.5368210763, 1.837041667} {C: 0, 0.2216074715, 1.837041667} {C: 0, 0.7151587039, 1} {C: 0, 1.437187618, 1.837041667} {C: 0, 0.720859915, 1.837041667} {C: 0, 0.5448837112, 1} {C: 0, 0.2467096959, 1.837041667})))");
         std::string mutatabletest("{C: 0 0.720849915 1.837041667}");
-        std::vector<std::string> tokens = split(test, " }{)(");
-        //unsigned index = 0;
-        //std::stringstream ss;
-        //ss.precision(10);
-        //createMutatableParam(tokens, &index, "test")->toString(true, ss);
-        //std::cerr << ss.str() << std::endl;
-        for (unsigned i = 0; i < tokens.size(); i++) {
-            std::cout << tokens[i] << std::endl;
-        }
+        GPNetwork* sintestnet = new GPNetwork(p, rng, targetSampleRate, sintest);
+        sintestnet->traceNetwork();
+        sintestnet->updateMutatedParams();
+        std::cout << "From string: " << sintestnet->toString(true, 10) << std::endl;
+        float* testBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+        renderIndividualByBlock(sintestnet, numTargetFrames, params->renderBlockSize, testBuffer);
+        saveWavFile("./sintest.wav", String(sintestnet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
+        free(testBuffer);
+
         exit(-1);
     }
     if (params->experimentNumber == 3) {
@@ -685,6 +686,7 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
     while (numRemaining > 0) {
         numToRender = n < numRemaining ? n : numRemaining;
         candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
+        std::cout << buffer[numCompleted] << std::endl;
         numRemaining -= numToRender;
         numCompleted += numToRender;
     }

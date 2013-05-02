@@ -28,9 +28,6 @@ ConstantNode::ConstantNode(bool terminal, GPMutatableParam* v, GPNode* signal) {
   		arity = 1;
   		descendants.push_back(signal);
   	}
-
-    minimum = v->getCMin();
-    maximum = v->getCMax();
 }
 
 ConstantNode::~ConstantNode() {
@@ -105,14 +102,14 @@ void ConstantNode::getRangeTemp(float* min, float* max) {
 }
 
 void ConstantNode::updateMutatedParams() {
-    value = mutatableParams[0]->getCValue();
+    value = mutatableParams[0]->getValue();
     if (terminalConstant) {
-		minimum = mutatableParams[0]->getCMin();
-		maximum = mutatableParams[0]->getCMax();
+		minimum = mutatableParams[0]->getMin();
+		maximum = mutatableParams[0]->getMax();
 	}
 	else {
         descendants[0]->updateMutatedParams();
-        intervalMultiply(&minimum, &maximum, mutatableParams[0]->getCMin(), mutatableParams[0]->getCMax(), descendants[0]->minimum, descendants[0]->maximum);
+        intervalMultiply(&minimum, &maximum, mutatableParams[0]->getMin(), mutatableParams[0]->getMax(), descendants[0]->minimum, descendants[0]->maximum);
 	}
 }
 
