@@ -63,6 +63,6 @@ private:
 
 // S-EXPRESSION PARSING
 extern GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr);
-extern GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, std::string type);
+extern GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, bool ismutatable, std::string type);
 
 #endif

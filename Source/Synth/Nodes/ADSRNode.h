@@ -15,7 +15,7 @@
 
 class ADSRNode: public GPNode {
 public:
-    ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    ADSRNode(bool terminal, bool store, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
     ~ADSRNode();
 
 	// overrides

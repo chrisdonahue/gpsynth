@@ -16,13 +16,13 @@
     ========================
 */
 
-OscilNode::OscilNode(bool terminal, GPMutatableParam* p, GPMutatableParam* vn, GPMutatableParam* i, GPNode* mod) {
+OscilNode::OscilNode(bool terminal, GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, GPNode* mod) {
     terminalOscil = terminal;
-
-    mutatableParams.push_back(p);
     assert(!(vn->isMutatable));
     variableNum = vn->getDValue();
+
     mutatableParams.push_back(vn);
+    mutatableParams.push_back(p);
 
     if (terminalOscil) {
         arity = 0;
@@ -104,12 +104,12 @@ void OscilNode::getRangeTemp(float* min, float* max) {
 
 void OscilNode::updateMutatedParams() {
 	// update angular frequency constant
-    partial = mutatableParams[0]->getDValue();
+    partial = mutatableParams[1]->getDValue();
     w = 2.0 * M_PI * partial;
 	
 	// update index of modulation and descendant if this is an FM oscillator
     if (!terminalOscil) {
-        index = mutatableParams[1]->getCValue();
+        index = mutatableParams[2]->getCValue();
         descendants[0]->updateMutatedParams();
     }
     

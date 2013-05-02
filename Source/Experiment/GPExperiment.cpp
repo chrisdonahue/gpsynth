@@ -50,7 +50,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
 
     // MUTATABLE PARAMS
-    GPMutatableParam* constantValue = new GPMutatableParam("constantValue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
+    GPMutatableParam* constantValue = new GPMutatableParam("constantvalue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
     GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
     GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
 

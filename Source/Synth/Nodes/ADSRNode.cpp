@@ -16,11 +16,11 @@
     ========================
 */
 
-ADSRNode::ADSRNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
+ADSRNode::ADSRNode(bool terminal, bool store, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
     sampleRate(sr)
 {
-    storeBuffer = store;
     terminalADSR = terminal;
+    storeBuffer = store;
     sampleRate = sr;
     releaseFinished = false;
     framesInEnvelope = 0;
@@ -57,10 +57,10 @@ ADSRNode::~ADSRNode() {
 
 ADSRNode* ADSRNode::getCopy() {
     if (terminalADSR) {
-        return new ADSRNode(storeBuffer, terminalADSR, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
+        return new ADSRNode(terminalADSR, storeBuffer, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
     }
     else {
-        return new ADSRNode(storeBuffer, terminalADSR, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+        return new ADSRNode(terminalADSR, storeBuffer, sampleRate, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     }
 }
 
