@@ -84,6 +84,9 @@ NEXT EXPERIMENTS:
         finish function node stuff
         learn more about inheritance, should be able to call super() from setRenderInfo for most stuff
         change updateMutatedParams to updatedSubtree and make it virtual with default implementation
+        change setRenderInfo to be part of updateMutatedParams(samplerate, blocksize, maxtime)
+        prepareToRender calls setRenderInfo and traceNetwork restores lineage/heights/allnodes/allmp
+        remove timeNodeMaxSeconds turn it into something in GPExperiment
     create test suite to confirm that all primitives are working correctly
         copy construct
         make sure all silent before updateMutatedParams which will become updateSubtree maybe

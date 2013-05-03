@@ -22,7 +22,7 @@ public:
     void toString(bool printRange, std::stringstream& ss);
 
     // subclass overrides
-    virtual FunctionNode* getCopy() = 0
+    virtual FunctionNode* getCopy() = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
 
 private:

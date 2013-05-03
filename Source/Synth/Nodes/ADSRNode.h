@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    AddNode.h
+    ADSRNode.h
     Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
@@ -13,13 +13,13 @@
 
 #include "../GPNode.h"
 
-class AddNode: public GPNode {
+class ADSRNode: public GPNode {
 public:
-    AddNode(bool terminal, bool store, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
-    ~AddNode();
+    ADSRNode(bool terminal, bool store, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    ~ADSRNode();
 
 	// overrides
-    AddNode* getCopy();
+    ADSRNode* getCopy();
 	void prepareToPlay();
 	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);

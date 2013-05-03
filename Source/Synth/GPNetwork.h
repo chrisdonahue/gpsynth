@@ -38,9 +38,9 @@ public:
     std::vector<GPMutatableParam*>* getAllMutatableParams();
 
     // HELPERS
-    void mutate(GPParams* p);
     void replaceSubtree(GPNode* one, GPNode* two);
-    void traceNetwork(float sr, unsigned blockSize, float maxTime);
+    void prepareToRender(float sr, unsigned blockSize, float maxTime);
+    void traceNetwork();
     void ephemeralRandom(GPRandom* r);
 
     // PUBLIC STATE

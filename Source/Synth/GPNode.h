@@ -33,7 +33,7 @@ public:
         for (unsigned i = 0; i < arity; i++) {
             delete descendants[i];
         }
-        for (unsigned i = 0; i < arity - 1; i++) {
+        for (unsigned i = 0; i < descendantBuffers.size(); i++) {
             free(descendantBuffers[i]);
         }
         for (unsigned i = 0; i < mutatableParams.size(); i++) {
@@ -65,8 +65,12 @@ public:
 
     // OVERRIDABLE FUNCTIONS
     virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-        for (unsigned i = 1; i < arity; i++) {
-            descendantBuffers.push_back((float*) malloc(sizeof(float) * blockSize));
+        for (unsigned i = 0; i < arity - 1; i++) {
+            free(descendantBuffers[i]);
+        }
+        descendantBuffers.resize(arity - 1 < 0 ? 0 : arity - 1, NULL);
+        for (unsigned i = 0; i < arity - 1; i++) {
+            descendantBuffers[i] = (float*) malloc(sizeof(float) * blockSize);
         }
         for (unsigned i = 0; i < arity; i++) {
             descendants[i]->setRenderInfo(sr, blockSize, maxTime);

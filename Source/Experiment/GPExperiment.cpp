@@ -92,7 +92,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
         // sin test network
         GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
-        sinTestNet->traceNetwork();
+        sinTestNet->traceNetwork(samplerate, params->renderBlockSize, numframes);
         std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
         std::cout << "Network: " << sinTestNet->toString(true, 10) << std::endl;
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
@@ -134,58 +134,16 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // Eb5 Trumpet Additive Experiment
     if (params->experimentNumber == 4) {
         // SUPPLY AVAILABLE NODES
-        nodes->push_back(new FunctionNode(add, NULL, NULL));
-        nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+        //nodes->push_back(new FunctionNode(add, NULL, NULL));
+        //nodes->push_back(new FunctionNode(multiply, NULL, NULL));
         nodes->push_back(new ConstantNode(true, constantValue->getCopy(), NULL));
         nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
         nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
         nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ADSRNode(false, true, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-        nodes->push_back(new ADSRNode(false, false, targetSampleRate, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-    }
-    // TESTING NEW ADSR
-    if (params->experimentNumber == 8) {
-        GPMutatableParam* Delay = new GPMutatableParam("adsrdelay", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* Attack = new GPMutatableParam("adsrattack", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* AttackHeight = new GPMutatableParam("adsrattackheight", true, 0.8, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
-        GPMutatableParam* Decay = new GPMutatableParam("adsrdecay", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* Sustain = new GPMutatableParam("adsrsustain", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* SustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.5, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
-        GPMutatableParam* Release = new GPMutatableParam("adsrrelease", true, 0.2, 0.0, numTargetFrames / targetSampleRate);
-
-        GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 5);
-
-        GPNode* oscilPartialOne = new OscilNode(true, partialOne, 0, NULL, NULL);
-        GPNode* ADSRterm = new ADSRNode(false, true, targetSampleRate, Delay->getCopy(), Attack->getCopy(), AttackHeight->getCopy(), Decay->getCopy(), Sustain->getCopy(), SustainHeight->getCopy(), Release->getCopy(), NULL);
-        GPNode* ADSRnonterm = new ADSRNode(false, false, targetSampleRate, Delay->getCopy(), Attack->getCopy(), AttackHeight->getCopy(), Decay->getCopy(), Sustain->getCopy(), SustainHeight->getCopy(), Release->getCopy(), oscilPartialOne);
-        GPNode* mult = new FunctionNode(multiply, oscilPartialOne, ADSRterm);
-
-        GPNetwork* OSCIL = new GPNetwork(oscilPartialOne, "test");
-        OSCIL->traceNetwork();
-
-        GPNetwork* ADSRTERM = new GPNetwork(mult, "test");
-        ADSRTERM->traceNetwork();
-
-        GPNetwork* ADSRNONTERM = new GPNetwork(ADSRnonterm, "test");
-        ADSRNONTERM->traceNetwork();
-
-        float* oscil = (float*) malloc(sizeof(float) * numTargetFrames);
-        float* term = (float*) malloc(sizeof(float) * numTargetFrames);
-        float* nonterm = (float*) malloc(sizeof(float) * numTargetFrames);
-        renderIndividualByBlock(OSCIL, numTargetFrames, params->renderBlockSize, oscil);
-        renderIndividualByBlock(ADSRTERM, numTargetFrames, params->renderBlockSize, term);
-        renderIndividualByBlock(ADSRNONTERM, numTargetFrames, params->renderBlockSize, nonterm);
-
-        saveWavFile("./oscil.wav", String(OSCIL->toString(true, 10).c_str()), numTargetFrames, 44100, oscil);
-        saveWavFile("./term.wav", String(ADSRTERM->toString(true, 10).c_str()), numTargetFrames, 44100, term);
-        saveWavFile("./nonterm.wav", String(ADSRNONTERM->toString(true, 10).c_str()), numTargetFrames, 44100, nonterm);
-
-        free(oscil);
-        free(nonterm);
-        free(term);
-        exit(-1);
+        nodes->push_back(new ADSRNode(true, false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+        nodes->push_back(new ADSRNode(false, false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
     // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
     if (params->experimentNumber == 9) {
@@ -248,51 +206,6 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     }
     // filtered noise test
     if (params->experimentNumber == 5) {
-        GPNode* noiseNode = new NoiseNode(rng);
-        GPNode* constantNode = new ConstantNode(true, constantValue->getCopy(), NULL);
-        //GPNode* bandPass = new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
-        //GPNode* bandPass = new FilterNode(2, 3, 11000, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), noiseNode->getCopy(), constantNode->getCopy());
-        //GPNode* bandStop = new FilterNode(3, 3, 1024, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), noiseNode->getCopy(), constantNode->getCopy(), constantNode->getCopy());
-
-        GPNetwork* noiseNetwork = new GPNetwork(noiseNode, "test");
-        noiseNetwork->traceNetwork();
-        //GPNetwork* bandStopNoiseNetwork = new GPNetwork(bandStop);
-        //bandStopNoiseNetwork->ephemeralRandom(rng);
-        //bandStopNoiseNetwork->traceNetwork();
-        //GPNetwork* bandPassNoiseNetwork = new GPNetwork(bandPass);
-        //bandPassNoiseNetwork->ephemeralRandom(rng);
-        //bandPassNoiseNetwork->traceNetwork();
-
-        float* noise = (float*) malloc(sizeof(float) * numTargetFrames);
-        float* passNoise = (float*) malloc(sizeof(float) * numTargetFrames);
-        float* stopNoise = (float*) malloc(sizeof(float) * numTargetFrames);
-        renderIndividualByBlock(noiseNetwork, numTargetFrames, params->renderBlockSize, noise);
-        //renderIndividualByBlock(bandPassNoiseNetwork, numTargetFrames, params->renderBlockSize, passNoise);
-        //renderIndividualByBlock(bandStopNoiseNetwork, numTargetFrames, params->renderBlockSize, stopNoise);
-
-        saveWavFile("./noise.wav", String(noiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, noise);
-        //saveWavFile("./stopNoise.wav", String(bandStopNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, stopNoise);
-        //saveWavFile("./passNoise.wav", String(bandPassNoiseNetwork->toString(false, 10).c_str()), numTargetFrames, 44100, passNoise);
-
-        free(stopNoise);
-        free(passNoise);
-        free(noise);
-
-        exit(-1);
-
-        // RENDER AND SAVE ONE NETWORk
-        GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 5);
-        GPNode* oscilPartialOne = new OscilNode(true, partialOne, 0, NULL, NULL);
-        GPNetwork* oscil = new GPNetwork(oscilPartialOne, "test");
-        oscil->traceNetwork();
-        float* oscilBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        //renderEnvelopeAndEvaluate(true, oscil, oscilBuffer);
-        saveWavFile("./oscilEnv.wav", String(oscil->toString(false, 10).c_str()), numTargetFrames, targetSampleRate, oscilBuffer);
-        renderIndividualByBlock(oscil, numTargetFrames, params->renderBlockSize, oscilBuffer);
-        saveWavFile("./oscil.wav", String(oscil->toString(false, 10).c_str()), numTargetFrames, targetSampleRate, oscilBuffer);
-        free(oscilBuffer);
-        exit(-1);
-
         // SUPPLY AVAILABLE NODES
         nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
@@ -373,6 +286,7 @@ GPNetwork* GPExperiment::evolve() {
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
         GPNetwork* candidate = synth->getIndividual();
+        candidate->traceNetwork(targetSampleRate, params->renderBlockSize, params->timeNodeMaxSeconds);
 
         double fitness;
         renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, candidateData);
@@ -407,7 +321,7 @@ GPNetwork* GPExperiment::evolve() {
             generationMinimumFitness = INFINITY;
 
             float* genchampbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-            generationChamp->traceNetwork();
+            generationChamp->traceNetwork(targetSampleRate, params->renderBlockSize, params->timeNodeMaxSeconds);
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
             if (params->saveGenerationChampions) {
               char buffer[100];
@@ -436,7 +350,7 @@ GPNetwork* GPExperiment::evolve() {
 
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        champ->traceNetwork();
+        champ->traceNetwork(targetSampleRate, params->renderBlockSize, params->timeNodeMaxSeconds);
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champGeneration << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
