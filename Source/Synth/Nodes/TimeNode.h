@@ -20,13 +20,14 @@ public:
 
 	// overrides
     TimeNode* getCopy();
-	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
 	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
 
+    // optional overrides
+	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
 private:
 };
 

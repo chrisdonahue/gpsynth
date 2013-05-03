@@ -14,6 +14,7 @@
 #include "Nodes/ADSRNode.h"
 #include "Nodes/ConstantNode.h"
 #include "Nodes/FunctionNode.h"
+#include "Nodes/AddNode.h"
 #include "Nodes/NoiseNode.h"
 #include "Nodes/OscilNode.h"
 #include "Nodes/TimeNode.h"

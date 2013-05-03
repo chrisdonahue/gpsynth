@@ -38,10 +38,6 @@ VariableNode* VariableNode::getCopy() {
     return new VariableNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy());
 }
 
-void VariableNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-
-}
-
 void VariableNode::prepareToPlay() {
 
 }
@@ -59,7 +55,12 @@ void VariableNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
 }
 
 void VariableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-
+    firstFrameNumber;
+    sampleTimes;
+    numConstantVariables;
+    for (unsigned i = 0; i < numSamples; i++) {
+        buffer[i] = constantVariables[variableNum];
+    }
 }
 
 void VariableNode::updateMutatedParams() {

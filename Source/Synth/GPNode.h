@@ -24,7 +24,7 @@
 class GPNode {
 public:
     GPNode()
-        : parent(NULL), descendants(0),
+        : parent(NULL), descendants(0), descendantBuffers(0),
           depth(-1),
           mutatableParams(0)
     {
@@ -33,6 +33,9 @@ public:
         for (unsigned i = 0; i < arity; i++) {
             delete descendants[i];
         }
+        for (unsigned i = 0; i < arity - 1; i++) {
+            free(descendantBuffers[i]);
+        }
         for (unsigned i = 0; i < mutatableParams.size(); i++) {
             delete mutatableParams[i];
         }
@@ -40,7 +43,6 @@ public:
 
     // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
     virtual GPNode* getCopy() = 0;
-    virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) = 0;
     virtual void prepareToPlay() = 0;
     virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
@@ -50,6 +52,7 @@ public:
     // LINEAGE POINTERS
     GPNode* parent;
     std::vector<GPNode*> descendants;
+    std::vector<float*> descendantBuffers;
 
     // TREE STATE
     int depth;
@@ -60,12 +63,24 @@ public:
     float minimum;
     float maximum;
 
-    void getRange(float* min, float* max) {
+    // OVERRIDABLE FUNCTIONS
+    virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+        for (unsigned i = 1; i < arity; i++) {
+            descendantBuffers.push_back((float*) malloc(sizeof(float) * blockSize));
+        }
+        for (unsigned i = 0; i < arity; i++) {
+            descendants[i]->setRenderInfo(sr, blockSize, maxTime);
+        }
+    }
+
+    // gets the range of output values for this node
+    virtual void getRange(float* min, float* max) {
         *min = minimum;
         *max = maximum;
-    };
+    }
 
-    // PROPOGATE EPHEMERAL RANDOM CONSTANTS
+    // NON-OVERRIDABLE FUNCTIONS
+    // propogate ephemeral random constants
     void ephemeralRandom(GPRandom* r) {
         for (unsigned i = 0; i < mutatableParams.size(); i++) {
             mutatableParams[i]->ephemeralRandom(r);
@@ -73,10 +88,9 @@ public:
         for (unsigned i = 0; i < arity; i++) {
             descendants[i]->ephemeralRandom(r);
         }
-    };
+    }
 
-    // INHERITED TRACE METHOD
-    // this method ensures that I only have assign descendant pointers correctly during genetic operations
+    // this trace method ensures that I only have assign descendant pointers correctly during genetic operations
     void trace(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* treeHeight, int currentDepth) {
         // assign parent
         parent = p;

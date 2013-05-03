@@ -52,6 +52,7 @@ OBJECTS := \
   $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/NoiseNode.o \
   $(OBJDIR)/FunctionNode.o \
+  $(OBJDIR)/AddNode.o \
   $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
@@ -146,6 +147,11 @@ $(OBJDIR)/NoiseNode.o: ../../Source/Synth/Nodes/NoiseNode.cpp
 $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FunctionNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/AddNode.o: ../../Source/Synth/Nodes/AddNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling AddNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp

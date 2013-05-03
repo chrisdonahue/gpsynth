@@ -53,10 +53,6 @@ OscilNode* OscilNode::getCopy() {
         return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
-void OscilNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-
-}
-
 void OscilNode::prepareToPlay() {
 
 }
@@ -85,9 +81,6 @@ void OscilNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, do
 }
 
 void OscilNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-    if (!terminalOscil) {
-        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
-    }
     if (terminalOscil) {
         for (unsigned i = 0; i < numSamples; i++) {
             // produce a sine wave at frequency *currentIndex * p
@@ -95,6 +88,7 @@ void OscilNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
         }
     }
     else {
+        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
         for (unsigned i = 0; i < numSamples; i++) {
             // equivalent to chowning 1973 FM synthesis assuming buffer is a sine wave
             buffer[i] = sin( (w * (sampleTimes[i]) * (constantVariables[variableNum])) + (index * buffer[i]));

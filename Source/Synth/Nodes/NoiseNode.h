@@ -21,7 +21,6 @@ public:
 
 	// overrides
     NoiseNode* getCopy();
-	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
 	void prepareToPlay();
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);

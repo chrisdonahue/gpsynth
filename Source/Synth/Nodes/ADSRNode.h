@@ -15,7 +15,7 @@
 
 class AddNode: public GPNode {
 public:
-    AddNode(bool terminal, bool store, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    AddNode(bool terminal, bool store, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
     ~AddNode();
 
 	// overrides

@@ -38,10 +38,6 @@ NoiseNode* NoiseNode::getCopy() {
     return new NoiseNode(rng);
 }
 
-void NoiseNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-
-}
-
 void NoiseNode::prepareToPlay() {
 
 }

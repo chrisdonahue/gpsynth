@@ -210,13 +210,13 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     // function nodes
     else if (type.compare("+") == 0) {
-        return new FunctionNode(add, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+        return new AddNode(createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
     }
     else if (type.compare("*") == 0) {
-        return new FunctionNode(multiply, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+        return NULL;
     }
     else if (type.compare("sin") == 0) {
-        return new FunctionNode(sine, createSubtree(tokenizer, subtreeArgs), NULL);
+        return NULL;
     }
     // time node
     else if (type.compare("time") == 0) {

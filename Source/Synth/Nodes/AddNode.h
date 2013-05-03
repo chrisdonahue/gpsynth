@@ -15,17 +15,12 @@
 
 class AddNode: public FunctionNode {
 public:
-    AddNode(GPNode* signalone, GPNode* signaltwo);
+    AddNode(GPNode* zero, GPNode* one);
     ~AddNode();
 
 	// GPNode overrides
-    AddNode* getCopy();
-	void prepareToPlay();
-	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-
-    // FunctionNode overrides
-    float operate(float a, float b);
-    void operateInterval(double minone, double maxone, double mintwo, double maxtwo, double* lower, double* upper);
+    AddNode* getCopy() = 0
+	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
 
 private:
 };

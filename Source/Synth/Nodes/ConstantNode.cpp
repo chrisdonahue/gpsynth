@@ -48,10 +48,6 @@ ConstantNode* ConstantNode::getCopy() {
     }
 }
 
-void ConstantNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-
-}
-
 void ConstantNode::prepareToPlay() {
 
 }

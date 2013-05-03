@@ -16,12 +16,10 @@
     ========================
 */
 
-ADSRNode::ADSRNode(bool terminal, bool store, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal) :
-    sampleRate(sr)
+ADSRNode::ADSRNode(bool terminal, bool store, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal)
 {
     terminalADSR = terminal;
     storeBuffer = store;
-    sampleRate = sr;
     releaseFinished = false;
     framesInEnvelope = 0;
     envelope = NULL;
@@ -65,7 +63,8 @@ ADSRNode* ADSRNode::getCopy() {
 }
 
 void ADSRNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-
+    sampleRate = sr;
+    GPNode::setRenderInfo(sr, blockSize, maxTime);
 }
 
 void ADSRNode::prepareToPlay() {
