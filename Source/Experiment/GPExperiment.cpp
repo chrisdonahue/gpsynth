@@ -74,7 +74,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
         std::string sinTest = "(sin (* (* ((const {d 1 2 5}) (pi)) (* (time {c 0 5 10}) (const {c 0 440 22050}))))";
-        std::string storeADSRTest = "";
+        std::string storeADSRTest = "(adsr* {c } {c } {c } {c } {c } {c } {c} " + sinTest + ")";
         std::string noStoreADSRTest = "";
         std::string constantNodeEnvelopeTest = "";
         std::string additiveSynthesisTest = "";
@@ -82,19 +82,25 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::string variableNodeTest = "";
         std::string fmSynthesisTest = "";
 
-        // buffer for tests
-        float* testBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+        // buffers for tests
+        unsigned numframes = 88200;
+        params->timeNodeMaxSeconds = 2.0;
+        float samplerate = 44100.0;
+        float* testBuffer = (float*) malloc(sizeof(float) * numframes);
+        float* times = (float*) malloc(sizeof(float) * numframes);
+        fillTimeAxisBuffer(numframes, samplerate, times);
 
         // sin test network
-        GPNetwork* sinTestNet = new GPNetwork(p, rng, targetSampleRate, sinTest);
+        GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
         sinTestNet->traceNetwork();
         std::cout << "sinTest network: " << sinTestNet->toString(true, 10) << std::endl;
-        renderIndividualByBlockPerformance(sinTestNet, numTargetFrames, params->renderBlockSize, testBuffer);
+        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
         saveWavFile("./sinTest.wav", String(sinTestNet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
 
         // adsr test network
 
         // free test buffer
+        free(times);
         free(testBuffer);
     }
     if (params->experimentNumber == 3) {
@@ -701,8 +707,17 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
     }
 }
 
-void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numSamples, float* sampletimes, float* buffer) {
-
+void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numsamples, float* sampletimes, float* buffer) {
+    int64 numRemaining = numsamples;
+    int64 numCompleted = 0;
+    int64 bufferIndex = 0;
+    unsigned numToRender;
+    while (numRemaining > 0) {
+        numToRender = renderblocksize < numRemaining ? renderblocksize : numRemaining;
+        candidate->evaluateBlockPerformance(numCompleted, numToRender, sampletimes + numCompleted, numconstantvariables, constantvariables, buffer + numCompleted);
+        numRemaining -= numToRender;
+        numCompleted += numToRender;
+    }
 }
 
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
@@ -759,6 +774,24 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         free(phase);
         free(magnitude);
         free(output);
+    }
+    return ret;
+}
+
+double GPExperiment::compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo) {
+    double ret = -1;
+    if (type == 0) {
+        double sum = 0;
+        for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
+            sum += fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
+            /*
+            if (frameNum % 128 == 0) {
+                std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
+                std::cout << " sum: " << sum << " frameNum: " << frameNum << std::endl;
+            }
+            */
+        }
+        //ret = sqrt(sum);
     }
     return ret;
 }
@@ -1084,6 +1117,12 @@ void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float
     GRAPH HELPERS
     =============
 */
+
+void GPExperiment::fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer) {
+    for (unsigned frame = 0; frame < numSamples; frame++) {
+        buffer[frame] = float(frame)/sr;
+    }
+}
 
 void GPExperiment::fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer) {
     for (unsigned i = 0; i < (fftSize/2) + 1; i++) {

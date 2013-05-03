@@ -89,6 +89,8 @@ private:
 
     // FITNESS FUNCTION
     void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned renderBlockSize, float* buffer);
+    void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numsamples, float* sampletimes, float* buffer);
+    double compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo);
     double compareToTarget(unsigned type, float* candidateFrames);
 
     // FOURIER TRANSFORM
@@ -106,6 +108,7 @@ private:
     void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
 
     // GRAPH HELPERS
+    void fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer);
     void fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer);
     String floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z);
     String doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z);
