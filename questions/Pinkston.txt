@@ -20,3 +20,8 @@
     How to get butterworth coefficients to move over time?
     Talk about fitness function
     Discuss what he thinks about a presentation in a week.
+4/30/13:
+    Spline function
+    breakpoint functions
+    filter in music 360
+    precompute filter coeffiecients to some discrete amoun
