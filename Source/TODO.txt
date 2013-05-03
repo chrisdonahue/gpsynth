@@ -74,6 +74,7 @@ TODO long run:
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
+    FUNCTION NODE OVERHAUL
     create test suite to confirm that all primitives are working correctly
         copy construct
         make sure all silent before updateMutatedParams which will become updateSubtree maybe

@@ -182,7 +182,7 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     std::string type = tokens[consume];
     std::string last;
 
-    std::cout << type << std::endl;
+    //std::cout << type << std::endl;
 
     // radius around constant nodes (any nonzero value should be the same)
     double constantRadius = 1;

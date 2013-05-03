@@ -40,8 +40,6 @@ inline void intervalMultiply(float* min, float* max, float zeromin, float zeroma
 
 // http://stackoverflow.com/a/236803
 inline std::vector<std::string> &split(const std::string &s, std::vector<std::string> &elems, const char* delims) {
-    //std::stringstream ss(s);
-    //std::string item;
     std::size_t prev = 0, pos;
     while ((pos = s.find_first_of(delims, prev)) != std::string::npos)
     {
@@ -50,20 +48,6 @@ inline std::vector<std::string> &split(const std::string &s, std::vector<std::st
         prev = pos+1;
     }
     return elems;
-    /*
-    unsigned start = 0;
-    unsigned end = s.find_first_of(delims, start + 1);
-    std::cout << s << ", length: " << s.size() << ", delims " << delims << std::endl;
-    std::cout << "---tokens---" << std::endl;
-    while (end != std::string::npos) {
-        std::string token = s.substr(start, end - start);
-        std::cout << "s: " << start << ", e: " << end << ", " << token << std::endl;
-        elems.push_back(token);
-        start = end;
-        end = s.find_first_of(delims, start + 1);
-    }
-    return elems;
-    */
 }
 
 inline std::vector<std::string> split(const std::string &s, const char* delims) {

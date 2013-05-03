@@ -73,7 +73,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
     // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
-        std::string sinTest = "(sin (* (* ((const {d 1 2 5}) (pi)) (* (time {c 0 5 10}) (const {c 0 440 22050}))))";
+        std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time {c 0.0 2.0 10.0}) (const {c 0.0 440.0 22050.0}))))";
         std::string storeADSRTest = "(adsr* {c } {c } {c } {c } {c } {c } {c} " + sinTest + ")";
         std::string noStoreADSRTest = "";
         std::string constantNodeEnvelopeTest = "";
@@ -93,9 +93,12 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         // sin test network
         GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
         sinTestNet->traceNetwork();
-        std::cout << "sinTest network: " << sinTestNet->toString(true, 10) << std::endl;
+        std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
+        std::cout << "Network: " << sinTestNet->toString(true, 10) << std::endl;
+        std::cout << "Min: " << sinTestNet->minimum << std::endl;
+        std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        saveWavFile("./sinTest.wav", String(sinTestNet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
+        saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
 
         // adsr test network
 
