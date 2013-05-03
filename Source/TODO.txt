@@ -74,7 +74,9 @@ TODO long run:
     consider changing proportion * bad + base to just bad + base...
 
 NEXT EXPERIMENTS:
-    FUNCTION NODE OVERHAUL
+    FUNCTION NODE OVERHAUL:
+        AddNode, MultiplyNode, etc. are subclasses of FunctionNode.
+        all haev own implementation of evaluateBlockPerformance but they all inherit evaluteBlock
     create test suite to confirm that all primitives are working correctly
         copy construct
         make sure all silent before updateMutatedParams which will become updateSubtree maybe

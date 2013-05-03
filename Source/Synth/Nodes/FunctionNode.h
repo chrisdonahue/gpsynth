@@ -11,14 +11,10 @@
 #ifndef FUNCTIONNODE_H
 #define FUNCTIONNODE_H
 
-#include "../../Common/GPFunctions.h"
 #include "../GPNode.h"
 
 class FunctionNode: public GPNode {
 public:
-    FunctionNode(GPFunction gpfun, GPNode* zero, GPNode* one);
-    ~FunctionNode();
-
 	// overrides
     FunctionNode* getCopy();
 	void prepareToPlay();
@@ -28,8 +24,12 @@ public:
 	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
 
+    // subclass override for interval calculation
+    virtual float operate(float a, float b) = 0;
+    virtual void operateInterval(float minone, float maxone, float mintwo, float maxtwo, float* lower, float* upper) = 0;
+
 private:
-    GPFunction gpfunction;
+    std::string symbol;
 };
 
 #endif
