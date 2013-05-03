@@ -44,6 +44,10 @@ FunctionNode* FunctionNode::getCopy() {
     return ret;
 }
 
+void FunctionNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+
+}
+
 void FunctionNode::prepareToPlay() {
 
 }
@@ -57,30 +61,22 @@ void FunctionNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v,
         double onemax = std::numeric_limits<double>::max();
         float* oneBlock = (float*) malloc(sizeof(float) * n);
         descendants[1]->evaluateBlock(fn, t, nv, v, &onemin, &onemax, n, oneBlock);
-        gpfunction.calculateRange(min, max, zeromin, zeromax, onemin, onemax);
+        operateInterval(zeromin, zeromax, onemin, onemax, min, max);
         for (unsigned i = 0; i < n; i++) {
-            buffer[i] = gpfunction.function(buffer[i], oneBlock[i]);
+            buffer[i] = operate(buffer[i], oneBlock[i]);
         }
         free(oneBlock);
     }
     else {
-        gpfunction.calculateRange(min, max, zeromin, zeromax, 0.0, 0.0);
+        operateInterval(min, max, zeromin, zeromax, 0.0, 0.0);
         for (unsigned i = 0; i < n; i++) {
-            buffer[i] = gpfunction.function(buffer[i], 0.0);
+            buffer[i] = operate(buffer[i], 0.0);
         }
     }
 }
 
-void FunctionNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-
-}
-
-void FunctionNode::getRangeTemp(float* min, float* max) {
-
-}
-
 void FunctionNode::toString(bool printRange, std::stringstream& ss) {
-    ss << "(" << gpfunction.symbol;
+    ss << "(" << symbol;
     for (unsigned i = 0; i < arity; i++) {
         ss << " ";
         descendants[i]->toString(printRange, ss);

@@ -98,7 +98,7 @@ void LFONode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSa
     }
 }
 
-void LFONode::getRangeTemp(float* min, float* max) {
+void LFONode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
 
 }
 

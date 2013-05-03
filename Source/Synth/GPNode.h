@@ -40,10 +40,10 @@ public:
 
     // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
     virtual GPNode* getCopy() = 0;
+    virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) = 0;
     virtual void prepareToPlay() = 0;
     virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
-    virtual void getRangeTemp(float* min, float* max) = 0;
     virtual void updateMutatedParams() = 0;
     virtual void toString(bool printRange, std::stringstream& ss) = 0;
 

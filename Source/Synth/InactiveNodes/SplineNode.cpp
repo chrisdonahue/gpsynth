@@ -250,7 +250,7 @@ void SplineNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned nu
     }
 }
 
-void SplineNode::getRangeTemp(float* min, float* max) {
+void SplineNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
 
 }
 

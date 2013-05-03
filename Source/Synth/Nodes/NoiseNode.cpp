@@ -38,6 +38,10 @@ NoiseNode* NoiseNode::getCopy() {
     return new NoiseNode(rng);
 }
 
+void NoiseNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+
+}
+
 void NoiseNode::prepareToPlay() {
 
 }
@@ -77,11 +81,8 @@ void NoiseNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
 
 }
 
-void NoiseNode::getRangeTemp(float* min, float* max) {
-
-}
-
 void NoiseNode::updateMutatedParams() {
+
 }
 
 void NoiseNode::toString(bool printRange, std::stringstream& ss) {

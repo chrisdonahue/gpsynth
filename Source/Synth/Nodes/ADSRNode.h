@@ -1,29 +1,29 @@
 /*
   ==============================================================================
 
-    ADSRNode.h
+    AddNode.h
     Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef ADSRNODE_H
-#define ADSRNODE_H
+#ifndef ADDNODE_H
+#define ADDNODE_H
 
 #include "../GPNode.h"
 
-class ADSRNode: public GPNode {
+class AddNode: public GPNode {
 public:
-    ADSRNode(bool terminal, bool store, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
-    ~ADSRNode();
+    AddNode(bool terminal, bool store, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    ~AddNode();
 
 	// overrides
-    ADSRNode* getCopy();
+    AddNode* getCopy();
 	void prepareToPlay();
+	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
     void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-	void getRangeTemp(float* min, float* max);
 	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
 

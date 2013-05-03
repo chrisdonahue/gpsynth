@@ -159,7 +159,7 @@ void FilterNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, d
     free(cfbuffer);
 }
 
-void FilterNode::getRangeTemp(float* min, float* max) {
+void FilterNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
 
 }
 

@@ -97,9 +97,10 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
     return &allMutatableParams;
 }
 
-void GPNetwork::traceNetwork() {
+void GPNetwork::traceNetwork(float sr, unsigned blockSize, float maxTime) {
     allNodes.clear();
     allMutatableParams.clear();
+    root->setRenderInfo(sr, blockSize, maxTime);
     root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
     root->updateMutatedParams();
     minimum = root->minimum;
@@ -219,7 +220,7 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     // time node
     else if (type.compare("time") == 0) {
-        return new TimeNode(createMutatableParam(tokenizer, true, "timemax"));
+        return new TimeNode();
     }
     // noise node
     else if (type.compare("whitenoise") == 0) {

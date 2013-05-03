@@ -40,7 +40,7 @@ public:
     // HELPERS
     void mutate(GPParams* p);
     void replaceSubtree(GPNode* one, GPNode* two);
-    void traceNetwork();
+    void traceNetwork(float sr, unsigned blockSize, float maxTime);
     void ephemeralRandom(GPRandom* r);
 
     // PUBLIC STATE

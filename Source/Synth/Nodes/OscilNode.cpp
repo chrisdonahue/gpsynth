@@ -53,6 +53,10 @@ OscilNode* OscilNode::getCopy() {
         return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
+void OscilNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+
+}
+
 void OscilNode::prepareToPlay() {
 
 }
@@ -96,10 +100,6 @@ void OscilNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
             buffer[i] = sin( (w * (sampleTimes[i]) * (constantVariables[variableNum])) + (index * buffer[i]));
         }
     }
-}
-
-void OscilNode::getRangeTemp(float* min, float* max) {
-
 }
 
 void OscilNode::updateMutatedParams() {

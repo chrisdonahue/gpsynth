@@ -57,6 +57,6 @@ void DelayNode::toString(bool printRange, std::stringstream& ss) {
 void DelayNode::prepareToPlay() {
 }
 
-void DelayNode::getRangeTemp(float* min, float* max) {
+void DelayNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
 
 }

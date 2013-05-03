@@ -64,6 +64,10 @@ ADSRNode* ADSRNode::getCopy() {
     }
 }
 
+void ADSRNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+
+}
+
 void ADSRNode::prepareToPlay() {
 
 }
@@ -243,10 +247,6 @@ void ADSRNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numS
             buffer[i] = 0.0;
         }
     }
-}
-
-void ADSRNode::getRangeTemp(float* min, float* max) {
-
 }
 
 void ADSRNode::updateMutatedParams() {

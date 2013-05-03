@@ -48,7 +48,12 @@ ConstantNode* ConstantNode::getCopy() {
     }
 }
 
+void ConstantNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+
+}
+
 void ConstantNode::prepareToPlay() {
+
 }
 
 void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
@@ -95,10 +100,6 @@ void ConstantNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
 			buffer[i] *= value;
 		}
 	}
-}
-
-void ConstantNode::getRangeTemp(float* min, float* max) {
-
 }
 
 void ConstantNode::updateMutatedParams() {
