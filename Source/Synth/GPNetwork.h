@@ -53,9 +53,13 @@ public:
     float minimum;
     float maximum;
 
+    // render state
+    bool preparedToRender;
+
 private:
     // PRIVATE STATE
     GPNode* root;
+    GPNode* renderRoot;
     std::vector<GPNode*> allNodes;
     std::vector<GPMutatableParam*> allMutatableParams;
 };

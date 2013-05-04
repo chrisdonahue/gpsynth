@@ -77,8 +77,9 @@ public:
         doneRendering();
 
         // allocate some new buffers in case blockSize changed
-        descendantBuffers.resize(arity == 0 ? 0 : arity - 1, NULL);
-        for (unsigned i = 0; i < descendantBuffers.size(); i++) {
+        unsigned numDescendantBuffers = arity == 0 ? 0 : arity - 1;
+        descendantBuffers.resize(numDescendantBuffers, NULL);
+        for (unsigned i = 0; i < numDescendantBuffers; i++) {
             descendantBuffers[i] = (float*) malloc(sizeof(float) * blockSize);
         }
 
@@ -92,7 +93,8 @@ public:
 
     virtual void doneRendering() {
         if (renderInfoSet) {
-            for (unsigned i = 0; i < arity - 1; i++) {
+            unsigned numDescendantBuffers = arity == 0 ? 0 : arity - 1;
+            for (unsigned i = 0; i < numDescendantBuffers; i++) {
                 free(descendantBuffers[i]);
             }
 

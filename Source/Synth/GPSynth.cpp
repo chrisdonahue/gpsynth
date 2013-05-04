@@ -268,7 +268,6 @@ int GPSynth::nextGeneration() {
     for (unsigned i = 0; i < numToNumericMutate; i++) {
         GPNetwork* selected = selectFromEvaluated(params->numericMutationSelectionType, numForPossibleNumericMutation);
         GPNetwork* one = selected->getCopy("numeric mutation");
-        one->traceNetwork();
         numericallyMutate(one);
         nextGeneration->push_back(one);
         //selected->fitness = newfitness;
@@ -291,16 +290,15 @@ int GPSynth::nextGeneration() {
         GPNetwork* dad = selectFromEvaluated(params->crossoverSelectionType, 0);
         GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
         GPNetwork* one = dad->getCopy("crossover");
-        one->traceNetwork();
         one->ID = dad->ID;
         GPNetwork* two = mom->getCopy("crossover");
-        two->traceNetwork();
         two->ID = mom->ID;
 
         GPNetwork* offspring = crossover(one, two);
 
         // standard GP with two offspring
         if (offspring == NULL) {
+            one->traceNetwork();
             if (one->height > maxHeight) {
                 delete one;
                 one = dad->getCopy("reproduction during crossover");
@@ -308,6 +306,7 @@ int GPSynth::nextGeneration() {
             nextGeneration->push_back(one);
             i++;
             if (i < numToCrossover) {
+                two->traceNetwork();
                 if (two->height > maxHeight) {
                     delete two;
                     two = mom->getCopy("reproduction during crossover");
@@ -413,6 +412,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     }
     net->ID = nextNetworkID++;
     net->traceNetwork();
+    assert(net->height <= maxHeight);
     if (params->backupAllNetworks)
       allNetworks.push_back(new std::string(net->toString(true, params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
@@ -508,9 +508,6 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
         GPNode* subtreetwocopy = subtreetwo->getCopy();
         one->replaceSubtree(subtreeone, subtreetwocopy);
         two->replaceSubtree(subtreetwo, subtreeonecopy);
-        // TODO: do these traces need to happen?
-        one->traceNetwork();
-        two->traceNetwork();
         delete subtreeone;
         delete subtreetwo;
 
@@ -552,10 +549,6 @@ void GPSynth::mutate(GPNetwork* one) {
         // replace and delete old
         one->replaceSubtree(forReplacement, replacement);
         delete forReplacement;
-
-        // TODO: is this trace needed here?
-        one->traceNetwork();
-        assert(one->height <= maxHeight);
     }
 }
 

@@ -19,14 +19,16 @@
 GPNetwork::GPNetwork(GPNode* r, std::string o) :
     ID(-1), origin(o), height(-1), fitness(-1),
     minimum(-INFINITY), maximum(INFINITY),
-    root(r), allNodes(0), allMutatableParams(0)
+    preparedToRender(false),
+    renderRoot(new SilenceNode()), root(r), allNodes(0), allMutatableParams(0)
 {
 }
 
 GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstring) :
     ID(-1), origin("string"), height(-1), fitness(-1),
     minimum(-INFINITY), maximum(INFINITY),
-    allNodes(0), allMutatableParams(0)
+    preparedToRender(false),
+    renderRoot(new SilenceNode()), allNodes(0), allMutatableParams(0)
 {
     std::vector<std::string> tokens = split(netstring, " }{)(");
     for (unsigned i = 0; i < tokens.size(); i++) {
@@ -37,7 +39,10 @@ GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstrin
 }
 
 GPNetwork::~GPNetwork() {
-    delete root;
+    if (!preparedToRender) {
+        delete root;
+    }
+    delete renderRoot;
 }
 
 GPNetwork* GPNetwork::getCopy(std::string neworigin) {
@@ -52,8 +57,7 @@ GPNetwork* GPNetwork::getCopy(std::string neworigin) {
 */
 
 void GPNetwork::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-    root->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
-    //printf("min: %.2lf max: %.2lf\n", root->minimum, root->maximum);
+    renderRoot->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
 }
 
 
@@ -90,17 +94,29 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
     =======
 */
 
+// renderRoot = silence and root = realroot whenever preparedToRender is false
+// renderRoot = realroot and root = realroot whenever preparedToRender is true
 void GPNetwork::prepareToRender(float sr, unsigned blockSize, float maxTime) {
+    doneRendering();
+    if (!preparedToRender) {
+        delete renderRoot;
+    }
     root->setRenderInfo(sr, blockSize, maxTime);
     root->updateMutatedParams();
     minimum = root->minimum;
     maximum = root->maximum;
+    renderRoot = root;
+    preparedToRender = true;
 }
 
 void GPNetwork::doneRendering() {
-    root->doneRendering();
-    minimum = -INFINITY;
-    maximum = INFINITY;
+    if (preparedToRender) {
+        root->doneRendering();
+        minimum = -INFINITY;
+        maximum = INFINITY;
+        renderRoot = new SilenceNode();
+        preparedToRender = false;
+    }
 }
 
 void GPNetwork::traceNetwork() {
@@ -220,10 +236,6 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     else if (type.compare("sin") == 0) {
         return new SineNode(createSubtree(tokenizer, subtreeArgs));
     }
-    // time node
-    else if (type.compare("time") == 0) {
-        return new TimeNode();
-    }
     // noise node
     else if (type.compare("whitenoise") == 0) {
         return new NoiseNode(rng);
@@ -234,6 +246,14 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     else if (type.compare("fm") == 0) {
         return new OscilNode(false, createMutatableParam(tokenizer, false, "oscilvarnum"), createMutatableParam(tokenizer, true, "oscilpartial"), createMutatableParam(tokenizer, true, "oscilindex"), createSubtree(tokenizer, subtreeArgs));
+    }
+    // silence node
+    else if (type.compare("silence") == 0) {
+        return new SilenceNode();
+    }
+    // time node
+    else if (type.compare("time") == 0) {
+        return new TimeNode();
     }
     // variable node
     else if (type.compare("var") == 0) {

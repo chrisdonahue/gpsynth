@@ -19,6 +19,7 @@
 #include "Nodes/SineNode.h"
 #include "Nodes/NoiseNode.h"
 #include "Nodes/OscilNode.h"
+#include "Nodes/SilenceNode.h"
 #include "Nodes/TimeNode.h"
 #include "Nodes/VariableNode.h"
 

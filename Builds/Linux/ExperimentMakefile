@@ -55,6 +55,7 @@ OBJECTS := \
   $(OBJDIR)/MultiplyNode.o \
   $(OBJDIR)/SineNode.o \
   $(OBJDIR)/ConstantNode.o \
+  $(OBJDIR)/SilenceNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
   $(OBJDIR)/kiss_fft.o \
@@ -163,6 +164,11 @@ $(OBJDIR)/SineNode.o: ../../Source/Synth/Nodes/SineNode.cpp
 $(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ConstantNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SilenceNode.o: ../../Source/Synth/Nodes/SilenceNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SilenceNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp

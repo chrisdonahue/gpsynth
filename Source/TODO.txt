@@ -76,6 +76,7 @@ TODO long run:
     prepareToRender() called when network needs to prepare to render. prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
 
 NEXT EXPERIMENTS:
+    look at AUDACITY rendering code and replicate that in OscilNode?
     create test suite to confirm that all primitives are working correctly
         copy construct
         make sure all silent before updateMutatedParams which will become updateSubtree maybe

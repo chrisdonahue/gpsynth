@@ -75,8 +75,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
         std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
-        std::string storeADSRTest = "(adsr* {c } {c } {c } {c } {c } {c } {c} " + sinTest + ")";
-        std::string noStoreADSRTest = "";
+        std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} " + sinTest + ")";
         std::string constantNodeEnvelopeTest = "";
         std::string additiveSynthesisTest = "";
         std::string noiseTest = "";
@@ -92,8 +91,8 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         float* sineBuffer = (float*) malloc(sizeof(float) * numframes);
         float* times = (float*) malloc(sizeof(float) * numframes);
         fillTimeAxisBuffer(numframes, samplerate, times);
-        loadWavFile("tests/silenceTestTarget.wav", numframes, silenceBuffer);
-        loadWavFile("tests/sinWave440TestTarget.wav", numframes, silenceBuffer);
+        loadWavFile("./tests/silenceTestTarget.wav", numframes, silenceBuffer);
+        loadWavFile("./tests/sinWave440TestTarget.wav", numframes, sineBuffer);
 
         // sin test network
         GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
@@ -103,6 +102,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        sinTestNet->doneRendering();
         assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
         sinTestNet->traceNetwork();
         std::cout << "Network after trace:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
@@ -110,6 +110,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        sinTestNet->doneRendering();
         assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
         sinTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds); 
         std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
@@ -118,10 +119,23 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
         sinTestNet->doneRendering();
-        assert(compareWaveforms(0, numframes, sineBuffer, testBuffer) == 0);
+        double error = compareWaveforms(0, numframes, sineBuffer, testBuffer);
+        std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
+        assert(compareWaveforms(0, numframes, sineBuffer, testBuffer) < 10);
         saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
 
         // adsr test network
+        GPNetwork* ADSRTestNet = new GPNetwork(p, rng, samplerate, ADSRTest);
+        ADSRTestNet->traceNetwork();
+        ADSRTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds);
+        std::cout << "----TESTING ADSR----" << std::endl;
+        std::cout << "Network: " << std::endl << ADSRTestNet->toString(true, 10) << std::endl;
+        std::cout << "Height: " << sinTestNet->height << std::endl;
+        std::cout << "Min: " << sinTestNet->minimum << std::endl;
+        std::cout << "Max: " << sinTestNet->maximum << std::endl;
+        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        ADSRTestNet->doneRendering();
+        saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
 
         // free test buffer
         free(times);
@@ -726,15 +740,15 @@ double GPExperiment::compareWaveforms(unsigned type, unsigned numSamples, float*
     if (type == 0) {
         double sum = 0;
         for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
-            sum += fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
+            double error = fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
+            sum += error;
             /*
             if (frameNum % 128 == 0) {
-                std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
-                std::cout << " sum: " << sum << " frameNum: " << frameNum << std::endl;
+                std::cout << "frame " << frameNum << "; one: " << samplesOne[frameNum] << ", two: " << samplesTwo[frameNum] << ", error: " << error << ", sum: " << sum << std::endl;
             }
             */
         }
-        //ret = sqrt(sum);
+        ret = sum;
     }
     return ret;
 }
