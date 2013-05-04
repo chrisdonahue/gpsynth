@@ -18,9 +18,11 @@ public:
     AddNode(GPNode* zero, GPNode* one);
     ~AddNode();
 
-	// GPNode overrides
+	// overrides
     AddNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
+
+    // optional overrides
 	void updateMutatedParams();
 
 private:

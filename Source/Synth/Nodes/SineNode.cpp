@@ -46,7 +46,7 @@ void SineNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numS
 }
 
 void SineNode::updateMutatedParams() {
+    FunctionNode::updateMutatedParams();
     minimum = -1.0;
     maximum = 1.0;
-    FunctionNode::updateMutatedParams();
 }

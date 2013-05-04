@@ -48,6 +48,6 @@ void MultiplyNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
 }
 
 void MultiplyNode::updateMutatedParams() {
-    intervalMultiply(&minimum, &maximum, descendants[0]->minimum, descendants[0]->maximum, descendants[1]->minimum, descendants[1]->maximum);
     FunctionNode::updateMutatedParams();
+    intervalMultiply(&minimum, &maximum, descendants[0]->minimum, descendants[0]->maximum, descendants[1]->minimum, descendants[1]->maximum);
 }

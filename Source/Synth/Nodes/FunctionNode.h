@@ -16,9 +16,6 @@
 class FunctionNode: public GPNode {
 public:
 	// overrides
-	void prepareToPlay();
-    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
-	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
 
     // subclass overrides

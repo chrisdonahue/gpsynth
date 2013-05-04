@@ -26,12 +26,13 @@ public:
     GPNode()
         : parent(NULL), descendants(0), descendantBuffers(0),
           depth(-1),
-          mutatableParams(0)
+          mutatableParams(0), minimum(-INFINITY), maximum(INFINITY),
+          renderInfoSet(false), preparedToRender(false)
     {
     }
     virtual ~GPNode() {
         // if we never set render info...
-        if (descendantBuffers.size() > 0) {
+        if (preparedToRender) {
             for (unsigned i = 0; i < arity - 1; i++) {
                 free(descendantBuffers[i]);
             }
@@ -46,10 +47,7 @@ public:
 
     // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
     virtual GPNode* getCopy() = 0;
-    virtual void prepareToPlay() = 0;
-    virtual void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
-    virtual void updateMutatedParams() = 0;
     virtual void toString(bool printRange, std::stringstream& ss) = 0;
 
     // LINEAGE POINTERS
@@ -61,17 +59,22 @@ public:
     int depth;
     unsigned arity;
 
-    // MUTATABLE PARAMS
+    // MUTATABLE PARAM RELATED
     std::vector<GPMutatableParam*> mutatableParams;
     float minimum;
     float maximum;
 
+    // READY TO RENDER
+    bool renderInfoSet;
+    bool preparedToRender;
+
     // OVERRIDABLE FUNCTIONS
+    virtual void prepareToPlay() {
+    }
+
     virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-        // if descendant buffers have ever been allocated before free them
-        for (unsigned i = 0; i < descendantBuffers.size(); i++) {
-            free(descendantBuffers[i]);
-        }
+        // clear out old render info if it exists
+        doneRendering();
 
         // allocate some new buffers in case blockSize changed
         descendantBuffers.resize(arity == 0 ? 0 : arity - 1, NULL);
@@ -83,12 +86,31 @@ public:
         for (unsigned i = 0; i < arity; i++) {
             descendants[i]->setRenderInfo(sr, blockSize, maxTime);
         }
+
+        renderInfoSet = true;
     }
 
-    // gets the range of output values for this node
-    virtual void getRange(float* min, float* max) {
-        *min = minimum;
-        *max = maximum;
+    virtual void doneRendering() {
+        if (renderInfoSet) {
+            for (unsigned i = 0; i < arity - 1; i++) {
+                free(descendantBuffers[i]);
+            }
+
+            for (unsigned i = 0; i < arity; i++) {
+                descendants[i]->doneRendering();
+            }
+            
+            renderInfoSet = false;
+            preparedToRender = false;
+        }
+    }
+
+    virtual void updateMutatedParams() {
+        assert(renderInfoSet == true);
+        for (unsigned i = 0; i < arity; i++) {
+            descendants[i]->updateMutatedParams();
+        }
+        preparedToRender = true;
     }
 
     // NON-OVERRIDABLE FUNCTIONS

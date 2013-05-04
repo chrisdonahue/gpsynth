@@ -73,19 +73,9 @@ TODO long run:
     exponential ADSR?
     Get filters (simple) working again. Switch filter libs probably
     consider changing proportion * bad + base to just bad + base...
+    prepareToRender() called when network needs to prepare to render. prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
 
 NEXT EXPERIMENTS:
-    figure out why note is off pitch? perfect pitch failing me? lol
-    NODES restructure:
-        do all malloc stuff in setRenderInfo so we're not calling malloc in evaluateBlockPerformance
-        ignore evaluateBlock for now, just use performance
-        finish function node stuff
-        learn more about inheritance, should be able to call super() from setRenderInfo for most stuff
-        change updateMutatedParams to updatedSubtree and make it virtual with default implementation
-        change setRenderInfo to be part of updateMutatedParams(samplerate, blocksize, maxtime)
-        prepareToRender calls setRenderInfo and traceNetwork restores lineage/heights/allnodes/allmp
-        add unprepareToRender and use this/prepare to always store ADSRNode buffers
-        remove timeNodeMaxSeconds turn it into something in GPExperiment
     create test suite to confirm that all primitives are working correctly
         copy construct
         make sure all silent before updateMutatedParams which will become updateSubtree maybe

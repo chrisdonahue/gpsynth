@@ -88,8 +88,12 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         float maxSeconds = 2.0;
         float samplerate = 44100.0;
         float* testBuffer = (float*) malloc(sizeof(float) * numframes);
+        float* silenceBuffer = (float*) malloc(sizeof(float) * numframes);
+        float* sineBuffer = (float*) malloc(sizeof(float) * numframes);
         float* times = (float*) malloc(sizeof(float) * numframes);
         fillTimeAxisBuffer(numframes, samplerate, times);
+        loadWavFile("tests/silenceTestTarget.wav", numframes, silenceBuffer);
+        loadWavFile("tests/sinWave440TestTarget.wav", numframes, silenceBuffer);
 
         // sin test network
         GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
@@ -98,17 +102,23 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::cout << "Height: " << sinTestNet->height << std::endl;
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
+        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
         sinTestNet->traceNetwork();
         std::cout << "Network after trace:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
         std::cout << "Height: " << sinTestNet->height << std::endl;
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
+        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
         sinTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds); 
         std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
         std::cout << "Height: " << sinTestNet->height << std::endl;
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        sinTestNet->doneRendering();
+        assert(compareWaveforms(0, numframes, sineBuffer, testBuffer) == 0);
         saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
 
         // adsr test network
@@ -116,6 +126,8 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         // free test buffer
         free(times);
         free(testBuffer);
+        free(silenceBuffer);
+        free(sineBuffer);
     }
     if (params->experimentNumber == 3) {
         // PARAMS
@@ -153,8 +165,8 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ADSRNode(true, false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-        nodes->push_back(new ADSRNode(false, false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+        nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+        nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
     }
     // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
     if (params->experimentNumber == 9) {
@@ -296,12 +308,14 @@ GPNetwork* GPExperiment::evolve() {
     float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
+        // render candidate
         GPNetwork* candidate = synth->getIndividual();
         candidate->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-
-        double fitness;
         renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, candidateData);
-        fitness = compareToTarget(params->fitnessFunctionType, candidateData);
+        candidate->doneRendering();
+        
+        // evaluate candidate
+        double fitness = compareToTarget(params->fitnessFunctionType, candidateData);
         numEvaluated++;
 
         //TODO: handle lowerFitnessIsBetter
@@ -334,6 +348,7 @@ GPNetwork* GPExperiment::evolve() {
             float* genchampbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
             generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
+            generationChamp->doneRendering();
             if (params->saveGenerationChampions) {
               char buffer[100];
               snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
@@ -363,6 +378,7 @@ GPNetwork* GPExperiment::evolve() {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
+        champ->doneRendering();
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champGeneration << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
         snprintf(buffer, 100, "%d.champion.wav", seed);
@@ -628,7 +644,7 @@ void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSample
     unsigned numToRender;
     while (numRemaining > 0) {
         numToRender = renderBlockSize < numRemaining ? renderBlockSize : numRemaining;
-        candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
+        //candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
         numRemaining -= numToRender;
         numCompleted += numToRender;
     }

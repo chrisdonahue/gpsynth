@@ -15,24 +15,23 @@
 
 class ADSRNode: public GPNode {
 public:
-    ADSRNode(bool terminal, bool store, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    ADSRNode(bool terminal, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
     ~ADSRNode();
 
 	// overrides
     ADSRNode* getCopy();
-	void prepareToPlay();
-	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
-    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-	void updateMutatedParams();
     void toString(bool printRange, std::stringstream& ss);
+
+    // optional overrides
+	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
+    void doneRendering();
+	void updateMutatedParams();
 
 	// class specific
     void fillFromParams();
-    inline float getEnvelopeValue(unsigned fn);
 
 private:
-    bool storeBuffer;
     bool terminalADSR;
     double sampleRate;
     bool releaseFinished;

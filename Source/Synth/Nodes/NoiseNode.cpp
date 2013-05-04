@@ -38,47 +38,19 @@ NoiseNode* NoiseNode::getCopy() {
     return new NoiseNode(rng);
 }
 
-void NoiseNode::prepareToPlay() {
+void NoiseNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
+	firstFrameNumber;
+	sampleTimes;
+    numConstantVariables;
+    constantVariables;
 
-}
-
-void NoiseNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-	v;
-	nv;
-	t;
-
-    *min = minimum;
-    *max = maximum;
-
-    if (fn == 0) {
+    if (firstFrameNumber == 0) {
         g_fScale = 2.0f / 0xffffffff;
         g_x1 = 0x67452301;
         g_x2 = 0xefcdab89;
     }
 
-    /*
-    for (unsigned i = 0; i < n; i++) {
-        buffer[i] = rng->gauss();
-    }
-    */
-
-    whitenoise(buffer, n, 1.0);
-
-    /*
-    for (unsigned i = 0; i < n; i++) {
-        if (buffer[i] < -1.0 || buffer[i] > 1.0) {
-            std::cout << buffer[i] << std::endl;
-        }
-    }
-    */
-}
-
-void NoiseNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-
-}
-
-void NoiseNode::updateMutatedParams() {
-
+    whitenoise(buffer, numSamples, 1.0);
 }
 
 void NoiseNode::toString(bool printRange, std::stringstream& ss) {

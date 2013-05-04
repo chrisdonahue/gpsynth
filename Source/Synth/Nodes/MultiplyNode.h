@@ -18,9 +18,11 @@ public:
     MultiplyNode(GPNode* zero, GPNode* one);
     ~MultiplyNode();
 
-	// GPNode overrides
+	// overrides
     MultiplyNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
+
+    // optional overrides
 	void updateMutatedParams();
 
 private:

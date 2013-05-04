@@ -30,13 +30,7 @@ ConstantNode::ConstantNode(bool terminal, bool pi, GPMutatableParam* v, GPNode* 
   		descendants.push_back(signal);
   	}
 
-    if (isPi) {
-        value = M_PI;
-        if (terminalConstant) {
-            minimum = M_PI - 1;
-            maximum = M_PI + 1;
-        }
-    }
+    value = 0.0;
 }
 
 ConstantNode::~ConstantNode() {
@@ -55,34 +49,6 @@ ConstantNode* ConstantNode::getCopy() {
     else {
     	return new ConstantNode(terminalConstant, isPi, isPi ? NULL : mutatableParams[0]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     }
-}
-
-void ConstantNode::prepareToPlay() {
-
-}
-
-void ConstantNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer) {
-	// use unused variables
-	v;
-	nv;
-	t;
-	fn;
-	
-	// if this is a leaf constant
-	if (terminalConstant) {
-		for (unsigned i = 0; i < n; i++) {
-		    buffer[i] = value;
-		}
-	}
-	// if this is an enveloping constant
-	else {
-		descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
-		for (unsigned i = 0; i < n; i++) {
-			buffer[i] *= value;
-		}
-	}
-	*min = minimum;
-	*max = maximum;
 }
 
 void ConstantNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
@@ -108,10 +74,16 @@ void ConstantNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
 }
 
 void ConstantNode::updateMutatedParams() {
+    GPNode::updateMutatedParams();
     if (isPi) {
-        if (!terminalConstant) {
+        value = M_PI;
+        if (terminalConstant) {
+            minimum = M_PI - 1;
+            maximum = M_PI + 1;
+        }
+        else {
             descendants[0]->updateMutatedParams();
-            intervalMultiply(&minimum, &maximum, minimum, maximum, descendants[0]->minimum, descendants[0]->maximum);
+            intervalMultiply(&minimum, &maximum, M_PI - 1, M_PI + 1, descendants[0]->minimum, descendants[0]->maximum);
         }
     }
     else {

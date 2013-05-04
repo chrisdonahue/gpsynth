@@ -29,7 +29,6 @@ public:
     GPNetwork* getCopy(std::string neworigin);
 
     // EXAMINATION
-    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     std::string toString(bool printRange, unsigned precision);
     GPNode* getRoot();
@@ -39,6 +38,7 @@ public:
 
     // HELPERS
     void prepareToRender(float sr, unsigned blockSize, float maxTime);
+    void doneRendering();
     void traceNetwork();
     void replaceSubtree(GPNode* one, GPNode* two);
     void ephemeralRandom(GPRandom* r);
