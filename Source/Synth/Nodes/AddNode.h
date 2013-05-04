@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
-#ifndef CONSTANTNODE_H
-#define CONSTANTNODE_H
+#ifndef ADDNODE_H
+#define ADDNODE_H
 
 #include "FunctionNode.h"
 
@@ -19,8 +19,9 @@ public:
     ~AddNode();
 
 	// GPNode overrides
-    AddNode* getCopy() = 0
-	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
+    AddNode* getCopy();
+	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
+	void updateMutatedParams();
 
 private:
 };

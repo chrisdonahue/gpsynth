@@ -524,9 +524,12 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
     }
     else if (crossoverType == 3) {
         // AM crossover
+        /*
         GPNode* newroot = new FunctionNode(multiply, one->getRoot(), two->getRoot());
         GPNetwork* newnet = new GPNetwork(newroot, "AM crossover");
         return newnet;
+        */
+        return NULL;
     }
     // experimental array crossover
     else if (crossoverType == 4) {

@@ -16,9 +16,6 @@
     =========
 */
 
-/*
-*/
-
 void FunctionNode::prepareToPlay() {
 
 }

@@ -31,6 +31,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
     targetNyquist = targetSampleRate / 2;
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
+    targetLengthSeconds = numTargetFrames / targetSampleRate;
     loadWavFile(target, numTargetFrames, targetFrames);
     if (params->backupTarget)
         saveWavFile(savePath + String("targetcopy.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
@@ -84,7 +85,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
         // buffers for tests
         unsigned numframes = 88200;
-        params->timeNodeMaxSeconds = 2.0;
+        float maxSeconds = 2.0;
         float samplerate = 44100.0;
         float* testBuffer = (float*) malloc(sizeof(float) * numframes);
         float* times = (float*) malloc(sizeof(float) * numframes);
@@ -92,12 +93,19 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
         // sin test network
         GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
-        sinTestNet->traceNetwork(samplerate, params->renderBlockSize, numframes);
         std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
-        std::cout << "Network: " << sinTestNet->toString(true, 10) << std::endl;
+        std::cout << "Network before trace:"<< std::endl << sinTestNet->toString(true, 10) << std::endl;
+        std::cout << "Height: " << sinTestNet->height << std::endl;
+        sinTestNet->traceNetwork();
+        std::cout << "Network after trace:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
+        std::cout << "Height: " << sinTestNet->height << std::endl;
+        sinTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds); 
+        std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
+        std::cout << "Height: " << sinTestNet->height << std::endl;
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        sinTestNet->prepareToRender(samplerate, params->renderBlockSize, numframes);
         saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
 
         // adsr test network
@@ -286,7 +294,7 @@ GPNetwork* GPExperiment::evolve() {
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
         GPNetwork* candidate = synth->getIndividual();
-        candidate->traceNetwork(targetSampleRate, params->renderBlockSize, params->timeNodeMaxSeconds);
+        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
 
         double fitness;
         renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, candidateData);
@@ -321,7 +329,7 @@ GPNetwork* GPExperiment::evolve() {
             generationMinimumFitness = INFINITY;
 
             float* genchampbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-            generationChamp->traceNetwork(targetSampleRate, params->renderBlockSize, params->timeNodeMaxSeconds);
+            generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
             renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
             if (params->saveGenerationChampions) {
               char buffer[100];
@@ -350,7 +358,7 @@ GPNetwork* GPExperiment::evolve() {
 
     if (champ != NULL) {
         float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        champ->traceNetwork(targetSampleRate, params->renderBlockSize, params->timeNodeMaxSeconds);
+        champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
         renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champGeneration << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(true, params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];

@@ -76,9 +76,7 @@ TODO long run:
 NEXT EXPERIMENTS:
     FUNCTION NODE OVERHAUL:
         AddNode, MultiplyNode, etc. are subclasses of FunctionNode.
-        all haev own implementation of evaluateBlockPerformance but they all inherit evaluteBlock
     NODES restructure:
-        remove samplerate from constructor, moved to setRenderInfo
         do all malloc stuff in setRenderInfo so we're not calling malloc in evaluateBlockPerformance
         ignore evaluateBlock for now, just use performance
         finish function node stuff
@@ -86,6 +84,7 @@ NEXT EXPERIMENTS:
         change updateMutatedParams to updatedSubtree and make it virtual with default implementation
         change setRenderInfo to be part of updateMutatedParams(samplerate, blocksize, maxtime)
         prepareToRender calls setRenderInfo and traceNetwork restores lineage/heights/allnodes/allmp
+        add unprepareToRender
         remove timeNodeMaxSeconds turn it into something in GPExperiment
     create test suite to confirm that all primitives are working correctly
         copy construct

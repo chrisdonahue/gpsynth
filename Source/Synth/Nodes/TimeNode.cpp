@@ -34,7 +34,7 @@ TimeNode* TimeNode::getCopy() {
 }
 
 void TimeNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-    maximum = maxtime;
+    maximum = maxTime;
 }
 
 void TimeNode::prepareToPlay() {

@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
-#ifndef ADDNODE_H
-#define ADDNODE_H
+#ifndef ADSRNODE_H
+#define ADSRNODE_H
 
 #include "../GPNode.h"
 

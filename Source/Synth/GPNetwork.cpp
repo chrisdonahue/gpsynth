@@ -79,12 +79,6 @@ bool GPNetwork::equals(GPNetwork* other) {
     return toString(true, 10).compare(other->toString(true, 10)) == 0;
 }
 
-/*
-    ========
-    MUTATION
-    ========
-*/
-
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
     if (allNodes.size() == 0) {
         std::cerr << "Tried to get a random node of an empty or untraced network. This shouldn't happen" << std::endl;
@@ -97,14 +91,23 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
     return &allMutatableParams;
 }
 
-void GPNetwork::traceNetwork(float sr, unsigned blockSize, float maxTime) {
-    allNodes.clear();
-    allMutatableParams.clear();
+/*
+    =======
+    HELPERS
+    =======
+*/
+
+void GPNetwork::prepareToRender(float sr, unsigned blockSize, float maxTime) {
     root->setRenderInfo(sr, blockSize, maxTime);
-    root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
     root->updateMutatedParams();
     minimum = root->minimum;
     maximum = root->maximum;
+}
+
+void GPNetwork::traceNetwork() {
+    allNodes.clear();
+    allMutatableParams.clear();
+    root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
 }
 
 /*
@@ -190,10 +193,10 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
 
     // ADSR nodes
     if (type.compare("adsr") == 0) {
-        return new ADSRNode(true, true, sr, createMutatableParam(tokenizer, true, "adsrdelay"), createMutatableParam(tokenizer, true, "adsrattack"), createMutatableParam(tokenizer, true, "adsrattackheight"), createMutatableParam(tokenizer, true, "adsrdecay"), createMutatableParam(tokenizer, true, "adsrsustain"), createMutatableParam(tokenizer, true, "adsrsustainheight"), createMutatableParam(tokenizer, true, "adsrrelease"), NULL);
+        return new ADSRNode(true, true, createMutatableParam(tokenizer, true, "adsrdelay"), createMutatableParam(tokenizer, true, "adsrattack"), createMutatableParam(tokenizer, true, "adsrattackheight"), createMutatableParam(tokenizer, true, "adsrdecay"), createMutatableParam(tokenizer, true, "adsrsustain"), createMutatableParam(tokenizer, true, "adsrsustainheight"), createMutatableParam(tokenizer, true, "adsrrelease"), NULL);
     }
     else if (type.compare("adsr*") == 0) {
-        return new ADSRNode(false, true, sr, createMutatableParam(tokenizer, true, "adsrdelay"), createMutatableParam(tokenizer, true, "adsrattack"), createMutatableParam(tokenizer, true, "adsrattackheight"), createMutatableParam(tokenizer, true, "adsrdecay"), createMutatableParam(tokenizer, true, "adsrsustain"), createMutatableParam(tokenizer, true, "adsrsustainheight"), createMutatableParam(tokenizer, true, "adsrrelease"), createSubtree(tokenizer, subtreeArgs));
+        return new ADSRNode(false, true, createMutatableParam(tokenizer, true, "adsrdelay"), createMutatableParam(tokenizer, true, "adsrattack"), createMutatableParam(tokenizer, true, "adsrattackheight"), createMutatableParam(tokenizer, true, "adsrdecay"), createMutatableParam(tokenizer, true, "adsrsustain"), createMutatableParam(tokenizer, true, "adsrsustainheight"), createMutatableParam(tokenizer, true, "adsrrelease"), createSubtree(tokenizer, subtreeArgs));
     }
     // constant nodes
     else if (type.compare("pi") == 0) {

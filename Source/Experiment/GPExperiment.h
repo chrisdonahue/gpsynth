@@ -48,6 +48,7 @@ private:
     double targetSampleRate;
     double targetNyquist;
     unsigned numTargetFrames;
+    double targetLengthSeconds;
     // time domain
     float* targetFrames;
     float* targetEnvelope;
