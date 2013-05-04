@@ -30,11 +30,14 @@ public:
     {
     }
     virtual ~GPNode() {
+        // if we never set render info...
+        if (descendantBuffers.size() > 0) {
+            for (unsigned i = 0; i < arity - 1; i++) {
+                free(descendantBuffers[i]);
+            }
+        }
         for (unsigned i = 0; i < arity; i++) {
             delete descendants[i];
-        }
-        for (unsigned i = 0; i < descendantBuffers.size(); i++) {
-            free(descendantBuffers[i]);
         }
         for (unsigned i = 0; i < mutatableParams.size(); i++) {
             delete mutatableParams[i];
@@ -65,13 +68,18 @@ public:
 
     // OVERRIDABLE FUNCTIONS
     virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) {
-        for (unsigned i = 0; i < arity - 1; i++) {
+        // if descendant buffers have ever been allocated before free them
+        for (unsigned i = 0; i < descendantBuffers.size(); i++) {
             free(descendantBuffers[i]);
         }
-        descendantBuffers.resize(arity - 1 < 0 ? 0 : arity - 1, NULL);
-        for (unsigned i = 0; i < arity - 1; i++) {
+
+        // allocate some new buffers in case blockSize changed
+        descendantBuffers.resize(arity == 0 ? 0 : arity - 1, NULL);
+        for (unsigned i = 0; i < descendantBuffers.size(); i++) {
             descendantBuffers[i] = (float*) malloc(sizeof(float) * blockSize);
         }
+
+        // recursively execute
         for (unsigned i = 0; i < arity; i++) {
             descendants[i]->setRenderInfo(sr, blockSize, maxTime);
         }
@@ -121,6 +129,13 @@ public:
             descendants[i]->trace(allnodes, allmutatableparams, this, treeHeight, currentDepth + 1);
         }
     };
+
+    std::string toString(bool printRange, unsigned precision) {
+        std::stringstream ss;
+        ss.precision(precision);
+        toString(printRange, ss);
+        return ss.str();
+    }
 };
 
 #endif

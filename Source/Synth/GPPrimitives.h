@@ -15,6 +15,8 @@
 #include "Nodes/ConstantNode.h"
 #include "Nodes/FunctionNode.h"
 #include "Nodes/AddNode.h"
+#include "Nodes/MultiplyNode.h"
+#include "Nodes/SineNode.h"
 #include "Nodes/NoiseNode.h"
 #include "Nodes/OscilNode.h"
 #include "Nodes/TimeNode.h"

@@ -11,7 +11,6 @@
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
-#include "../Common/GPFunctions.h"
 #include "../Common/GPParams.h"
 #include "../Common/GPHelpers.h"
 

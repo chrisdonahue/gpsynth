@@ -74,7 +74,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
     // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
-        std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time {c 0.0 2.0 10.0}) (const {c 0.0 440.0 22050.0}))))";
+        std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
         std::string storeADSRTest = "(adsr* {c } {c } {c } {c } {c } {c } {c} " + sinTest + ")";
         std::string noStoreADSRTest = "";
         std::string constantNodeEnvelopeTest = "";
@@ -96,17 +96,20 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
         std::cout << "Network before trace:"<< std::endl << sinTestNet->toString(true, 10) << std::endl;
         std::cout << "Height: " << sinTestNet->height << std::endl;
+        std::cout << "Min: " << sinTestNet->minimum << std::endl;
+        std::cout << "Max: " << sinTestNet->maximum << std::endl;
         sinTestNet->traceNetwork();
         std::cout << "Network after trace:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
         std::cout << "Height: " << sinTestNet->height << std::endl;
+        std::cout << "Min: " << sinTestNet->minimum << std::endl;
+        std::cout << "Max: " << sinTestNet->maximum << std::endl;
         sinTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds); 
         std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
         std::cout << "Height: " << sinTestNet->height << std::endl;
         std::cout << "Min: " << sinTestNet->minimum << std::endl;
         std::cout << "Max: " << sinTestNet->maximum << std::endl;
         renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        sinTestNet->prepareToRender(samplerate, params->renderBlockSize, numframes);
-        saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numTargetFrames, targetSampleRate, testBuffer);
+        saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
 
         // adsr test network
 
@@ -144,7 +147,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         // SUPPLY AVAILABLE NODES
         //nodes->push_back(new FunctionNode(add, NULL, NULL));
         //nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new ConstantNode(true, constantValue->getCopy(), NULL));
+        nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
         nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
         nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
         nodes->push_back(new NoiseNode(rng));
@@ -218,7 +221,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         nodes->push_back(new NoiseNode(rng));
         //nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
         //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ConstantNode(true, constantValue->getCopy(), NULL));
+        nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
     }
 
     // SET FF-VARYING PARAMS FROM FITNESS FUNCTION
@@ -391,7 +394,6 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
         }
     }
-    params->timeNodeMaxSeconds = (float) sampleTimes[numTargetFrames - 1];
 
     // FILL ENVELOPE OF TARGET BUFFER
     targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);

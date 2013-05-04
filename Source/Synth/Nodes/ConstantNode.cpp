@@ -16,8 +16,9 @@
     ========================
 */
 
-ConstantNode::ConstantNode(bool terminal, GPMutatableParam* v, GPNode* signal) {
+ConstantNode::ConstantNode(bool terminal, bool pi, GPMutatableParam* v, GPNode* signal) {
 	terminalConstant = terminal;
+    isPi = pi;
     
     mutatableParams.push_back(v);
 
@@ -28,6 +29,14 @@ ConstantNode::ConstantNode(bool terminal, GPMutatableParam* v, GPNode* signal) {
   		arity = 1;
   		descendants.push_back(signal);
   	}
+
+    if (isPi) {
+        value = M_PI;
+        if (terminalConstant) {
+            minimum = M_PI - 1;
+            maximum = M_PI + 1;
+        }
+    }
 }
 
 ConstantNode::~ConstantNode() {
@@ -41,10 +50,10 @@ ConstantNode::~ConstantNode() {
 
 ConstantNode* ConstantNode::getCopy() {
 	if (terminalConstant) {
-    	return new ConstantNode(terminalConstant, mutatableParams[0]->getCopy(), NULL);
+    	return new ConstantNode(terminalConstant, isPi, isPi ? NULL : mutatableParams[0]->getCopy(), NULL);
     }
     else {
-    	return new ConstantNode(terminalConstant, mutatableParams[0]->getCopy(), descendants[0]->getCopy());
+    	return new ConstantNode(terminalConstant, isPi, isPi ? NULL : mutatableParams[0]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     }
 }
 
@@ -99,19 +108,27 @@ void ConstantNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
 }
 
 void ConstantNode::updateMutatedParams() {
-    value = mutatableParams[0]->getValue();
-    if (terminalConstant) {
-		minimum = mutatableParams[0]->getMin();
-		maximum = mutatableParams[0]->getMax();
-	}
-	else {
-        descendants[0]->updateMutatedParams();
-        intervalMultiply(&minimum, &maximum, mutatableParams[0]->getMin(), mutatableParams[0]->getMax(), descendants[0]->minimum, descendants[0]->maximum);
-	}
+    if (isPi) {
+        if (!terminalConstant) {
+            descendants[0]->updateMutatedParams();
+            intervalMultiply(&minimum, &maximum, minimum, maximum, descendants[0]->minimum, descendants[0]->maximum);
+        }
+    }
+    else {
+        value = mutatableParams[0]->getValue();
+        if (terminalConstant) {
+            minimum = mutatableParams[0]->getMin();
+            maximum = mutatableParams[0]->getMax();
+        }
+        else {
+            descendants[0]->updateMutatedParams();
+            intervalMultiply(&minimum, &maximum, mutatableParams[0]->getMin(), mutatableParams[0]->getMax(), descendants[0]->minimum, descendants[0]->maximum);
+        }
+    }
 }
 
 void ConstantNode::toString(bool printRange, std::stringstream& ss) {
-    if (value == M_PI) {
+    if (isPi) {
     	if (terminalConstant) {
         	ss << "(pi";
         }

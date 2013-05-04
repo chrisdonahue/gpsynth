@@ -200,26 +200,26 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     // constant nodes
     else if (type.compare("pi") == 0) {
-        return new ConstantNode(true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), NULL);
+        return new ConstantNode(true, true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), NULL);
     }
     else if (type.compare("pi*") == 0) {
-        return new ConstantNode(false, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), createSubtree(tokenizer, subtreeArgs));
+        return new ConstantNode(false, true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), createSubtree(tokenizer, subtreeArgs));
     }
     else if (type.compare("const") == 0) {
-        return new ConstantNode(true, createMutatableParam(tokenizer, true, "constantvalue"), NULL);
+        return new ConstantNode(true, false, createMutatableParam(tokenizer, true, "constantvalue"), NULL);
     }
     else if (type.compare("const*") == 0) {
-        return new ConstantNode(false, createMutatableParam(tokenizer, true, "constantvalue"), createSubtree(tokenizer, subtreeArgs));
+        return new ConstantNode(false, false, createMutatableParam(tokenizer, true, "constantvalue"), createSubtree(tokenizer, subtreeArgs));
     }
     // function nodes
     else if (type.compare("+") == 0) {
         return new AddNode(createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
     }
     else if (type.compare("*") == 0) {
-        return NULL;
+        return new MultiplyNode(createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
     }
     else if (type.compare("sin") == 0) {
-        return NULL;
+        return new SineNode(createSubtree(tokenizer, subtreeArgs));
     }
     // time node
     else if (type.compare("time") == 0) {

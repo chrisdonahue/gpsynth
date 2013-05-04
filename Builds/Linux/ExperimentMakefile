@@ -44,7 +44,6 @@ endif
 OBJECTS := \
   $(OBJDIR)/ExperimentMain.o \
   $(OBJDIR)/GPRandom.o \
-  $(OBJDIR)/GPFunctions.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
@@ -53,6 +52,8 @@ OBJECTS := \
   $(OBJDIR)/NoiseNode.o \
   $(OBJDIR)/FunctionNode.o \
   $(OBJDIR)/AddNode.o \
+  $(OBJDIR)/MultiplyNode.o \
+  $(OBJDIR)/SineNode.o \
   $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
@@ -97,11 +98,6 @@ $(OBJDIR)/ExperimentMain.o: ../../Source/Experiment/Main.cpp
 $(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPRandom.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/GPFunctions.o: ../../Source/Common/GPFunctions.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling GPFunctions.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPExperiment.o: ../../Source/Experiment/GPExperiment.cpp
@@ -152,6 +148,16 @@ $(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
 $(OBJDIR)/AddNode.o: ../../Source/Synth/Nodes/AddNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AddNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MultiplyNode.o: ../../Source/Synth/Nodes/MultiplyNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MultiplyNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SineNode.o: ../../Source/Synth/Nodes/SineNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SineNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp

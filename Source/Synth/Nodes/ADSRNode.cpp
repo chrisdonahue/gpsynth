@@ -104,7 +104,9 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
         // TODO: slight enhancement would be to not evaluateBlock here if release finished
         else {
             descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
-            GPmultiplyCalculateRange(min, max, minimum, maximum, *min, *max);
+            *min = 0;
+            *max = 0;
+            //intervalMultiply(min, max, *min, *max, minimum, maximum);
             if (!releaseFinished) {
                 // if ADSR hasn't finished releasing but will within these n frames
                 if (fn + n > framesInEnvelope) {
@@ -162,7 +164,9 @@ void ADSRNode::evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, dou
         // if this is not a terminal node
         else {
             descendants[0]->evaluateBlock(fn, t, nv, v, min, max, n, buffer);
-            GPmultiplyCalculateRange(min, max, minimum, maximum, *min, *max);
+            *min = 0;
+            *max = 0;
+            //intervalMultiply(min, max, *min, *max, minimum, maximum);
             if (!releaseFinished) {
                 // if ADSR hasn't finished releasing but will within these n frames
                 if (fn + n > framesInEnvelope) {

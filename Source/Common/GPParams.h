@@ -2,7 +2,6 @@
 #define GPPARAMS_H
 
 #include "GPRandom.h"
-#include "GPFunctions.h"
 
 struct GPParams {
     // experiment parameters
@@ -87,9 +86,6 @@ struct GPParams {
     // value node
     double valueNodeMinimum;
     double valueNodeMaximum;
-
-    // time node
-    float timeNodeMaxSeconds;
 
     // oscil node
     unsigned oscilNodeMaxPartial;
