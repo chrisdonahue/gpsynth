@@ -74,21 +74,26 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 
     // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
+        std::string silenceTest = "(silence)";
         std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
         std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
-        std::string constantNodeEnvelopeTest = "";
-        std::string additiveSynthesisTest = "";
-        std::string noiseTest = "";
-        std::string variableNodeTest = "";
-        std::string fmSynthesisTest = "";
+        std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
+        std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
+        std::string noiseTest = "(noise)";
+        std::string variableNodeTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (var {d 0 0 1} {c 0.0 0.0 22050.0})))))";
+        std::string fmSynthesisTest = "(fm {d 0 1 1} {d 0 1 10} {c 0 2.0 3.0} " + sinTest + ")";
 
         // buffers for tests
         unsigned numframes = 88200;
         float maxSeconds = 2.0;
         float samplerate = 44100.0;
+        unsigned numconstantvariables = 2;
         float* testBuffer = (float*) malloc(sizeof(float) * numframes);
         float* silenceBuffer = (float*) malloc(sizeof(float) * numframes);
         float* sineBuffer = (float*) malloc(sizeof(float) * numframes);
+        float* variables = (float*) malloc(sizeof(float) * numconstantvariables);
+        variables[0] = 440.0;
+        variables[1] = 659.26;
         float* times = (float*) malloc(sizeof(float) * numframes);
         fillTimeAxisBuffer(numframes, samplerate, times);
         loadWavFile("./tests/silenceTestTarget.wav", numframes, silenceBuffer);
@@ -138,6 +143,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
 
         // free test buffer
+        free(variables);
         free(times);
         free(testBuffer);
         free(silenceBuffer);
