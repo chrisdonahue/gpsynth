@@ -155,7 +155,7 @@ void ADSRNode::updateMutatedParams() {
 	else {
         intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
 	}
-
+    
     fillFromParams();
 }
 

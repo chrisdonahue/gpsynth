@@ -75,7 +75,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     // AUDIO SANITY TESTING
     if (params->experimentNumber == 2) {
         std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
-        std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.2 2} " + sinTest + ")";
+        std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
         std::string constantNodeEnvelopeTest = "";
         std::string additiveSynthesisTest = "";
         std::string noiseTest = "";
@@ -130,10 +130,10 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
         ADSRTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds);
         std::cout << "----TESTING ADSR----" << std::endl;
         std::cout << "Network: " << std::endl << ADSRTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << sinTestNet->height << std::endl;
-        std::cout << "Min: " << sinTestNet->minimum << std::endl;
-        std::cout << "Max: " << sinTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
+        std::cout << "Height: " << ADSRTestNet->height << std::endl;
+        std::cout << "Min: " << ADSRTestNet->minimum << std::endl;
+        std::cout << "Max: " << ADSRTestNet->maximum << std::endl;
+        renderIndividualByBlockPerformance(ADSRTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
         ADSRTestNet->doneRendering();
         saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
 

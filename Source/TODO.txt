@@ -7,14 +7,10 @@ Main.cpp:
 
 GPExperiment.cpp:
     Pass time-varying variables to evaluate()
-    fill and use sampleTimes for efficiency
     do TODOs
 
-GPNetwork.cpp:
-    Add new syntax parsing to string parser once node subclasses finalized
-    
 GPSynth.cpp:
-    Fill in selectFromEvaluated() skeleton code including greedy over
+    Fill in more selectFromEvaluated() skeleton code including greedy over
     Maybe implement other types of reproduction
     do TODOs
     maybe remove rawFitness container
@@ -23,7 +19,7 @@ Node subclasses:
     DelayNode
     ConditionalNode
     NoiseNode other types of noise
-    consider changing evaluate to return floats as well as all GPFUNCTIONS... (float) double efficiency?
+    OscilNode other waveforms/add frequency input
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
@@ -43,8 +39,6 @@ Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     finish implementing DifferenceEquationNode. turns out my difference equation idea from the start might have been better somehow. need to find a way to guarantee min/max though
-    maybe add "prepare to play" abstract to GP node to replace if (fn == 0)
-    framework to change constants over time that depend on pop convergence
 
 Thoughts:
     Don't necessarily have to foray into filters too much. For now focus on best possible FM synthesis recreation
@@ -57,8 +51,7 @@ Thoughts:
 
 TODO long run:
     move parse stuff into GPTokenParser or something
-    calculate min/max stuff with lo/hi filter node if you have resonance, alter bandwidth/quality calculation
-    print ranges/save networks in text file/just save ID's in waves
+    print ranges/save all networks in text file that can be used from command line to render all generation wavs/just save ID's instead of waves
     update README
     implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
     figure out how to start without being in initialise method (new thread)
@@ -68,31 +61,23 @@ TODO long run:
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
     fitness function compares candidate/target envelopes
     amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
-    commandline flag --condorbackup which saves certain files only if seed == 0 or something
     try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
-    exponential ADSR?
     Get filters (simple) working again. Switch filter libs probably
-    consider changing proportion * bad + base to just bad + base...
     prepareToRender() called when network needs to prepare to render. prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
 
 NEXT EXPERIMENTS:
     look at AUDACITY rendering code and replicate that in OscilNode?
+        must use double precision for M_PI
     create test suite to confirm that all primitives are working correctly
         copy construct
-        make sure all silent before updateMutatedParams which will become updateSubtree maybe
-        render before preparation
-        figure out why sin wave sounds aliased (probably pi as double deal)
+        make sure all silent before preparedToRender
     move champ tracking to GPSynth not GPEXperiment
-    probably remove getRange() and just have it return minimum/maximum set by constructors
-        change updateMutatedParams() to updateSubtree() which will:
-            update mutated params
-            update new min/max values from children
-        updateSubtree() will be called either in GPNetwork traceNetwork or in addNetworkToPopulation
 
     test random
-    test numerical mutation/consider CMAES
+    test numerical mutation/consider CMAES/other stuff from joel convo
     figure out why simple average fitness function seems to work the best
-    go through 4.24.13.b results iteratively and see what worked and what didnt. test a lot of instruments of a lot of different types on this to see what it can come up with.
-    THESIS WORK
+        probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
+        consider changing proportion * bad + base to just bad + base...
+    SPLINE NODE
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"
