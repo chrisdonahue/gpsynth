@@ -66,6 +66,9 @@ TODO long run:
     prepareToRender() called when network needs to prepare to render. prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
 
 NEXT EXPERIMENTS:
+    DEBUG memory leak stuff in sanityTest
+    consider constantNode intervalMutliply
+        everything except constant has the tightest possible bound on min/max? hard to say
     look at AUDACITY rendering code and replicate that in OscilNode?
         must use double precision for M_PI
     create test suite to confirm that all primitives are working correctly

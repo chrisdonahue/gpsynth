@@ -24,7 +24,7 @@ GPNetwork::GPNetwork(GPNode* r, std::string o) :
 {
 }
 
-GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstring) :
+GPNetwork::GPNetwork(GPRandom* rng, std::string netstring) :
     ID(-1), origin("string"), height(-1), fitness(-1),
     minimum(-INFINITY), maximum(INFINITY),
     preparedToRender(false),
@@ -35,7 +35,7 @@ GPNetwork::GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstrin
         //std::cout << tokens[i] << std::endl;
     }
     unsigned index = 0;
-    root = createSubtree(tokens, &index, p, rng, sr);
+    root = createSubtree(tokens, &index, rng);
 }
 
 GPNetwork::~GPNetwork() {
@@ -194,9 +194,9 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
 // macro for standard structure of vector of tokens/index
 #define tokenizer tokens, currentIndex
 // macro for calling createSubtree easily
-#define subtreeArgs p, rng, sr
+#define subtreeArgs rng
 
-GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr) {
+GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPRandom* rng) {
     // fields for tokens
     std::string type = tokens[consume];
     std::string last;

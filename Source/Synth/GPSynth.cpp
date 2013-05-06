@@ -16,7 +16,8 @@
    ============
 */
 
-GPSynth::GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes) :
+// TODO: fix this garbage constructor lol
+GPSynth::GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes) :
     nextNetworkID(0), generationID(0),
     populationSize(p->populationSize),
     generationAverageFitness(p->penaltyFitness),

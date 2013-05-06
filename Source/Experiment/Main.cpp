@@ -401,7 +401,7 @@ public:
         }
 
         // TODO: check all value ranges here
-        if (target.equalsIgnoreCase("")) {
+        if (target.equalsIgnoreCase("") && params->experimentNumber != 0) {
             std::cerr << "No target specified. Exiting application." << std::endl;
             quit();
         }

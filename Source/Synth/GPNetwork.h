@@ -24,7 +24,7 @@ class GPNetwork {
 public:
     // CONSTRUCTION
     GPNetwork(GPNode* r, std::string o);
-    GPNetwork(GPParams* p, GPRandom* rng, double sr, std::string netstring);
+    GPNetwork(GPRandom* rng, std::string netstring);
     ~GPNetwork();
     GPNetwork* getCopy(std::string neworigin);
 
@@ -65,7 +65,7 @@ private:
 };
 
 // S-EXPRESSION PARSING
-extern GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPParams* p, GPRandom* rng, double sr);
+extern GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPRandom* rng);
 extern GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, bool ismutatable, std::string type);
 
 #endif

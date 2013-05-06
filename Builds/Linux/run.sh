@@ -3,12 +3,12 @@
 set -e
 
 #gdb --args \
+valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
-  --target ./samples/BassoonC2.wav\
-  --values 622.25\
   --path ./\
-  --experiment 2\
-  --generations 0\
+  --experiment 0 \
+  --loadwavblock 256 \
+> testValgrind.txt
 
 # DEBUG MOVING AVERAGE STUFF
 <<COMMENT

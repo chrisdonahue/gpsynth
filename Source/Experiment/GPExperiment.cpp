@@ -16,6 +16,7 @@
     ============
 */
 
+// TODO: switch rng and params...
 GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path, GPParams* p, double* constants, bool* rq) :
     synth(NULL),
     seed(s),
@@ -26,317 +27,172 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
     dBRef(54),
     wavFormat(new WavAudioFormat())
 {
-    // TARGET DATA CONTAINERS
+    // TODO: make this a parameter to saveWavFile and loadWavFile
+    // SET BUFFER SIZE FOR WAV FILE I/O
     wavFileBufferSize = p->wavFileBufferSize;
-    getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
-    targetNyquist = targetSampleRate / 2;
-    targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-    targetLengthSeconds = numTargetFrames / targetSampleRate;
-    loadWavFile(target, numTargetFrames, targetFrames);
-    if (params->backupTarget)
-        saveWavFile(savePath + String("targetcopy.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
 
-    fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
-
-    // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
-    params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * targetSampleRate;
-
-    // EXPERIMENT STATE
-    numGenerations = p->numGenerations;
-    fitnessThreshold = p->thresholdFitness;
-    minFitnessAchieved = INFINITY;
-    numEvaluatedGenerations = 0;
-
-    // SYNTH
-    std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-
-    // MUTATABLE PARAMS
-    GPMutatableParam* constantValue = new GPMutatableParam("constantvalue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
-    GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
-    GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
-
-    GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
-    GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
-
-    GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
-    GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
-    GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
-    GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
-    GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidthmin", true, 10.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
-
-    GPMutatableParam* ADSRDelay = new GPMutatableParam("adsrdelay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-    GPMutatableParam* ADSRAttack = new GPMutatableParam("adsrattack", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-    GPMutatableParam* ADSRAttackHeight = new GPMutatableParam("adsrattackheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
-    GPMutatableParam* ADSRDecay = new GPMutatableParam("adsrdecay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-    GPMutatableParam* ADSRSustain = new GPMutatableParam("adsrsustain", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-    GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
-    GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-
-    // AUDIO SANITY TESTING
-    if (params->experimentNumber == 2) {
-        std::string silenceTest = "(silence)";
-        std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
-        std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
-        std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
-        std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
-        std::string noiseTest = "(noise)";
-        std::string variableNodeTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (var {d 0 0 1} {c 0.0 0.0 22050.0})))))";
-        std::string FMSynthesisTest = "(fm {d 0 1 1} {d 0 1 10} {c 0 2.0 3.0} " + sinTest + ")";
-
-        // buffers for tests
-        unsigned numframes = 88200;
-        float maxSeconds = 2.0;
-        float samplerate = 44100.0;
-        unsigned numconstantvariables = 2;
-        float* testBuffer = (float*) malloc(sizeof(float) * numframes);
-        float* silenceBuffer = (float*) malloc(sizeof(float) * numframes);
-        float* sineBuffer = (float*) malloc(sizeof(float) * numframes);
-        float* variables = (float*) malloc(sizeof(float) * numconstantvariables);
-        variables[0] = 440.0;
-        variables[1] = 659.26;
-        float* times = (float*) malloc(sizeof(float) * numframes);
-        fillTimeAxisBuffer(numframes, samplerate, times);
-        loadWavFile("./tests/silenceTestTarget.wav", numframes, silenceBuffer);
-        loadWavFile("./tests/sinWave440TestTarget.wav", numframes, sineBuffer);
-
-        // sin test network
-        GPNetwork* sinTestNet = new GPNetwork(p, rng, samplerate, sinTest);
-        std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
-        std::cout << "Network before trace:"<< std::endl << sinTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << sinTestNet->height << std::endl;
-        std::cout << "Min: " << sinTestNet->minimum << std::endl;
-        std::cout << "Max: " << sinTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        sinTestNet->doneRendering();
-        assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
-        sinTestNet->traceNetwork();
-        std::cout << "Network after trace:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << sinTestNet->height << std::endl;
-        std::cout << "Min: " << sinTestNet->minimum << std::endl;
-        std::cout << "Max: " << sinTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        sinTestNet->doneRendering();
-        assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
-        sinTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds); 
-        std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << sinTestNet->height << std::endl;
-        std::cout << "Min: " << sinTestNet->minimum << std::endl;
-        std::cout << "Max: " << sinTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(sinTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        sinTestNet->doneRendering();
-        double error = compareWaveforms(0, numframes, sineBuffer, testBuffer);
-        std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
-        assert(compareWaveforms(0, numframes, sineBuffer, testBuffer) < 10);
-        saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
-        delete sinTestNet;
-
-        // adsr test network
-        GPNetwork* ADSRTestNet = new GPNetwork(p, rng, samplerate, ADSRTest);
-        ADSRTestNet->traceNetwork();
-        ADSRTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds);
-        std::cout << "----TESTING ADSR----" << std::endl;
-        std::cout << "Network: " << std::endl << ADSRTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << ADSRTestNet->height << std::endl;
-        std::cout << "Min: " << ADSRTestNet->minimum << std::endl;
-        std::cout << "Max: " << ADSRTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(ADSRTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        ADSRTestNet->doneRendering();
-        saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
-        delete ADSRTestNet;
-
-        // constant node envelope test network
-        GPNetwork* constantNodeEnvelopeTestNet = new GPNetwork(p, rng, samplerate, constantNodeEnvelopeTest);
-        constantNodeEnvelopeTestNet->traceNetwork();
-        constantNodeEnvelopeTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds);
-        std::cout << "----TESTING CONSTANT NODE ENVELOPE----" << std::endl;
-        std::cout << "Network: " << std::endl << constantNodeEnvelopeTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << constantNodeEnvelopeTestNet->height << std::endl;
-        std::cout << "Min: " << constantNodeEnvelopeTestNet->minimum << std::endl;
-        std::cout << "Max: " << constantNodeEnvelopeTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(constantNodeEnvelopeTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        constantNodeEnvelopeTestNet->doneRendering();
-        saveWavFile("./constantNodeEnvelopesineWaveTest.wav", String(constantNodeEnvelopeTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
-        delete constantNodeEnvelopeTestNet;
-
-        // additive synthesis test
-        GPNetwork* additiveSynthesisTestNet = new GPNetwork(p, rng, samplerate, additiveSynthesisTest);
-        additiveSynthesisTestNet->traceNetwork();
-        additiveSynthesisTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds);
-        std::cout << "----TESTING ADDITIVE SYNTHESIS----" << std::endl;
-        std::cout << "Network: " << std::endl << additiveSynthesisTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << additiveSynthesisTestNet->height << std::endl;
-        std::cout << "Min: " << additiveSynthesisTestNet->minimum << std::endl;
-        std::cout << "Max: " << additiveSynthesisTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(additiveSynthesisTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        additiveSynthesisTestNet->doneRendering();
-        saveWavFile("./additiveSynthesisTest.wav", String(additiveSynthesisTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
-        delete additiveSynthesisTestNet;
-
-        // FM synthesis test
-        GPNetwork* FMSynthesisTestNet = new GPNetwork(p, rng, samplerate, FMSynthesisTest);
-        FMSynthesisTestNet->traceNetwork();
-        FMSynthesisTestNet->prepareToRender(samplerate, params->renderBlockSize, maxSeconds);
-        std::cout << "----TESTING FM SYNTHESIS----" << std::endl;
-        std::cout << "Network: " << std::endl << FMSynthesisTestNet->toString(true, 10) << std::endl;
-        std::cout << "Height: " << FMSynthesisTestNet->height << std::endl;
-        std::cout << "Min: " << FMSynthesisTestNet->minimum << std::endl;
-        std::cout << "Max: " << FMSynthesisTestNet->maximum << std::endl;
-        renderIndividualByBlockPerformance(FMSynthesisTestNet, params->renderBlockSize, 0, NULL, numframes, times, testBuffer);
-        FMSynthesisTestNet->doneRendering();
-        saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
-        delete FMSynthesisTestNet;
-
-        // free test buffer
-        free(variables);
-        free(times);
-        free(testBuffer);
-        free(silenceBuffer);
-        free(sineBuffer);
+    // AUDIO SANITY TEST
+    if (params->experimentNumber == 0) {
+        sanityTest(rng);
     }
-    if (params->experimentNumber == 3) {
-        // PARAMS
-        GPMutatableParam* partialThree = new GPMutatableParam("", false, 3, 0, 5);
-        GPMutatableParam* filterLow = new GPMutatableParam("", false, 11.9511, 10.0, 15.0);
-        GPMutatableParam* filterHigh = new GPMutatableParam("", false, 31.8139, 30.0, 32.0);
-        GPMutatableParam* bandwidth = new GPMutatableParam("", false, 1000.532, 150.0, 155.0);
 
-        // NODES
-        GPNode* noiseNode = new NoiseNode(rng);
-        GPNode* oscilPartialThree = new OscilNode(true, partialThree, 0, NULL, NULL);
-        //GPNode* filter = new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterLow, filterHigh, bandwidth, noiseNode, oscilPartialThree, NULL);
+    // EXPERIMENT
+    else {
+        // TARGET DATA CONTAINERS
+        getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
+        targetNyquist = targetSampleRate / 2;
+        targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
+        targetLengthSeconds = numTargetFrames / targetSampleRate;
+        loadWavFile(target, numTargetFrames, targetFrames);
+        if (params->backupTarget)
+            saveWavFile(savePath + String("targetcopy.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
 
-        // NETWORK
-        //GPNetwork* fucked = new GPNetwork(filter);
-        //fucked->traceNetwork();
+        fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
 
-        float* fuckedBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
-        //renderIndividualByBlock(fucked, numTargetFrames, params->renderBlockSize, fuckedBuffer);
+        // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
+        params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * targetSampleRate;
 
-        //saveWavFile("./fucked.wav", String(fucked->toString(false, 10).c_str()), numTargetFrames, 44100, fuckedBuffer);
+        // EXPERIMENT STATE
+        numGenerations = p->numGenerations;
+        fitnessThreshold = p->thresholdFitness;
+        minFitnessAchieved = INFINITY;
+        numEvaluatedGenerations = 0;
 
-        free(fuckedBuffer);
+        // AVAILABLE SYNTH NODES
+        std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
 
-        exit(-1);
-    }
-    // Eb5 Trumpet Additive Experiment
-    if (params->experimentNumber == 4) {
-        // SUPPLY AVAILABLE NODES
-        //nodes->push_back(new FunctionNode(add, NULL, NULL));
-        //nodes->push_back(new FunctionNode(multiply, NULL, NULL));
-        nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
-        nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
-        nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
-        nodes->push_back(new NoiseNode(rng));
-        //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-        nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-    }
-    // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
-    if (params->experimentNumber == 9) {
-        // SAVE WAVEFORM
-        //saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
+        // MUTATABLE PARAMS
+        GPMutatableParam* constantValue = new GPMutatableParam("constantvalue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
+        GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
+        GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
 
-        // TEST ENVELOPE FOLLOWER
-        float* envelope = (float*) malloc(sizeof(float) * numTargetFrames);
-        float* smoothEnv = (float*) malloc(sizeof(float) * numTargetFrames);
-        followEnvelope(numTargetFrames, targetFrames, envelope, 1, 300, targetSampleRate);
-        findEnvelope(true, numTargetFrames, envelope, smoothEnv);
-        saveTextFile(String("./smoothenva1r300.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Envelope (amp)"), true, numTargetFrames, NULL, smoothEnv, NULL));
+        GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
+        GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
 
-        free(smoothEnv);
-        free(envelope);
-        exit(-1);
-    }
-    // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
-    if (params->experimentNumber == 10) {
-        // SAVE WAVEFORM
-        saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames, NULL));
+        GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
+        GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
+        GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
+        GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
+        GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidthmin", true, 10.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
 
-        // TEST FFT
-        unsigned fftOutSize = 513;
-        unsigned fftSize = 1024;
-        float* freqAxis = (float*) malloc(sizeof(float) * fftOutSize);
-        fillFrequencyAxisBuffer(fftSize, targetSampleRate, freqAxis);
+        GPMutatableParam* ADSRDelay = new GPMutatableParam("adsrdelay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* ADSRAttack = new GPMutatableParam("adsrattack", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* ADSRAttackHeight = new GPMutatableParam("adsrattackheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
+        GPMutatableParam* ADSRDecay = new GPMutatableParam("adsrdecay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* ADSRSustain = new GPMutatableParam("adsrsustain", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
+        GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
+        GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
-        float* magAxis = (float*) malloc(sizeof(float) * fftOutSize);
-        for (unsigned i = 0; i < fftOutSize; i++) {
-            magAxis[i] = (float) targetSpectrumMagnitudes[i];
+        // CURRENT DEFAULT EXPERIMENT
+        if (params->experimentNumber == 1) {
+            // SUPPLY AVAILABLE NODES
+            //nodes->push_back(new FunctionNode(add, NULL, NULL));
+            //nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+            nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
+            nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
+            nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
+            nodes->push_back(new NoiseNode(rng));
+            //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+            //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+            nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+            nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+        }
+        // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
+        if (params->experimentNumber == 9) {
+            // SAVE WAVEFORM
+            //saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
+
+            // TEST ENVELOPE FOLLOWER
+            float* envelope = (float*) malloc(sizeof(float) * numTargetFrames);
+            float* smoothEnv = (float*) malloc(sizeof(float) * numTargetFrames);
+            followEnvelope(numTargetFrames, targetFrames, envelope, 1, 300, targetSampleRate);
+            findEnvelope(true, numTargetFrames, envelope, smoothEnv);
+            saveTextFile(String("./smoothenva1r300.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Envelope (amp)"), true, numTargetFrames, NULL, smoothEnv, NULL));
+
+            free(smoothEnv);
+            free(envelope);
+            exit(-1);
+        }
+        // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
+        if (params->experimentNumber == 10) {
+            // SAVE WAVEFORM
+            saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames, NULL));
+
+            // TEST FFT
+            unsigned fftOutSize = 513;
+            unsigned fftSize = 1024;
+            float* freqAxis = (float*) malloc(sizeof(float) * fftOutSize);
+            fillFrequencyAxisBuffer(fftSize, targetSampleRate, freqAxis);
+
+            float* magAxis = (float*) malloc(sizeof(float) * fftOutSize);
+            for (unsigned i = 0; i < fftOutSize; i++) {
+                magAxis[i] = (float) targetSpectrumMagnitudes[i];
+            }
+            
+            saveTextFile(String("./spectrum.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis, NULL));
+
+            // TEST WINDOWING
+            float* hannWindow = (float*) malloc(sizeof(float) * numTargetFrames);
+            float* windowed = (float*) malloc(sizeof(float) * numTargetFrames);
+            window("hann", numTargetFrames, hannWindow);
+            applyEnvelope(numTargetFrames, targetFrames, hannWindow, windowed);
+
+            saveTextFile(String("./windowed.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, windowed, NULL));
+
+            // TEST MOVING AVERAGE
+            float* mac = (float*) malloc(sizeof(float) * fftOutSize);
+            //findMovingAverage(fftOutSize, magAxis, mac, 10);
+            saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
+            //findMovingAverage(fftOutSize, magAxis, mac, 20);
+            saveTextFile(String("./mac20.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
+            //findMovingAverage(fftOutSize, magAxis, mac, 30);
+            saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
+
+            // FREE AND DONT EVOLVE
+            free(mac);
+            free(windowed);
+            free(hannWindow);
+            free(magAxis);
+            free(freqAxis);
+            exit(-1);
+        }
+
+        // set parameters that vary by fitness function
+        if (params->fitnessFunctionType == 0) {
+            p->bestPossibleFitness = 0;
+            p->penaltyFitness = std::numeric_limits<float>::max();
+            p->lowerFitnessIsBetter = true;
+            lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+        }
+        else {
+            p->bestPossibleFitness = 0;
+            p->penaltyFitness = std::numeric_limits<float>::max();
+            p->lowerFitnessIsBetter = true;
+            lowerFitnessIsBetter = params->lowerFitnessIsBetter;
         }
         
-        saveTextFile(String("./spectrum.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis, NULL));
+        // create population
+        synth = new GPSynth(p, rng, nodes);
 
-        // TEST WINDOWING
-        float* hannWindow = (float*) malloc(sizeof(float) * numTargetFrames);
-        float* windowed = (float*) malloc(sizeof(float) * numTargetFrames);
-        window("hann", numTargetFrames, hannWindow);
-        applyEnvelope(numTargetFrames, targetFrames, hannWindow, windowed);
-
-        saveTextFile(String("./windowed.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, windowed, NULL));
-
-        // TEST MOVING AVERAGE
-        float* mac = (float*) malloc(sizeof(float) * fftOutSize);
-        //findMovingAverage(fftOutSize, magAxis, mac, 10);
-        saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
-        //findMovingAverage(fftOutSize, magAxis, mac, 20);
-        saveTextFile(String("./mac20.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
-        //findMovingAverage(fftOutSize, magAxis, mac, 30);
-        saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
-
-        // FREE AND DONT EVOLVE
-        free(mac);
-        free(windowed);
-        free(hannWindow);
-        free(magAxis);
-        free(freqAxis);
-        exit(-1);
+        // DELETE MUTATABLE PARAMS
+        delete constantValue;
+        delete constantTwo;
+        delete constantPi;
+        delete oscilPartial;
+        delete oscilModIndex;
+        delete filterCenterFrequencyMultiplierMin;
+        delete filterCenterFrequencyMultiplierMax;
+        delete filterQualityMin;
+        delete filterQualityMax;
+        delete filterBandwidth;
+        delete ADSRDelay;
+        delete ADSRAttack;
+        delete ADSRAttackHeight;
+        delete ADSRDecay;
+        delete ADSRSustain;
+        delete ADSRSustainHeight;
+        delete ADSRRelease;
     }
-    // filtered noise test
-    if (params->experimentNumber == 5) {
-        // SUPPLY AVAILABLE NODES
-        nodes->push_back(new NoiseNode(rng));
-        //nodes->push_back(new FilterNode(2, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        //nodes->push_back(new FilterNode(3, 3, 1, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-        nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
-    }
-
-    // SET FF-VARYING PARAMS FROM FITNESS FUNCTION
-    if (params->fitnessFunctionType == 0) {
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-        lowerFitnessIsBetter = params->lowerFitnessIsBetter;
-    }
-    else {
-        p->bestPossibleFitness = 0;
-        p->penaltyFitness = std::numeric_limits<float>::max();
-        p->lowerFitnessIsBetter = true;
-        lowerFitnessIsBetter = params->lowerFitnessIsBetter;
-    }
-
-    // INITIALIZE SYNTH
-    if (numGenerations != 0) {
-        synth = new GPSynth(rng, p, nodes);
-    }
-
-    // DELETE ORIGIN GPMUTATABLEPARAMS
-    delete constantValue;
-    delete constantTwo;
-    delete constantPi;
-    delete oscilPartial;
-    delete oscilModIndex;
-    delete filterCenterFrequencyMultiplierMin;
-    delete filterCenterFrequencyMultiplierMax;
-    delete filterQualityMin;
-    delete filterQualityMax;
-    delete filterBandwidth;
-    delete ADSRDelay;
-    delete ADSRAttack;
-    delete ADSRAttackHeight;
-    delete ADSRDecay;
-    delete ADSRSustain;
-    delete ADSRSustainHeight;
-    delete ADSRRelease;
 }
 
 GPExperiment::~GPExperiment() {
@@ -363,6 +219,11 @@ GPExperiment::~GPExperiment() {
 */
 
 GPNetwork* GPExperiment::evolve() {
+    // if we're sanity testing
+    if (params->experimentNumber == 0) {
+        return NULL;
+    }
+
     GPNetwork* champ = NULL;
     unsigned champGeneration = 0;
     GPNetwork* generationChamp = NULL;
@@ -1192,4 +1053,132 @@ String GPExperiment::doubleBuffersToGraphText(String options, String xlab, Strin
         ret += "\n";
     }
     return ret;
+}
+
+/*
+    ===========
+    SANITY TEST
+    ===========
+*/
+
+void GPExperiment::sanityTest(GPRandom* rng) {
+    std::string silenceTest = "(silence)";
+    std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
+    std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
+    std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
+    std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
+    std::string noiseTest = "(noise)";
+    std::string variableNodeTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (var {d 0 0 1} {c 0.0 0.0 22050.0})))))";
+    std::string FMSynthesisTest = "(fm {d 0 1 1} {d 0 1 10} {c 0 2.0 3.0} " + sinTest + ")";
+
+    // buffers for tests
+    unsigned numframes = 88200;
+    float maxSeconds = 2.0;
+    float samplerate = 44100.0;
+    unsigned numconstantvariables = 2;
+    unsigned renderblocksize = 256;
+    float* testBuffer = (float*) malloc(sizeof(float) * numframes);
+    float* silenceBuffer = (float*) malloc(sizeof(float) * numframes);
+    float* sineBuffer = (float*) malloc(sizeof(float) * numframes);
+    float* variables = (float*) malloc(sizeof(float) * numconstantvariables);
+    variables[0] = 440.0;
+    variables[1] = 659.26;
+    float* times = (float*) malloc(sizeof(float) * numframes);
+    fillTimeAxisBuffer(numframes, samplerate, times);
+    loadWavFile("./tests/silenceTestTarget.wav", numframes, silenceBuffer);
+    loadWavFile("./tests/sinWave440TestTarget.wav", numframes, sineBuffer);
+
+    // sin test network
+    GPNetwork* sinTestNet = new GPNetwork(rng, sinTest);
+    std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
+    std::cout << "Network before trace:"<< std::endl << sinTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << sinTestNet->height << std::endl;
+    std::cout << "Min: " << sinTestNet->minimum << std::endl;
+    std::cout << "Max: " << sinTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    sinTestNet->doneRendering();
+    assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
+    sinTestNet->traceNetwork();
+    std::cout << "Network after trace:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << sinTestNet->height << std::endl;
+    std::cout << "Min: " << sinTestNet->minimum << std::endl;
+    std::cout << "Max: " << sinTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    sinTestNet->doneRendering();
+    assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
+    sinTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds); 
+    std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << sinTestNet->height << std::endl;
+    std::cout << "Min: " << sinTestNet->minimum << std::endl;
+    std::cout << "Max: " << sinTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    sinTestNet->doneRendering();
+    double error = compareWaveforms(0, numframes, sineBuffer, testBuffer);
+    std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
+    assert(compareWaveforms(0, numframes, sineBuffer, testBuffer) < 10);
+    saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
+    delete sinTestNet;
+
+    // adsr test network
+    GPNetwork* ADSRTestNet = new GPNetwork(rng, ADSRTest);
+    ADSRTestNet->traceNetwork();
+    ADSRTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    std::cout << "----TESTING ADSR----" << std::endl;
+    std::cout << "Network: " << std::endl << ADSRTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << ADSRTestNet->height << std::endl;
+    std::cout << "Min: " << ADSRTestNet->minimum << std::endl;
+    std::cout << "Max: " << ADSRTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(ADSRTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    ADSRTestNet->doneRendering();
+    saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
+    delete ADSRTestNet;
+
+    // constant node envelope test network
+    GPNetwork* constantNodeEnvelopeTestNet = new GPNetwork(rng, constantNodeEnvelopeTest);
+    constantNodeEnvelopeTestNet->traceNetwork();
+    constantNodeEnvelopeTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    std::cout << "----TESTING CONSTANT NODE ENVELOPE----" << std::endl;
+    std::cout << "Network: " << std::endl << constantNodeEnvelopeTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << constantNodeEnvelopeTestNet->height << std::endl;
+    std::cout << "Min: " << constantNodeEnvelopeTestNet->minimum << std::endl;
+    std::cout << "Max: " << constantNodeEnvelopeTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(constantNodeEnvelopeTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    constantNodeEnvelopeTestNet->doneRendering();
+    saveWavFile("./constantNodeEnvelopesineWaveTest.wav", String(constantNodeEnvelopeTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
+    delete constantNodeEnvelopeTestNet;
+
+    // additive synthesis test
+    GPNetwork* additiveSynthesisTestNet = new GPNetwork(rng, additiveSynthesisTest);
+    additiveSynthesisTestNet->traceNetwork();
+    additiveSynthesisTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    std::cout << "----TESTING ADDITIVE SYNTHESIS----" << std::endl;
+    std::cout << "Network: " << std::endl << additiveSynthesisTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << additiveSynthesisTestNet->height << std::endl;
+    std::cout << "Min: " << additiveSynthesisTestNet->minimum << std::endl;
+    std::cout << "Max: " << additiveSynthesisTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(additiveSynthesisTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    additiveSynthesisTestNet->doneRendering();
+    saveWavFile("./additiveSynthesisTest.wav", String(additiveSynthesisTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
+    delete additiveSynthesisTestNet;
+
+    // FM synthesis test
+    GPNetwork* FMSynthesisTestNet = new GPNetwork(rng, FMSynthesisTest);
+    FMSynthesisTestNet->traceNetwork();
+    FMSynthesisTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    std::cout << "----TESTING FM SYNTHESIS----" << std::endl;
+    std::cout << "Network: " << std::endl << FMSynthesisTestNet->toString(true, 10) << std::endl;
+    std::cout << "Height: " << FMSynthesisTestNet->height << std::endl;
+    std::cout << "Min: " << FMSynthesisTestNet->minimum << std::endl;
+    std::cout << "Max: " << FMSynthesisTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(FMSynthesisTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    FMSynthesisTestNet->doneRendering();
+    saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(true, 10).c_str()), numframes, samplerate, testBuffer);
+    delete FMSynthesisTestNet;
+
+    // free test buffer
+    free(variables);
+    free(times);
+    free(testBuffer);
+    free(silenceBuffer);
+    free(sineBuffer);
 }

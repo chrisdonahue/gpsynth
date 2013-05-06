@@ -31,9 +31,10 @@ public:
     {
     }
     virtual ~GPNode() {
-        // if we never set render info...
+        // if we prepared this subtree for rendering...
         if (preparedToRender) {
-            for (unsigned i = 0; i < arity - 1; i++) {
+            unsigned numDescendantBuffers = arity == 0 ? 0 : arity - 1;
+            for (unsigned i = 0; i < numDescendantBuffers; i++) {
                 free(descendantBuffers[i]);
             }
         }

@@ -24,7 +24,7 @@
 class GPSynth {
 public:
     // CONSTRUCTION
-    GPSynth(GPRandom* r, GPParams* p, std::vector<GPNode*>* nodes);
+    GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes);
     ~GPSynth();
 
     // EVOLUTION CONTROL
