@@ -31,9 +31,6 @@ GPNetwork::GPNetwork(GPRandom* rng, std::string netstring) :
     renderRoot(new SilenceNode()), allNodes(0), allMutatableParams(0)
 {
     std::vector<std::string> tokens = split(netstring, " }{)(");
-    for (unsigned i = 0; i < tokens.size(); i++) {
-        //std::cout << tokens[i] << std::endl;
-    }
     unsigned index = 0;
     root = createSubtree(tokens, &index, rng);
 }
@@ -145,9 +142,10 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
         if (!replacedLink)
             std::cerr << "Bad parent-child links detected during subtree replacement." << std::endl;
     }
-
+    /*
     // assign nu parent pointer
     nu->parent = old->parent;
+    */
 }
 
 void GPNetwork::ephemeralRandom(GPRandom* r) {
@@ -200,8 +198,6 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     // fields for tokens
     std::string type = tokens[consume];
     std::string last;
-
-    //std::cout << type << std::endl;
 
     // radius around constant nodes (any nonzero value should be the same)
     double constantRadius = 1;

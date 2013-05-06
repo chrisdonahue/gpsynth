@@ -98,7 +98,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
             nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         }
         // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
-        if (params->experimentNumber == 9) {
+        if (params->experimentNumber == 10) {
             // SAVE WAVEFORM
             //saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
 
@@ -114,7 +114,7 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
             exit(-1);
         }
         // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
-        if (params->experimentNumber == 10) {
+        if (params->experimentNumber == 11) {
             // SAVE WAVEFORM
             saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames, NULL));
 

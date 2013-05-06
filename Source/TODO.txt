@@ -48,6 +48,8 @@ Thoughts:
     Multiple variable nodes to population... replace v0 oscil node with frequency determined by child
     should variablenum in VariableNode be a mutatable param?
     for fitness function, lower the average is on the frequency domain the better. probably want to do exponential moving average with like n/2 lookahead/behind in order to allow it to decrease towards the end to capture tiny partials
+    consider constantNode intervalMutliply
+        everything except constant has the tightest possible bound on min/max? hard to say
 
 TODO long run:
     move parse stuff into GPTokenParser or something
@@ -64,23 +66,25 @@ TODO long run:
     try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
     Get filters (simple) working again. Switch filter libs probably
     prepareToRender() called when network needs to prepare to render. prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
+    more efficiency in subclasses. constantnode could be prerendered and memcpy'd
 
 NEXT EXPERIMENTS:
-    DEBUG memory leak stuff in sanityTest
-    consider constantNode intervalMutliply
-        everything except constant has the tightest possible bound on min/max? hard to say
-    look at AUDACITY rendering code and replicate that in OscilNode?
-        must use double precision for M_PI
     create test suite to confirm that all primitives are working correctly
         copy construct
         make sure all silent before preparedToRender
+
     move champ tracking to GPSynth not GPEXperiment
 
-    test random
-    test numerical mutation/consider CMAES/other stuff from joel convo
     figure out why simple average fitness function seems to work the best
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
         consider changing proportion * bad + base to just bad + base...
+
+    look at AUDACITY rendering code and replicate that in OscilNode?
+        might have to use double precision for M_PI ;;
+        look for better implementations of FM with variable frequency online
+
+    test random
+    test numerical mutation/consider CMAES/other stuff from joel convo
     SPLINE NODE
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"
