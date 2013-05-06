@@ -64,7 +64,6 @@ GPSynth::~GPSynth() {
     delete availableNodes;
     delete availableFunctions;
     delete availableTerminals;
-    delete rng;
 }
 
 GPNode* GPSynth::fullRecursive(unsigned cd, unsigned d) {

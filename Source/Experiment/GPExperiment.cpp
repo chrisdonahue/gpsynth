@@ -196,20 +196,22 @@ GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path
 }
 
 GPExperiment::~GPExperiment() {
-    free(targetFrames);
-    free(targetEnvelope);
-    if (params->fitnessFunctionType == 1) {
-        free(analysisWindow);
-        free(targetSpectrum);
-        free(targetSpectrumMagnitudes);
-        free(targetSpectrumPhases);
-        free(binOvershootingPenalty);
-        free(binUndershootingPenalty);
-        free(fftFrameWeight);
+    if (params->experimentNumber != 0) {
+        free(targetFrames);
+        free(targetEnvelope);
+        free(sampleTimes);
+        free(specialValuesByFrame);
+        if (params->fitnessFunctionType == 1) {
+            free(analysisWindow);
+            free(targetSpectrum);
+            free(targetSpectrumMagnitudes);
+            free(targetSpectrumPhases);
+            free(binOvershootingPenalty);
+            free(binUndershootingPenalty);
+            free(fftFrameWeight);
+        }
+        delete synth;
     }
-    free(sampleTimes);
-    free(specialValuesByFrame);
-    delete synth;
 }
 
 /*

@@ -411,8 +411,12 @@ public:
             printImportantExperimentInfo();
         }
 
+        // init rng
+        rng = new GPRandom(seed);
+
+        // start experiment
         requestedQuit = false;
-        experiment = new GPExperiment(new GPRandom(seed), seed, target, saveFilesTo, params, constants.data(), &requestedQuit);
+        experiment = new GPExperiment(rng, seed, target, saveFilesTo, params, constants.data(), &requestedQuit);
 
         // TODO start a new thread to do this
         //juce::Thread experiment(String("evolution"));
@@ -475,6 +479,7 @@ public:
     {
         delete experiment;
         free(params);
+        delete rng;
     }
 
     //==============================================================================
@@ -498,6 +503,7 @@ private:
     bool requestedQuit;
     GPExperiment* experiment;
     GPParams* params;
+    GPRandom* rng;
 };
 
 //==============================================================================
