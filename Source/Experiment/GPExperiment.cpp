@@ -16,12 +16,11 @@
     ============
 */
 
-// TODO: switch rng and params...
-GPExperiment::GPExperiment(GPRandom* rng, unsigned s, String target, String path, GPParams* p, double* constants, bool* rq) :
+GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, double* constants, bool* rq) :
     synth(NULL),
+    params(p),
     seed(s),
     savePath(path),
-    params(p),
     specialValues(constants),
     requestedQuit(rq),
     dBRef(54),

@@ -32,7 +32,7 @@ public:
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     std::string toString(unsigned precision);
     GPNode* getRoot();
-    bool equals(GPNetwork* other);
+    bool equals(GPNetwork* other, unsigned precision);
     GPNode* getRandomNetworkNode(GPRandom* r);
     std::vector<GPMutatableParam*>* getAllMutatableParams();
 

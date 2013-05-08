@@ -416,7 +416,7 @@ public:
 
         // start experiment
         requestedQuit = false;
-        experiment = new GPExperiment(rng, seed, target, saveFilesTo, params, constants.data(), &requestedQuit);
+        experiment = new GPExperiment(params, rng, seed, target, saveFilesTo, constants.data(), &requestedQuit);
 
         // TODO start a new thread to do this
         //juce::Thread experiment(String("evolution"));

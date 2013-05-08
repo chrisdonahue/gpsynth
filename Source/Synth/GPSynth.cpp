@@ -16,24 +16,21 @@
    ============
 */
 
-// TODO: fix this garbage constructor lol
 GPSynth::GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes) :
-    nextNetworkID(0), generationID(0),
-    populationSize(p->populationSize),
-    generationAverageFitness(p->penaltyFitness),
-    lowerFitnessIsBetter(p->lowerFitnessIsBetter),
-    bestPossibleFitness(p->bestPossibleFitness),
-    maxInitialHeight(p->maxInitialHeight),
-    maxHeight(p->maxHeight),
-    crossoverType(p->crossoverType),
-    mutationType(p->mutationType),
-    availableNodes(nodes),
+    params(p), rng(r), availableNodes(nodes),
     allNetworks(), unevaluated(), evaluated(), currentGeneration(),
     rawFitnesses(), normalizedFitnesses(), rank()
 {
-    params = p;
-    rng = r;
+    // init public evolution sate
+    nextNetworkID = 0;
+    currentGenerationNumber = 0;
+    champ = NULL;
 
+    // init private evolution state
+    populationSize = params->populationSize;
+    lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+
+    // categorize primitives
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
     for (unsigned i = 0; i < availableNodes->size(); i++) {
@@ -44,12 +41,16 @@ GPSynth::GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes) :
             availableFunctions->push_back(nodes->at(i));
         }
     }
+    assert(availableFunctions->size() > 0 && availableTerminals->size() > 0);
 
+    // init generation containers
     clearGenerationState();
 
-    std::cerr << "Initializing population of size " << populationSize << " with best possible fitness of " << bestPossibleFitness << std::endl;
+    // create initial population
+    std::cerr << "Initializing population of size " << populationSize << " with best possible fitness of " << params->bestPossibleFitness << std::endl;
     initPopulation();
 
+    // declare the start of generation 0
     printGenerationDelim();
 }
 
@@ -113,6 +114,7 @@ GPNetwork* GPSynth::grow(unsigned m) {
 
 void GPSynth::initPopulation() {
     // implementation of ramped half and half
+    unsigned maxInitialHeight = params->maxInitialHeight;
     unsigned numPerPart = maxInitialHeight <= 1 ? 0 : populationSize / (maxInitialHeight - 1);
     unsigned numFullPerPart = numPerPart / 2;
     unsigned numGrowPerPart = numFullPerPart + (numPerPart % 2);
@@ -172,27 +174,27 @@ GPNetwork* GPSynth::getIndividual() {
 
 std::vector<GPNetwork*>* GPSynth::getIndividuals(unsigned n) {
     if (unevaluated.size() < n) {
-        std::cout << "Requested multiple individuals out of population that did not have that many remaining" << std::endl;
+        std::cout << "Requested multiple individuals out of population that did not have enough remaining" << std::endl;
         return NULL;
     }
     return NULL;
 }
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {
+    // assign network fitness and move it to evaluated
     net->fitness = fitness;
     unevaluated.erase(net);
     evaluated.insert(net);
     rawFitnesses[net->ID % populationSize] = fitness;
+
+    // TODO: update champ, generationChamp, generationBestFitness, generationAverageFitness, generationCumulativeFitness
+
+    // print if verbose
     if (params->verbose) {
-        /*
-        if (fitness == params->penaltyFitness) {
-            std::cout << "Algorithm " << net->ID << " produced silence and was assigned a penalty fitness of " << fitness << std::endl;
-        }
-        else {
-            */
         std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
-        //}
     }
+
+    // calculate num remaining and print summary if generation is done
     int numStillNeedingEvaluation = populationSize - evaluated.size();
     if (numStillNeedingEvaluation == 0) {
         printGenerationSummary();
@@ -201,26 +203,26 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
 }
 
 int GPSynth::prevGeneration() {
-    if (generationID == 0) {
+    if (currentGenerationNumber == 0) {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
-        return generationID;
+        return currentGenerationNumber;
     }
     //clearGenerationState();
     /*
         // TODO: implement this, requires GPNetwork(std::string)
     */
-    generationID--;
-    return generationID;
+    currentGenerationNumber--;
+    return currentGenerationNumber;
 }
 
 void GPSynth::printGenerationDelim() {
-    std::cout << "------------------------- START OF GENERATION " << generationID << " -------------------------" << std::endl;
+    std::cout << "------------------------- START OF GENERATION " << currentGenerationNumber << " -------------------------" << std::endl;
 }
 
 void GPSynth::printGenerationSummary() {
     assert(evaluated.size() == rawFitnesses.size());
     assert(evaluated.size() == populationSize);
-    double generationCumulativeFitness = 0;
+    // TODO: remove this stuff
     generationBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
     GPNetwork* champ = NULL;
     for (unsigned i = 0; i < rawFitnesses.size(); i++) {
@@ -240,7 +242,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with height " << champ->height << " and structure " << champ->toString(params->savePrecision) << std::endl;
+    std::cerr << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with height " << champ->height << " and structure " << champ->toString(params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -280,7 +282,7 @@ int GPSynth::nextGeneration() {
         GPNetwork* selected = selectFromEvaluated(params->mutationSelectionType, numForPossibleMutation);
         GPNetwork* one = selected->getCopy("mutation");
         one->traceNetwork();
-        mutate(one);
+        mutate(params->mutationType, one);
         nextGeneration->push_back(one);
         //selected->fitness = newfitness;
     }
@@ -294,12 +296,12 @@ int GPSynth::nextGeneration() {
         GPNetwork* two = mom->getCopy("crossover");
         two->ID = mom->ID;
 
-        GPNetwork* offspring = crossover(one, two);
+        GPNetwork* offspring = crossover(params->crossoverType, one, two);
 
         // standard GP with two offspring
         if (offspring == NULL) {
             one->traceNetwork();
-            if (one->height > maxHeight) {
+            if (one->height > params->maxHeight) {
                 delete one;
                 one = dad->getCopy("reproduction during crossover");
             }
@@ -307,7 +309,7 @@ int GPSynth::nextGeneration() {
             i++;
             if (i < numToCrossover) {
                 two->traceNetwork();
-                if (two->height > maxHeight) {
+                if (two->height > params->maxHeight) {
                     delete two;
                     two = mom->getCopy("reproduction during crossover");
                 }
@@ -339,7 +341,7 @@ int GPSynth::nextGeneration() {
     clearGenerationState();
 
     // INCREMENT THE GENERATION COUNT
-    generationID++;
+    currentGenerationNumber++;
 
     // PRINT START OF GENERATION DELIMITER
     printGenerationDelim();
@@ -351,7 +353,7 @@ int GPSynth::nextGeneration() {
     }
     delete nextGeneration;
 
-    return generationID;
+    return currentGenerationNumber;
 }
 
 void GPSynth::calculateGenerationRanks() {
@@ -373,7 +375,7 @@ void GPSynth::calculateGenerationNormalizedFitnesses() {
     else {
         standardizedFitnesses = new std::vector<double>();
         for (unsigned i = 0; i < rawFitnesses.size(); i++) {
-            standardizedFitnesses->push_back(bestPossibleFitness - rawFitnesses[i]);
+            standardizedFitnesses->push_back(params->bestPossibleFitness - rawFitnesses[i]);
         }
     }
 
@@ -412,7 +414,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     }
     net->ID = nextNetworkID++;
     net->traceNetwork();
-    assert(net->height <= maxHeight);
+    assert(net->height <= params->maxHeight);
     if (params->backupAllNetworks)
       allNetworks.push_back(new std::string(net->toString(params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
@@ -429,6 +431,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
 }
 
 void GPSynth::clearGenerationState() {
+    // delete all networks from last generation
     for (std::set<GPNetwork*>::iterator i = unevaluated.begin(); i != unevaluated.end(); i++) {
         delete (*i);
     }
@@ -438,6 +441,11 @@ void GPSynth::clearGenerationState() {
     evaluated.clear();
     unevaluated.clear();
     currentGeneration.clear();
+    generationBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
+    generationAverageFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
+    generationCumulativeFitness = 0;
+
+    // clear out selection containers
     rawFitnesses.clear();
     rawFitnesses.resize(populationSize, -1.0);
     normalizedFitnesses.clear();
@@ -499,7 +507,7 @@ GPNetwork* GPSynth::selectFromEvaluated(unsigned selectionType, unsigned paramet
     =========
 */
 
-GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
+GPNetwork* GPSynth::crossover(unsigned crossoverType, GPNetwork* one, GPNetwork* two) {
     if (crossoverType == 0) {
         // standard GP crossover
         GPNode* subtreeone = one->getRandomNetworkNode(rng);
@@ -535,14 +543,14 @@ GPNetwork* GPSynth::crossover(GPNetwork* one, GPNetwork* two) {
     return NULL;
 }
 
-void GPSynth::mutate(GPNetwork* one) {
+void GPSynth::mutate(unsigned mutationType, GPNetwork* one) {
     if (mutationType == 0) {
         // pick old subtree
         GPNode* forReplacement = one->getRandomNetworkNode(rng);
-        assert(maxHeight - forReplacement->depth >= 0);
+        assert(params->maxHeight - forReplacement->depth >= 0);
 
         // grow new replacement subtree
-        GPNode* replacement = growRecursive(0, maxHeight - forReplacement->depth);
+        GPNode* replacement = growRecursive(0, params->maxHeight - forReplacement->depth);
         if (params->ephemeralRandomConstants)
             replacement->ephemeralRandom(rng);
 

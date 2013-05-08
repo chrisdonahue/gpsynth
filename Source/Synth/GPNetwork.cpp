@@ -69,8 +69,8 @@ GPNode* GPNetwork::getRoot() {
     return root;
 }
 
-bool GPNetwork::equals(GPNetwork* other) {
-    return toString(10).compare(other->toString(10)) == 0;
+bool GPNetwork::equals(GPNetwork* other, unsigned precision) {
+    return toString(precision).compare(other->toString(precision)) == 0;
 }
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {

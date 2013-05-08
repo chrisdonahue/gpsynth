@@ -36,7 +36,7 @@ public:
     void printGenerationSummary();
 
     // PUBLIC EVOLUTION STATE
-    int generationID;
+    int currentGenerationNumber;
     GPNetwork* generationChamp;
     GPNetwork* champ;
 
@@ -59,25 +59,19 @@ private:
     GPNetwork* selectFromEvaluated(unsigned selectionType, unsigned parameter);
 
     // GENETIC OPERATIONS
-    GPNetwork* crossover(GPNetwork* one, GPNetwork* two);
+    GPNetwork* crossover(unsigned crossoverType, GPNetwork* one, GPNetwork* two);
+    void mutate(unsigned mutationType, GPNetwork* one);
     void numericallyMutate(GPNetwork* one);
-    void mutate(GPNetwork* one);
 
     // PRIVATE EVOLUTION STATE
     GPParams* params;
     GPRandom* rng;
-    int nextNetworkID;
-
-    // EVOLUTION PARAMS
     unsigned populationSize;
-    double generationAverageFitness;
-    double generationBestFitness;
+    int nextNetworkID;
     bool lowerFitnessIsBetter;
-    double bestPossibleFitness;
-    unsigned maxInitialHeight;
-    unsigned maxHeight;
-    unsigned mutationType;
-    unsigned crossoverType;
+    double generationBestFitness;
+    double generationAverageFitness;
+    double generationCumulativeFitness;
 
     // CONVERGENCE-VARYING
     double convergenceFactor;
