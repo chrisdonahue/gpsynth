@@ -599,4 +599,3 @@ bool compareFitnessesLower(GPNetwork* one, GPNetwork* two) {
 bool compareFitnessesHigher(GPNetwork* one, GPNetwork* two) {
     return two->fitness < one->fitness;
 }
-

@@ -35,8 +35,10 @@ public:
     void printGenerationDelim();
     void printGenerationSummary();
 
-    // NODE MUTATION PARAMS
-    GPParams* params;
+    // PUBLIC EVOLUTION STATE
+    int generationID;
+    GPNetwork* generationChamp;
+    GPNetwork* champ;
 
 private:
     // CONSTRUCTION
@@ -61,10 +63,10 @@ private:
     void numericallyMutate(GPNetwork* one);
     void mutate(GPNetwork* one);
 
-    // SYNTH EVOLUTION STATE
+    // PRIVATE EVOLUTION STATE
+    GPParams* params;
     GPRandom* rng;
     int nextNetworkID;
-    int generationID;
 
     // EVOLUTION PARAMS
     unsigned populationSize;
@@ -80,7 +82,7 @@ private:
     // CONVERGENCE-VARYING
     double convergenceFactor;
     std::vector<double*> continuousConvergenceVaryingParams;
-    std::vector<double*> continuousCongergenceVaryingTemperatures;
+    std::vector<double*> continuousConvergenceVaryingTemperatures;
 
     // AVAILABLE CONTAINERS
     std::vector<GPNode*>* availableNodes;

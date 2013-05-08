@@ -70,6 +70,7 @@ TODO long run:
 
 NEXT EXPERIMENTS:
     move champ tracking to GPSynth not GPEXperiment
+        cleanup GPsynth, keep interactive stuff in mind
 
     figure out why simple average fitness function seems to work the best
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
