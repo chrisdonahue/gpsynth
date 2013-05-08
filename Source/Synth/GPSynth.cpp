@@ -166,7 +166,7 @@ GPNetwork* GPSynth::getIndividual() {
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
     if (params->verbose)
-        std::cout << "Testing algorithm " << ret->ID << " made by " << ret->origin << " with height " << ret->height << " and structure " << ret->toString(false, params->printPrecision) << std::endl;
+        std::cout << "Testing algorithm " << ret->ID << " made by " << ret->origin << " with height " << ret->height << " and structure " << ret->toString(params->printPrecision) << std::endl;
     return ret;
 }
 
@@ -240,7 +240,7 @@ void GPSynth::printGenerationSummary() {
         }
     }
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with height " << champ->height << " and structure " << champ->toString(true, params->savePrecision) << std::endl;
+    std::cerr << "Generation " << generationID << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with height " << champ->height << " and structure " << champ->toString(params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -414,13 +414,13 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     net->traceNetwork();
     assert(net->height <= maxHeight);
     if (params->backupAllNetworks)
-      allNetworks.push_back(new std::string(net->toString(true, params->backupPrecision)));
+      allNetworks.push_back(new std::string(net->toString(params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
         // TODO: probably dont need the following line:
         evaluated.insert(net);
         if (params->verbose)
-            std::cout << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << net->toString(false, params->printPrecision) << " which was algorithm " << oldID << " from the previous generation." << std::endl;
+            std::cout << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << net->toString(params->printPrecision) << " which was algorithm " << oldID << " from the previous generation." << std::endl;
         assignFitness(net, net->fitness);
     }
     else {

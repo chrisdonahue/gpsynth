@@ -16,11 +16,11 @@
     =========
 */
 
-void FunctionNode::toString(bool printRange, std::stringstream& ss) {
+void FunctionNode::toString(std::stringstream& ss) {
     ss << "(" << symbol;
     for (unsigned i = 0; i < arity; i++) {
         ss << " ";
-        descendants[i]->toString(printRange, ss);
+        descendants[i]->toString(ss);
     }
     ss << ")";
 }

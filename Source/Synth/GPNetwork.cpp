@@ -58,10 +58,10 @@ void GPNetwork::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
 }
 
 
-std::string GPNetwork::toString(bool printRange, unsigned precision) {
+std::string GPNetwork::toString(unsigned precision) {
     std::stringstream ss;
     ss.precision(precision);
-    root->toString(printRange, ss);
+    root->toString(ss);
     return ss.str();
 }
 
@@ -70,7 +70,7 @@ GPNode* GPNetwork::getRoot() {
 }
 
 bool GPNetwork::equals(GPNetwork* other) {
-    return toString(true, 10).compare(other->toString(true, 10)) == 0;
+    return toString(10).compare(other->toString(10)) == 0;
 }
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {

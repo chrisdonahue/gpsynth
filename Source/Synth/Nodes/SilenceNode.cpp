@@ -45,6 +45,6 @@ void SilenceNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned n
     }
 }
 
-void SilenceNode::toString(bool printRange, std::stringstream& ss) {
+void SilenceNode::toString(std::stringstream& ss) {
     ss << "(silence)";
 }

@@ -53,10 +53,10 @@ void VariableNode::updateMutatedParams() {
     maximum = mutatableParams[1]->getCMax();
 }
 
-void VariableNode::toString(bool printRange, std::stringstream& ss) {
+void VariableNode::toString(std::stringstream& ss) {
     ss << "(var " << variableNum;
-    mutatableParams[0]->toString(printRange, ss);
+    mutatableParams[0]->toString(ss);
     ss << " ";
-    mutatableParams[1]->toString(printRange, ss);
+    mutatableParams[1]->toString(ss);
     ss << ")";
 }

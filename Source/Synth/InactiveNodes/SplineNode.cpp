@@ -261,7 +261,7 @@ void SplineNode::updateMutatedParams() {
         descendants[0]->updateMutatedParams();
 }
 
-void SplineNode::toString(bool printRange, std::stringstream& ss) {
+void SplineNode::toString(std::stringstream& ss) {
     ss << "(Spline";
     for (unsigned i = 0; i < mutatableParams.size(); i++) {
       ss << " ";

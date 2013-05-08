@@ -21,7 +21,7 @@ public:
 	// overrides
     TimeNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(bool printRange, std::stringstream& ss);
+    void toString(std::stringstream& ss);
 
     // optional overrides
 	void setRenderInfo(float sr, unsigned blockSize, float maxTime);

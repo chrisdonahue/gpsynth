@@ -42,23 +42,15 @@ public:
     }
 
     // render as string
-    void toString(bool printRange, std::stringstream& ss) {
-        if (printRange) {
-          ss << "{";
-          if (isContinuous) {
-            ss << "c " << cminimum << " " << cvalue << " " << cmaximum;
-          }
-          else {
-            ss << "d " << dminimum << " " << dvalue << " " << dmaximum;
-          }
-          ss << "}";
+    void toString(std::stringstream& ss) {
+        ss << "{";
+        if (isContinuous) {
+        ss << "c " << cminimum << " " << cvalue << " " << cmaximum;
         }
         else {
-          if (isContinuous)
-            ss << cvalue;
-          else
-            ss << dvalue;
+        ss << "d " << dminimum << " " << dvalue << " " << dmaximum;
         }
+        ss << "}";
     }
 
     // set discrete values

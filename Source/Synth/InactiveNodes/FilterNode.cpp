@@ -175,7 +175,7 @@ void FilterNode::updateMutatedParams() {
     descendants[1]->updateMutatedParams();
 }
 
-void FilterNode::toString(bool printRange, std::stringstream& ss) {
+void FilterNode::toString(std::stringstream& ss) {
     ss << "(" << type;
     ss << " [";
     mutatableParams[0]->toString(printRange, ss);

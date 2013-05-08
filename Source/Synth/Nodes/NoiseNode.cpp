@@ -53,8 +53,7 @@ void NoiseNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
     whitenoise(buffer, numSamples, 1.0);
 }
 
-void NoiseNode::toString(bool printRange, std::stringstream& ss) {
-	printRange;
+void NoiseNode::toString(std::stringstream& ss) {
     ss << "(whitenoise)";
 }
 

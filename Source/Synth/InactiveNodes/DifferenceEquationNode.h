@@ -26,7 +26,7 @@ public:
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
 	void updateMutatedParams();
-    void toString(bool printRange, std::stringstream& ss);
+    void toString(std::stringstream& ss);
 
 private:
     // difference equation zeroes

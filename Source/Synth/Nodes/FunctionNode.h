@@ -16,7 +16,7 @@
 class FunctionNode: public GPNode {
 public:
 	// overrides
-    void toString(bool printRange, std::stringstream& ss);
+    void toString(std::stringstream& ss);
 
     // subclass overrides
     virtual FunctionNode* getCopy() = 0;

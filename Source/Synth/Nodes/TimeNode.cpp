@@ -53,7 +53,6 @@ void TimeNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numS
     }
 }
 
-void TimeNode::toString(bool printRange, std::stringstream& ss) {
-	printRange;
+void TimeNode::toString(std::stringstream& ss) {
     ss << "(time)";
 }

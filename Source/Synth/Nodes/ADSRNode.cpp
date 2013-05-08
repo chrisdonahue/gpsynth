@@ -159,7 +159,7 @@ void ADSRNode::updateMutatedParams() {
     fillFromParams();
 }
 
-void ADSRNode::toString(bool printRange, std::stringstream& ss) {
+void ADSRNode::toString(std::stringstream& ss) {
 	if (terminalADSR) {
 	    ss << "(adsr";
 	}
@@ -168,11 +168,11 @@ void ADSRNode::toString(bool printRange, std::stringstream& ss) {
 	}
     for (unsigned i = 0; i < mutatableParams.size(); i++) {
       ss << " ";
-      mutatableParams[i]->toString(printRange, ss);
+      mutatableParams[i]->toString(ss);
     }
     if (!terminalADSR) {
         ss << " ";
-        descendants[0]->toString(printRange, ss);
+        descendants[0]->toString(ss);
     }
     ss << ")";
 }

@@ -84,23 +84,23 @@ void OscilNode::updateMutatedParams() {
     // minimum/maximum constant and declared in constructor
 }
 
-void OscilNode::toString(bool printRange, std::stringstream& ss) {
+void OscilNode::toString(std::stringstream& ss) {
     if (terminalOscil) {
         ss << "(osc ";
-        mutatableParams[0]->toString(printRange, ss);
+        mutatableParams[0]->toString(ss);
         ss << " ";
-        mutatableParams[1]->toString(printRange, ss);
+        mutatableParams[1]->toString(ss);
         ss << ")";
     }
     else {
         ss << "(fm "; 
-        mutatableParams[0]->toString(printRange, ss);
+        mutatableParams[0]->toString(ss);
         ss << " ";
-        mutatableParams[1]->toString(printRange, ss);
+        mutatableParams[1]->toString(ss);
         ss << " ";
-        mutatableParams[2]->toString(printRange, ss);
+        mutatableParams[2]->toString(ss);
         ss << " ";
-        descendants[0]->toString(printRange, ss);
+        descendants[0]->toString(ss);
         ss << ")";
     }
 }

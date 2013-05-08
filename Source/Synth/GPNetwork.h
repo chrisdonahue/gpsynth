@@ -30,7 +30,7 @@ public:
 
     // EXAMINATION
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    std::string toString(bool printRange, unsigned precision);
+    std::string toString(unsigned precision);
     GPNode* getRoot();
     bool equals(GPNetwork* other);
     GPNode* getRandomNetworkNode(GPRandom* r);

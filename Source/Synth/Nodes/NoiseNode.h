@@ -22,7 +22,7 @@ public:
 	// overrides
     NoiseNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(bool printRange, std::stringstream& ss);
+    void toString(std::stringstream& ss);
 
 	// class specific
 	void whitenoise(float* _fpDstBuffer, unsigned int _uiBufferSize, float _fLevel );

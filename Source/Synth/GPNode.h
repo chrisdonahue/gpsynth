@@ -49,7 +49,7 @@ public:
     // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
     virtual GPNode* getCopy() = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
-    virtual void toString(bool printRange, std::stringstream& ss) = 0;
+    virtual void toString(std::stringstream& ss) = 0;
 
     // LINEAGE POINTERS
     GPNode* parent;
@@ -155,10 +155,10 @@ public:
         }
     };
 
-    std::string toString(bool printRange, unsigned precision) {
+    std::string toString(unsigned precision) {
         std::stringstream ss;
         ss.precision(precision);
-        toString(printRange, ss);
+        toString(ss);
         return ss.str();
     }
 };

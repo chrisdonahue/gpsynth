@@ -112,7 +112,7 @@ void LFONode::updateMutatedParams() {
     }
 }
 
-void LFONode::toString(bool printRange, std::stringstream& ss) {
+void LFONode::toString(std::stringstream& ss) {
     if (terminalOscil) {
         ss << "(osc p";
         mutatableParams[0]->toString(printRange, ss);

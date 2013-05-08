@@ -20,7 +20,9 @@ ConstantNode::ConstantNode(bool terminal, bool pi, GPMutatableParam* v, GPNode* 
 	terminalConstant = terminal;
     isPi = pi;
     
-    mutatableParams.push_back(v);
+    if (!isPi) {
+        mutatableParams.push_back(v);
+    }
 
 	if (terminalConstant) {
     	arity = 0;
@@ -99,14 +101,14 @@ void ConstantNode::updateMutatedParams() {
     }
 }
 
-void ConstantNode::toString(bool printRange, std::stringstream& ss) {
+void ConstantNode::toString(std::stringstream& ss) {
     if (isPi) {
     	if (terminalConstant) {
         	ss << "(pi";
         }
         else {
 			ss << "(pi* ";
-        	descendants[0]->toString(printRange, ss);
+        	descendants[0]->toString(ss);
 		}
 		ss << ")";
     }
@@ -117,10 +119,10 @@ void ConstantNode::toString(bool printRange, std::stringstream& ss) {
        	else {
        		ss << "(const* ";
        	}
-        mutatableParams[0]->toString(printRange, ss);
+        mutatableParams[0]->toString(ss);
         if (!terminalConstant) {
         	ss << " ";
-        	descendants[0]->toString(printRange, ss);
+        	descendants[0]->toString(ss);
         }
         ss << ")";
     }
