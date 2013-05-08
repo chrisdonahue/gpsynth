@@ -69,10 +69,6 @@ TODO long run:
     more efficiency in subclasses. constantnode could be prerendered and memcpy'd
 
 NEXT EXPERIMENTS:
-    create test suite to confirm that all primitives are working correctly
-        copy construct
-        make sure all silent before preparedToRender
-
     move champ tracking to GPSynth not GPEXperiment
 
     figure out why simple average fitness function seems to work the best

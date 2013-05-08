@@ -1071,29 +1071,25 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     unsigned numconstantvariables = 2;
     unsigned renderblocksize = 256;
     float* testBuffer = (float*) malloc(sizeof(float) * numframes);
+    float* comparisonBuffer = (float*) malloc(sizeof(float) * numframes);
     float* silenceBuffer = (float*) malloc(sizeof(float) * numframes);
-    float* sineBuffer = (float*) malloc(sizeof(float) * numframes);
     float* variables = (float*) malloc(sizeof(float) * numconstantvariables);
     variables[0] = 440.0;
     variables[1] = 659.26;
     float* times = (float*) malloc(sizeof(float) * numframes);
     fillTimeAxisBuffer(numframes, samplerate, times);
     loadWavFile("./tests/silenceTestTarget.wav", numframes, silenceBuffer);
-    loadWavFile("./tests/sinWave440TestTarget.wav", numframes, sineBuffer);
 
     // test network strings
     std::string silenceTest = "(silence)";
-    std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
-    std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
-    std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
-    std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
     std::string noiseTest = "(noise)";
     std::string variableNodeTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (var {d 0 0 1} {c 0.0 0.0 22050.0})))))";
-    std::string FMSynthesisTest = "(fm {d 0 1 1} {d 0 1 10} {c 0 2.0 3.0} " + sinTest + ")";
 
-    // sin test network
-    GPNetwork* sinTestNet = new GPNetwork(rng, sinTest);
+    // SIN TEST NETWORK
     std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
+    std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
+    GPNetwork* sinTestNet = new GPNetwork(rng, sinTest);
+
     std::cout << "Network before trace:" << std::endl << sinTestNet->toString(10) << std::endl;
     std::cout << "Height: " << sinTestNet->height << std::endl;
     std::cout << "Min: " << sinTestNet->minimum << std::endl;
@@ -1101,6 +1097,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
     assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
+
     sinTestNet->traceNetwork();
     std::cout << "Network after trace:" << std::endl << sinTestNet->toString(10) << std::endl;
     std::cout << "Height: " << sinTestNet->height << std::endl;
@@ -1109,6 +1106,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
     assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
+
     sinTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds); 
     std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(10) << std::endl;
     std::cout << "Height: " << sinTestNet->height << std::endl;
@@ -1116,9 +1114,10 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sinTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
-    double error = compareWaveforms(0, numframes, sineBuffer, testBuffer);
+    loadWavFile("./tests/sineWave440TestTarget.wav", numframes, comparisonBuffer);
+    double error = compareWaveforms(0, numframes, comparisonBuffer, testBuffer);
     std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
-    assert(compareWaveforms(0, numframes, sineBuffer, testBuffer) < 10);
+    assert(error < 10);
     saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(10).c_str()), numframes, samplerate, testBuffer);
 
     // test copy/mutatable params
@@ -1129,15 +1128,17 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     sinTestNetNewCenter->traceNetwork();
     std::vector<GPMutatableParam*>* amp = sinTestNetNewCenter->getAllMutatableParams();
     GPMutatableParam* cf = amp->at(amp->size() - 1);
-    cf->setCValue(261.62);
-    cf->setCRange(200, 300);
+    cf->setCValue(30);
+    cf->setCRange(15, 300);
     std::cout << "Network after mutate:" << std::endl << sinTestNetNewCenter->toString(10) << std::endl;
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNetNewCenter->prepareToRender(samplerate, renderblocksize, maxSeconds); 
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    saveWavFile("./sineWaveTestNewCenter.wav", String(sinTestNetNewCenter->toString(10).c_str()), numframes, samplerate, testBuffer);
     delete sinTestNetNewCenter;
 
     // adsr test network
+    std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
     GPNetwork* ADSRTestNet = new GPNetwork(rng, ADSRTest);
     ADSRTestNet->traceNetwork();
     ADSRTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
@@ -1152,6 +1153,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     delete ADSRTestNet;
 
     // constant node envelope test network
+    std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
     GPNetwork* constantNodeEnvelopeTestNet = new GPNetwork(rng, constantNodeEnvelopeTest);
     constantNodeEnvelopeTestNet->traceNetwork();
     constantNodeEnvelopeTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
@@ -1166,6 +1168,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     delete constantNodeEnvelopeTestNet;
 
     // additive synthesis test
+    std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
     GPNetwork* additiveSynthesisTestNet = new GPNetwork(rng, additiveSynthesisTest);
     additiveSynthesisTestNet->traceNetwork();
     additiveSynthesisTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
@@ -1180,6 +1183,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     delete additiveSynthesisTestNet;
 
     // FM synthesis test
+    std::string FMSynthesisTest = "(fm {d 0 1 1} {d 0 1 10} {c 0 2.0 3.0} " + sinTest + ")";
     GPNetwork* FMSynthesisTestNet = new GPNetwork(rng, FMSynthesisTest);
     FMSynthesisTestNet->traceNetwork();
     FMSynthesisTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
@@ -1197,6 +1201,6 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     free(variables);
     free(times);
     free(testBuffer);
+    free(comparisonBuffer);
     free(silenceBuffer);
-    free(sineBuffer);
 }
