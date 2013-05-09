@@ -71,7 +71,6 @@ public:
         params->populationSize = 500;
         params->lowerFitnessIsBetter = true;
         params->bestPossibleFitness = 0;
-        params->penaltyFitness = std::numeric_limits<float>::max();
         params->maxInitialDepth = 5;
         params->maxDepth = 12;
 

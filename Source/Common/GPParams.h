@@ -59,7 +59,6 @@ struct GPParams {
     unsigned backupPrecision;
     bool lowerFitnessIsBetter;
     double bestPossibleFitness;
-    double penaltyFitness;
     unsigned maxInitialHeight;
     unsigned maxHeight;
 

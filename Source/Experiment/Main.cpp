@@ -101,7 +101,6 @@ public:
         params->backupPrecision = 100;
         //params->lowerFitnessIsBetter = true; should be done in experiment
         //params->bestPossibleFitness = 0; should be done in experiment
-        //params->penaltyFitness = std::numeric_limits<float>::max(); experiment
         params->maxInitialHeight = 5;
         params->maxHeight = 12;
 

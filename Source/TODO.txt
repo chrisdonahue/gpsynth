@@ -50,6 +50,7 @@ Thoughts:
     for fitness function, lower the average is on the frequency domain the better. probably want to do exponential moving average with like n/2 lookahead/behind in order to allow it to decrease towards the end to capture tiny partials
     consider constantNode intervalMutliply
         everything except constant has the tightest possible bound on min/max? hard to say
+    synth partial continuous between [0, nyquist/centerfreq]?
 
 TODO long run:
     move parse stuff into GPTokenParser or something
@@ -70,11 +71,6 @@ TODO long run:
 
 NEXT EXPERIMENTS:
     move some GPExperiment methods into GPHelpers such as wav file stuff
-
-    move champ tracking to GPSynth not GPEXperiment
-        cleanup GPsynth, keep interactive stuff in mind
-
-    remove penaltyFitness
 
     figure out why simple average fitness function seems to work the best
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
