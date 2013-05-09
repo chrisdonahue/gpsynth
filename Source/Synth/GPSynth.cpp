@@ -22,13 +22,15 @@ GPSynth::GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes) :
     rawFitnesses(), normalizedFitnesses(), rank()
 {
     // init public evolution sate
-    nextNetworkID = 0;
     currentGenerationNumber = 0;
+    generationChamp = NULL;
     champ = NULL;
 
     // init private evolution state
     populationSize = params->populationSize;
+    nextNetworkID = 0;
     lowerFitnessIsBetter = params->lowerFitnessIsBetter;
+    overallBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
 
     // categorize primitives
     availableFunctions = new std::vector<GPNode*>();
@@ -65,6 +67,7 @@ GPSynth::~GPSynth() {
     delete availableNodes;
     delete availableFunctions;
     delete availableTerminals;
+    delete champ;
 }
 
 GPNode* GPSynth::fullRecursive(unsigned cd, unsigned d) {
@@ -187,8 +190,6 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     evaluated.insert(net);
     rawFitnesses[net->ID % populationSize] = fitness;
 
-    // TODO: update champ, generationChamp, generationBestFitness, generationAverageFitness, generationCumulativeFitness
-
     // print if verbose
     if (params->verbose) {
         std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
@@ -222,27 +223,50 @@ void GPSynth::printGenerationDelim() {
 void GPSynth::printGenerationSummary() {
     assert(evaluated.size() == rawFitnesses.size());
     assert(evaluated.size() == populationSize);
-    // TODO: remove this stuff
-    generationBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
-    GPNetwork* champ = NULL;
+
+    // parse assigned fitnesses
+    unsigned generationBestNetworkID;
+    double generationCumulativeFitness = 0;
     for (unsigned i = 0; i < rawFitnesses.size(); i++) {
+        // grab and check that fitness is positive
         double fitness = rawFitnesses[i];
         if (fitness < 0) {
             std::cerr << "Negative fitness value detected when summarizing generation" << std::endl;
             return;
         }
+
+        // determine if we have a new generation champion
+        bool newGenChamp = lowerFitnessIsBetter ? fitness < generationBestFitness : fitness > generationBestFitness;
+        if (newGenChamp) {
+            generationBestNetworkID = i;
+            generationBestFitness = fitness;
+        }
+
+        // update cumulative fitness
         generationCumulativeFitness += fitness;
-        if (lowerFitnessIsBetter && fitness < generationBestFitness) {
-            generationBestFitness = fitness;
-            champ = currentGeneration[i];
-        }
-        else if (!lowerFitnessIsBetter && fitness > generationBestFitness) {
-            generationBestFitness = fitness;
-            champ = currentGeneration[i];
-        }
     }
+
+    // calculate average fitness
     generationAverageFitness = generationCumulativeFitness / populationSize;
-    std::cerr << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << champ->ID << " made by " << champ->origin << " with height " << champ->height << " and structure " << champ->toString(params->savePrecision) << std::endl;
+
+    // update generation champ
+    GPNetwork* best = currentGeneration[generationBestNetworkID];
+    delete generationChamp;
+    generationChamp = best->getCopy(best->origin);
+    generationChamp->ID = best->ID;
+    generationChamp->fitness = generationBestFitness;
+    generationChamp->traceNetwork();
+
+    // update overall champ
+    bool newChamp = lowerFitnessIsBetter ? generationBestFitness < overallBestFitness : generationBestFitness > overallBestFitness;
+    delete champ;
+    champ = best->getCopy(best->origin);
+    champ->ID = best->ID;
+    champ->fitness = generationBestFitness;
+    champ->traceNetwork();
+
+    // print generation summary
+    std::cerr << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << generationChamp->ID << " made by " << generationChamp->origin << " with height " << generationChamp->height << " and structure " << generationChamp->toString(params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
@@ -419,8 +443,6 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
       allNetworks.push_back(new std::string(net->toString(params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
-        // TODO: probably dont need the following line:
-        evaluated.insert(net);
         if (params->verbose)
             std::cout << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << net->toString(params->printPrecision) << " which was algorithm " << oldID << " from the previous generation." << std::endl;
         assignFitness(net, net->fitness);
@@ -443,7 +465,6 @@ void GPSynth::clearGenerationState() {
     currentGeneration.clear();
     generationBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
     generationAverageFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
-    generationCumulativeFitness = 0;
 
     // clear out selection containers
     rawFitnesses.clear();

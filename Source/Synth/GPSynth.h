@@ -69,9 +69,9 @@ private:
     unsigned populationSize;
     int nextNetworkID;
     bool lowerFitnessIsBetter;
+    double overallBestFitness;
     double generationBestFitness;
     double generationAverageFitness;
-    double generationCumulativeFitness;
 
     // CONVERGENCE-VARYING
     double convergenceFactor;

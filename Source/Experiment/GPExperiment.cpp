@@ -225,13 +225,14 @@ GPNetwork* GPExperiment::evolve() {
         return NULL;
     }
 
-    GPNetwork* champ = NULL;
+    // temp fields for evolution
     unsigned champGeneration = 0;
-    GPNetwork* generationChamp = NULL;
-    int numEvaluated = 0;
+    int numEvaluatedThisGeneration = 0;
     int numUnevaluatedThisGeneration = 0;
-    double generationMinimumFitness = INFINITY;
+
+    // temp buffers for rendering
     float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
+    float* champBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
         // render candidate
@@ -242,75 +243,61 @@ GPNetwork* GPExperiment::evolve() {
         
         // evaluate candidate
         double fitness = compareToTarget(params->fitnessFunctionType, candidateData);
-        numEvaluated++;
-
-        //TODO: handle lowerFitnessIsBetter
-
-        if (fitness < generationMinimumFitness) {
-            generationMinimumFitness = fitness;
-            delete generationChamp;
-
-            int backupID = candidate->ID;
-            generationChamp = candidate->getCopy(candidate->origin);
-            generationChamp->ID = backupID;
-            generationChamp->fitness = fitness;
-        }
-
-        if (fitness < minFitnessAchieved) {
-            minFitnessAchieved = fitness;
-            delete champ;
-
-            int backupID = candidate->ID;
-            champ = candidate->getCopy(candidate->origin);
-            champ->ID = backupID;
-            champ->fitness = minFitnessAchieved;
-            champGeneration = numEvaluatedGenerations;
-        }
-
         numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
-        if (numUnevaluatedThisGeneration == 0) {
-            generationMinimumFitness = INFINITY;
+        numEvaluatedThisGeneration++;
 
-            float* genchampbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+        // if we're done with this generation...
+        if (numUnevaluatedThisGeneration == 0) {
+            // make sure we expected this to happen
+            assert(numEvaluatedThisGeneration == params->populationSize);
+            numUnevaluatedThisGeneration = 0;
+
+            // grab and render the generation champ
+            GPNetwork* generationChamp = synth->generationChamp;
             generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-            renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, genchampbuffer);
+            renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, champBuffer);
             generationChamp->doneRendering();
+
+            // save generation champions
             if (params->saveGenerationChampions) {
               char buffer[100];
               snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
-              saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, genchampbuffer);
+              saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champBuffer);
             }
-            free(genchampbuffer);
-            delete generationChamp;
-            generationChamp = NULL;
 
+            // increment number of evaluted generations
             numEvaluatedGenerations++;
         }
     }
+
     free(candidateData);
 
+    // print evolution summary
     std::cerr << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
 
+    // print a message if we met the threshold
     if (minFitnessAchieved <= fitnessThreshold) {
         std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
     }
 
+    // print the number of generations evolution ran for
     if (numUnevaluatedThisGeneration != 0)
         std::cerr << "Evolution ran for " << numEvaluatedGenerations + (params->populationSize - numUnevaluatedThisGeneration)/float(params->populationSize) << " generations" << std::endl;
     else
         std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
 
+    // render the champion
+    GPNetwork* champ = synth->champ;
     if (champ != NULL) {
-        float* champbuffer = (float*) malloc(sizeof(float) * numTargetFrames);
         champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-        renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champbuffer);
+        renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champBuffer);
         champ->doneRendering();
-        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champGeneration << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
+        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champ->ID/params->populationSize << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
         snprintf(buffer, 100, "%d.champion.wav", seed);
-        saveWavFile(savePath + String(buffer), String(champ->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champbuffer);
-        free(champbuffer);
+        saveWavFile(savePath + String(buffer), String(champ->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champBuffer);
     }
+    free(champBuffer);
     return champ;
 }
 
