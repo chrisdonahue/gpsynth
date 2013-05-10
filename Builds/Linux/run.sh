@@ -145,6 +145,7 @@ COMMENT
   --expinfo\
   EXPERIMENT PARAMS\
   --experiment 4\
+  --suboptimizetype 0\
   --fitnesstype 1\
   --generations 10\
   --threshold 0.1\

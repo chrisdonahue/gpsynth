@@ -28,7 +28,7 @@
 class GPExperiment {
 public:
     // CONSTUCTION
-    GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, double* constants, bool* rq);
+    GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, float* constants, bool* rq);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
@@ -45,10 +45,10 @@ private:
 
     // TARGET DATA CONTAINERS
     // metadata
-    double targetSampleRate;
-    double targetNyquist;
+    float targetSampleRate;
+    float targetNyquist;
     unsigned numTargetFrames;
-    double targetLengthSeconds;
+    float targetLengthSeconds;
     // time domain
     float* targetFrames;
     float* targetEnvelope;
@@ -63,11 +63,9 @@ private:
     double* fftFrameWeight;
 
     // EVALUATION DATA
-    double* sampleTimes;
-    double* specialValues;
-    // TODO: replace specialValues with specialValuesByTime
-    double* specialValuesByFrame;
-    unsigned numSpecialValues;
+    float* targetSampleTimes;
+    unsigned numConstantValues;
+    float* constantValues;
 
     // EXPERIMENT STATE
     float minFitnessAchieved;
@@ -81,9 +79,8 @@ private:
     void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
 
     // FITNESS FUNCTION
-    void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned renderBlockSize, float* buffer);
-    void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numsamples, float* sampletimes, float* buffer);
-    double compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo);
+    double suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate);
+    void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvalues, float* constantvalues, int64 numsamples, float* sampletimes, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 
     // FOURIER TRANSFORM
@@ -99,6 +96,7 @@ private:
     void applyEnvelope(unsigned n, const float* buffer, const float* envelope, float* windowedBuffer);
     void followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate);
     void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
+    double compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo);
 
     // GRAPH HELPERS
     void fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer);

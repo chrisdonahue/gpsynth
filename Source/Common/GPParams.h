@@ -6,6 +6,7 @@
 struct GPParams {
     // experiment parameters
     unsigned experimentNumber;
+    unsigned suboptimizeType;
     unsigned fitnessFunctionType;
     unsigned numGenerations;
     double thresholdFitness;

@@ -16,7 +16,7 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, double* constants, bool* rq) :
+GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, float* constants, bool* rq) :
     synth(NULL),
     params(p),
     seed(s),
@@ -470,17 +470,9 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
     ================
 */
 
-void GPExperiment::renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned renderBlockSize, float* buffer) {
-    int64 numRemaining = numSamples;
-    int64 numCompleted = 0;
-    int64 bufferIndex = 0;
-    unsigned numToRender;
-    while (numRemaining > 0) {
-        numToRender = renderBlockSize < numRemaining ? renderBlockSize : numRemaining;
-        //candidate->evaluateBlock(numCompleted, sampleTimes + numCompleted, numSpecialValues, specialValuesByFrame + (numCompleted * numSpecialValues), numToRender, buffer + numCompleted);
-        numRemaining -= numToRender;
-        numCompleted += numToRender;
-    }
+double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer) {
+    // suboptimize according to suboptimize type
+    return -1;
 }
 
 void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numsamples, float* sampletimes, float* buffer) {
@@ -550,24 +542,6 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
         free(phase);
         free(magnitude);
         free(output);
-    }
-    return ret;
-}
-
-double GPExperiment::compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo) {
-    double ret = -1;
-    if (type == 0) {
-        double sum = 0;
-        for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
-            double error = fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
-            sum += error;
-            /*
-            if (frameNum % 128 == 0) {
-                std::cout << "frame " << frameNum << "; one: " << samplesOne[frameNum] << ", two: " << samplesTwo[frameNum] << ", error: " << error << ", sum: " << sum << std::endl;
-            }
-            */
-        }
-        ret = sum;
     }
     return ret;
 }
@@ -886,6 +860,24 @@ void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float
         }
     }
     env[n - 1] = wav[n - 1];
+}
+
+double GPExperiment::compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo) {
+    double ret = -1;
+    if (type == 0) {
+        double sum = 0;
+        for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
+            double error = fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
+            sum += error;
+            /*
+            if (frameNum % 128 == 0) {
+                std::cout << "frame " << frameNum << "; one: " << samplesOne[frameNum] << ", two: " << samplesTwo[frameNum] << ", error: " << error << ", sum: " << sum << std::endl;
+            }
+            */
+        }
+        ret = sum;
+    }
+    return ret;
 }
 
 /*

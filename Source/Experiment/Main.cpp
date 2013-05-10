@@ -48,6 +48,7 @@ public:
 
         // experiment params
         params->experimentNumber = 0;
+        params->suboptimizeType = 0;
         params->fitnessFunctionType = 1;
         params->numGenerations = 100;
         params->thresholdFitness = 0.0;
@@ -179,6 +180,9 @@ public:
             // experiment params
             else if (i->equalsIgnoreCase("--experiment")) {
                 params->experimentNumber = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--suboptimizetype")) {
+                params->suboptimizeType = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--fitnesstype")) {
                 params->fitnessFunctionType = (++i)->getIntValue();

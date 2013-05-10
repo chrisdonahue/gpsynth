@@ -12,6 +12,7 @@ set -e
   --expinfo\
   EXP PARAMS \
   --experiment 4\
+  --suboptimizetype 0\
   --fitnesstype 1\
   --generations 200\
   --threshold 0.1\
