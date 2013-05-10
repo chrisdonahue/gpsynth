@@ -17,16 +17,14 @@
 */
 
 GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, float* constants, bool* rq) :
-    synth(NULL),
-    params(p),
-    seed(s),
-    savePath(path),
+    params(p), seed(s), targetPath(target), savePath(path),
     specialValues(constants),
     requestedQuit(rq),
-    dBRef(54)
+    dBRef(dbRef)
 {
     // AUDIO SANITY TEST
     if (params->experimentNumber == 0) {
+        synth = NULL;
         sanityTest(rng);
     }
 

@@ -11,6 +11,8 @@
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
+#define dbRef -54.0
+
 #include "../Common/GPParams.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/JUCEFileIO.h"
@@ -38,6 +40,7 @@ private:
     // EXPERIMENT PARAMETERS
     GPParams* params;
     unsigned seed;
+    String targetPath;
     String savePath;
     float fitnessThreshold;
     int numGenerations;

@@ -158,9 +158,6 @@ void GPNetwork::ephemeralRandom(GPRandom* r) {
     ====================
 */
 
-// macro to "consume" a token when we observe it
-#define consume (*currentIndex)++
-
 GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, bool ismutatable, std::string type) {
     // get tokens
     std::string tag = tokens[consume];
@@ -188,11 +185,6 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
         return NULL;
     }
 }
-
-// macro for standard structure of vector of tokens/index
-#define tokenizer tokens, currentIndex
-// macro for calling createSubtree easily
-#define subtreeArgs rng
 
 GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, GPRandom* rng) {
     // fields for tokens
