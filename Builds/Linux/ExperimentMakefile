@@ -42,6 +42,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/JUCEFileIO.o \
   $(OBJDIR)/ExperimentMain.o \
   $(OBJDIR)/GPRandom.o \
   $(OBJDIR)/GPExperiment.o \
@@ -90,6 +91,11 @@ clean:
 strip:
 	@echo Stripping GPAudioTargetMatchingExperiment
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+
+$(OBJDIR)/JUCEFileIO.o: ../../Source/Common/JUCEFileIO.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling JUCEFileIO.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ExperimentMain.o: ../../Source/Experiment/Main.cpp
 	-@mkdir -p $(OBJDIR)

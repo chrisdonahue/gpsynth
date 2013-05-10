@@ -23,13 +23,8 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
     savePath(path),
     specialValues(constants),
     requestedQuit(rq),
-    dBRef(54),
-    wavFormat(new WavAudioFormat())
+    dBRef(54)
 {
-    // TODO: make this a parameter to saveWavFile and loadWavFile
-    // SET BUFFER SIZE FOR WAV FILE I/O
-    wavFileBufferSize = p->wavFileBufferSize;
-
     // AUDIO SANITY TEST
     if (params->experimentNumber == 0) {
         sanityTest(rng);
@@ -42,9 +37,9 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         targetNyquist = targetSampleRate / 2;
         targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
         targetLengthSeconds = numTargetFrames / targetSampleRate;
-        loadWavFile(target, numTargetFrames, targetFrames);
+        loadWavFile(target, params->wavFileBufferSize, numTargetFrames, targetFrames);
         if (params->backupTarget)
-            saveWavFile(savePath + String("targetcopy.wav"), String(""), numTargetFrames, targetSampleRate, targetFrames);
+            saveWavFile(savePath + String("targetcopy.wav"), String(""), String("target"), targetSampleRate, params->wavFileBufferSize, numTargetFrames, targetFrames);
 
         fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
 
@@ -260,7 +255,7 @@ GPNetwork* GPExperiment::evolve() {
             if (params->saveGenerationChampions) {
               char buffer[100];
               snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
-              saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champBuffer);
+              saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
             }
 
             // increment number of evaluted generations
@@ -293,7 +288,7 @@ GPNetwork* GPExperiment::evolve() {
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champ->ID/params->populationSize << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
         snprintf(buffer, 100, "%d.champion.wav", seed);
-        saveWavFile(savePath + String(buffer), String(champ->toString(params->savePrecision).c_str()), numTargetFrames, targetSampleRate, champBuffer);
+        saveWavFile(savePath + String(buffer), String(champ->toString(params->savePrecision).c_str()), String(champ->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
     }
     free(champBuffer);
     return champ;
@@ -467,79 +462,6 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             }
         }
     }
-}
-
-/*
-    ==============
-    FILE INTERFACE
-    ==============
-*/
-
-void GPExperiment::getWavFileInfo(String path, unsigned* numFrames, double* sampleRate) {
-    File input(path);
-    if (!(input.existsAsFile())) {
-        std::cerr << "Invalid input file: " << path << std::endl;
-    }
-    assert(input.existsAsFile());
-    FileInputStream* fis = input.createInputStream();
-    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
-
-    // get info on target
-    *numFrames = afr->lengthInSamples;
-    *sampleRate = afr->sampleRate;
-}
-
-void GPExperiment::loadWavFile(String path, unsigned n, float* buffer) {
-    File input(path);
-    if (!(input.existsAsFile())) {
-        std::cerr << "Invalid input file: " << path << std::endl;
-    }
-    assert(input.existsAsFile());
-    FileInputStream* fis = input.createInputStream();
-    ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
-
-    // get waveform of target
-    AudioSampleBuffer asb(1, n);
-    afr->read(&asb, 0, n, 0, false, true);
-    float* chanData = asb.getSampleData(0);
-    memcpy(buffer, chanData, sizeof(float) * n);
-}
-
-void GPExperiment::saveWavFile(String path, String desc, unsigned numFrames, double sampleRate, float* data) {
-    File output(path);
-    if (output.existsAsFile()) {
-        output.deleteFile();
-    }
-    output.create();
-    FileOutputStream* fos = output.createOutputStream();
-
-    StringPairArray metaData(true);
-    metaData = WavAudioFormat::createBWAVMetadata(desc, ProjectInfo::versionString, "", Time::getCurrentTime(), int64(sampleRate), "JUCE");
-
-    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
-
-    int64 numRemaining = numFrames;
-    int64 numCompleted = 0;
-    AudioSampleBuffer asb(1, wavFileBufferSize);
-    float* chanData = asb.getSampleData(0);
-    while (numRemaining > 0) {
-        int numToWrite = numRemaining > wavFileBufferSize ? wavFileBufferSize : numRemaining;
-        for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
-            chanData[samp] = data[numCompleted];
-        }
-        afw->writeFromAudioSampleBuffer(asb, 0, numToWrite);
-        numRemaining -= numToWrite;
-    }
-    assert (numCompleted == numFrames && numRemaining == 0);
-}
-
-void GPExperiment::saveTextFile(String path, String text) {
-    File output(path);
-    if (output.existsAsFile()) {
-        output.deleteFile();
-    }
-    output.create();
-    output.replaceWithText(text);
 }
 
 /*
@@ -1049,6 +971,7 @@ String GPExperiment::doubleBuffersToGraphText(String options, String xlab, Strin
 
 void GPExperiment::sanityTest(GPRandom* rng) {
     // buffers for tests
+    unsigned wavchunk = 256;
     unsigned numframes = 88200;
     float maxSeconds = 2.0;
     float samplerate = 44100.0;
@@ -1062,7 +985,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     variables[1] = 659.26;
     float* times = (float*) malloc(sizeof(float) * numframes);
     fillTimeAxisBuffer(numframes, samplerate, times);
-    loadWavFile("./tests/silenceTestTarget.wav", numframes, silenceBuffer);
+    loadWavFile("./tests/silenceTestTarget.wav", wavchunk, numframes, silenceBuffer);
 
     // test network strings
     std::string silenceTest = "(silence)";
@@ -1098,11 +1021,11 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sinTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
-    loadWavFile("./tests/sineWave440TestTarget.wav", numframes, comparisonBuffer);
+    loadWavFile("./tests/sineWave440TestTarget.wav", wavchunk, numframes, comparisonBuffer);
     double error = compareWaveforms(0, numframes, comparisonBuffer, testBuffer);
     std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
     assert(error < 10);
-    saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(10).c_str()), numframes, samplerate, testBuffer);
+    saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
 
     // test copy/mutatable params
     std::cout << "----TESTING MUTATABLE PARAMS----" << std::endl;
@@ -1118,7 +1041,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNetNewCenter->prepareToRender(samplerate, renderblocksize, maxSeconds); 
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
-    saveWavFile("./sineWaveTestNewCenter.wav", String(sinTestNetNewCenter->toString(10).c_str()), numframes, samplerate, testBuffer);
+    saveWavFile("./sineWaveTestNewCenter.wav", String(sinTestNetNewCenter->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete sinTestNetNewCenter;
 
     // adsr test network
@@ -1133,7 +1056,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << ADSRTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(ADSRTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     ADSRTestNet->doneRendering();
-    saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(10).c_str()), numframes, samplerate, testBuffer);
+    saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete ADSRTestNet;
 
     // constant node envelope test network
@@ -1148,7 +1071,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << constantNodeEnvelopeTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(constantNodeEnvelopeTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     constantNodeEnvelopeTestNet->doneRendering();
-    saveWavFile("./constantNodeEnvelopesineWaveTest.wav", String(constantNodeEnvelopeTestNet->toString(10).c_str()), numframes, samplerate, testBuffer);
+    saveWavFile("./constantNodeEnvelopesineWaveTest.wav", String(constantNodeEnvelopeTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete constantNodeEnvelopeTestNet;
 
     // additive synthesis test
@@ -1163,7 +1086,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << additiveSynthesisTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(additiveSynthesisTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     additiveSynthesisTestNet->doneRendering();
-    saveWavFile("./additiveSynthesisTest.wav", String(additiveSynthesisTestNet->toString(10).c_str()), numframes, samplerate, testBuffer);
+    saveWavFile("./additiveSynthesisTest.wav", String(additiveSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete additiveSynthesisTestNet;
 
     // FM synthesis test
@@ -1178,7 +1101,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << FMSynthesisTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(FMSynthesisTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     FMSynthesisTestNet->doneRendering();
-    saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(10).c_str()), numframes, samplerate, testBuffer);
+    saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete FMSynthesisTestNet;
 
     // free test buffer

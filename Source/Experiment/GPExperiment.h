@@ -13,6 +13,7 @@
 
 #include "../Common/GPParams.h"
 #include "../Common/GPHelpers.h"
+#include "../Common/JUCEFileIO.h"
 
 #include "../Synth/GPNode.h"
 #include "../Synth/GPPrimitives.h"
@@ -78,14 +79,6 @@ private:
 
     // FILL EVALUATION BUFFERS
     void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
-
-    // WAV INTERFACE
-    ScopedPointer<WavAudioFormat> wavFormat;
-    unsigned wavFileBufferSize;
-    void getWavFileInfo(String path, unsigned* numFrames, double* sampleRate);
-    void loadWavFile(String path, unsigned n, float* buffer);
-    void saveWavFile(String path, String metadata, unsigned numFrames, double sampleRate, float* data);
-    void saveTextFile(String path, String text);
 
     // FITNESS FUNCTION
     void renderIndividualByBlock(GPNetwork* candidate, int64 numSamples, unsigned renderBlockSize, float* buffer);
