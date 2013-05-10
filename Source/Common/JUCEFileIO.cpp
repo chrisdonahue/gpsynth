@@ -16,7 +16,7 @@
     ============
 */
 
-void getWavFileInfo(String path, unsigned* numFrames, double* sampleRate) {
+void getWavFileInfo(String path, unsigned* numFrames, float* sampleRate) {
     File input(path);
     if (!(input.existsAsFile())) {
         std::cerr << "Invalid input file: " << path << std::endl;
@@ -49,7 +49,7 @@ void loadWavFile(String path, unsigned chunkSize, unsigned numFrames, float* buf
     memcpy(buffer, chanData, sizeof(float) * numFrames);
 }
 
-void saveWavFile(String path, String desc, String origin, double sampleRate, unsigned chunkSize, unsigned numFrames, float* data) {
+void saveWavFile(String path, String desc, String origin, float sampleRate, unsigned chunkSize, unsigned numFrames, float* data) {
     File output(path);
     if (output.existsAsFile()) {
         output.deleteFile();

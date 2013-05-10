@@ -79,10 +79,10 @@ private:
     GPSynth* synth;
 
     // FILL EVALUATION BUFFERS
-    void fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues);
+    void fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues);
 
     // FITNESS FUNCTION
-    double suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate);
+    double suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer);
     void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvalues, float* constantvalues, int64 numsamples, float* sampletimes, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 

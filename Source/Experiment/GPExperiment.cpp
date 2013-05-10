@@ -39,7 +39,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         if (params->backupTarget)
             saveWavFile(savePath + String("targetcopy.wav"), String(""), String("target"), targetSampleRate, params->wavFileBufferSize, numTargetFrames, targetFrames);
 
-        fillEvaluationBuffers(specialValues, NULL, p->numVariables, 0);
+        fillEvaluationBuffers(params->numConstantValues, constantValues, 0, NULL);
 
         // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
         params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * targetSampleRate;
@@ -61,8 +61,8 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
         GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
 
-        GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
-        GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, params->filterNodeCenterFrequencyMinimum/specialValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/specialValues[0]);
+        GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/constantValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/constantValues[0]);
+        GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, params->filterNodeCenterFrequencyMinimum/constantValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/constantValues[0]);
         GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
         GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
         GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidthmin", true, 10.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
@@ -189,8 +189,7 @@ GPExperiment::~GPExperiment() {
     if (params->experimentNumber != 0) {
         free(targetFrames);
         free(targetEnvelope);
-        free(sampleTimes);
-        free(specialValuesByFrame);
+        free(targetSampleTimes);
         if (params->fitnessFunctionType == 1) {
             free(analysisWindow);
             free(targetSpectrum);
@@ -229,7 +228,7 @@ GPNetwork* GPExperiment::evolve() {
         // render candidate
         GPNetwork* candidate = synth->getIndividual();
         candidate->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-        renderIndividualByBlock(candidate, numTargetFrames, params->renderBlockSize, candidateData);
+        suboptimizeAndCompareToTarget(params->suboptimizeType, candidate, candidateData);
         candidate->doneRendering();
         
         // evaluate candidate
@@ -246,7 +245,7 @@ GPNetwork* GPExperiment::evolve() {
             // grab and render the generation champ
             GPNetwork* generationChamp = synth->generationChamp;
             generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-            renderIndividualByBlock(generationChamp, numTargetFrames, params->renderBlockSize, champBuffer);
+            renderIndividualByBlockPerformance(generationChamp, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
             generationChamp->doneRendering();
 
             // save generation champions
@@ -281,7 +280,7 @@ GPNetwork* GPExperiment::evolve() {
     GPNetwork* champ = synth->champ;
     if (champ != NULL) {
         champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-        renderIndividualByBlock(champ, numTargetFrames, params->renderBlockSize, champBuffer);
+        renderIndividualByBlockPerformance(champ, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champ->ID/params->populationSize << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
@@ -300,11 +299,13 @@ GPNetwork* GPExperiment::evolve() {
 
 // PRECONDITIONS:
 // NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
-void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* variableSpecialValues, unsigned numConstantSpecialValues, unsigned numVariableSpecialValues) {
+void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues) {
     // FILL BUFFERS WITH SPECIAL VALUES
+    targetSampleTimes = (float*) malloc(sizeof(double) * numTargetFrames);
+    fillTimeAxisBuffer(numTargetFrames, targetSampleRate, targetSampleTimes);
+    /*
     numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
     specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
-    sampleTimes = (double*) malloc(sizeof(double) * numTargetFrames);
     for (int frame = 0; frame < numTargetFrames; frame++) {
         sampleTimes[frame] = frame/targetSampleRate;
         for (int val = 0; val < numConstantSpecialValues; val++) {
@@ -314,6 +315,7 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
             *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
         }
     }
+    */
 
     // FILL ENVELOPE OF TARGET BUFFER
     targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
@@ -470,9 +472,13 @@ void GPExperiment::fillEvaluationBuffers(double* constantSpecialValues, double* 
 
 double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer) {
     // suboptimize according to suboptimize type
+    if (suboptimizeType == 0) {
+        renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
+    }
     return -1;
 }
 
+// TODO: change numconstantvariables to numconstantvalues
 void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvariables, float* constantvariables, int64 numsamples, float* sampletimes, float* buffer) {
     int64 numRemaining = numsamples;
     int64 numCompleted = 0;
@@ -562,9 +568,9 @@ unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n, un
 
 void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase) {
     kiss_fftr_cfg cfg;
+    // TODO: we shouldnt need to continuously realloc this
     cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-    // TODO: allocate this on the stack.
-    kiss_fft_scalar* in = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+    kiss_fft_scalar in[n];
 
     unsigned fftOutputSize = (n/2 + 1);
     unsigned shift = n - overlap;
@@ -618,7 +624,6 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, u
         }
         numFftOutputUsed += fftOutputSize;
     }
-    free(in);
     free(cfg);
 }
 
