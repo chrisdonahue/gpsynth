@@ -40,7 +40,7 @@ public:
         String target("");
         String saveFilesTo("./");
         unsigned seed = time(NULL);
-        std::vector<double> constants(0);
+        std::vector<float> constants(0);
         bool printExperimentInfo = false;
 
         // init params
@@ -151,7 +151,9 @@ public:
 
         // modulation node
         params->modulationNodeFrequencyRange = 10;
-        params->numVariables = 0;
+
+        // multiple nodes
+        params->numConstantValues = 0;
 
         for (String* i = args.begin(); i < args.end(); i++) {
             // temp fields
@@ -171,7 +173,7 @@ public:
                     current = ++i;
                 }
                 constants.push_back(current->getDoubleValue());
-                params->numVariables = constants.size();
+                params->numConstantValues = constants.size();
             }
             else if (i->equalsIgnoreCase("--expinfo")) {
                 printExperimentInfo = true;

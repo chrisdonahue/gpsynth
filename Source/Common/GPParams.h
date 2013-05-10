@@ -112,7 +112,8 @@ struct GPParams {
     double ADSRNodeEnvelopeMax;
 
     // multiple nodes
-    unsigned numVariables;
+    unsigned numConstantValues;
+    unsigned numVariableValues;
 };
 
 #endif

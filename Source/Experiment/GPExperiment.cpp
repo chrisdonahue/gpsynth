@@ -18,7 +18,7 @@
 
 GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, float* constants, bool* rq) :
     params(p), seed(s), targetPath(target), savePath(path),
-    specialValues(constants),
+    constantValues(constants),
     requestedQuit(rq),
     dBRef(dbRef)
 {
