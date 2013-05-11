@@ -317,8 +317,10 @@ int GPSynth::nextGeneration() {
         GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
         GPNetwork* one = dad->getCopy("crossover");
         one->ID = dad->ID;
+        one->traceNetwork();
         GPNetwork* two = mom->getCopy("crossover");
         two->ID = mom->ID;
+        two->traceNetwork();
 
         GPNetwork* offspring = crossover(params->crossoverType, one, two);
 

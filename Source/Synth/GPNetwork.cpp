@@ -167,9 +167,9 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
 
     // if the param is continuous
     if (tag.compare(0, 3, "c") == 0) {
-        double min = std::atof(minstr.c_str());
-        double val = std::atof(valstr.c_str());
-        double max = std::atof(maxstr.c_str());
+        float min = std::atof(minstr.c_str());
+        float val = std::atof(valstr.c_str());
+        float max = std::atof(maxstr.c_str());
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
     // else if the param is discrete
@@ -192,7 +192,7 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     std::string last;
 
     // radius around constant nodes (any nonzero value should be the same)
-    double constantRadius = 1;
+    // float constantRadius = 1;
 
     // ADSR nodes
     if (type.compare("adsr") == 0) {
@@ -203,10 +203,10 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     // constant nodes
     else if (type.compare("pi") == 0) {
-        return new ConstantNode(true, true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), NULL);
+        return new ConstantNode(true, true, NULL, NULL);
     }
     else if (type.compare("pi*") == 0) {
-        return new ConstantNode(false, true, new GPMutatableParam("pi", false, M_PI, M_PI - constantRadius, M_PI + constantRadius), createSubtree(tokenizer, subtreeArgs));
+        return new ConstantNode(false, true, NULL, createSubtree(tokenizer, subtreeArgs));
     }
     else if (type.compare("const") == 0) {
         return new ConstantNode(true, false, createMutatableParam(tokenizer, true, "constantvalue"), NULL);

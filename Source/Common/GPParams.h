@@ -84,32 +84,32 @@ struct GPParams {
     double proportionOfPopulationFromReproduction;
 
     // value node
-    double valueNodeMinimum;
-    double valueNodeMaximum;
+    float valueNodeMinimum;
+    float valueNodeMaximum;
 
     // oscil node
     unsigned oscilNodeMaxPartial;
-    double oscilNodeMinIndexOfModulation;
-    double oscilNodeMaxIndexOfModulation;
+    float oscilNodeMinIndexOfModulation;
+    float oscilNodeMaxIndexOfModulation;
 
     // modulation node
     unsigned modulationNodeFrequencyRange;
 
     // delay node
     unsigned delayNodeMaxBufferSize;
-    double delayNodeBufferMaxSeconds;
+    float delayNodeBufferMaxSeconds;
 
     // filter node
-    double filterNodeCenterFrequencyMinimum;
-    double filterNodeCenterFrequencyMaximumProportionOfNyquist;
-    double filterNodeQualityMinimum;
-    double filterNodeQualityMaximum;
-    double filterNodeBandwidthMinimum;
-    double filterNodeBandwidthMaximum;
+    float filterNodeCenterFrequencyMinimum;
+    float filterNodeCenterFrequencyMaximumProportionOfNyquist;
+    float filterNodeQualityMinimum;
+    float filterNodeQualityMaximum;
+    float filterNodeBandwidthMinimum;
+    float filterNodeBandwidthMaximum;
 
     // adsr node
-    double ADSRNodeEnvelopeMin;
-    double ADSRNodeEnvelopeMax;
+    float ADSRNodeEnvelopeMin;
+    float ADSRNodeEnvelopeMax;
 
     // multiple nodes
     unsigned numConstantValues;

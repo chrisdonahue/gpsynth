@@ -20,7 +20,7 @@ public:
     }
 
     // continuous constructor
-    GPMutatableParam(std::string t, bool mutatable, double val, double min, double max) {
+    GPMutatableParam(std::string t, bool mutatable, float val, float min, float max) {
         assert(!mutatable || (min <= val && val <= max));
         type = t;
         isContinuous = true;
@@ -71,7 +71,7 @@ public:
     }
 
     // set continuous values
-    void setCValue(double val) {
+    void setCValue(float val) {
         if (val > cmaximum)
             cvalue = cmaximum;
         else if (val < cminimum)
@@ -80,7 +80,7 @@ public:
             cvalue = val;
     }
 
-    void setCRange(double min, double max) {
+    void setCRange(float min, float max) {
         assert(isContinuous && min <= max);
         // TODO: alter value to new range
         cminimum = min;
@@ -93,17 +93,17 @@ public:
     }
 
     // continuous accessors
-    double getCValue() {
+    float getCValue() {
         assert(isContinuous);
         return cvalue;
     }
 
-    double getCMin() {
+    float getCMin() {
         assert(isContinuous);
         return cminimum;
     }
 
-    double getCMax() {
+    float getCMax() {
         assert(isContinuous);
         return cmaximum;
     }
@@ -125,21 +125,21 @@ public:
     }
 
     // combined accessors
-    double getValue() {
+    float getValue() {
         if (isContinuous)
             return cvalue;
         else
             return dvalue;
     }
 
-    double getMin() {
+    float getMin() {
 	if (isContinuous)
 	    return cminimum;
 	else
 	    return dminimum;
     }
 
-    double getMax() {
+    float getMax() {
 	if (isContinuous)
 	    return cmaximum;
 	else
@@ -161,9 +161,9 @@ private:
     int dvalue;
     int dminimum;
     int dmaximum;
-    double cvalue;
-    double cminimum;
-    double cmaximum;
+    float cvalue;
+    float cminimum;
+    float cmaximum;
 };
 
 #endif

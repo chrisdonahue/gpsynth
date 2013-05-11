@@ -55,8 +55,8 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
 
         // MUTATABLE PARAMS
         GPMutatableParam* constantValue = new GPMutatableParam("constantvalue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
-        GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0, 0.0, 0.0);
-        GPMutatableParam* constantPi = new GPMutatableParam("pi", false, M_PI, 0.0, 0.0);
+        GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0f, 0.0f, 0.0f);
+        GPMutatableParam* constantPi = new GPMutatableParam("pi", false, (float) M_PI, 0.0f, 0.0f);
 
         GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
         GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
@@ -75,14 +75,16 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
         GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
+        GPMutatableParam* specialValues = new GPMutatableParam("special", false, 0, 0, params->numConstantValues);
+
         // CURRENT DEFAULT EXPERIMENT
         if (params->experimentNumber == 1) {
             // SUPPLY AVAILABLE NODES
             //nodes->push_back(new FunctionNode(add, NULL, NULL));
             //nodes->push_back(new FunctionNode(multiply, NULL, NULL));
             nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
-            nodes->push_back(new OscilNode(true, oscilPartial->getCopy(), 0, NULL, NULL));
-            nodes->push_back(new OscilNode(false, oscilPartial->getCopy(), 0, oscilModIndex->getCopy(), NULL));
+            nodes->push_back(new OscilNode(true, specialValues->getCopy(), oscilPartial->getCopy(), NULL, NULL));
+            nodes->push_back(new OscilNode(false, specialValues->getCopy(), oscilPartial->getCopy(), oscilModIndex->getCopy(), NULL));
             nodes->push_back(new NoiseNode(rng));
             //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
             //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
@@ -238,10 +240,6 @@ GPNetwork* GPExperiment::evolve() {
 
         // if we're done with this generation...
         if (numUnevaluatedThisGeneration == 0) {
-            // make sure we expected this to happen
-            assert(numEvaluatedThisGeneration == params->populationSize);
-            numUnevaluatedThisGeneration = 0;
-
             // grab and render the generation champ
             GPNetwork* generationChamp = synth->generationChamp;
             generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
@@ -257,6 +255,7 @@ GPNetwork* GPExperiment::evolve() {
 
             // increment number of evaluted generations
             numEvaluatedGenerations++;
+            numEvaluatedThisGeneration = 0;
         }
     }
 

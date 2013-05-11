@@ -11,7 +11,7 @@ set -e
   --values 622.25\
   --expinfo\
   EXP PARAMS \
-  --experiment 4\
+  --experiment 1\
   --suboptimizetype 0\
   --fitnesstype 1\
   --generations 200\

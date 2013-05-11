@@ -2,6 +2,7 @@
 
 set -e
 
+<<COMMENT
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
 #gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
@@ -9,6 +10,7 @@ set -e
   --experiment 0 \
   --loadwavblock 256 \
 #> testValgrind.txt
+COMMENT
 
 # DEBUG MOVING AVERAGE STUFF
 <<COMMENT
@@ -134,8 +136,8 @@ valgrind -v --tool=massif --log-file="3GenValgrindMassif.txt"\
 COMMENT
 
 # LOCAL TRUMPET TEST
-<<COMMENT
-#gdb --args \
+#<<COMMENT
+gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
@@ -144,7 +146,7 @@ COMMENT
   --values 622.25\
   --expinfo\
   EXPERIMENT PARAMS\
-  --experiment 4\
+  --experiment 1\
   --suboptimizetype 0\
   --fitnesstype 1\
   --generations 10\
@@ -186,7 +188,7 @@ COMMENT
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   SYNTH EVO PARAMS\
-  --popsize 200\
+  --popsize 100\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\
@@ -194,11 +196,11 @@ COMMENT
   --maxheight 11\
   SYNTH GENETIC PARAMS\
   --greedy 0.0\
-  --numericmutation 0.05 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
-  --mutation 0.05 --mselect 1 --mtype 1 --mselectparam 0.25\
-  --crossover 0.9 --cselect 0 --ctype 0\
-  --reproduction 0.05 --rselect 0
-COMMENT
+  --numericmutation 0.25 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
+  --mutation 0.25 --mselect 1 --mtype 1 --mselectparam 0.25\
+  --crossover 0.25 --cselect 0 --ctype 0\
+  --reproduction 0.25 --rselect 0
+#COMMENT
 
 # LOCAL BASSOON TEST
 <<COMMENT
