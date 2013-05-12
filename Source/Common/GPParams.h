@@ -110,10 +110,6 @@ struct GPParams {
     // adsr node
     float ADSRNodeEnvelopeMin;
     float ADSRNodeEnvelopeMax;
-
-    // multiple nodes
-    unsigned numConstantValues;
-    unsigned numVariableValues;
 };
 
 #endif

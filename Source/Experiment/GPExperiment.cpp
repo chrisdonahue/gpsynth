@@ -16,9 +16,9 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, float* constants, bool* rq) :
+GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, unsigned numconstants, float* constants, bool* rq) :
     params(p), seed(s), targetPath(target), savePath(path),
-    constantValues(constants),
+    numConstantValues(numconstants), constantValues(constants),
     requestedQuit(rq),
     dBRef(dbRef)
 {
@@ -39,7 +39,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         if (params->backupTarget)
             saveWavFile(savePath + String("targetcopy.wav"), String(""), String("target"), targetSampleRate, params->wavFileBufferSize, numTargetFrames, targetFrames);
 
-        fillEvaluationBuffers(params->numConstantValues, constantValues, 0, NULL);
+        fillEvaluationBuffers(numConstantValues, constantValues, 0, NULL);
 
         // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
         params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * targetSampleRate;
@@ -75,7 +75,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
         GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
 
-        GPMutatableParam* specialValues = new GPMutatableParam("special", false, 0, 0, params->numConstantValues);
+        GPMutatableParam* specialValues = new GPMutatableParam("special", false, 0, 0, numConstantValues);
 
         // CURRENT DEFAULT EXPERIMENT
         if (params->experimentNumber == 1) {
@@ -964,6 +964,34 @@ String GPExperiment::doubleBuffersToGraphText(String options, String xlab, Strin
 */
 
 void GPExperiment::sanityTest(GPRandom* rng) {
+    // TODO: timers for all tests
+
+    // test random
+    std::cout << "----TESTING DISCRETE RNG----" << std::endl;
+    unsigned m = 4;
+    unsigned vals[m];
+    for (unsigned i = 0; i < m; i++) {
+        vals[i] = 0;
+    }
+    unsigned counter = 0;
+    unsigned numIterations = 1000000;
+    while (counter < numIterations) {
+        int val = rng->random(m);
+        vals[val] += 1;
+        counter++;
+    }
+    for (unsigned i = 0; i < m; i++) {
+        std::cout << "Proportion for " << i << ": " << vals[i]/float(numIterations) << std::endl;
+    }
+    std::cout << "----TESTING CONTINUOUS RNG----" << std::endl;
+    double sum = 0;
+    counter = 0;
+    while (counter < numIterations) {
+        sum += rng->random();
+        counter++;
+    }
+    std::cout << "Average of uniform real over 0, 1: " << sum/numIterations << std::endl;
+
     // buffers for tests
     unsigned wavchunk = 256;
     unsigned numframes = 88200;

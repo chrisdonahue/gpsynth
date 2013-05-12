@@ -51,6 +51,8 @@ Thoughts:
     consider constantNode intervalMutliply
         everything except constant has the tightest possible bound on min/max? hard to say
     synth partial continuous between [0, nyquist/centerfreq]?
+    consider removing all the node-specific stuff from GPParams
+    consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
 TODO long run:
     move parse stuff into GPTokenParser or something
@@ -70,8 +72,6 @@ TODO long run:
     more efficiency in subclasses. constantnode could be prerendered and memcpy'd
 
 NEXT EXPERIMENTS:
-    should float* constantValues be in GPParams as well?
-
     figure out why simple average fitness function seems to work the best
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
         consider changing proportion * bad + base to just bad + base...
@@ -80,7 +80,6 @@ NEXT EXPERIMENTS:
         might have to use double precision for M_PI ;;
         look for better implementations of FM with variable frequency online
 
-    test random
     test numerical mutation/consider CMAES/other stuff from joel convo
     SPLINE NODE
 

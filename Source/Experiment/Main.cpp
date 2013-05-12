@@ -152,9 +152,7 @@ public:
         // modulation node
         params->modulationNodeFrequencyRange = 10;
 
-        // multiple nodes
-        params->numConstantValues = 0;
-
+        // parse command line
         for (String* i = args.begin(); i < args.end(); i++) {
             // temp fields
             if (i->equalsIgnoreCase("--target")) {
@@ -173,7 +171,6 @@ public:
                     current = ++i;
                 }
                 constants.push_back(current->getDoubleValue());
-                params->numConstantValues = constants.size();
             }
             else if (i->equalsIgnoreCase("--expinfo")) {
                 printExperimentInfo = true;
@@ -421,7 +418,7 @@ public:
 
         // start experiment
         requestedQuit = false;
-        experiment = new GPExperiment(params, rng, seed, target, saveFilesTo, constants.data(), &requestedQuit);
+        experiment = new GPExperiment(params, rng, seed, target, saveFilesTo, constants.size(), constants.data(), &requestedQuit);
 
         // TODO start a new thread to do this
         //juce::Thread experiment(String("evolution"));

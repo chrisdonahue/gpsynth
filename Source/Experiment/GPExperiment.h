@@ -30,7 +30,7 @@
 class GPExperiment {
 public:
     // CONSTUCTION
-    GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, float* constants, bool* rq);
+    GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, unsigned numconstants, float* constants, bool* rq);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
@@ -69,6 +69,8 @@ private:
     float* targetSampleTimes;
     unsigned numConstantValues;
     float* constantValues;
+    unsigned numVariableValues;
+    float* variableValues;
 
     // EXPERIMENT STATE
     float minFitnessAchieved;
