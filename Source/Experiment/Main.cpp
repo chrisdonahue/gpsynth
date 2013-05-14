@@ -154,6 +154,10 @@ public:
 
         // parse command line
         for (String* i = args.begin(); i < args.end(); i++) {
+            if (i->equalsIgnoreCase("--help")) {
+                printHelp();
+                return;
+            }
             // temp fields
             if (i->equalsIgnoreCase("--target")) {
                 target = *(++i);
@@ -431,6 +435,10 @@ public:
         GPNetwork* champion = experiment->evolve();
         delete champion;
         quit();
+    }
+
+    void printHelp() {
+        return;
     }
 
     void printImportantExperimentInfo() {
