@@ -38,6 +38,7 @@ Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     finish implementing DifferenceEquationNode. turns out my difference equation idea from the start might have been better somehow. need to find a way to guarantee min/max though
+    maybe use naive average and blend with moving average?
 
 Thoughts:
     Don't necessarily have to foray into filters too much. For now focus on best possible FM synthesis recreation
@@ -69,6 +70,8 @@ TODO long run:
     more efficiency in subclasses. constantnode could be prerendered and memcpy'd
 
 NEXT EXPERIMENTS:
+    SPLINE NODE
+    CMAES/test without numerical mutation
     figure out why simple average fitness function seems to work the best
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
         consider changing proportion * bad + base to just bad + base...
@@ -76,8 +79,5 @@ NEXT EXPERIMENTS:
     look at AUDACITY rendering code and replicate that in OscilNode?
         might have to use double precision for M_PI ;;
         look for better implementations of FM with variable frequency online
-
-    test numerical mutation/consider CMAES/other stuff from joel convo
-    SPLINE NODE
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"

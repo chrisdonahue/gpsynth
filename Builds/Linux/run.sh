@@ -85,7 +85,7 @@ COMMENT
 #<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
-  --target ./samples/BassoonC2.wav\
+  --target ./samples/TrumpetEb51024.wav\
   --path ./\
   --seed 1\
   --values 622.25\
@@ -100,7 +100,7 @@ COMMENT
   --ffphaseweight 0.2\
   --ffenvweight 0.5\
   TIME DOMAIN PARAMS\
-  --savetargetenv\
+  --nosavetargetenv\
   --envatk 1\
   --envdcy 300\
   --envskip 9\
@@ -110,9 +110,9 @@ COMMENT
   --fftoverlap 0\
   --ampmag\
   --averagetype 2\
-  --averagepastradius 40\
-  --averagefutureradius 40\
-  --alpha 0.95\
+  --averagepastradius 200\
+  --averagefutureradius 200\
+  --alpha 0.9\
   --comparedev\
   --penaltycompexp 0.4\
   --weightframes\

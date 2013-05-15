@@ -267,7 +267,7 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
     if (params->saveTargetEnvelope) {
         char buffer[100];
         snprintf(buffer, 100, "targetInfo/targetenvelope.txt");
-        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample Number"), String("Amplitude"), true, numTargetFrames, NULL, targetEnvelope, NULL));
+        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Time"), String("Amplitude"), false, numTargetFrames, targetSampleTimes, targetEnvelope, NULL));
     }
 
     // FILL FREQUENCY SPECTRUM OF TARGET
@@ -845,6 +845,7 @@ void GPExperiment::fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* b
     }
 }
 
+// TODO: these get super slow when n is large. might want to use std::string and bring it to juce string at the very end
 String GPExperiment::floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z) {
     String ret;
     ret += options;
