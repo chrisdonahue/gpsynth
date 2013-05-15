@@ -28,7 +28,7 @@ public:
 
 private:
     bool terminalOscil;
-    int partial;
+    float partial;
     int variableNum;
     double w;
     double index;

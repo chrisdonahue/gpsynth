@@ -73,7 +73,7 @@ void OscilNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
 
 	// update angular frequency constant
-    partial = mutatableParams[1]->getDValue();
+    partial = mutatableParams[1]->getValue();
     w = 2.0 * M_PI * partial;
 	
 	// update index of modulation and descendant if this is an FM oscillator

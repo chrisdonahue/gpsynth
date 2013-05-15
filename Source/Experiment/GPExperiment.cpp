@@ -59,6 +59,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         GPMutatableParam* constantPi = new GPMutatableParam("pi", false, (float) M_PI, 0.0f, 0.0f);
 
         GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
+        GPMutatableParam* oscilContinuousPartial = new GPMutatableParam("oscilpartial", true, 0.0f, 1.0f, targetNyquist/constantValues[0]);
         GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
 
         GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/constantValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/constantValues[0]);
