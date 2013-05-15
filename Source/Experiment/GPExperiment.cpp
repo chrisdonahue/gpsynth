@@ -59,7 +59,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         GPMutatableParam* constantPi = new GPMutatableParam("pi", false, (float) M_PI, 0.0f, 0.0f);
 
         GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
-        GPMutatableParam* oscilContinuousPartial = new GPMutatableParam("oscilpartial", true, 0.0f, 1.0f, targetNyquist/constantValues[0]);
+        GPMutatableParam* oscilContinuousPartial = new GPMutatableParam("oscilpartial", true, 1.0f, 0.0f, targetNyquist/constantValues[0]);
         GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
 
         GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/constantValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/constantValues[0]);
@@ -81,8 +81,8 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         // CURRENT DEFAULT EXPERIMENT
         if (params->experimentNumber == 1) {
             // SUPPLY AVAILABLE NODES
-            //nodes->push_back(new FunctionNode(add, NULL, NULL));
-            //nodes->push_back(new FunctionNode(multiply, NULL, NULL));
+            nodes->push_back(new AddNode(NULL, NULL));
+            nodes->push_back(new MultiplyNode(NULL, NULL));
             nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
             nodes->push_back(new OscilNode(true, specialValues->getCopy(), oscilPartial->getCopy(), NULL, NULL));
             nodes->push_back(new OscilNode(false, specialValues->getCopy(), oscilPartial->getCopy(), oscilModIndex->getCopy(), NULL));
@@ -91,65 +91,6 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
             //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
             nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
             nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-        }
-        // TESTING ENVELOPE FUNCTIONS ON INPUTS OF AN LENGTH
-        if (params->experimentNumber == 10) {
-            // SAVE WAVEFORM
-            //saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, NULL, targetFrames));
-
-            // TEST ENVELOPE FOLLOWER
-            float* envelope = (float*) malloc(sizeof(float) * numTargetFrames);
-            float* smoothEnv = (float*) malloc(sizeof(float) * numTargetFrames);
-            followEnvelope(numTargetFrames, targetFrames, envelope, 1, 300, targetSampleRate);
-            findEnvelope(true, numTargetFrames, envelope, smoothEnv);
-            saveTextFile(String("./smoothenva1r300.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Envelope (amp)"), true, numTargetFrames, NULL, smoothEnv, NULL));
-
-            free(smoothEnv);
-            free(envelope);
-            exit(-1);
-        }
-        // TESTING VARIOUS WAVEFORM FUNCTIONS ON INPUTS WITH 1024 SAMPLES
-        if (params->experimentNumber == 11) {
-            // SAVE WAVEFORM
-            saveTextFile(String("./waveform.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, targetFrames, NULL));
-
-            // TEST FFT
-            unsigned fftOutSize = 513;
-            unsigned fftSize = 1024;
-            float* freqAxis = (float*) malloc(sizeof(float) * fftOutSize);
-            fillFrequencyAxisBuffer(fftSize, targetSampleRate, freqAxis);
-
-            float* magAxis = (float*) malloc(sizeof(float) * fftOutSize);
-            for (unsigned i = 0; i < fftOutSize; i++) {
-                magAxis[i] = (float) targetSpectrumMagnitudes[i];
-            }
-            
-            saveTextFile(String("./spectrum.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Magnitude (amp)"), false, fftOutSize, freqAxis, magAxis, NULL));
-
-            // TEST WINDOWING
-            float* hannWindow = (float*) malloc(sizeof(float) * numTargetFrames);
-            float* windowed = (float*) malloc(sizeof(float) * numTargetFrames);
-            window("hann", numTargetFrames, hannWindow);
-            applyEnvelope(numTargetFrames, targetFrames, hannWindow, windowed);
-
-            saveTextFile(String("./windowed.txt"), floatBuffersToGraphText(String("x> y^ xi yf"), String("Sample #"), String("Magnitude (amp)"), true, numTargetFrames, nullptr, windowed, NULL));
-
-            // TEST MOVING AVERAGE
-            float* mac = (float*) malloc(sizeof(float) * fftOutSize);
-            //findMovingAverage(fftOutSize, magAxis, mac, 10);
-            saveTextFile(String("./mac10.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
-            //findMovingAverage(fftOutSize, magAxis, mac, 20);
-            saveTextFile(String("./mac20.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
-            //findMovingAverage(fftOutSize, magAxis, mac, 30);
-            saveTextFile(String("./mac30.txt"), floatBuffersToGraphText(String("x> y^ xf yf"), String("Frequency (Hz)"), String("Power (dB)"), false, fftOutSize, freqAxis, mac, NULL));
-
-            // FREE AND DONT EVOLVE
-            free(mac);
-            free(windowed);
-            free(hannWindow);
-            free(magAxis);
-            free(freqAxis);
-            exit(-1);
         }
 
         // set parameters that vary by fitness function
@@ -165,13 +106,15 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         }
         
         // create population
-        synth = new GPSynth(p, rng, nodes);
+        if (numGenerations != 0)
+            synth = new GPSynth(p, rng, nodes);
 
         // DELETE MUTATABLE PARAMS
         delete constantValue;
         delete constantTwo;
         delete constantPi;
         delete oscilPartial;
+        delete oscilContinuousPartial;
         delete oscilModIndex;
         delete filterCenterFrequencyMultiplierMin;
         delete filterCenterFrequencyMultiplierMax;
@@ -277,7 +220,7 @@ GPNetwork* GPExperiment::evolve() {
         std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
 
     // render the champion
-    GPNetwork* champ = synth->champ;
+    GPNetwork* champ = synth == NULL ? NULL : synth->champ;
     if (champ != NULL) {
         champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
         renderIndividualByBlockPerformance(champ, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
@@ -320,6 +263,7 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
     // FILL ENVELOPE OF TARGET BUFFER
     targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
     followEnvelope(numTargetFrames, targetFrames, targetEnvelope, params->envelopeFollowerAttack, params->envelopeFollowerDecay, targetSampleRate);
+    //findEnvelope();
     if (params->saveTargetEnvelope) {
         char buffer[100];
         snprintf(buffer, 100, "targetInfo/targetenvelope.txt");
