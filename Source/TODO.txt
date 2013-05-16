@@ -67,7 +67,7 @@ TODO long run:
     try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
     Get filters (simple) working again. Switch filter libs probably
     prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
-    more efficiency in subclasses. constantnode could be prerendered and memcpy'd
+    more efficiency in subclasses. constantnode could be prerendered and memcpy'd during setRenderInfo, LFO node during updateMutatedParams with malloc in setRenderInfo, etc.
 
 NEXT EXPERIMENTS:
     SPLINE NODE

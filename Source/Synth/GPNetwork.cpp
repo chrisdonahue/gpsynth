@@ -224,6 +224,13 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     else if (type.compare("sin") == 0) {
         return new SineNode(createSubtree(tokenizer, subtreeArgs));
     }
+    // LFO nodes
+    else if (type.compare("lfo") == 0) {
+        return new LFONode(true, createMutatableParam(tokenizer, true, "lforate"), NULL);
+    }
+    else if (type.compare("lfo*") == 0) {
+        return new LFONode(true, createMutatableParam(tokenizer, true, "lforate"), createSubtree(tokenizer, subtreeArgs));
+    }
     // mixer nodes
     else if (type.compare("if") == 0) {
         return new MixerNode(false, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));

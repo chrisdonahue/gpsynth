@@ -15,21 +15,21 @@
 
 class LFONode: public GPNode {
 public:
-    LFONode(bool terminal, GPMutatableParam* p, int vn, GPMutatableParam* i, GPNode* mod);
+    LFONode(bool terminal, GPMutatableParam* rate, GPNode* mod);
     ~LFONode();
 
 	// overrides
     LFONode* getCopy();
-	void prepareToPlay();
-    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
-	void updateMutatedParams();
     void toString(std::stringstream& ss);
 
+    // optional overrides
+	void updateMutatedParams();
+
 private:
-    double frequency;
-    double w;
+    bool terminalLFO;
+    float rate;
+    float w;
 };
 
 #endif

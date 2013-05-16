@@ -53,6 +53,7 @@ OBJECTS := \
   $(OBJDIR)/AddNode.o \
   $(OBJDIR)/MultiplyNode.o \
   $(OBJDIR)/SineNode.o \
+  $(OBJDIR)/LFONode.o \
   $(OBJDIR)/MixerNode.o \
   $(OBJDIR)/NoiseNode.o \
   $(OBJDIR)/OscilNode.o \
@@ -141,6 +142,11 @@ $(OBJDIR)/ModOscilNode.o: ../../Source/Synth/Nodes/ModOscilNode.cpp
 $(OBJDIR)/FilterNode.o: ../../Source/Synth/Nodes/FilterNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FilterNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LFONode.o: ../../Source/Synth/Nodes/LFONode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LFONode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/MixerNode.cpp

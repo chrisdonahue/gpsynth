@@ -150,7 +150,7 @@ public:
         params->ADSRNodeEnvelopeMax = 1.0;
 
         // modulation node
-        params->modulationNodeFrequencyRange = 10;
+        params->LFONodeFrequencyRange = 10;
 
         // parse command line
         for (String* i = args.begin(); i < args.end(); i++) {

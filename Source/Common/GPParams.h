@@ -93,7 +93,7 @@ struct GPParams {
     float oscilNodeMaxIndexOfModulation;
 
     // modulation node
-    unsigned modulationNodeFrequencyRange;
+    unsigned LFONodeFrequencyRange;
 
     // delay node
     unsigned delayNodeMaxBufferSize;
