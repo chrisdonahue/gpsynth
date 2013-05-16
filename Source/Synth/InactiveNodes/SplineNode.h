@@ -15,21 +15,24 @@
 
 class SplineNode: public GPNode {
 public:
-    SplineNode(bool store, bool terminal, double sr, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
+    SplineNode(bool terminal, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
     ~SplineNode();
 
 	// overrides
     SplineNode* getCopy();
-	void prepareToPlay();
-    void evaluateBlock(unsigned fn, double* t, unsigned nv, double* v, double* min, double* max, unsigned n, float* buffer);
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
-	void updateMutatedParams();
     void toString(std::stringstream& ss);
 
+    // optional overrides
+	void setRenderInfo(float sr, unsigned blockSize, float maxTime);
+    void doneRendering();
+	void updateMutatedParams();
+
+	// class specific
+    void fillFromParams();
+
 private:
-    bool storeBuffer;
-    bool terminalADSR;
+    bool terminalSpline;
     double sampleRate;
     bool releaseFinished;
     unsigned framesInEnvelope;
@@ -47,9 +50,6 @@ private:
     unsigned releaseFrames;
     double attackheight;
     double sustainheight;
-
-    double minimum;
-    double maximum;
 };
 
 #endif

@@ -42,23 +42,24 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
-  $(OBJDIR)/JUCEFileIO.o \
   $(OBJDIR)/ExperimentMain.o \
   $(OBJDIR)/GPRandom.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/ADSRNode.o \
-  $(OBJDIR)/OscilNode.o \
-  $(OBJDIR)/NoiseNode.o \
+  $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/FunctionNode.o \
   $(OBJDIR)/AddNode.o \
   $(OBJDIR)/MultiplyNode.o \
   $(OBJDIR)/SineNode.o \
-  $(OBJDIR)/ConstantNode.o \
+  $(OBJDIR)/MixerNode.o \
+  $(OBJDIR)/NoiseNode.o \
+  $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/SilenceNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
+  $(OBJDIR)/JUCEFileIO.o \
   $(OBJDIR)/kiss_fft.o \
   $(OBJDIR)/kiss_fftr.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
@@ -140,6 +141,11 @@ $(OBJDIR)/ModOscilNode.o: ../../Source/Synth/Nodes/ModOscilNode.cpp
 $(OBJDIR)/FilterNode.o: ../../Source/Synth/Nodes/FilterNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FilterNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/MixerNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MixerNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/NoiseNode.o: ../../Source/Synth/Nodes/NoiseNode.cpp

@@ -17,6 +17,7 @@
 #include "Nodes/AddNode.h"
 #include "Nodes/MultiplyNode.h"
 #include "Nodes/SineNode.h"
+#include "Nodes/MixerNode.h"
 #include "Nodes/NoiseNode.h"
 #include "Nodes/OscilNode.h"
 #include "Nodes/SilenceNode.h"
