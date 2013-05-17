@@ -166,14 +166,14 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
     std::string maxstr = tokens[consume];
 
     // if the param is continuous
-    if (tag.compare(0, 3, "c") == 0) {
+    if (tag.compare("c") == 0) {
         float min = (float) std::atof(minstr.c_str());
         float val = (float) std::atof(valstr.c_str());
         float max = (float) std::atof(maxstr.c_str());
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
     // else if the param is discrete
-    else if (tag.compare(0, 3, "d") == 0) {
+    else if (tag.compare("d") == 0) {
         int min = std::atoi(minstr.c_str());
         int val = std::atoi(valstr.c_str());
         int max = std::atoi(maxstr.c_str());

@@ -184,11 +184,11 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	unsigned seed = 0;
 	GPRandom* rng = new GPRandom(seed);
-	GPNetwork* sinwave = new GPNetwork(rng, "(osc {} {})");
+	GPNetwork* sinwave = new GPNetwork(rng, "(osc {d 0 0 1} {c 0.0 1.0 10.0})");
     sinwave->traceNetwork();
 
     // Initialise the synth...
-    numSynthVoices = 2;
+    numSynthVoices = 1;
     synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
     for (int i = numSynthVoices; --i >= 0;) {
         GPNetwork* sinCopy = sinwave->getCopy("clone");

@@ -18,7 +18,7 @@
 
 OscilNode::OscilNode(bool terminal, GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, GPNode* mod) {
     terminalOscil = terminal;
-    assert(!(vn->isMutatable));
+    assert(!(vn->isMutatable) && !(vn->isContinuous));
     variableNum = vn->getDValue();
 
     mutatableParams.push_back(vn);
@@ -34,7 +34,7 @@ OscilNode::OscilNode(bool terminal, GPMutatableParam* vn, GPMutatableParam* p, G
     }
     
     minimum = -1;
-    maximum = 1;   
+    maximum = 1;
 }
 
 OscilNode::~OscilNode() {
