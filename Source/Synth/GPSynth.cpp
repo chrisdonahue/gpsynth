@@ -225,7 +225,7 @@ void GPSynth::printGenerationSummary() {
     assert(evaluated.size() == populationSize);
 
     // parse assigned fitnesses
-    unsigned generationBestNetworkID;
+    unsigned generationBestNetworkID = 0;
     double generationCumulativeFitness = 0;
     for (unsigned i = 0; i < rawFitnesses.size(); i++) {
         // grab and check that fitness is positive
@@ -259,11 +259,13 @@ void GPSynth::printGenerationSummary() {
 
     // update overall champ
     bool newChamp = lowerFitnessIsBetter ? generationBestFitness < overallBestFitness : generationBestFitness > overallBestFitness;
-    delete champ;
-    champ = best->getCopy(best->origin);
-    champ->ID = best->ID;
-    champ->fitness = generationBestFitness;
-    champ->traceNetwork();
+	if (newChamp) {
+		delete champ;
+		champ = best->getCopy(best->origin);
+		champ->ID = best->ID;
+		champ->fitness = generationBestFitness;
+		champ->traceNetwork();
+	}
 
     // print generation summary
     std::cerr << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << generationChamp->ID << " made by " << generationChamp->origin << " with height " << generationChamp->height << " and structure " << generationChamp->toString(params->savePrecision) << std::endl;
@@ -327,7 +329,8 @@ int GPSynth::nextGeneration() {
         // standard GP with two offspring
         if (offspring == NULL) {
             one->traceNetwork();
-            if (one->height > params->maxHeight) {
+			assert(one->height >= 0);
+            if ((unsigned) one->height > params->maxHeight) {
                 delete one;
                 one = dad->getCopy("reproduction during crossover");
             }
@@ -335,7 +338,8 @@ int GPSynth::nextGeneration() {
             i++;
             if (i < numToCrossover) {
                 two->traceNetwork();
-                if (two->height > params->maxHeight) {
+				assert(two->height >= 0);
+                if ((unsigned) two->height > params->maxHeight) {
                     delete two;
                     two = mom->getCopy("reproduction during crossover");
                 }
@@ -440,7 +444,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     }
     net->ID = nextNetworkID++;
     net->traceNetwork();
-    assert(net->height <= params->maxHeight);
+    assert(net->height >= 0 && (unsigned) net->height <= params->maxHeight);
     if (params->backupAllNetworks)
       allNetworks.push_back(new std::string(net->toString(params->backupPrecision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));

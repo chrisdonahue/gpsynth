@@ -57,6 +57,8 @@ public:
 		blockSizeInBytes = sizeof(float) * bs;
 		sampleTimes = t;
 
+		network->prepareToRender((float) sr, bs, t[maxfn - 1]);
+
         if (variables != nullptr)
           free(variables);
         if (buffer != nullptr)
@@ -73,7 +75,7 @@ public:
 		frameNumber = 0;
 
 		// fill note info
-        cps = MidiMessage::getMidiNoteInHertz (midiNoteNumber);
+        cps = (float) MidiMessage::getMidiNoteInHertz (midiNoteNumber);
 		variables[0] = cps;
 
 		// fill synth note state
@@ -121,7 +123,7 @@ public:
 			}
 			else {			
 				// fill audio buffers
-				network->evaluateBlockPerformance(frameNumber, sampleTimes + frameNumber, numVariables, variables, numSamples, buffer);
+				network->evaluateBlockPerformance(frameNumber, numSamples, sampleTimes + frameNumber, numVariables, variables, buffer);
 
 				for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
 					float* channelBuffer = outputBuffer.getSampleData(i, startSample);
@@ -159,7 +161,7 @@ private:
 
 	// Current note info
 	unsigned frameNumber;
-    double cps;
+    float cps;
 	bool playing;
     float level;
 	double tailOff;
@@ -180,16 +182,16 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     lastPosInfo.resetToDefault();
     delayPosition = 0;
 
-    GPMutatableParam* partialOne = new GPMutatableParam("", false, 1, 0, 2);
-    GPNode* oscilNode = new OscilNode(true, partialOne, 0, NULL, NULL);
-    GPNetwork* sinwave = new GPNetwork(oscilNode);
+	unsigned seed = 0;
+	GPRandom* rng = new GPRandom(seed);
+	GPNetwork* sinwave = new GPNetwork(rng, "(osc {} {})");
     sinwave->traceNetwork();
 
     // Initialise the synth...
     numSynthVoices = 2;
     synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
     for (int i = numSynthVoices; --i >= 0;) {
-        GPNetwork* sinCopy = sinwave->getCopy();
+        GPNetwork* sinCopy = sinwave->getCopy("clone");
         sinCopy->traceNetwork();
         GPVoice* newVoice = new GPVoice(sinCopy, 0);
         synth.addVoice (newVoice);   // These voices will play our custom sine-wave sounds..

@@ -26,7 +26,7 @@ public:
     GPNode()
         : parent(NULL), descendants(0), descendantBuffers(0),
           depth(-1),
-          mutatableParams(0), minimum(-INFINITY), maximum(INFINITY),
+          mutatableParams(0), minimum((-1) * std::numeric_limits<float>::infinity()), maximum(std::numeric_limits<float>::infinity()),
           renderInfoSet(false), preparedToRender(false)
     {
     }

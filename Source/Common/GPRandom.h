@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 #include "boost/random.hpp"
 
 class GPRandom {
@@ -27,7 +28,7 @@ public:
     int random(int m);
 
 private:
-    const unsigned seed;
+    unsigned seed;
 	boost::mt19937 engine;
     boost::uniform_real<double> uni_real;
 

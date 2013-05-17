@@ -29,7 +29,6 @@ Interactive:
     button to run random evolution for a while
     novelty search of new spectrum elements/spectral peak ratios
     Add max noet length as a slider to GUI in order to make TimeNode potentially useful
-    link visual studio with boost
     interval variable as primatives? (open 5th, 4th, etc).
     are min/max always constant? do we need to have this be a param for evaluateBlockPerformance? Maybe it could be done during traceNetwork
     variablenode interval for cps stuff is 1-nyquist
@@ -68,6 +67,7 @@ TODO long run:
     Get filters (simple) working again. Switch filter libs probably
     prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
     more efficiency in subclasses. constantnode could be prerendered and memcpy'd during setRenderInfo, LFO node during updateMutatedParams with malloc in setRenderInfo, etc.
+	look at/fix all errors reported by visual studio (use rebuild command)
 
 NEXT EXPERIMENTS:
     SPLINE NODE

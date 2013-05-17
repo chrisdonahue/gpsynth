@@ -11,9 +11,9 @@
 #ifndef GPNETWORK_H
 #define GPNETWORK_H
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <string.h>
 #include "GPNode.h"

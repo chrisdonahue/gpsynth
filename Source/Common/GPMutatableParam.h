@@ -129,26 +129,26 @@ public:
         if (isContinuous)
             return cvalue;
         else
-            return dvalue;
+            return (float) dvalue;
     }
 
     float getMin() {
-	if (isContinuous)
-	    return cminimum;
-	else
-	    return dminimum;
+		if (isContinuous)
+			return cminimum;
+		else
+			return (float) dminimum;
     }
 
     float getMax() {
-	if (isContinuous)
-	    return cmaximum;
-	else
-	    return dmaximum;
+		if (isContinuous)
+			return cmaximum;
+		else
+			return (float) dmaximum;
     }
 
     void ephemeralRandom(GPRandom* rng) {
         if (isContinuous && isMutatable)
-            cvalue = (rng->random() * (cmaximum - cminimum)) + cminimum;
+            cvalue = ((float) rng->random() * (cmaximum - cminimum)) + cminimum;
         else if (!isContinuous && isMutatable)
             dvalue = (rng->random((dmaximum - dminimum) + 1)) + dminimum;
     }

@@ -18,7 +18,7 @@
 
 GPNetwork::GPNetwork(GPNode* r, std::string o) :
     ID(-1), origin(o), height(-1), fitness(-1),
-    minimum(-INFINITY), maximum(INFINITY),
+    minimum((-1) * std::numeric_limits<float>::infinity()), maximum(std::numeric_limits<float>::infinity()),
     preparedToRender(false),
     renderRoot(new SilenceNode()), root(r), allNodes(0), allMutatableParams(0)
 {
@@ -26,7 +26,7 @@ GPNetwork::GPNetwork(GPNode* r, std::string o) :
 
 GPNetwork::GPNetwork(GPRandom* rng, std::string netstring) :
     ID(-1), origin("string"), height(-1), fitness(-1),
-    minimum(-INFINITY), maximum(INFINITY),
+    minimum((-1) * std::numeric_limits<float>::infinity()), maximum(std::numeric_limits<float>::infinity()),
     preparedToRender(false),
     renderRoot(new SilenceNode()), allNodes(0), allMutatableParams(0)
 {
@@ -109,8 +109,8 @@ void GPNetwork::prepareToRender(float sr, unsigned blockSize, float maxTime) {
 void GPNetwork::doneRendering() {
     if (preparedToRender) {
         root->doneRendering();
-        minimum = -INFINITY;
-        maximum = INFINITY;
+        minimum = (-1) * std::numeric_limits<float>::infinity();
+        maximum = std::numeric_limits<float>::infinity();
         renderRoot = new SilenceNode();
         preparedToRender = false;
     }
@@ -167,9 +167,9 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
 
     // if the param is continuous
     if (tag.compare(0, 3, "c") == 0) {
-        float min = std::atof(minstr.c_str());
-        float val = std::atof(valstr.c_str());
-        float max = std::atof(maxstr.c_str());
+        float min = (float) std::atof(minstr.c_str());
+        float val = (float) std::atof(valstr.c_str());
+        float max = (float) std::atof(maxstr.c_str());
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
     // else if the param is discrete
