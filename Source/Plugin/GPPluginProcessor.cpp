@@ -184,9 +184,17 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	unsigned seed = 0;
 	GPRandom* rng = new GPRandom(seed);
-	GPNetwork* sinwave = new GPNetwork(rng, "(osc {d 0 0 1} {c 0.0 1.0 10.0})");
-    sinwave->traceNetwork();
+	// TODO: this is backwards, wtf
+	GPNetwork* sinwave = new GPNetwork(rng, "(osc {c 0.0 1.0 10.0} {d 0 0 1})");
+	//GPNetwork* sinwave = new GPNetwork(rng, "(whitenoise)");
+    //sinwave->traceNetwork();
+	numSynthVoices = 1;
+	synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
+	GPVoice* newVoice = new GPVoice(sinwave, 0);
+	synth.addVoice(newVoice);
+	synthVoices[0] = newVoice;
 
+	/*
     // Initialise the synth...
     numSynthVoices = 1;
     synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
@@ -197,6 +205,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
         synth.addVoice (newVoice);   // These voices will play our custom sine-wave sounds..
         synthVoices[i] = newVoice;
     }
+	*/
 
     synth.addSound (new GPSound());
 }
@@ -271,7 +280,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
-	float maxNoteLengthInSeconds = 10;
+	float maxNoteLengthInSeconds = 10.0f;
 	unsigned maxNumSamples = maxNoteLengthInSeconds * sampleRate;
 	float* times = (float*) malloc(sizeof(float) * maxNumSamples);
 	for (unsigned i = 0; i < maxNumSamples; i++) {
