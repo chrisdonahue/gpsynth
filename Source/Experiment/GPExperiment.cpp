@@ -47,6 +47,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         // EXPERIMENT STATE
         numGenerations = p->numGenerations;
         fitnessThreshold = p->thresholdFitness;
+        //TODO: remove minFitnessAchieved. we can't know this because of reproduction. just have to make sure it's correct in GP synth as champ->fitness
         minFitnessAchieved = INFINITY;
         numEvaluatedGenerations = 0;
 
@@ -225,6 +226,7 @@ GPNetwork* GPExperiment::evolve() {
         champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
         renderIndividualByBlockPerformance(champ, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
+        assert(champ->fitness == minFitnessAchieved);
         std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champ->ID/params->populationSize << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->savePrecision) << " and had a fitness of " << minFitnessAchieved << std::endl;
         char buffer[100];
         snprintf(buffer, 100, "%d.champion.wav", seed);
