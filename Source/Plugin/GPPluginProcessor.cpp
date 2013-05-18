@@ -186,17 +186,10 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 	GPRandom* rng = new GPRandom(seed);
 	// TODO: this is backwards, wtf
 	GPNetwork* sinwave = new GPNetwork(rng, "(osc {d 0 0 1} {c 0.0 1.0 10.0})");
-	//GPNetwork* sinwave = new GPNetwork(rng, "(whitenoise)");
-    //sinwave->traceNetwork();
-	numSynthVoices = 1;
-	synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
-	GPVoice* newVoice = new GPVoice(sinwave, 0);
-	synth.addVoice(newVoice);
-	synthVoices[0] = newVoice;
+    sinwave->traceNetwork();
 
-	/*
     // Initialise the synth...
-    numSynthVoices = 1;
+    numSynthVoices = 4;
     synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
     for (int i = numSynthVoices; --i >= 0;) {
         GPNetwork* sinCopy = sinwave->getCopy("clone");
@@ -205,7 +198,6 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
         synth.addVoice (newVoice);   // These voices will play our custom sine-wave sounds..
         synthVoices[i] = newVoice;
     }
-	*/
 
     synth.addSound (new GPSound());
 }
