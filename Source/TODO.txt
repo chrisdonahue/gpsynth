@@ -32,7 +32,6 @@ Interactive:
     interval variable as primatives? (open 5th, 4th, etc).
     are min/max always constant? do we need to have this be a param for evaluateBlockPerformance? Maybe it could be done during traceNetwork
     variablenode interval for cps stuff is 1-nyquist
-	tokenizer does not work correctly on windows? wtf
 
     Prototype:
         One slider to select synth number
