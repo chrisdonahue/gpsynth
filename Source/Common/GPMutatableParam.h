@@ -53,6 +53,13 @@ public:
         ss << "}";
     }
 
+    std::string toString(unsigned precision) {
+        std::stringstream ss;
+        ss.precision(precision);
+        toString(ss);
+        return ss.str();
+    }
+
     // set discrete values
     void setDValue(int val) {
         if (val > dmaximum)

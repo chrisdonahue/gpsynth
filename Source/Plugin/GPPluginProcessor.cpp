@@ -185,7 +185,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 	unsigned seed = 0;
 	GPRandom* rng = new GPRandom(seed);
 	// TODO: this is backwards, wtf
-	GPNetwork* sinwave = new GPNetwork(rng, "(osc {c 0.0 1.0 10.0} {d 0 0 1})");
+	GPNetwork* sinwave = new GPNetwork(rng, "(osc {d 0 0 1} {c 0.0 1.0 10.0})");
 	//GPNetwork* sinwave = new GPNetwork(rng, "(whitenoise)");
     //sinwave->traceNetwork();
 	numSynthVoices = 1;

@@ -196,47 +196,80 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
 
     // ADSR nodes
     if (type.compare("adsr") == 0) {
-        return new ADSRNode(true, createMutatableParam(tokenizer, true, "adsrdelay"), createMutatableParam(tokenizer, true, "adsrattack"), createMutatableParam(tokenizer, true, "adsrattackheight"), createMutatableParam(tokenizer, true, "adsrdecay"), createMutatableParam(tokenizer, true, "adsrsustain"), createMutatableParam(tokenizer, true, "adsrsustainheight"), createMutatableParam(tokenizer, true, "adsrrelease"), NULL);
+		GPMutatableParam* adsrdelay = createMutatableParam(tokenizer, true, "adsrdelay");
+		GPMutatableParam* adsrattack = createMutatableParam(tokenizer, true, "adsrattack");
+		GPMutatableParam* adsrattackheight = createMutatableParam(tokenizer, true, "adsrattackheight");
+		GPMutatableParam* adsrdecay = createMutatableParam(tokenizer, true, "adsrdecay");
+		GPMutatableParam* adsrsustain = createMutatableParam(tokenizer, true, "adsrsustain");
+		GPMutatableParam* adsrsustainheight = createMutatableParam(tokenizer, true, "adsrsustainheight");
+		GPMutatableParam* adsrrelease = createMutatableParam(tokenizer, true, "adsrrelease");
+        return new ADSRNode(true, adsrdelay, adsrattack, adsrattackheight, adsrdecay, adsrsustain, adsrsustainheight, adsrrelease, NULL);
     }
     else if (type.compare("adsr*") == 0) {
-        return new ADSRNode(false, createMutatableParam(tokenizer, true, "adsrdelay"), createMutatableParam(tokenizer, true, "adsrattack"), createMutatableParam(tokenizer, true, "adsrattackheight"), createMutatableParam(tokenizer, true, "adsrdecay"), createMutatableParam(tokenizer, true, "adsrsustain"), createMutatableParam(tokenizer, true, "adsrsustainheight"), createMutatableParam(tokenizer, true, "adsrrelease"), createSubtree(tokenizer, subtreeArgs));
+		GPMutatableParam* adsrdelay = createMutatableParam(tokenizer, true, "adsrdelay");
+		GPMutatableParam* adsrattack = createMutatableParam(tokenizer, true, "adsrattack");
+		GPMutatableParam* adsrattackheight = createMutatableParam(tokenizer, true, "adsrattackheight");
+		GPMutatableParam* adsrdecay = createMutatableParam(tokenizer, true, "adsrdecay");
+		GPMutatableParam* adsrsustain = createMutatableParam(tokenizer, true, "adsrsustain");
+		GPMutatableParam* adsrsustainheight = createMutatableParam(tokenizer, true, "adsrsustainheight");
+		GPMutatableParam* adsrrelease = createMutatableParam(tokenizer, true, "adsrrelease");
+		GPNode* signal = createSubtree(tokenizer, subtreeArgs);
+        return new ADSRNode(false, adsrdelay, adsrattack, adsrattackheight, adsrdecay, adsrsustain, adsrsustainheight, adsrrelease, signal);
     }
     // constant nodes
     else if (type.compare("pi") == 0) {
         return new ConstantNode(true, true, NULL, NULL);
     }
     else if (type.compare("pi*") == 0) {
-        return new ConstantNode(false, true, NULL, createSubtree(tokenizer, subtreeArgs));
+		GPNode* signal = createSubtree(tokenizer, subtreeArgs);
+        return new ConstantNode(false, true, NULL, signal);
     }
     else if (type.compare("const") == 0) {
-        return new ConstantNode(true, false, createMutatableParam(tokenizer, true, "constantvalue"), NULL);
+		GPMutatableParam* constantvalue = createMutatableParam(tokenizer, true, "constantvalue");
+        return new ConstantNode(true, false, constantvalue, NULL);
     }
     else if (type.compare("const*") == 0) {
-        return new ConstantNode(false, false, createMutatableParam(tokenizer, true, "constantvalue"), createSubtree(tokenizer, subtreeArgs));
+		GPMutatableParam* constantvalue = createMutatableParam(tokenizer, true, "constantvalue");
+		GPNode* signal = createSubtree(tokenizer, subtreeArgs);
+        return new ConstantNode(false, false, constantvalue, signal);
     }
     // function nodes
     else if (type.compare("+") == 0) {
-        return new AddNode(createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+		GPNode* signalzero = createSubtree(tokenizer, subtreeArgs);
+		GPNode* signalone = createSubtree(tokenizer, subtreeArgs);
+        return new AddNode(signalzero, signalone);
     }
     else if (type.compare("*") == 0) {
-        return new MultiplyNode(createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+		GPNode* signalzero = createSubtree(tokenizer, subtreeArgs);
+		GPNode* signalone = createSubtree(tokenizer, subtreeArgs);
+        return new MultiplyNode(signalzero, signalone);
     }
     else if (type.compare("sin") == 0) {
-        return new SineNode(createSubtree(tokenizer, subtreeArgs));
+		GPNode* signalzero = createSubtree(tokenizer, subtreeArgs);
+        return new SineNode(signalzero);
     }
     // LFO nodes
     else if (type.compare("lfo") == 0) {
-        return new LFONode(true, createMutatableParam(tokenizer, true, "lforate"), NULL);
+		GPMutatableParam* lforate = createMutatableParam(tokenizer, true, "lforate");
+        return new LFONode(true, lforate, NULL);
     }
     else if (type.compare("lfo*") == 0) {
-        return new LFONode(true, createMutatableParam(tokenizer, true, "lforate"), createSubtree(tokenizer, subtreeArgs));
+		GPMutatableParam* lforate = createMutatableParam(tokenizer, true, "lforate");
+		GPNode* signal = createSubtree(tokenizer, subtreeArgs);
+        return new LFONode(true, lforate, signal);
     }
     // mixer nodes
     else if (type.compare("if") == 0) {
-        return new MixerNode(false, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+		GPNode* control = createSubtree(tokenizer, subtreeArgs);
+		GPNode* signalzero = createSubtree(tokenizer, subtreeArgs);
+		GPNode* signalone = createSubtree(tokenizer, subtreeArgs);
+        return new MixerNode(false, control, signalzero, signalone);
     }
     else if (type.compare("mix") == 0) {
-        return new MixerNode(true, createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs), createSubtree(tokenizer, subtreeArgs));
+		GPNode* control = createSubtree(tokenizer, subtreeArgs);
+		GPNode* signalzero = createSubtree(tokenizer, subtreeArgs);
+		GPNode* signalone = createSubtree(tokenizer, subtreeArgs);
+        return new MixerNode(true, control, signalzero, signalone);
     }
     // noise node
     else if (type.compare("whitenoise") == 0) {
@@ -244,10 +277,16 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     // oscil node
     else if (type.compare("osc") == 0) {
-        return new OscilNode(true, createMutatableParam(tokenizer, false, "oscilvarnum"), createMutatableParam(tokenizer, true, "oscilpartial"), NULL, NULL);
+		GPMutatableParam* oscilvarnum = createMutatableParam(tokenizer, false, "oscilvarnum");
+		GPMutatableParam* oscilpartial = createMutatableParam(tokenizer, true, "oscilpartial");
+		return new OscilNode(true, oscilvarnum, oscilpartial, NULL, NULL);
     }
     else if (type.compare("fm") == 0) {
-        return new OscilNode(false, createMutatableParam(tokenizer, false, "oscilvarnum"), createMutatableParam(tokenizer, true, "oscilpartial"), createMutatableParam(tokenizer, true, "oscilindex"), createSubtree(tokenizer, subtreeArgs));
+		GPMutatableParam* oscilvarnum = createMutatableParam(tokenizer, false, "oscilvarnum");
+		GPMutatableParam* oscilpartial = createMutatableParam(tokenizer, true, "oscilpartial");
+		GPMutatableParam* oscilindex = createMutatableParam(tokenizer, false, "oscilindex");
+		GPNode* modsignal = createSubtree(tokenizer, subtreeArgs);
+        return new OscilNode(false, oscilvarnum, oscilpartial, oscilindex, modsignal);
     }
     // silence node
     else if (type.compare("silence") == 0) {
@@ -259,7 +298,9 @@ GPNode* createSubtree(std::vector<std::string> tokens, unsigned* currentIndex, G
     }
     // variable node
     else if (type.compare("var") == 0) {
-        return new VariableNode(createMutatableParam(tokenizer, false, "variablevarnum"), createMutatableParam(tokenizer, true, "variablerange"));
+		GPMutatableParam* variablevarnum = createMutatableParam(tokenizer, false, "variablevarnum");
+		GPMutatableParam* variablerange = createMutatableParam(tokenizer, true, "variablerange");
+        return new VariableNode(variablevarnum, variablerange);
     }
     else {
         std::cerr << "Tried to build S-expression from improperly formatted string" << std::endl;

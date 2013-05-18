@@ -19,6 +19,7 @@
 #include "GPNode.h"
 #include "GPPrimitives.h"
 #include "../Common/GPHelpers.h"
+#include "../Common/JUCEFileIO.h"
 
 class GPNetwork {
 public:
