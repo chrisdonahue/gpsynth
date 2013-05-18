@@ -319,10 +319,12 @@ int GPSynth::nextGeneration() {
         GPNetwork* dad = selectFromEvaluated(params->crossoverSelectionType, 0);
         GPNetwork* mom = selectFromEvaluated(params->crossoverSelectionType, 0);
         GPNetwork* one = dad->getCopy("crossover");
-        one->ID = dad->ID;
+        int oneID = dad->ID;
+        double oneFitness = one->fitness;
         one->traceNetwork();
         GPNetwork* two = mom->getCopy("crossover");
-        two->ID = mom->ID;
+        int twoID = mom->ID;
+        double twoFitness = two->fitness;
         two->traceNetwork();
 
         GPNetwork* offspring = crossover(params->crossoverType, one, two);
@@ -334,6 +336,8 @@ int GPSynth::nextGeneration() {
             if ((unsigned) one->height > params->maxHeight) {
                 delete one;
                 one = dad->getCopy("reproduction during crossover");
+                one->ID = oneID;
+                one->fitness = oneFitness;
             }
             nextGeneration->push_back(one);
             i++;
@@ -343,6 +347,8 @@ int GPSynth::nextGeneration() {
                 if ((unsigned) two->height > params->maxHeight) {
                     delete two;
                     two = mom->getCopy("reproduction during crossover");
+                    two->ID = twoID;
+                    two->fitness = twoFitness;
                 }
                 nextGeneration->push_back(two);
                 i++;

@@ -63,7 +63,6 @@ Thoughts:
     consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
 TODO long run:
-    for reproduction during crossover, restore the fitness for the offspring to avoid reevaluation
     print ranges/save all networks in text file that can be used from command line to render all generation wavs/just save ID's instead of waves
     implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
     figure out how to start without being in initialise method (new thread)
