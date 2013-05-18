@@ -983,6 +983,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
 
     sinTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds); 
+    sinTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds); 
     std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(10) << std::endl;
     std::cout << "Height: " << sinTestNet->height << std::endl;
     std::cout << "Min: " << sinTestNet->minimum << std::endl;
@@ -1071,6 +1072,24 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     FMSynthesisTestNet->doneRendering();
     saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete FMSynthesisTestNet;
+
+    // additive synthesis test
+    std::string oscillatorTest = "(osc {d 0 0 1} {c 0.0 1.0 10.0})";
+    GPNetwork* oscillatorTestNetPreCopy = new GPNetwork(rng, oscillatorTest);
+    oscillatorTestNetPreCopy->traceNetwork();
+    GPNetwork* oscillatorTestNet = oscillatorTestNetPreCopy->getCopy("test");
+    delete oscillatorTestNetPreCopy;
+    oscillatorTestNet->traceNetwork();
+    oscillatorTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    std::cout << "----TESTING SINE WAVE OSCILLATOR----" << std::endl;
+    std::cout << "Network: " << std::endl << oscillatorTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << oscillatorTestNet->height << std::endl;
+    std::cout << "Min: " << oscillatorTestNet->minimum << std::endl;
+    std::cout << "Max: " << oscillatorTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(oscillatorTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    oscillatorTestNet->doneRendering();
+    saveWavFile("./oscillatorTest.wav", String(oscillatorTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete oscillatorTestNet;
 
     // free test buffer
     free(variables);

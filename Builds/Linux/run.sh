@@ -70,19 +70,19 @@ set -e
 COMMENT
 
 # SANITY TEST
-<<COMMENT
-#valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
+#<<COMMENT
 #gdb --args \
+valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
   --path ./\
   --experiment 0 \
   --loadwavblock 256 \
 #  --seed 0 \
 #> testValgrind.txt
-COMMENT
+#COMMENT
 
 # FITNESS FUNCTION SAVE
-#<<COMMENT
+<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb51024.wav\
@@ -121,7 +121,7 @@ COMMENT
   --goodmagcomp 0.1\
   --badmagcomp 1.1\
   --basemagcomp 0.9
-#COMMENT
+COMMENT
 
 # DEBUG MEMORY
 <<COMMENT
