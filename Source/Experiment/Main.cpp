@@ -427,7 +427,6 @@ public:
         // TODO start a new thread to do this
         //juce::Thread experiment(String("evolution"));
         GPNetwork* champion = experiment->evolve();
-        delete champion;
         quit();
     }
 

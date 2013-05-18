@@ -184,17 +184,17 @@ GPNetwork* GPExperiment::evolve() {
 
         // if we're done with this generation...
         if (numUnevaluatedThisGeneration == 0) {
-            // grab and render the generation champ
-            GPNetwork* generationChamp = synth->generationChamp;
-            generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
-            renderIndividualByBlockPerformance(generationChamp, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
-            generationChamp->doneRendering();
-
-            // save generation champions
             if (params->saveGenerationChampions) {
-              char buffer[100];
-              snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
-              saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
+                // grab and render the generation champ
+                GPNetwork* generationChamp = synth->generationChamp;
+                generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
+                renderIndividualByBlockPerformance(generationChamp, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
+                generationChamp->doneRendering();
+
+                // save generation champions
+                char buffer[100];
+                snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
+                saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
             }
 
             // increment number of evaluted generations
