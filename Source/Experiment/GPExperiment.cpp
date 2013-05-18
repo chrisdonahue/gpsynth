@@ -47,7 +47,6 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         // EXPERIMENT STATE
         numGenerations = p->numGenerations;
         fitnessThreshold = p->thresholdFitness;
-        //TODO: remove minFitnessAchieved. we can't know this because of reproduction. just have to make sure it's correct in GP synth as champ->fitness
         minFitnessAchieved = INFINITY;
         numEvaluatedGenerations = 0;
 
@@ -181,6 +180,9 @@ GPNetwork* GPExperiment::evolve() {
         // evaluate candidate
         double fitness = compareToTarget(params->fitnessFunctionType, candidateData);
         numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
+        if (fitness < minFitnessAchieved) {
+            minFitnessAchieved = fitness;
+        }
         numEvaluatedThisGeneration++;
 
         // if we're done with this generation...

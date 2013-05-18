@@ -73,7 +73,7 @@ private:
     float* variableValues;
 
     // EXPERIMENT STATE
-    float minFitnessAchieved;
+    double minFitnessAchieved;
     int numEvaluatedGenerations;
     bool* requestedQuit;
 
