@@ -67,6 +67,7 @@ GPSynth::~GPSynth() {
     delete availableNodes;
     delete availableFunctions;
     delete availableTerminals;
+    delete generationChamp;
     delete champ;
 }
 

@@ -128,6 +128,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         delete ADSRSustain;
         delete ADSRSustainHeight;
         delete ADSRRelease;
+        delete specialValues;
     }
 }
 
