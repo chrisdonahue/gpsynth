@@ -34,6 +34,14 @@ Interactive:
     variablenode interval for cps stuff is 1-nyquist
 	tokenizer does not work correctly on windows? wtf
 
+    Prototype:
+        One slider to select synth number
+        One slider to select level
+        On screen piano keyboard
+        Keyboard control
+        Next generation control, no fitness for now
+        Save network button
+
 Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
