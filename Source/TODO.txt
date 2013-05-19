@@ -16,26 +16,31 @@ GPSynth.cpp:
 
 Node subclasses:
     DelayNode
-    ConditionalNode
     NoiseNode other types of noise
     OscilNode other waveforms/add frequency input
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
     Button to interactively suboptimize constants
-    Ability to edit network test and add things like PITCHBEND
-    Introduce Novelty button
+    Ability to edit network
+    PITCHBEND
+    Introduce Novelty button replaces current network with new full()
     Buttons to step backwards through evolution
-    button to run random evolution for a while
+    button to run random evolution for a while towards a target with best suboptimization method
     novelty search of new spectrum elements/spectral peak ratios
-    Add max noet length as a slider to GUI in order to make TimeNode potentially useful
-    interval variable as primatives? (open 5th, 4th, etc).
-    are min/max always constant? do we need to have this be a param for evaluateBlockPerformance? Maybe it could be done during traceNetwork
-    variablenode interval for cps stuff is 1-nyquist
+    Add max note length as a slider to GUI in order to make TimeNode potentially useful
+    primative/options menu:
+        available primitives (two adjacent lists) (oscils with center frequency at 3rd, 4th, 5th, 7th, etc)
+        maxNoteLength
+        maxNetworkHeight
+        amplitude gain
 
     Prototype:
+        fixed primitive set, fixed maxNoteLength, fixed maxNetworkHeight
         One slider to select synth number
         One slider to select level
+        One slider to assign fitness (with assign fitness button)
+        One slider for amplitude
         On screen piano keyboard
         Keyboard control
         Next generation control, no fitness for now
@@ -45,19 +50,17 @@ Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
     finish implementing DifferenceEquationNode. turns out my difference equation idea from the start might have been better somehow. need to find a way to guarantee min/max though
-    maybe use naive average and blend with moving average?
+    mutation using original network as a subtree of a new full() call? check Koza for precedence
 
 Thoughts:
     Don't necessarily have to foray into filters too much. For now focus on best possible FM synthesis recreation
     Maybe can do filterednoise primative at a later point
     Add spline to likely replace ADSR
-    LFO nodes too
     Multiple variable nodes to population... replace v0 oscil node with frequency determined by child
-    should variablenum in VariableNode be a mutatable param?
-    for fitness function, lower the average is on the frequency domain the better. probably want to do exponential moving average with like n/2 lookahead/behind in order to allow it to decrease towards the end to capture tiny partials
     consider constantNode intervalMutliply
         everything except constant has the tightest possible bound on min/max? hard to say
     synth partial continuous between [0, nyquist/centerfreq]?
+        variablenode interval for cps stuff is 1 to nyquist
     consider removing all the node-specific stuff from GPParams
     consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
@@ -80,9 +83,12 @@ TODO long run:
 NEXT EXPERIMENTS:
     SPLINE NODE
     CMAES/test without numerical mutation
+        read Garcia paper to see how he did his suboptimizing GA. try testing that too
     figure out why simple average fitness function seems to work the best
+        maybe use naive average and blend with moving average?
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
         consider changing proportion * bad + base to just bad + base...
+        lower the average is on the frequency domain the better. probably want to do exponential moving average with like n/2 lookahead/behind in order to allow it to decrease towards the end to capture tiny partials
 
     look at AUDACITY rendering code and replicate that in OscilNode?
         might have to use double precision for M_PI ;;
