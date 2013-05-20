@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  19 May 2013 10:54:39pm
+  Creation date:  20 May 2013 3:14:44pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -19,11 +19,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_HEADER_GPSYNTH_GPSYNTHJUCERTEMPLATE_AF1606C7__
-#define __JUCER_HEADER_GPSYNTH_GPSYNTHJUCERTEMPLATE_AF1606C7__
+#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORJUCER_D8BB6126__
+#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORJUCER_D8BB6126__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "juce.h"
+#include "../../JuceLibraryCode/JuceHeader.h"
 //[/Headers]
 
 
@@ -36,14 +36,14 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class GPSynth  : public Component,
-                 public SliderListener,
-                 public ButtonListener
+class GeneticProgrammingSynthesizerComponent  : public Component,
+                                                public SliderListener,
+                                                public ButtonListener
 {
 public:
     //==============================================================================
-    GPSynth ();
-    ~GPSynth();
+    GeneticProgrammingSynthesizerComponent ();
+    ~GeneticProgrammingSynthesizerComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -80,9 +80,9 @@ private:
 
     //==============================================================================
     // (prevent copy constructor and operator= being generated..)
-    GPSynth (const GPSynth&);
-    const GPSynth& operator= (const GPSynth&);
+    GeneticProgrammingSynthesizerComponent (const GeneticProgrammingSynthesizerComponent&);
+    const GeneticProgrammingSynthesizerComponent& operator= (const GeneticProgrammingSynthesizerComponent&);
 };
 
 
-#endif   // __JUCER_HEADER_GPSYNTH_GPSYNTHJUCERTEMPLATE_AF1606C7__
+#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORJUCER_D8BB6126__

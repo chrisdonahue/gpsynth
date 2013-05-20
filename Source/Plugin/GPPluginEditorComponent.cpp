@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  19 May 2013 10:54:39pm
+  Creation date:  20 May 2013 3:14:44pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -20,16 +20,17 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "GPPluginProcessor.h"
 //[/Headers]
 
-#include "GPSynthJucerTemplate.h"
+#include "GPPluginEditorJucer.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-GPSynth::GPSynth ()
+GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent ()
     : fitness (0),
       synthnum (0),
       title (0),
@@ -134,7 +135,7 @@ GPSynth::GPSynth ()
     //[/Constructor]
 }
 
-GPSynth::~GPSynth()
+GeneticProgrammingSynthesizerComponent::~GeneticProgrammingSynthesizerComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -158,7 +159,7 @@ GPSynth::~GPSynth()
 }
 
 //==============================================================================
-void GPSynth::paint (Graphics& g)
+void GeneticProgrammingSynthesizerComponent::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -169,7 +170,7 @@ void GPSynth::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void GPSynth::resized()
+void GeneticProgrammingSynthesizerComponent::resized()
 {
     fitness->setBounds (72, 168, 300, 24);
     synthnum->setBounds (72, 128, 300, 24);
@@ -187,7 +188,7 @@ void GPSynth::resized()
     //[/UserResized]
 }
 
-void GPSynth::sliderValueChanged (Slider* sliderThatWasMoved)
+void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
@@ -212,7 +213,7 @@ void GPSynth::sliderValueChanged (Slider* sliderThatWasMoved)
     //[/UsersliderValueChanged_Post]
 }
 
-void GPSynth::buttonClicked (Button* buttonThatWasClicked)
+void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -246,10 +247,11 @@ void GPSynth::buttonClicked (Button* buttonThatWasClicked)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="GPSynth" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330000013"
-                 fixedSize="0" initialWidth="600" initialHeight="400">
+<JUCER_COMPONENT documentType="Component" className="GeneticProgrammingSynthesizerComponent"
+                 componentName="" parentClasses="public Component" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330000013" fixedSize="0" initialWidth="600"
+                 initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
   <SLIDER name="fitness" id="16a1b0db54c88216" memberName="fitness" virtualName=""
           explicitFocusOrder="0" pos="72 168 300 24" min="0" max="1" int="0"
