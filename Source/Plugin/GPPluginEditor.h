@@ -13,6 +13,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GPPluginProcessor.h"
+#include "GPPluginEditorComponent.h"
 
 
 //==============================================================================
@@ -33,6 +34,7 @@ public:
     void sliderValueChanged (Slider*);
 
 private:
+	GeneticProgrammingSynthesizerComponent mainEditor;
     MidiKeyboardComponent midiKeyboard;
     Label infoLabel, gainLabel, delayLabel;
     Slider gainSlider;
