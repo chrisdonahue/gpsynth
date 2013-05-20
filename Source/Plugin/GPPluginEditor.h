@@ -36,9 +36,6 @@ public:
 private:
 	GeneticProgrammingSynthesizerComponent mainEditor;
     MidiKeyboardComponent midiKeyboard;
-    Label infoLabel, gainLabel, delayLabel;
-    Slider gainSlider;
-    Slider delaySlider;
     ScopedPointer<ResizableCornerComponent> resizer;
     ComponentBoundsConstrainer resizeLimits;
 
@@ -49,7 +46,7 @@ private:
         return static_cast <GeneticProgrammingSynthesizerAudioProcessor*> (getAudioProcessor());
     }
 
-    void displayPositionInfo (const AudioPlayHead::CurrentPositionInfo& pos);
+    //void displayPositionInfo (const AudioPlayHead::CurrentPositionInfo& pos);
 };
 
 

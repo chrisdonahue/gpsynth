@@ -23,7 +23,7 @@
 #include "GPPluginProcessor.h"
 //[/Headers]
 
-#include "GPPluginEditorJucer.h"
+#include "GPPluginEditorComponent.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
@@ -97,7 +97,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     playsetlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
     addAndMakeVisible (amplitude = new Slider (L"amplitude"));
-    amplitude->setRange (0, 9, 1);
+    amplitude->setRange (0, 1, 0);
     amplitude->setSliderStyle (Slider::LinearHorizontal);
     amplitude->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
     amplitude->addListener (this);

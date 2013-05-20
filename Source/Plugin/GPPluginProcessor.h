@@ -101,9 +101,10 @@ private:
     int delayPosition;
 
     // the synth!
+	GPSynth* gpsynth;
     Synthesiser synth;
-    GPVoice** synthVoices;
     unsigned numSynthVoices;
+    GPVoice** synthVoices;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneticProgrammingSynthesizerAudioProcessor)
 };

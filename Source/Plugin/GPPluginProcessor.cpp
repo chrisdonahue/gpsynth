@@ -177,7 +177,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     delay = 0.5f;
 
     lastUIWidth = 400;
-    lastUIHeight = 200;
+    lastUIHeight = 478;
 
     lastPosInfo.resetToDefault();
     delayPosition = 0;
