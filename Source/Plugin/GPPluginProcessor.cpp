@@ -49,9 +49,13 @@ public:
           free(variables);
         if (buffer != nullptr)
           free(buffer);
+
+		network->doneRendering();
 	}
 
     void setRenderParams(double sr, int bs, int maxfn, float* t) {
+		network->doneRendering();
+
 		sampleRate = sr;
         blockSize = bs;
 		blockSizeInBytes = sizeof(float) * bs;
@@ -170,17 +174,17 @@ private:
 
 //==============================================================================
 GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
-    : delayBuffer (2, 12000)
+    //: delayBuffer (2, 12000)
 {
     // Set up some default values..
     gain = 1.0f;
-    delay = 0.5f;
+    //delay = 0.5f;
 
     lastUIWidth = 400;
     lastUIHeight = 478;
 
     lastPosInfo.resetToDefault();
-    delayPosition = 0;
+    //delayPosition = 0;
 
 	unsigned seed = 0;
 	GPRandom* rng = new GPRandom(seed);
@@ -221,8 +225,8 @@ float GeneticProgrammingSynthesizerAudioProcessor::getParameter (int index)
     {
     case gainParam:
         return gain;
-    case delayParam:
-        return delay;
+    //case delayParam:
+    //    return delay;
     default:
         return 0.0f;
     }
@@ -238,9 +242,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     case gainParam:
         gain = newValue;
         break;
-    case delayParam:
-        delay = newValue;
-        break;
+    //case delayParam:
+    //    delay = newValue;
+    //    break;
     default:
         break;
     }
@@ -252,8 +256,8 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int 
     {
     case gainParam:
         return "gain";
-    case delayParam:
-        return "delay";
+    //case delayParam:
+    //    return "delay";
     default:
         break;
     }
@@ -272,17 +276,15 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
+
 	float maxNoteLengthInSeconds = 10.0f;
-	unsigned maxNumSamples = maxNoteLengthInSeconds * sampleRate;
-	float* times = (float*) malloc(sizeof(float) * maxNumSamples);
-	for (unsigned i = 0; i < maxNumSamples; i++) {
-		times[i] = i / sampleRate;
-	}
+
     for (unsigned i = 0; i < numSynthVoices; i++) {
-      synthVoices[i]->setRenderParams(sampleRate, samplesPerBlock, maxNumSamples, times);
+      synthVoices[i]->setRenderParams(sampleRate, samplesPerBlock, maxNoteLengthInSeconds);
     }
+
     keyboardState.reset();
-    delayBuffer.clear();
+    //delayBuffer.clear();
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
@@ -296,17 +298,13 @@ void GeneticProgrammingSynthesizerAudioProcessor::reset()
 {
     // Use this method as the place to clear any delay lines, buffers, etc, as it
     // means there's been a break in the audio's continuity.
-    delayBuffer.clear();
+    //delayBuffer.clear();
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     const int numSamples = buffer.getNumSamples();
     int channel, dp = 0;
-
-    // Go through the incoming data, and apply our gain to it...
-    for (channel = 0; channel < getNumInputChannels(); ++channel)
-        buffer.applyGain (channel, 0, buffer.getNumSamples(), gain);
 
     // Now pass any incoming midi messages to our keyboard state object, and let it
     // add messages to the buffer if the user is clicking on the on-screen keys
@@ -315,6 +313,13 @@ void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffe
     // and now get the synth to process these midi events and generate its output.
     synth.renderNextBlock (buffer, midiMessages, 0, numSamples);
 
+	// Go through the incoming data, and apply our gain to it...
+	/*
+    for (channel = 0; channel < getNumInputChannels(); ++channel)
+        buffer.applyGain (channel, 0, buffer.getNumSamples(), gain);
+		*/
+
+	/*
     // Apply our delay effect to the new output..
     for (channel = 0; channel < getNumInputChannels(); ++channel)
     {
@@ -333,6 +338,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffe
     }
 
     delayPosition = dp;
+	*/
 
     // In case we have more outputs than inputs, we'll clear any output
     // channels that didn't contain input data, (because these aren't
@@ -374,7 +380,6 @@ void GeneticProgrammingSynthesizerAudioProcessor::getStateInformation (MemoryBlo
     xml.setAttribute ("uiWidth", lastUIWidth);
     xml.setAttribute ("uiHeight", lastUIHeight);
     xml.setAttribute ("gain", gain);
-    xml.setAttribute ("delay", delay);
 
     // then use this helper function to stuff it into the binary blob and return it..
     copyXmlToBinary (xml, destData);
@@ -398,7 +403,6 @@ void GeneticProgrammingSynthesizerAudioProcessor::setStateInformation (const voi
             lastUIHeight = xmlState->getIntAttribute ("uiHeight", lastUIHeight);
 
             gain  = (float) xmlState->getDoubleAttribute ("gain", gain);
-            delay = (float) xmlState->getDoubleAttribute ("delay", delay);
         }
     }
 }

@@ -8,7 +8,6 @@
   ==============================================================================
 */
 
-#include "GPPluginProcessor.h"
 #include "GPPluginEditor.h"
 
 //==============================================================================
@@ -110,6 +109,25 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 
 // This is our Slider::Listener callback, when the user drags a slider.
 void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slider* slider)
+{
+	/*
+    if (slider == &gainSlider)
+    {
+        // It's vital to use setParameterNotifyingHost to change any parameters that are automatable
+        // by the host, rather than just modifying them directly, otherwise the host won't know
+        // that they've changed.
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::gainParam,
+                                                   (float) gainSlider.getValue());
+    }
+    else if (slider == &delaySlider)
+    {
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::delayParam,
+                                                   (float) delaySlider.getValue());
+    }
+	*/
+}
+
+void GeneticProgrammingSynthesizerAudioProcessorEditor::buttonClicked (Button* button)
 {
 	/*
     if (slider == &gainSlider)

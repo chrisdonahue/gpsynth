@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  20 May 2013 3:14:44pm
+  Creation date:  21 May 2013 1:58:42pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -20,7 +20,6 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "GPPluginProcessor.h"
 //[/Headers]
 
 #include "GPPluginEditorComponent.h"
@@ -40,7 +39,6 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
       playsetlabel (0),
       amplitude (0),
       amplabel (0),
-      label6 (0),
       save (0),
       nextgen (0)
 {
@@ -97,7 +95,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     playsetlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
     addAndMakeVisible (amplitude = new Slider (L"amplitude"));
-    amplitude->setRange (0, 1, 0);
+    amplitude->setRange (0, 9, 1);
     amplitude->setSliderStyle (Slider::LinearHorizontal);
     amplitude->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
     amplitude->addListener (this);
@@ -110,14 +108,6 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     amplabel->setColour (TextEditor::textColourId, Colours::black);
     amplabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (label6 = new Label (L"label2",
-                                           String::empty));
-    label6->setFont (Font (12.0000f, Font::plain));
-    label6->setJustificationType (Justification::centred);
-    label6->setEditable (false, false, false);
-    label6->setColour (TextEditor::textColourId, Colours::black);
-    label6->setColour (TextEditor::backgroundColourId, Colour (0x0));
-
     addAndMakeVisible (save = new TextButton (L"save"));
     save->addListener (this);
 
@@ -128,7 +118,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (600, 400);
+    setSize (400, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -149,7 +139,6 @@ GeneticProgrammingSynthesizerComponent::~GeneticProgrammingSynthesizerComponent(
     deleteAndZero (playsetlabel);
     deleteAndZero (amplitude);
     deleteAndZero (amplabel);
-    deleteAndZero (label6);
     deleteAndZero (save);
     deleteAndZero (nextgen);
 
@@ -176,12 +165,11 @@ void GeneticProgrammingSynthesizerComponent::resized()
     synthnum->setBounds (72, 128, 300, 24);
     title->setBounds (56, 8, 264, 56);
     algolabel->setBounds (0, 120, 64, 40);
-    fitlabel->setBounds (0, 160, 64, 40);
+    fitlabel->setBounds (-8, 160, 64, 40);
     gasetlabel->setBounds (48, 88, 280, 24);
     playsetlabel->setBounds (48, 232, 280, 24);
     amplitude->setBounds (73, 268, 300, 24);
-    amplabel->setBounds (3, 262, 64, 40);
-    label6->setBounds (3, 270, 64, 40);
+    amplabel->setBounds (0, 264, 64, 40);
     save->setBounds (32, 336, 150, 24);
     nextgen->setBounds (200, 336, 150, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -191,6 +179,7 @@ void GeneticProgrammingSynthesizerComponent::resized()
 void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
+	editor->sliderValueChanged(sliderThatWasMoved);
     //[/UsersliderValueChanged_Pre]
 
     if (sliderThatWasMoved == fitness)
@@ -216,6 +205,7 @@ void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderT
 void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
+	editor->buttonClicked(buttonThatWasClicked);
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == save)
@@ -236,6 +226,20 @@ void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWa
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void GeneticProgrammingSynthesizerComponent::setEditor(GeneticProgrammingSynthesizerAudioProcessorEditor* e) {
+	editor = e;
+}
+
+void GeneticProgrammingSynthesizerComponent::getSliders(std::map<String, Slider*>& sliders) {
+	sliders[String("fitness")] = fitness;
+	sliders[String("synth")] = synthnum;
+	sliders[String("amplitude")] = amplitude;
+}
+
+void GeneticProgrammingSynthesizerComponent::getButtons(std::map<String, Button*>& buttons) {
+	buttons[String("save")] = save;
+	buttons[String("nextgen")] = nextgen;
+}
 //[/MiscUserCode]
 
 
@@ -250,7 +254,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="GeneticProgrammingSynthesizerComponent"
                  componentName="" parentClasses="public Component" constructorParams=""
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330000013" fixedSize="0" initialWidth="600"
+                 overlayOpacity="0.330000013" fixedSize="0" initialWidth="400"
                  initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
   <SLIDER name="fitness" id="16a1b0db54c88216" memberName="fitness" virtualName=""
@@ -272,7 +276,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="33"/>
   <LABEL name="fitlabel" id="4461d1426f065552" memberName="fitlabel" virtualName=""
-         explicitFocusOrder="0" pos="0 160 64 40" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="-8 160 64 40" edTextCol="ff000000"
          edBkgCol="0" labelText="fitness" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="36"/>
@@ -291,15 +295,10 @@ BEGIN_JUCER_METADATA
           max="9" int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="amplabel" id="8fa2033431b21d08" memberName="amplabel" virtualName=""
-         explicitFocusOrder="0" pos="3 262 64 40" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="0 264 64 40" edTextCol="ff000000"
          edBkgCol="0" labelText="amplitude" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="33"/>
-  <LABEL name="label2" id="eea20a441d2bde4b" memberName="label6" virtualName=""
-         explicitFocusOrder="0" pos="3 270 64 40" edTextCol="ff000000"
-         edBkgCol="0" labelText="" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="12"
-         bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="save" id="55746809785deaaa" memberName="save" virtualName=""
               explicitFocusOrder="0" pos="32 336 150 24" buttonText="save"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>

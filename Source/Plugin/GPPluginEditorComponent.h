@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  20 May 2013 3:14:44pm
+  Creation date:  21 May 2013 1:58:42pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -19,11 +19,12 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORJUCER_D8BB6126__
-#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORJUCER_D8BB6126__
+#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_332861C3__
+#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_332861C3__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "GPPluginEditor.h"
 //[/Headers]
 
 
@@ -47,6 +48,9 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void setEditor(GeneticProgrammingSynthesizerAudioProcessorEditor* e);
+	void getSliders(std::map<String, Slider*>& sliders);
+	void getButtons(std::map<String, Button*>& buttons);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -61,6 +65,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	GeneticProgrammingSynthesizerAudioProcessorEditor* editor;
     //[/UserVariables]
 
     //==============================================================================
@@ -73,7 +78,6 @@ private:
     Label* playsetlabel;
     Slider* amplitude;
     Label* amplabel;
-    Label* label6;
     TextButton* save;
     TextButton* nextgen;
 
@@ -85,4 +89,4 @@ private:
 };
 
 
-#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORJUCER_D8BB6126__
+#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_332861C3__

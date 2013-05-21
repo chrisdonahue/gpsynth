@@ -20,7 +20,7 @@
 /** This is the editor component that our filter will display.
 */
 class GeneticProgrammingSynthesizerAudioProcessorEditor  : public AudioProcessorEditor,
-                                            public SliderListener,
+                                            //public SliderListener,
                                             public Timer
 {
 public:
@@ -32,6 +32,7 @@ public:
     void paint (Graphics& g);
     void resized();
     void sliderValueChanged (Slider*);
+	void buttonClicked (Button*);
 
 private:
 	GeneticProgrammingSynthesizerComponent mainEditor;

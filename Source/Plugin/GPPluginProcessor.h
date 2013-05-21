@@ -87,18 +87,18 @@ public:
     //==============================================================================
     enum Parameters
     {
-        gainParam = 0,
-        delayParam,
-
+		synthParam,
+		fitnessParam,
+		gainParam,
         totalNumParams
     };
 
-    float gain, delay;
+	unsigned algorithm;
+    float gain;
+	double* fitnesses;
+	//, delay;
 
 private:
-    //==============================================================================
-    AudioSampleBuffer delayBuffer;
-    int delayPosition;
 
     // the synth!
 	GPSynth* gpsynth;
