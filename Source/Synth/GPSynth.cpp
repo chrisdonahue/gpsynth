@@ -176,12 +176,15 @@ GPNetwork* GPSynth::getIndividual() {
     return ret;
 }
 
-std::vector<GPNetwork*>* GPSynth::getIndividuals(unsigned n) {
-    if (unevaluated.size() < n) {
+void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
+    if (unevaluated.size() < networks.size()) {
         std::cout << "Requested multiple individuals out of population that did not have enough remaining" << std::endl;
-        return NULL;
+        return;
     }
-    return NULL;
+	unsigned i = 0;
+	for (std::set<GPNetwork*>::iterator iter = unevaluated.begin(); i < networks.size(); i++, iter++) {
+		networks[i] = *(iter);
+	}
 }
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {

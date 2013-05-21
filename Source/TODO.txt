@@ -79,6 +79,7 @@ TODO long run:
     prepareToPlay() called at start of every new note (to remove noisenode if(frameNumber == 0))
     more efficiency in subclasses. constantnode could be prerendered and memcpy'd during setRenderInfo, LFO node during updateMutatedParams with malloc in setRenderInfo, etc.
 	look at/fix all errors reported by visual studio (use rebuild command)
+	split GPParams into GPMatchingExperimentParams, GPSynthParams and perhaps GPNodeParams
 
 NEXT EXPERIMENTS:
     SPLINE NODE

@@ -189,45 +189,159 @@ private:
 
 //==============================================================================
 GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
-    //: delayBuffer (2, 12000)
+	:	lastUIWidth(400), lastUIHeight(478),
+		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
+		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(0), gpsynth(nullptr),
+		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
+		numSynthVoicesPerAlgorithm(NUMVOICES), currentVoices(nullptr), currentGenerationVoices(POPULATIONSIZE, nullptr), currentGenerationNetworks(POPULATIONSIZE, nullptr)
 {
-    // Set up some default values..
-	algorithm = 0;
-	algorithmFitness = 0;
-    gain = 1.0f;
-	fitnesses = (double*) malloc(sizeof(double) * POPULATIONSIZE);
+    // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		fitnesses[i] = 0.0f;
 	}
 
-    lastUIWidth = 400;
-    lastUIHeight = 478;
+	// set up genetic algorithm
+	// params
+    // experiment params
+    params->numGenerations = 100;
+	params->thresholdFitness = 2.0;
+    params->ephemeralRandomConstants = true;
 
-    lastPosInfo.resetToDefault();
-    //delayPosition = 0;
+    // auxillary params
+    params->verbose = false;
+    params->saveGenerationChampions = false;
+    params->saveTargetEnvelope = false;
+    params->saveTargetSpectrum = false;
+    params->backupTarget = false;
+    params->printPrecision = 3;
+    params->savePrecision = 4;
+    params->wavFileBufferSize = 256;
+    params->renderBlockSize = 256;
 
-	unsigned seed = 0;
-	GPRandom* rng = new GPRandom(seed);
-	// TODO: this is backwards, wtf
-	GPNetwork* sinwave = new GPNetwork(rng, "(osc {d 0 0 1} {c 0.0 1.0 10.0})");
-    sinwave->traceNetwork();
+    // frequency domain fitness parameters
+    strncpy(params->windowType, "rect", 5);
+    params->fftSize = 256;
+    params->fftOverlap = 0;
+    params->dBMagnitude = false;
+    // moving average
+    params->averageComparisonType = 1;
+    params->movingAveragePastRadius = 50;
+    params->movingAverageFutureRadius = 50;
+    params->exponentialMovingAverageAlpha = 0.2;
+    params->compareToMaxDeviation = true;
+    params->penaltyComparisonExponent = 1.0;
+    params->weightFftFrames = false;
+    params->frameWeightExponent = 0.33;
+    // phase penalty
+    params->penalizeBadPhase = 2;
+    // magnitude penalty
+    params->goodComparisonFactor = 0.1;
+    params->badComparisonFactor = 1.1;
+    params->baseComparisonFactor = 0.9;
 
-    // Initialise the synth...
-    numSynthVoices = 4;
-    synthVoices = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoices);
-    for (int i = numSynthVoices; --i >= 0;) {
-        GPNetwork* sinCopy = sinwave->getCopy("clone");
-        sinCopy->traceNetwork();
-        GPVoice* newVoice = new GPVoice(sinCopy, 0);
-        synth.addVoice (newVoice);   // These voices will play our custom sine-wave sounds..
-        synthVoices[i] = newVoice;
-    }
+    // synth evolution params
+    params->populationSize = POPULATIONSIZE;
+    params->backupAllNetworks = false;
+    params->backupPrecision = 100;
+    params->lowerFitnessIsBetter = false; //should be done in experiment
+    params->bestPossibleFitness = 2.0; //should be done in experiment
+    params->maxInitialHeight = 2;
+    params->maxHeight = 4;
 
-    synth.addSound (new GPSound());
+    // synth genetic params
+    params->proportionOfPopulationForGreedySelection = 0.0;
+    // numeric mutation
+    params->numericMutationSelectionType = 1;
+    params->proportionOfPopulationFromNumericMutation = 0.00;
+    params->percentileOfPopulationToSelectFromForNumericMutation = 0.05;
+    params->numericMutationTemperatureConstant = 0.9;
+    // mutation
+    params->mutationSelectionType = 1;
+    params->mutationType = 0;
+    params->proportionOfPopulationFromMutation = 0.00;
+    params->percentileOfPopulationToSelectFromForMutation = 0.05;
+    // crossover
+    params->crossoverSelectionType = 0;
+    params->crossoverType = 0;
+    params->proportionOfPopulationFromCrossover = 1.0;
+    // reproduction
+    params->reproductionSelectionType = 0;
+    params->proportionOfPopulationFromReproduction = 0.00;
+
+    // value node params
+    params->valueNodeMinimum = -1.0;
+    params->valueNodeMaximum = 1.0;
+
+    // oscil node params
+    params->oscilNodeMaxPartial = 30;
+    params->oscilNodeMinIndexOfModulation = 0.0;
+    params->oscilNodeMaxIndexOfModulation = 2.0;
+
+    // delay node
+    params->delayNodeBufferMaxSeconds = 1.0;
+
+    // filter node
+    params->filterNodeCenterFrequencyMinimum = 20;
+    params->filterNodeCenterFrequencyMaximumProportionOfNyquist = 0.9999;
+    params->filterNodeQualityMinimum = 0.1;
+    params->filterNodeQualityMaximum = 10.0;
+    params->filterNodeBandwidthMinimum = 10;
+    params->filterNodeBandwidthMaximum = 2000;
+
+    // adsr node
+    params->ADSRNodeEnvelopeMin = 0.0;
+    params->ADSRNodeEnvelopeMax = 1.0;
+
+    // modulation node
+    params->LFONodeFrequencyRange = 10;
+
+	// primitives
+	currentPrimitives.push_back(createNode("(osc {d 0 0 1} {c 0.0 1.0 10.0})", &rng));
+	currentPrimitives.push_back(createNode("(* (null) (null))", &rng));
+	// create
+	gpsynth = new GPSynth(params, &rng, &currentPrimitives);
+
+	// networks and population
+	gpsynth->getIndividuals(currentGeneration);
+	currentAlgorithm = currentGeneration[algorithm];
+	
+	// synthesiser voices
+	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+		currentGenerationVoices[i] = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoicesPerAlgorithm);
+		currentGenerationNetworks[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
+		GPNetwork* net = currentGeneration[i];
+		net->traceNetwork();
+		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+			GPNetwork* copy = net->getCopy("clone");
+			copy->traceNetwork();
+			currentGenerationNetworks[i][j] = copy;
+			currentGenerationVoices[i][j] = new GPVoice(copy, 1);
+		}
+	}
+	currentVoices = currentGenerationVoices[algorithm];
+
+	// init synth
+	for (int i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+		synth.addVoice(currentVoices[i]);
+	}
+	synth.addSound(new GPSound());
+
+	// remaining from default plugin
+	lastPosInfo.resetToDefault();
 }
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
+	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+			delete currentGenerationNetworks[i][j];
+			delete currentGenerationVoices[i][j];
+		}
+		free(currentGenerationVoices[i]);
+		free(currentGenerationNetworks[i]);
+	}
+	delete gpsynth;
+	free(params);
 	free(fitnesses);
 }
 
@@ -305,8 +419,8 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
 
 	float maxNoteLengthInSeconds = 10.0f;
 
-    for (unsigned i = 0; i < numSynthVoices; i++) {
-      synthVoices[i]->setRenderParams(sampleRate, samplesPerBlock, maxNoteLengthInSeconds);
+    for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+		currentVoices[i]->setRenderParams(sampleRate, samplesPerBlock, maxNoteLengthInSeconds);
     }
 
     keyboardState.reset();

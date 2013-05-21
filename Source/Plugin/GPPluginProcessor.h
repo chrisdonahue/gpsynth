@@ -12,9 +12,11 @@
 #define __PLUGINPROCESSOR_H_526ED7A9__
 
 #define POPULATIONSIZE 10
+#define NUMVOICES 4
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
+#include "../Common/GPParser.h"
 
 class GPVoice;
 
@@ -99,16 +101,28 @@ public:
 	float algorithmFitness;
     float gain;
 	double* fitnesses;
-	//, delay;
 
 private:
 
-    // the synth!
+    // genetic algorithm
+	unsigned seed;
+	GPRandom rng;
+	GPParams* params;
+	std::vector<GPNode*> currentPrimitives;
 	GPSynth* gpsynth;
-	GPNetwork** networks;
-    Synthesiser synth;
-    unsigned numSynthVoices;
-    GPVoice** synthVoices;
+	
+	// networks and population
+	GPNetwork* currentAlgorithm;
+	std::vector<GPNetwork*> currentGeneration;
+
+	// synthesiser voices
+	unsigned numSynthVoicesPerAlgorithm;
+	GPVoice** currentVoices;
+	std::vector<GPVoice**> currentGenerationVoices;
+	std::vector<GPNetwork**> currentGenerationNetworks;
+
+	// synthesiser
+	Synthesiser synth;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GeneticProgrammingSynthesizerAudioProcessor)
 };
