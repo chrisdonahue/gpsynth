@@ -11,6 +11,8 @@
 #ifndef __PLUGINPROCESSOR_H_526ED7A9__
 #define __PLUGINPROCESSOR_H_526ED7A9__
 
+#define POPULATIONSIZE 10
+
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
 
@@ -87,13 +89,14 @@ public:
     //==============================================================================
     enum Parameters
     {
-		synthParam,
-		fitnessParam,
+		algorithmParam,
+		algorithmFitnessParam,
 		gainParam,
         totalNumParams
     };
 
 	unsigned algorithm;
+	float algorithmFitness;
     float gain;
 	double* fitnesses;
 	//, delay;
@@ -102,6 +105,7 @@ private:
 
     // the synth!
 	GPSynth* gpsynth;
+	GPNetwork** networks;
     Synthesiser synth;
     unsigned numSynthVoices;
     GPVoice** synthVoices;

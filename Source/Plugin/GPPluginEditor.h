@@ -14,13 +14,16 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GPPluginProcessor.h"
 #include "GPPluginEditorComponent.h"
+#include <map>
 
+class GeneticProgrammingSynthesizerComponent;
 
 //==============================================================================
 /** This is the editor component that our filter will display.
 */
 class GeneticProgrammingSynthesizerAudioProcessorEditor  : public AudioProcessorEditor,
-                                            //public SliderListener,
+                                            public SliderListener,
+											public ButtonListener,
                                             public Timer
 {
 public:
@@ -35,6 +38,7 @@ public:
 	void buttonClicked (Button*);
 
 private:
+	// JUCE GUI stuff
 	GeneticProgrammingSynthesizerComponent mainEditor;
     MidiKeyboardComponent midiKeyboard;
     ScopedPointer<ResizableCornerComponent> resizer;
@@ -46,6 +50,10 @@ private:
     {
         return static_cast <GeneticProgrammingSynthesizerAudioProcessor*> (getAudioProcessor());
     }
+
+	// CUSTOM
+	std::map<String, Slider*> sliders;
+	std::map<String, Button*> buttons;
 
     //void displayPositionInfo (const AudioPlayHead::CurrentPositionInfo& pos);
 };

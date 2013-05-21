@@ -45,32 +45,46 @@ public:
 	
 	~GPVoice()
 	{
-        if (variables != nullptr)
-          free(variables);
-        if (buffer != nullptr)
-          free(buffer);
-
 		network->doneRendering();
+
+        if (variables != nullptr)
+			free(variables);
+        if (buffer != nullptr)
+			free(buffer);
+		if (sampleTimes != nullptr)
+			free(sampleTimes);
 	}
 
-    void setRenderParams(double sr, int bs, int maxfn, float* t) {
+	void setRenderParams(float sr, unsigned samplesPerBlock, float maxLen) {
 		network->doneRendering();
 
+		// set sample rate
 		sampleRate = sr;
-        blockSize = bs;
-		blockSizeInBytes = sizeof(float) * bs;
-		sampleTimes = t;
 
-		network->prepareToRender((float) sr, bs, t[maxfn - 1]);
+		// set block size
+		blockSize = samplesPerBlock;
+		blockSizeInBytes = sizeof(float) * blockSize;
+		
+		// set sample times
+		if (sampleTimes != nullptr)
+			free(sampleTimes);
+		maxNumberOfFrames = (unsigned) maxLen * sr;
+		sampleTimes = (float*) malloc(sizeof(float) * maxNumberOfFrames);
+		for (unsigned i = 0; i < maxNumberOfFrames; i++) {
+			sampleTimes[i] = i / (double) sr;
+		}
 
+		// prepare network
+		network->prepareToRender(sr, blockSize, maxLen);
+
+		// prepare other arrays
         if (variables != nullptr)
-          free(variables);
+			free(variables);
         if (buffer != nullptr)
-          free(buffer);
-
+			free(buffer);
 		buffer = (float*) malloc(sizeof(float) * blockSize);
 		variables = (float*) malloc(sizeof(float) * numVariables);
-    }
+	}
 
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
@@ -159,6 +173,7 @@ private:
 	
 	// Render Parameters
     int blockSize;
+	unsigned maxNumberOfFrames;
     float* sampleTimes;
 	size_t blockSizeInBytes;
 	double sampleRate;
@@ -177,8 +192,13 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     //: delayBuffer (2, 12000)
 {
     // Set up some default values..
+	algorithm = 0;
+	algorithmFitness = 0;
     gain = 1.0f;
-    //delay = 0.5f;
+	fitnesses = (double*) malloc(sizeof(double) * POPULATIONSIZE);
+	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+		fitnesses[i] = 0.0f;
+	}
 
     lastUIWidth = 400;
     lastUIHeight = 478;
@@ -208,6 +228,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
+	free(fitnesses);
 }
 
 //==============================================================================
@@ -223,10 +244,12 @@ float GeneticProgrammingSynthesizerAudioProcessor::getParameter (int index)
     // UI-related, or anything at all that may block in any way!
     switch (index)
     {
+	case algorithmParam:
+		return (float) algorithm;
+	case algorithmFitnessParam:
+		return algorithmFitness;
     case gainParam:
         return gain;
-    //case delayParam:
-    //    return delay;
     default:
         return 0.0f;
     }
@@ -239,12 +262,13 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     // UI-related, or anything at all that may block in any way!
     switch (index)
     {
+	case algorithmParam:
+		algorithm = (unsigned) newValue;
+	case algorithmFitnessParam:
+		algorithmFitness = newValue;
+		fitnesses[algorithm] = (double) newValue;
     case gainParam:
         gain = newValue;
-        break;
-    //case delayParam:
-    //    delay = newValue;
-    //    break;
     default:
         break;
     }
@@ -254,10 +278,12 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int 
 {
     switch (index)
     {
+	case algorithmParam:
+		return "algorithm";
+	case algorithmFitnessParam:
+		return "algorithmFitness";
     case gainParam:
         return "gain";
-    //case delayParam:
-    //    return "delay";
     default:
         break;
     }

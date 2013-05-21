@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  21 May 2013 1:58:42pm
+  Creation date:  21 May 2013 2:59:03pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -19,12 +19,12 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_332861C3__
-#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_332861C3__
+#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_6018690C__
+#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_6018690C__
 
 //[Headers]     -- You can add your own extra header files here --
+#include "GPPluginProcessor.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "GPPluginEditor.h"
 //[/Headers]
 
 
@@ -48,7 +48,8 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void setEditor(GeneticProgrammingSynthesizerAudioProcessorEditor* e);
+	void setSliderListener(SliderListener* sl);
+	void setButtonListener(ButtonListener* bl);
 	void getSliders(std::map<String, Slider*>& sliders);
 	void getButtons(std::map<String, Button*>& buttons);
     //[/UserMethods]
@@ -65,18 +66,19 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	GeneticProgrammingSynthesizerAudioProcessorEditor* editor;
+	SliderListener* sliderListener;
+	ButtonListener* buttonListener;
     //[/UserVariables]
 
     //==============================================================================
     Slider* fitness;
-    Slider* synthnum;
+    Slider* algonum;
     Label* title;
     Label* algolabel;
     Label* fitlabel;
     Label* gasetlabel;
     Label* playsetlabel;
-    Slider* amplitude;
+    Slider* gain;
     Label* amplabel;
     TextButton* save;
     TextButton* nextgen;
@@ -89,4 +91,4 @@ private:
 };
 
 
-#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_332861C3__
+#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_6018690C__

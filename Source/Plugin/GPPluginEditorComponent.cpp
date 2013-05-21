@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  21 May 2013 1:58:42pm
+  Creation date:  21 May 2013 2:59:03pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -31,13 +31,13 @@
 //==============================================================================
 GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent ()
     : fitness (0),
-      synthnum (0),
+      algonum (0),
       title (0),
       algolabel (0),
       fitlabel (0),
       gasetlabel (0),
       playsetlabel (0),
-      amplitude (0),
+      gain (0),
       amplabel (0),
       save (0),
       nextgen (0)
@@ -48,11 +48,11 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     fitness->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
     fitness->addListener (this);
 
-    addAndMakeVisible (synthnum = new Slider (L"synthnum"));
-    synthnum->setRange (0, 9, 1);
-    synthnum->setSliderStyle (Slider::LinearHorizontal);
-    synthnum->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
-    synthnum->addListener (this);
+    addAndMakeVisible (algonum = new Slider (L"algonum"));
+    algonum->setRange (0, 9, 1);
+    algonum->setSliderStyle (Slider::LinearHorizontal);
+    algonum->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    algonum->addListener (this);
 
     addAndMakeVisible (title = new Label (L"title",
                                           L"gp synthesis"));
@@ -94,11 +94,11 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     playsetlabel->setColour (TextEditor::textColourId, Colours::black);
     playsetlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (amplitude = new Slider (L"amplitude"));
-    amplitude->setRange (0, 9, 1);
-    amplitude->setSliderStyle (Slider::LinearHorizontal);
-    amplitude->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
-    amplitude->addListener (this);
+    addAndMakeVisible (gain = new Slider (L"gain"));
+    gain->setRange (0, 9, 1);
+    gain->setSliderStyle (Slider::LinearHorizontal);
+    gain->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    gain->addListener (this);
 
     addAndMakeVisible (amplabel = new Label (L"amplabel",
                                              L"amplitude"));
@@ -116,6 +116,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
 
 
     //[UserPreSize]
+	algonum->setRange (0, POPULATIONSIZE - 1, 1);
     //[/UserPreSize]
 
     setSize (400, 400);
@@ -131,13 +132,13 @@ GeneticProgrammingSynthesizerComponent::~GeneticProgrammingSynthesizerComponent(
     //[/Destructor_pre]
 
     deleteAndZero (fitness);
-    deleteAndZero (synthnum);
+    deleteAndZero (algonum);
     deleteAndZero (title);
     deleteAndZero (algolabel);
     deleteAndZero (fitlabel);
     deleteAndZero (gasetlabel);
     deleteAndZero (playsetlabel);
-    deleteAndZero (amplitude);
+    deleteAndZero (gain);
     deleteAndZero (amplabel);
     deleteAndZero (save);
     deleteAndZero (nextgen);
@@ -162,13 +163,13 @@ void GeneticProgrammingSynthesizerComponent::paint (Graphics& g)
 void GeneticProgrammingSynthesizerComponent::resized()
 {
     fitness->setBounds (72, 168, 300, 24);
-    synthnum->setBounds (72, 128, 300, 24);
+    algonum->setBounds (72, 128, 300, 24);
     title->setBounds (56, 8, 264, 56);
     algolabel->setBounds (0, 120, 64, 40);
     fitlabel->setBounds (-8, 160, 64, 40);
     gasetlabel->setBounds (48, 88, 280, 24);
     playsetlabel->setBounds (48, 232, 280, 24);
-    amplitude->setBounds (73, 268, 300, 24);
+    gain->setBounds (73, 268, 300, 24);
     amplabel->setBounds (0, 264, 64, 40);
     save->setBounds (32, 336, 150, 24);
     nextgen->setBounds (200, 336, 150, 24);
@@ -179,7 +180,7 @@ void GeneticProgrammingSynthesizerComponent::resized()
 void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
-	editor->sliderValueChanged(sliderThatWasMoved);
+	sliderListener->sliderValueChanged(sliderThatWasMoved);
     //[/UsersliderValueChanged_Pre]
 
     if (sliderThatWasMoved == fitness)
@@ -187,15 +188,15 @@ void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderT
         //[UserSliderCode_fitness] -- add your slider handling code here..
         //[/UserSliderCode_fitness]
     }
-    else if (sliderThatWasMoved == synthnum)
+    else if (sliderThatWasMoved == algonum)
     {
-        //[UserSliderCode_synthnum] -- add your slider handling code here..
-        //[/UserSliderCode_synthnum]
+        //[UserSliderCode_algonum] -- add your slider handling code here..
+        //[/UserSliderCode_algonum]
     }
-    else if (sliderThatWasMoved == amplitude)
+    else if (sliderThatWasMoved == gain)
     {
-        //[UserSliderCode_amplitude] -- add your slider handling code here..
-        //[/UserSliderCode_amplitude]
+        //[UserSliderCode_gain] -- add your slider handling code here..
+        //[/UserSliderCode_gain]
     }
 
     //[UsersliderValueChanged_Post]
@@ -205,7 +206,7 @@ void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderT
 void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
-	editor->buttonClicked(buttonThatWasClicked);
+	buttonListener->buttonClicked(buttonThatWasClicked);
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == save)
@@ -226,14 +227,18 @@ void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWa
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void GeneticProgrammingSynthesizerComponent::setEditor(GeneticProgrammingSynthesizerAudioProcessorEditor* e) {
-	editor = e;
+void GeneticProgrammingSynthesizerComponent::setSliderListener(SliderListener* sl) {
+	sliderListener = sl;
+}
+
+void GeneticProgrammingSynthesizerComponent::setButtonListener(ButtonListener* bl) {
+	buttonListener = bl;
 }
 
 void GeneticProgrammingSynthesizerComponent::getSliders(std::map<String, Slider*>& sliders) {
+	sliders[String("algorithm")] = algonum;
 	sliders[String("fitness")] = fitness;
-	sliders[String("synth")] = synthnum;
-	sliders[String("amplitude")] = amplitude;
+	sliders[String("gain")] = gain;
 }
 
 void GeneticProgrammingSynthesizerComponent::getButtons(std::map<String, Button*>& buttons) {
@@ -261,7 +266,7 @@ BEGIN_JUCER_METADATA
           explicitFocusOrder="0" pos="72 168 300 24" min="0" max="1" int="0"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
-  <SLIDER name="synthnum" id="58d24870e11eeb51" memberName="synthnum" virtualName=""
+  <SLIDER name="algonum" id="58d24870e11eeb51" memberName="algonum" virtualName=""
           explicitFocusOrder="0" pos="72 128 300 24" min="0" max="9" int="1"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
@@ -290,10 +295,10 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="playback settings" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="36"/>
-  <SLIDER name="amplitude" id="95c3e13e05b5350b" memberName="amplitude"
-          virtualName="" explicitFocusOrder="0" pos="73 268 300 24" min="0"
-          max="9" int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+  <SLIDER name="gain" id="95c3e13e05b5350b" memberName="gain" virtualName=""
+          explicitFocusOrder="0" pos="73 268 300 24" min="0" max="9" int="1"
+          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="amplabel" id="8fa2033431b21d08" memberName="amplabel" virtualName=""
          explicitFocusOrder="0" pos="0 264 64 40" edTextCol="ff000000"
          edBkgCol="0" labelText="amplitude" editableSingleClick="0" editableDoubleClick="0"

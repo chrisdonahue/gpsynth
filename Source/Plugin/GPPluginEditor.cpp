@@ -14,10 +14,15 @@
 GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizerAudioProcessorEditor (GeneticProgrammingSynthesizerAudioProcessor* ownerFilter)
     : AudioProcessorEditor (ownerFilter),
 	  mainEditor(),
-      midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard)
+      midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+	  sliders(), buttons()
 {
 	// add main component
 	addAndMakeVisible(&mainEditor);
+	mainEditor.setSliderListener(this);
+	mainEditor.setButtonListener(this);
+	mainEditor.getSliders(sliders);
+	mainEditor.getButtons(buttons);
 
 	/*
     // add some sliders..
@@ -94,7 +99,7 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 {
     GeneticProgrammingSynthesizerAudioProcessor* ourProcessor = getProcessor();
 
-    AudioPlayHead::CurrentPositionInfo newPos (ourProcessor->lastPosInfo);
+    //AudioPlayHead::CurrentPositionInfo newPos (ourProcessor->lastPosInfo);
 
 	/*
     if (lastDisplayedPosition != newPos)
@@ -105,45 +110,43 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
     gainSlider.setValue (ourProcessor->gain, dontSendNotification);
     delaySlider.setValue (ourProcessor->delay, dontSendNotification);
 	*/
+
+	sliders["algorithm"]->setValue(ourProcessor->algorithm, dontSendNotification);
+	sliders["fitness"]->setValue(ourProcessor->algorithmFitness, dontSendNotification);
+	sliders["gain"]->setValue(ourProcessor->gain, dontSendNotification);
 }
 
 // This is our Slider::Listener callback, when the user drags a slider.
 void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
-	/*
-    if (slider == &gainSlider)
+    if (slider == sliders["algorithm"])
     {
         // It's vital to use setParameterNotifyingHost to change any parameters that are automatable
         // by the host, rather than just modifying them directly, otherwise the host won't know
         // that they've changed.
-        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::gainParam,
-                                                   (float) gainSlider.getValue());
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::algorithmParam,
+                                                   (float) slider->getValue());
     }
-    else if (slider == &delaySlider)
+    else if (slider == sliders["fitness"])
     {
-        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::delayParam,
-                                                   (float) delaySlider.getValue());
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::algorithmFitnessParam,
+                                                   (float) slider->getValue());
     }
-	*/
+	else if (slider == sliders["gain"])
+	{
+        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::gainParam,
+                                                   (float) slider->getValue());
+	}
 }
 
 void GeneticProgrammingSynthesizerAudioProcessorEditor::buttonClicked (Button* button)
 {
-	/*
-    if (slider == &gainSlider)
-    {
-        // It's vital to use setParameterNotifyingHost to change any parameters that are automatable
-        // by the host, rather than just modifying them directly, otherwise the host won't know
-        // that they've changed.
-        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::gainParam,
-                                                   (float) gainSlider.getValue());
-    }
-    else if (slider == &delaySlider)
-    {
-        getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::delayParam,
-                                                   (float) delaySlider.getValue());
-    }
-	*/
+	if (button == buttons["save"]) {
+	
+	}
+	else if (button == buttons["nextgen"]) {
+	
+	}
 }
 
 //==============================================================================
