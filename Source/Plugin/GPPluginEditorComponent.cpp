@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  21 May 2013 2:59:03pm
+  Creation date:  21 May 2013 8:26:52pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -95,7 +95,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     playsetlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
     addAndMakeVisible (gain = new Slider (L"gain"));
-    gain->setRange (0, 9, 1);
+    gain->setRange (0, 1, 0);
     gain->setSliderStyle (Slider::LinearHorizontal);
     gain->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
     gain->addListener (this);
@@ -236,14 +236,14 @@ void GeneticProgrammingSynthesizerComponent::setButtonListener(ButtonListener* b
 }
 
 void GeneticProgrammingSynthesizerComponent::getSliders(std::map<String, Slider*>& sliders) {
-	sliders[String("algorithm")] = algonum;
-	sliders[String("fitness")] = fitness;
-	sliders[String("gain")] = gain;
+	sliders["algorithm"] = algonum;
+	sliders["fitness"] = fitness;
+	sliders["gain"] = gain;
 }
 
 void GeneticProgrammingSynthesizerComponent::getButtons(std::map<String, Button*>& buttons) {
-	buttons[String("save")] = save;
-	buttons[String("nextgen")] = nextgen;
+	buttons["save"] = save;
+	buttons["nextgen"] = nextgen;
 }
 //[/MiscUserCode]
 
@@ -296,7 +296,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="36"/>
   <SLIDER name="gain" id="95c3e13e05b5350b" memberName="gain" virtualName=""
-          explicitFocusOrder="0" pos="73 268 300 24" min="0" max="9" int="1"
+          explicitFocusOrder="0" pos="73 268 300 24" min="0" max="1" int="0"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="amplabel" id="8fa2033431b21d08" memberName="amplabel" virtualName=""

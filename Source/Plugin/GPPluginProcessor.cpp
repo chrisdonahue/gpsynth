@@ -86,6 +86,10 @@ public:
 		variables = (float*) malloc(sizeof(float) * numVariables);
 	}
 
+	void doneRendering() {
+		network->doneRendering();
+	}
+
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
     {
@@ -191,9 +195,11 @@ private:
 GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
 	:	lastUIWidth(400), lastUIHeight(478),
 		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
+		samplerate(0), numsamplesperblock(0), maxnoteleninseconds(MAXNOTELEN),
 		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(0), gpsynth(nullptr),
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
-		numSynthVoicesPerAlgorithm(NUMVOICES), currentVoices(nullptr), currentGenerationVoices(POPULATIONSIZE, nullptr), currentGenerationNetworks(POPULATIONSIZE, nullptr)
+		generationActive(false), algorithmSet(false),
+		numSynthVoicesPerAlgorithm(NUMVOICES), currentVoices(nullptr), currentNetworks(nullptr), currentGenerationVoices(POPULATIONSIZE, nullptr), currentGenerationNetworks(POPULATIONSIZE, nullptr)
 {
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
@@ -303,27 +309,9 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	// networks and population
 	gpsynth->getIndividuals(currentGeneration);
-	currentAlgorithm = currentGeneration[algorithm];
-	
-	// synthesiser voices
-	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
-		currentGenerationVoices[i] = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoicesPerAlgorithm);
-		currentGenerationNetworks[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
-		GPNetwork* net = currentGeneration[i];
-		net->traceNetwork();
-		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
-			GPNetwork* copy = net->getCopy("clone");
-			copy->traceNetwork();
-			currentGenerationNetworks[i][j] = copy;
-			currentGenerationVoices[i][j] = new GPVoice(copy, 1);
-		}
-	}
-	currentVoices = currentGenerationVoices[algorithm];
+	fillFromGeneration();
 
 	// init synth
-	for (int i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-		synth.addVoice(currentVoices[i]);
-	}
 	synth.addSound(new GPSound());
 
 	// remaining from default plugin
@@ -332,14 +320,6 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
-	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
-		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
-			delete currentGenerationNetworks[i][j];
-			delete currentGenerationVoices[i][j];
-		}
-		free(currentGenerationVoices[i]);
-		free(currentGenerationNetworks[i]);
-	}
 	delete gpsynth;
 	free(params);
 	free(fitnesses);
@@ -417,10 +397,12 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
 
-	float maxNoteLengthInSeconds = 10.0f;
+	// set render info
+	samplerate = (float) sampleRate;
+	numsamplesperblock = (unsigned) samplesPerBlock;
 
     for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-		currentVoices[i]->setRenderParams(sampleRate, samplesPerBlock, maxNoteLengthInSeconds);
+		currentVoices[i]->setRenderParams(samplerate, numsamplesperblock, maxnoteleninseconds);
     }
 
     keyboardState.reset();
@@ -452,6 +434,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffe
 
     // and now get the synth to process these midi events and generate its output.
     synth.renderNextBlock (buffer, midiMessages, 0, numSamples);
+
+	// apply the gain
+	buffer.applyGain(gain);
 
 	// Go through the incoming data, and apply our gain to it...
 	/*
@@ -542,6 +527,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::setStateInformation (const voi
             lastUIWidth  = xmlState->getIntAttribute ("uiWidth", lastUIWidth);
             lastUIHeight = xmlState->getIntAttribute ("uiHeight", lastUIHeight);
 
+
             gain  = (float) xmlState->getDoubleAttribute ("gain", gain);
         }
     }
@@ -593,6 +579,84 @@ bool GeneticProgrammingSynthesizerAudioProcessor::silenceInProducesSilenceOut() 
 double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
+}
+
+//==============================================================================
+// custom methods
+void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm(unsigned newalgo) {
+	// remove old voices
+	if (algorithmSet) {
+		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+			currentVoices[i]->doneRendering();
+		}
+
+		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+			// TODO: this may be deleting the object
+			synth.removeVoice(i);
+		} 
+	}
+	
+	// update current
+	currentAlgorithm = currentGeneration[newalgo];
+	currentVoices = currentGenerationVoices[newalgo];
+	currentNetworks = currentGenerationNetworks[newalgo];
+
+	// add new voices
+	for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+		synth.addVoice(currentVoices[i]);
+	}
+	prepareToPlay(samplerate, numsamplesperblock);
+
+	// update slider params
+	algorithm = newalgo;
+	algorithmFitness = fitnesses[newalgo];
+
+	// set flag
+	algorithmSet = true;
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
+	deleteGenerationState();
+
+	// fill synthesizer voices
+	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+		currentGenerationVoices[i] = (GPVoice**) malloc(sizeof(GPVoice*) * numSynthVoicesPerAlgorithm);
+		currentGenerationNetworks[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
+		GPNetwork* net = currentGeneration[i];
+		//net->traceNetwork();
+		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+			GPNetwork* copy = net->getCopy("clone");
+			copy->traceNetwork();
+			currentGenerationNetworks[i][j] = copy;
+			currentGenerationVoices[i][j] = new GPVoice(copy, 1);
+		}
+	}
+
+	setAlgorithm(algorithm);
+
+	generationActive = true;
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
+	if (generationActive) {
+		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+				delete currentGenerationNetworks[i][j];
+				delete currentGenerationVoices[i][j];
+			}
+			free(currentGenerationVoices[i]);
+			free(currentGenerationNetworks[i]);
+		}
+	}
+	generationActive = false;
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::nextGeneration() {
+	return;
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::saveNetwork(String netstring) {
+	return;
 }
 
 //==============================================================================

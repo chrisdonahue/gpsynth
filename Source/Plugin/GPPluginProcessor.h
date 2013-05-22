@@ -13,6 +13,7 @@
 
 #define POPULATIONSIZE 10
 #define NUMVOICES 4
+#define MAXNOTELEN 10.0f
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
@@ -71,6 +72,14 @@ public:
     void setStateInformation (const void* data, int sizeInBytes);
 
     //==============================================================================
+	// custom methods
+	void setAlgorithm(unsigned newalgo);
+	void fillFromGeneration();
+	void deleteGenerationState();
+	void nextGeneration();
+	void saveNetwork(String netstring);
+
+    //==============================================================================
     // These properties are public so that our editor component can access them
     // A bit of a hacky way to do it, but it's only a demo! Obviously in your own
     // code you'll do this much more neatly..
@@ -103,6 +112,10 @@ public:
 	double* fitnesses;
 
 private:
+	// render info
+	float samplerate;
+	unsigned numsamplesperblock;
+	float maxnoteleninseconds;
 
     // genetic algorithm
 	unsigned seed;
@@ -116,8 +129,11 @@ private:
 	std::vector<GPNetwork*> currentGeneration;
 
 	// synthesiser voices
+	bool generationActive;
+	bool algorithmSet;
 	unsigned numSynthVoicesPerAlgorithm;
 	GPVoice** currentVoices;
+	GPNetwork** currentNetworks;
 	std::vector<GPVoice**> currentGenerationVoices;
 	std::vector<GPNetwork**> currentGenerationNetworks;
 
