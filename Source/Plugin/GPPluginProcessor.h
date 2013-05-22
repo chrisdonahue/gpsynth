@@ -11,6 +11,10 @@
 #ifndef __PLUGINPROCESSOR_H_526ED7A9__
 #define __PLUGINPROCESSOR_H_526ED7A9__
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #define POPULATIONSIZE 10
 #define NUMVOICES 4
 #define MAXNOTELEN 10.0f

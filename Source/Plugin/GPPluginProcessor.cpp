@@ -160,17 +160,12 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
 		samplerate(0), numsamplesperblock(0),
 		numvariables(1),
-		maxnoteleninseconds(MAXNOTELEN), maxnumframes((unsigned) maxnoteleninseconds * samplerate), sampletimes((float*) malloc(sizeof(float) * maxnumframes)),
+		maxnoteleninseconds(MAXNOTELEN), maxnumframes(0), sampletimes(nullptr),
 		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(0), gpsynth(nullptr),
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
 		generationActive(false), algorithmSet(false),
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr)
 {
-	// set up sample times
-	for (unsigned i = 0; i < maxnumframes; i++) {
-		sampletimes[i] = (float) (i / (double) samplerate);
-	}
-
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		fitnesses[i] = 0.0f;
@@ -221,7 +216,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     params->backupPrecision = 100;
     params->lowerFitnessIsBetter = false; //should be done in experiment
     params->bestPossibleFitness = 2.0; //should be done in experiment
-    params->maxInitialHeight = 2;
+    params->maxInitialHeight = 1;
     params->maxHeight = 4;
 
     // synth genetic params
@@ -294,7 +289,8 @@ GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudio
 	delete gpsynth;
 	free(params);
 	free(fitnesses);
-	free(sampletimes);
+	if (sampletimes != nullptr)
+		free(sampletimes);
 }
 
 //==============================================================================
@@ -335,6 +331,8 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
 	case algorithmParam:
 		//appendToTextFile("./debug.txt", getParameterName(index) + String(" algorithm \n"));
 		algorithm = (unsigned) newValue;
+		setAlgorithm(algorithm);
+		algorithmFitness = fitnesses[algorithm];
 		break;
 	case algorithmFitnessParam:
 		//appendToTextFile("./debug.txt", getParameterName(index) + String(" algorithmFitnessParam \n"));
@@ -383,7 +381,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     synth.setCurrentPlaybackSampleRate (sampleRate);
 
 	// set render info
-	samplerate = (float) sampleRate;
+	if (samplerate != sampleRate) {
+		samplerate = (float) sampleRate;
+		changeMaxNoteLength(maxnoteleninseconds);
+	}
 	numsamplesperblock = (unsigned) samplesPerBlock;
 	numvariables = 1;
 
@@ -573,12 +574,14 @@ double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 void GeneticProgrammingSynthesizerAudioProcessor::changeMaxNoteLength(float newmaxlen) {
 	maxnoteleninseconds = newmaxlen;
 	maxnumframes = (unsigned) newmaxlen * samplerate;
-	free(sampletimes);
+	if (sampletimes != nullptr)
+		free(sampletimes);
 	sampletimes = (float*) malloc(sizeof(float) * maxnumframes);
 	for (unsigned i = 0; i < maxnumframes; i++) {
 		sampletimes[i] = (float) (i / (double) samplerate);
 	}
-	setAlgorithm(algorithm);
+	if (algorithmSet)
+		setAlgorithm(algorithm);
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::changeNumVariables(unsigned newnumvar) {
@@ -615,6 +618,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm(unsigned newalgo)
 
 	// set flag
 	algorithmSet = true;
+
+	// check memory
+	assert(_CrtCheckMemory());
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
@@ -639,6 +645,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 
 void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 	if (generationActive) {
+		//debugPrint("got to here\n");
 		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 				delete currentGenerationCopies[i][j];
