@@ -20,6 +20,7 @@
 #define POPULATIONSIZE 10
 #define NUMVOICES 1
 #define MAXNOTELEN 1.0f
+#define SAVEPRECISION 15
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
@@ -39,6 +40,7 @@ public:
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock);
+	void donePlaying ();
     void releaseResources();
     void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     void reset();
@@ -79,13 +81,13 @@ public:
 
     //==============================================================================
 	// custom methods
-	void changeMaxNoteLength(float newmaxlen);
+	void updateSampleTimes();
 	void changeNumVariables(unsigned numvariables);
 	void setAlgorithm(unsigned newalgo);
 	void fillFromGeneration();
 	void deleteGenerationState();
 	void nextGeneration();
-	void saveNetwork(String netstring);
+	void saveCurrentNetwork();
 	void debugPrint(String dbgmsg);
 
     //==============================================================================

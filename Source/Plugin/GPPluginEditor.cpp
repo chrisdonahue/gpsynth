@@ -146,7 +146,7 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slid
 void GeneticProgrammingSynthesizerAudioProcessorEditor::buttonClicked (Button* button)
 {
 	if (button == buttons["save"]) {
-		getProcessor()->saveNetwork(String::empty);
+		getProcessor()->saveCurrentNetwork();
 	}
 	else if (button == buttons["nextgen"]) {
 		getProcessor()->nextGeneration();

@@ -118,8 +118,18 @@ GPNetwork* GPSynth::grow(unsigned m) {
 }
 
 void GPSynth::initPopulation() {
-    // implementation of ramped half and half
+	// if maxInitialHeight is 0 we just want a single terminal
+    GPNetwork* newnet;
     unsigned maxInitialHeight = params->maxInitialHeight;
+	if (maxInitialHeight == 0) {
+		for (unsigned i = 0; i < populationSize; i++) {
+			newnet = full(0);
+			addNetworkToPopulation(newnet);
+		}
+		return;
+	}
+
+    // implementation of ramped half and half
     unsigned numPerPart = maxInitialHeight <= 1 ? 0 : populationSize / (maxInitialHeight - 1);
     unsigned numFullPerPart = numPerPart / 2;
     unsigned numGrowPerPart = numFullPerPart + (numPerPart % 2);
@@ -128,7 +138,6 @@ void GPSynth::initPopulation() {
     unsigned additionalGrow = additionalFull + (additionalLargest % 2);
 
     // TODO: test for equality before adding to population
-    GPNetwork* newnet;
     for (unsigned i = 0; i < maxInitialHeight - 1; i++) {
         for (unsigned j = 0; j < numFullPerPart; j++) {
             newnet = full(i + 2);
