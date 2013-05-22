@@ -119,8 +119,10 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 // This is our Slider::Listener callback, when the user drags a slider.
 void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
+	// verified sliders are working here
     if (slider == sliders["algorithm"])
     {
+		//appendToTextFile("./debug.txt", slider->getName() + String(" algorithm \n"));
         // It's vital to use setParameterNotifyingHost to change any parameters that are automatable
         // by the host, rather than just modifying them directly, otherwise the host won't know
         // that they've changed.
@@ -129,11 +131,13 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slid
     }
     else if (slider == sliders["fitness"])
     {
+		//appendToTextFile("./debug.txt", slider->getName() + String(" fitness \n"));
         getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::algorithmFitnessParam,
                                                    (float) slider->getValue());
     }
 	else if (slider == sliders["gain"])
 	{
+		//appendToTextFile("./debug.txt", slider->getName() + String(" gain \n"));
         getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::gainParam,
                                                    (float) slider->getValue());
 	}

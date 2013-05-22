@@ -181,6 +181,8 @@ void GeneticProgrammingSynthesizerComponent::sliderValueChanged (Slider* sliderT
 {
     //[UsersliderValueChanged_Pre]
 	sliderListener->sliderValueChanged(sliderThatWasMoved);
+	// verified that things are fine at this point
+	// appendToTextFile("./debug.txt", sliderThatWasMoved->getName() + String("\n"));
     //[/UsersliderValueChanged_Pre]
 
     if (sliderThatWasMoved == fitness)

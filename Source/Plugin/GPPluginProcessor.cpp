@@ -340,13 +340,17 @@ float GeneticProgrammingSynthesizerAudioProcessor::getParameter (int index)
     {
 	case algorithmParam:
 		return (float) algorithm;
+		break;
 	case algorithmFitnessParam:
 		return algorithmFitness;
+		break;
     case gainParam:
         return gain;
+		break;
     default:
-        return 0.0f;
+		break;
     }
+	return 0.0f;
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float newValue)
@@ -357,12 +361,18 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     switch (index)
     {
 	case algorithmParam:
+		appendToTextFile("./debug.txt", getParameterName(index) + String(" algorithm \n"));
 		algorithm = (unsigned) newValue;
+		break;
 	case algorithmFitnessParam:
+		appendToTextFile("./debug.txt", getParameterName(index) + String(" algorithmFitnessParam \n"));
 		algorithmFitness = newValue;
 		fitnesses[algorithm] = (double) newValue;
+		break;
     case gainParam:
+		appendToTextFile("./debug.txt", getParameterName(index) + String(" gain \n"));
         gain = newValue;
+		break;
     default:
         break;
     }
@@ -374,10 +384,13 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int 
     {
 	case algorithmParam:
 		return "algorithm";
+		break;
 	case algorithmFitnessParam:
 		return "algorithmFitness";
+		break;
     case gainParam:
         return "gain";
+		break;
     default:
         break;
     }
