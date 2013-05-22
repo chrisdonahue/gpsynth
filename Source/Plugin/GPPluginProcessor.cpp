@@ -659,6 +659,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveNetwork(String netstring) 
 	return;
 }
 
+void GeneticProgrammingSynthesizerAudioProcessor::debugPrint(String dbgmsg) {
+	appendToTextFile("./debug.txt", dbgmsg);
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

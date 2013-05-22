@@ -86,3 +86,11 @@ void saveTextFile(String path, String text) {
     output.create();
     output.replaceWithText(text);
 }
+
+void appendToTextFile(String path, String text) {
+    File output(path);
+    if (!output.existsAsFile()) {
+		output.create();
+    }
+    output.appendText(text);
+}

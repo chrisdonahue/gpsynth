@@ -78,6 +78,7 @@ public:
 	void deleteGenerationState();
 	void nextGeneration();
 	void saveNetwork(String netstring);
+	void debugPrint(String dbgmsg);
 
     //==============================================================================
     // These properties are public so that our editor component can access them
