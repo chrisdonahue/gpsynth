@@ -160,10 +160,10 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
 		samplerate(0), numsamplesperblock(0),
 		numvariables(1),
-		maxnoteleninseconds(MAXNOTELEN), maxnumframes(0), sampletimes(nullptr),
-		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(0), gpsynth(nullptr),
+		maxnoteleninseconds(MAXNOTELEN), maxnumframes(0), allvoicessampletimes(nullptr),
+		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(nullptr), gpsynth(nullptr),
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
-		generationActive(false), algorithmSet(false),
+		generationActive(false), algorithmPrepared(false),
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr)
 {
     // set up default fitnesses
@@ -267,10 +267,11 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     params->LFONodeFrequencyRange = 10;
 
 	// primitives
-	currentPrimitives.push_back(createNode("(osc {d 0 0 1} {c 0.0 1.0 10.0})", &rng));
-	currentPrimitives.push_back(createNode("(* (null) (null))", &rng));
+	currentPrimitives = new std::vector<GPNode*>(0);
+	currentPrimitives->push_back(createNode("(osc {d 0 0 1} {c 0.0 1.0 10.0})", &rng));
+	currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
 	// create
-	gpsynth = new GPSynth(params, &rng, &currentPrimitives);
+	gpsynth = new GPSynth(params, &rng, currentPrimitives);
 
 	// networks and population
 	gpsynth->getIndividuals(currentGeneration);
@@ -289,8 +290,12 @@ GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudio
 	delete gpsynth;
 	free(params);
 	free(fitnesses);
-	if (sampletimes != nullptr)
-		free(sampletimes);
+	if (allvoicessampletimes != nullptr) {
+		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+			free(allvoicessampletimes[i]);
+		}
+		free(allvoicessampletimes);
+	}
 }
 
 //==============================================================================
@@ -329,18 +334,15 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     switch (index)
     {
 	case algorithmParam:
-		//appendToTextFile("./debug.txt", getParameterName(index) + String(" algorithm \n"));
 		algorithm = (unsigned) newValue;
 		setAlgorithm(algorithm);
 		algorithmFitness = fitnesses[algorithm];
 		break;
 	case algorithmFitnessParam:
-		//appendToTextFile("./debug.txt", getParameterName(index) + String(" algorithmFitnessParam \n"));
 		algorithmFitness = newValue;
 		fitnesses[algorithm] = (double) newValue;
 		break;
     case gainParam:
-		//appendToTextFile("./debug.txt", getParameterName(index) + String(" gain \n"));
         gain = newValue;
 		break;
     default:
@@ -381,6 +383,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     synth.setCurrentPlaybackSampleRate (sampleRate);
 
 	// set render info
+	debugPrint("samplerate:" + String(samplerate) + " sampleRate:" + String(sampleRate));
 	if (samplerate != sampleRate) {
 		samplerate = (float) sampleRate;
 		changeMaxNoteLength(maxnoteleninseconds);
@@ -390,9 +393,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
 
 	// prepare copies for rendering and add voices
 	for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-		currentCopies[i]->prepareToRender(samplerate, maxnumframes, maxnoteleninseconds);
-		synth.addVoice(new GPVoice(currentCopies[i], (unsigned) samplesPerBlock, numvariables, maxnumframes, sampletimes));
+		currentCopies[i]->prepareToRender(samplerate, numsamplesperblock, maxnoteleninseconds);
+		synth.addVoice(new GPVoice(currentCopies[i], (unsigned) samplesPerBlock, numvariables, maxnumframes, allvoicessampletimes[i]));
 	}
+	algorithmPrepared = true;
 
     keyboardState.reset();
     //delayBuffer.clear();
@@ -422,7 +426,8 @@ void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffe
     keyboardState.processNextMidiBuffer (midiMessages, 0, numSamples, true);
 
     // and now get the synth to process these midi events and generate its output.
-    synth.renderNextBlock (buffer, midiMessages, 0, numSamples);
+	if (algorithmPrepared)
+		synth.renderNextBlock (buffer, midiMessages, 0, numSamples);
 
 	// apply the gain
 	buffer.applyGain(gain);
@@ -574,13 +579,24 @@ double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 void GeneticProgrammingSynthesizerAudioProcessor::changeMaxNoteLength(float newmaxlen) {
 	maxnoteleninseconds = newmaxlen;
 	maxnumframes = (unsigned) newmaxlen * samplerate;
-	if (sampletimes != nullptr)
-		free(sampletimes);
-	sampletimes = (float*) malloc(sizeof(float) * maxnumframes);
-	for (unsigned i = 0; i < maxnumframes; i++) {
-		sampletimes[i] = (float) (i / (double) samplerate);
+	if (allvoicessampletimes != nullptr) {
+		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+			free(allvoicessampletimes[i]);
+		}
+		free(allvoicessampletimes);
 	}
-	if (algorithmSet)
+	
+	// make sample timings for each voice to avoid concurrency issues
+	allvoicessampletimes = (float**) malloc(sizeof(float*) * numSynthVoicesPerAlgorithm);
+	for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+		allvoicessampletimes[i] = (float*) malloc(sizeof(float) * maxnumframes);
+		for (unsigned j = 0; j < maxnumframes; j++) {
+			allvoicessampletimes[i][j] = (float) (j / (double) samplerate);
+			//debugPrint(String(allvoicessampletimes[i][j]) + "\n");
+		}
+	}
+
+	if (algorithmPrepared)
 		setAlgorithm(algorithm);
 }
 
@@ -592,35 +608,31 @@ void GeneticProgrammingSynthesizerAudioProcessor::changeNumVariables(unsigned ne
 // custom methods
 void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm(unsigned newalgo) {
 	// remove old voices
-	if (algorithmSet) {
+	if (algorithmPrepared) {
 		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-			currentGenerationCopies[algorithm][i]->doneRendering();
+			currentCopies[i]->doneRendering();
 		}
 
 		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
 			synth.removeVoice(i);
-		} 
+		}
 	}
-
-	// algorithm is not set
-	algorithmSet = false;
 	
 	// update current
 	currentAlgorithm = currentGeneration[newalgo];
 	currentCopies = currentGenerationCopies[newalgo];
 
-	// add new voices
-	prepareToPlay(samplerate, numsamplesperblock);
-
 	// update slider params
 	algorithm = newalgo;
 	algorithmFitness = fitnesses[newalgo];
 
-	// set flag
-	algorithmSet = true;
-
-	// check memory
-	assert(_CrtCheckMemory());
+	// add new voices
+	// if an algorithm was previously prepared
+	if (algorithmPrepared) {
+		// prepare the new one because we know sample rate is nonzero
+		prepareToPlay(samplerate, numsamplesperblock);
+	}
+	// otherwise prepareToPlay will be called automatically soon
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
@@ -637,10 +649,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 			currentGenerationCopies[i][j] = copy;
 		}
 	}
+	generationActive = true;
 
 	setAlgorithm(algorithm);
-
-	generationActive = true;
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {

@@ -11,13 +11,15 @@
 #ifndef __PLUGINPROCESSOR_H_526ED7A9__
 #define __PLUGINPROCESSOR_H_526ED7A9__
 
+/*
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
+*/
 
 #define POPULATIONSIZE 10
-#define NUMVOICES 4
-#define MAXNOTELEN 10.0f
+#define NUMVOICES 1
+#define MAXNOTELEN 1.0f
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
@@ -129,13 +131,13 @@ private:
 	// max note length 
 	float maxnoteleninseconds;
 	unsigned maxnumframes;
-	float* sampletimes;
+	float** allvoicessampletimes;
 
     // genetic algorithm
 	unsigned seed;
 	GPRandom rng;
 	GPParams* params;
-	std::vector<GPNode*> currentPrimitives;
+	std::vector<GPNode*>* currentPrimitives;
 	GPSynth* gpsynth;
 	
 	// networks and population
@@ -144,7 +146,7 @@ private:
 
 	// synthesiser voices
 	bool generationActive;
-	bool algorithmSet;
+	bool algorithmPrepared;
 	unsigned numSynthVoicesPerAlgorithm;
 	GPNetwork** currentCopies;
 	std::vector<GPNetwork**> currentGenerationCopies;

@@ -64,6 +64,7 @@ GPSynth::~GPSynth() {
     for (unsigned i = 0; i < availableNodes->size(); i++) {
         delete availableNodes->at(i);
     }
+	// TODO: maybe delete this elsewhere and pass by reference or something
     delete availableNodes;
     delete availableFunctions;
     delete availableTerminals;
