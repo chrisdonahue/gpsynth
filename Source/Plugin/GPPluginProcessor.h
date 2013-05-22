@@ -73,6 +73,8 @@ public:
 
     //==============================================================================
 	// custom methods
+	void changeMaxNoteLength(float newmaxlen);
+	void changeNumVariables(unsigned numvariables);
 	void setAlgorithm(unsigned newalgo);
 	void fillFromGeneration();
 	void deleteGenerationState();
@@ -116,7 +118,14 @@ private:
 	// render info
 	float samplerate;
 	unsigned numsamplesperblock;
+	
+	// num variables
+	unsigned numvariables;
+
+	// max note length 
 	float maxnoteleninseconds;
+	unsigned maxnumframes;
+	float* sampletimes;
 
     // genetic algorithm
 	unsigned seed;
@@ -133,10 +142,8 @@ private:
 	bool generationActive;
 	bool algorithmSet;
 	unsigned numSynthVoicesPerAlgorithm;
-	GPVoice** currentVoices;
-	GPNetwork** currentNetworks;
-	std::vector<GPVoice**> currentGenerationVoices;
-	std::vector<GPNetwork**> currentGenerationNetworks;
+	GPNetwork** currentCopies;
+	std::vector<GPNetwork**> currentGenerationCopies;
 
 	// synthesiser
 	Synthesiser synth;
