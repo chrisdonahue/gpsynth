@@ -281,6 +281,9 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	// remaining from default plugin
 	lastPosInfo.resetToDefault();
+
+	// start algorithm change timer
+	startTimer(300);
 }
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
@@ -704,6 +707,12 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
         File selectedFile = browser.getSelectedFile (0);
 		saveTextFile(selectedFile.getFileName() + String(".synth"), String(currentAlgorithm->toString(SAVEPRECISION).c_str()));
     }
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::timerCallback() {
+	// only set algorithm if algorithm has changed from the last set algorithm but has been constant for two callbacks
+	debugPrint("GPPlugin Timer Callback\n");
+	return;
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::debugPrint(String dbgmsg) {

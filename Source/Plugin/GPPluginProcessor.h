@@ -31,7 +31,8 @@ class GPVoice;
 //==============================================================================
 /**
 */
-class GeneticProgrammingSynthesizerAudioProcessor  : public AudioProcessor
+class GeneticProgrammingSynthesizerAudioProcessor  : public AudioProcessor,
+													public Timer
 {
 public:
     //==============================================================================
@@ -88,6 +89,7 @@ public:
 	void deleteGenerationState();
 	void nextGeneration();
 	void saveCurrentNetwork();
+    void timerCallback();
 	void debugPrint(String dbgmsg);
 
     //==============================================================================
