@@ -5,12 +5,11 @@ set -e
 # LOCAL TRUMPET TEST
 #<<COMMENT
 #gdb --args \
-valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
+#valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
   --path ./\
-  --seed 24531\
   --values 622.25\
   --expinfo\
   EXPERIMENT PARAMS\
@@ -56,31 +55,30 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   SYNTH EVO PARAMS\
-  --popsize 10\
+  --popsize 100\
   --nobackup\
   --backupprecision 50\
   --bestfitness 0.0\
-  --maxinitheight 5\
-  --maxheight 11\
+  --maxinitheight 10\
+  --maxheight 10\
   SYNTH GENETIC PARAMS\
   --greedy 0.0\
   --numericmutation 0.25 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
   --mutation 0.25 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.25 --cselect 0 --ctype 0\
-  --reproduction 0.25 --rselect 0\
-  > 2GenValgrind.txt
+  --reproduction 0.25 --rselect 0
+#  > 2GenValgrind.txt
 #COMMENT
 
 # SANITY TEST
 <<COMMENT
 #gdb --args \
-#valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
+valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
   --path ./\
   --experiment 0 \
   --loadwavblock 256 \
-#  --seed 0 \
-#> testValgrind.txt
+> testValgrind.txt
 COMMENT
 
 # FITNESS FUNCTION SAVE
