@@ -24,7 +24,7 @@ public:
     void toString(std::stringstream& ss);
 
     // optional overrides
-	void setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime);
+	void setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);
     void doneRendering();
 	void updateMutatedParams();
 

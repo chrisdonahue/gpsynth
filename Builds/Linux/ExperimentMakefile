@@ -44,6 +44,7 @@ endif
 OBJECTS := \
   $(OBJDIR)/ExperimentMain.o \
   $(OBJDIR)/GPRandom.o \
+  $(OBJDIR)/GPParser.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
@@ -107,6 +108,11 @@ $(OBJDIR)/ExperimentMain.o: ../../Source/Experiment/Main.cpp
 $(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPRandom.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPParser.o: ../../Source/Common/GPParser.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPParser.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPExperiment.o: ../../Source/Experiment/GPExperiment.cpp

@@ -34,7 +34,6 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
         targetNyquist = targetSampleRate / 2;
         targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-        targetLengthSeconds = numTargetFrames / targetSampleRate;
         loadWavFile(target, params->wavFileBufferSize, numTargetFrames, targetFrames);
         if (params->backupTarget)
             saveWavFile(savePath + String("targetcopy.wav"), String(""), String("target"), targetSampleRate, params->wavFileBufferSize, numTargetFrames, targetFrames);
@@ -174,7 +173,7 @@ GPNetwork* GPExperiment::evolve() {
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
         // render candidate
         GPNetwork* candidate = synth->getIndividual();
-        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
+        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
         suboptimizeAndCompareToTarget(params->suboptimizeType, candidate, candidateData);
         candidate->doneRendering();
         
@@ -191,7 +190,7 @@ GPNetwork* GPExperiment::evolve() {
             if (params->saveGenerationChampions) {
                 // grab and render the generation champ
                 GPNetwork* generationChamp = synth->generationChamp;
-                generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
+                generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
                 renderIndividualByBlockPerformance(generationChamp, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
                 generationChamp->doneRendering();
 
@@ -226,7 +225,7 @@ GPNetwork* GPExperiment::evolve() {
     // render the champion
     GPNetwork* champ = synth == NULL ? NULL : synth->champ;
     if (champ != NULL) {
-        champ->prepareToRender(targetSampleRate, params->renderBlockSize, targetLengthSeconds);
+        champ->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
         renderIndividualByBlockPerformance(champ, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
         assert(champ->fitness == minFitnessAchieved);
@@ -251,6 +250,7 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
     // FILL BUFFERS WITH SPECIAL VALUES
     targetSampleTimes = (float*) malloc(sizeof(double) * numTargetFrames);
     fillTimeAxisBuffer(numTargetFrames, targetSampleRate, targetSampleTimes);
+    targetLengthSeconds = targetSampleTimes[numTargetFrames - 1];
     /*
     numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
     specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
@@ -946,7 +946,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     // buffers for tests
     unsigned wavchunk = 256;
     unsigned numframes = 88200;
-    float maxSeconds = 2.0;
+    //float maxSeconds = 2.0;
     float samplerate = 44100.0;
     unsigned numconstantvariables = 2;
     unsigned renderblocksize = 256;
@@ -958,6 +958,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     variables[1] = 659.26;
     float* times = (float*) malloc(sizeof(float) * numframes);
     fillTimeAxisBuffer(numframes, samplerate, times);
+    float maxSeconds = times[numframes - 1];
     loadWavFile("./tests/silenceTestTarget.wav", wavchunk, numframes, silenceBuffer);
 
     // test network strings
@@ -987,8 +988,8 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     sinTestNet->doneRendering();
     assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
 
-    sinTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds); 
-    sinTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds); 
+    sinTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 
+    sinTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 
     std::cout << "Network after prepare:" << std::endl << sinTestNet->toString(10) << std::endl;
     std::cout << "Height: " << sinTestNet->height << std::endl;
     std::cout << "Min: " << sinTestNet->minimum << std::endl;
@@ -1013,7 +1014,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     cf->setCRange(15, 300);
     std::cout << "Network after mutate:" << std::endl << sinTestNetNewCenter->toString(10) << std::endl;
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
-    sinTestNetNewCenter->prepareToRender(samplerate, renderblocksize, maxSeconds); 
+    sinTestNetNewCenter->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     saveWavFile("./sineWaveTestNewCenter.wav", String(sinTestNetNewCenter->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete sinTestNetNewCenter;
@@ -1022,7 +1023,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::string ADSRTest = "(adsr* {c 0 0.2 2} {c 0 0.2 2} {c 0 1.0 1.0} {c 0 0.2 2} {c 0 0.2 2} {c 0 0.5 1.0} {c 0 0.2 2} " + sinTest + ")";
     GPNetwork* ADSRTestNet = new GPNetwork(rng, ADSRTest);
     ADSRTestNet->traceNetwork();
-    ADSRTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    ADSRTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
     std::cout << "----TESTING ADSR----" << std::endl;
     std::cout << "Network: " << std::endl << ADSRTestNet->toString(10) << std::endl;
     std::cout << "Height: " << ADSRTestNet->height << std::endl;
@@ -1037,7 +1038,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
     GPNetwork* constantNodeEnvelopeTestNet = new GPNetwork(rng, constantNodeEnvelopeTest);
     constantNodeEnvelopeTestNet->traceNetwork();
-    constantNodeEnvelopeTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    constantNodeEnvelopeTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
     std::cout << "----TESTING CONSTANT NODE ENVELOPE----" << std::endl;
     std::cout << "Network: " << std::endl << constantNodeEnvelopeTestNet->toString(10) << std::endl;
     std::cout << "Height: " << constantNodeEnvelopeTestNet->height << std::endl;
@@ -1052,7 +1053,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
     GPNetwork* additiveSynthesisTestNet = new GPNetwork(rng, additiveSynthesisTest);
     additiveSynthesisTestNet->traceNetwork();
-    additiveSynthesisTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    additiveSynthesisTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
     std::cout << "----TESTING ADDITIVE SYNTHESIS----" << std::endl;
     std::cout << "Network: " << std::endl << additiveSynthesisTestNet->toString(10) << std::endl;
     std::cout << "Height: " << additiveSynthesisTestNet->height << std::endl;
@@ -1067,7 +1068,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::string FMSynthesisTest = "(fm {d 0 1 1} {d 0 1 10} {c 0 2.0 3.0} " + sinTest + ")";
     GPNetwork* FMSynthesisTestNet = new GPNetwork(rng, FMSynthesisTest);
     FMSynthesisTestNet->traceNetwork();
-    FMSynthesisTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    FMSynthesisTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
     std::cout << "----TESTING FM SYNTHESIS----" << std::endl;
     std::cout << "Network: " << std::endl << FMSynthesisTestNet->toString(10) << std::endl;
     std::cout << "Height: " << FMSynthesisTestNet->height << std::endl;
@@ -1085,7 +1086,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     GPNetwork* oscillatorTestNet = oscillatorTestNetPreCopy->getCopy("test");
     delete oscillatorTestNetPreCopy;
     oscillatorTestNet->traceNetwork();
-    oscillatorTestNet->prepareToRender(samplerate, renderblocksize, maxSeconds);
+    oscillatorTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
     std::cout << "----TESTING SINE WAVE OSCILLATOR----" << std::endl;
     std::cout << "Network: " << std::endl << oscillatorTestNet->toString(10) << std::endl;
     std::cout << "Height: " << oscillatorTestNet->height << std::endl;

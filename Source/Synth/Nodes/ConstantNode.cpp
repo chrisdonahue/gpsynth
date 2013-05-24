@@ -75,8 +75,8 @@ void ConstantNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
 	}
 }
 
-void ConstantNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
-    GPNode::setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
+void ConstantNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {
+    GPNode::setRenderInfo(sr, blockSize, maxNumFrames, maxTime);
     // TODO: maybe fill an array with value and use memcpy for terminals? will this be faster?
 }
 
