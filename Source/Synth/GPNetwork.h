@@ -39,7 +39,7 @@ public:
     std::vector<GPMutatableParam*>* getAllMutatableParams();
 
     // HELPERS
-    void prepareToRender(float sr, unsigned blockSize, float maxTime);
+    void prepareToRender(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime);
     void doneRendering();
     void traceNetwork();
     void replaceSubtree(GPNode* one, GPNode* two);

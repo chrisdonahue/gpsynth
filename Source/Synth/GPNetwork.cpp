@@ -91,12 +91,12 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
 
 // renderRoot = silence and root = realroot whenever preparedToRender is false
 // renderRoot = realroot and root = realroot whenever preparedToRender is true
-void GPNetwork::prepareToRender(float sr, unsigned blockSize, float maxTime) {
+void GPNetwork::prepareToRender(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
     doneRendering();
     if (!preparedToRender) {
         delete renderRoot;
     }
-    root->setRenderInfo(sr, blockSize, maxTime);
+    root->setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
     root->updateMutatedParams();
     minimum = root->minimum;
     maximum = root->maximum;

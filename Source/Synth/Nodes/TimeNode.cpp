@@ -33,9 +33,9 @@ TimeNode* TimeNode::getCopy() {
     return new TimeNode();
 }
 
-void TimeNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+void TimeNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
     maximum = maxTime;
-    GPNode::setRenderInfo(sr, blockSize, maxTime);
+    GPNode::setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
 }
 
 void TimeNode::doneRendering() {

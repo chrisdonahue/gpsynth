@@ -73,7 +73,7 @@ public:
     virtual void prepareToPlay() {
     }
 
-    virtual void setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+    virtual void setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
         // clear out old render info if it exists
         doneRendering();
 
@@ -86,7 +86,7 @@ public:
 
         // recursively execute
         for (unsigned i = 0; i < arity; i++) {
-            descendants[i]->setRenderInfo(sr, blockSize, maxTime);
+            descendants[i]->setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
         }
 
         renderInfoSet = true;

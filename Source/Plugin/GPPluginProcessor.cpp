@@ -400,7 +400,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
 
 	// prepare copies for rendering and add voices
 	for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-		currentCopies[i]->prepareToRender(samplerate, numsamplesperblock, maxnoteleninseconds);
+		currentCopies[i]->prepareToRender(samplerate, numsamplesperblock, maxnumframes, maxnoteleninseconds);
 		synth.addVoice(new GPVoice(currentCopies[i], (unsigned) samplesPerBlock, numvariables, maxnumframes, allvoicessampletimes[i]));
 	}
 	algorithmPrepared = true;
@@ -616,6 +616,8 @@ void GeneticProgrammingSynthesizerAudioProcessor::updateSampleTimes() {
 			//debugPrint(String(allvoicessampletimes[i][j]) + "\n");
 		}
 	}
+	if (numSynthVoicesPerAlgorithm > 0 && maxnumframes > 0)
+		maxnoteleninseconds = allvoicessampletimes[0][maxnumframes - 1];
 
 	if (algorithmPrepared)
 		setAlgorithm(algorithm);

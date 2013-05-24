@@ -62,10 +62,10 @@ ADSRNode* ADSRNode::getCopy() {
     }
 }
 
-void ADSRNode::setRenderInfo(float sr, unsigned blockSize, float maxTime) {
+void ADSRNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
     doneRendering();
     sampleRate = sr;
-    GPNode::setRenderInfo(sr, blockSize, maxTime);
+    GPNode::setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
 }
 
 void ADSRNode::doneRendering() {
