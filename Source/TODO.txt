@@ -36,6 +36,11 @@ Interactive:
         amplitude gain
 
     Prototype:
+        fix memory glitch
+        add tail off
+        primitive timer
+        change name
+
         fixed primitive set, fixed maxNoteLength, fixed maxNetworkHeight
         One slider to select synth number
         One slider to select level
