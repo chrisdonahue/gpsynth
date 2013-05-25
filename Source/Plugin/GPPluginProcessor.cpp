@@ -174,7 +174,8 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(nullptr), gpsynth(nullptr),
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
 		generationActive(false), algorithmPrepared(false),
-		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr)
+		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr),
+		algorithmLastTimer(algorithm)
 {
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
@@ -197,8 +198,8 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     params->backupPrecision = 100;
     params->lowerFitnessIsBetter = false; //should be done in experiment
     params->bestPossibleFitness = 2.0; //should be done in experiment
-    params->maxInitialHeight = 0;
-    params->maxHeight = 4;
+    params->maxInitialHeight = 5;
+    params->maxHeight = 10;
 
     // synth genetic params
     params->proportionOfPopulationForGreedySelection = 0.0;
@@ -249,8 +250,24 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	// primitives
 	currentPrimitives = new std::vector<GPNode*>(0);
+	currentPrimitives->push_back(createNode("(const* {c -1.0 0.0 1.0} (null))", &rng));
+	currentPrimitives->push_back(createNode("(const {c -1.0 0.0 1.0})", &rng));
 	currentPrimitives->push_back(createNode("(osc {d 0 0 1} {d 1 1 1})", &rng));
 	currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	currentPrimitives->push_back(createNode("(+ (null) (null))", &rng));
+	currentPrimitives->push_back(createNode("(whitenoise)", &rng));
+	currentPrimitives->push_back(createNode("(time)", &rng));
+	currentPrimitives->push_back(createNode("(if (null) (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
 	// create
 	gpsynth = new GPSynth(params, &rng, currentPrimitives);
 
@@ -533,7 +550,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
 void GeneticProgrammingSynthesizerAudioProcessor::timerCallback() {
 	// only set algorithm if algorithm has changed from the last set algorithm but has been constant for two callbacks
 	debugPrint("GPPlugin Timer Callback\n");
-	return;
+	if (algorithmLastTimer != algorithm)
+		setAlgorithm(algorithm);
+	algorithmLastTimer = algorithm;
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::debugPrint(String dbgmsg) {

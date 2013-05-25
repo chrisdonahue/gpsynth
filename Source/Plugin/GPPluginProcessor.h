@@ -143,6 +143,9 @@ private:
 	GPNetwork** currentCopies;
 	std::vector<GPNetwork**> currentGenerationCopies;
 
+	// algorithm memory for timer
+	unsigned algorithmLastTimer;
+
 	// synthesiser
 	Synthesiser synth;
 
