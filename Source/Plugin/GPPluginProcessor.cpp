@@ -39,37 +39,51 @@ public:
 class GPVoice  : public SynthesiserVoice
 {
 public:
-    GPVoice(GPNetwork* net, unsigned bs, unsigned nv, unsigned maxframes, float* st)
+
+    GPVoice(GPNetwork* net, unsigned maxnumframes, float* frametimes, unsigned numbufferframes, unsigned numtailframes, unsigned numvars)
         : network(net),
-		  buffer(nullptr),
-		  numVariables(nv), variables(nullptr),
-		  maxNumFrames(maxframes), sampleTimes(st),
-		  frameNumber(0), cps(0.0), playing(false), level(0.0), tailOff(0.0)
+		  maxNumFrames(maxnumframes), frameTimes(frametimes), numBufferFrames(numbufferframes), buffer(nullptr),
+		  numTailFrames(numtailframes), tailBuffer(nullptr), forceTailFrameNumber(maxNumFrames - numTailFrames),
+		  numVariables(numvars), variables(nullptr)
     {
-		buffer = (float*) malloc(sizeof(float) * bs);
+		buffer = (float*) malloc(sizeof(float) * numBufferFrames);
+		tailBuffer = (float*) malloc(sizeof(float) * numTailFrames);
 		variables = (float*) malloc(sizeof(float) * numVariables);
+		fillTail(0);
     }
 	
 	~GPVoice()
 	{
 		free(variables);
+		free(tailBuffer);
 		free(buffer);
+	}
+
+	void fillTail(unsigned type)
+	{
+		if (type == 0) {
+			for (unsigned i = 0; i < numTailFrames; i++) {
+				tailBuffer[i] = i * (-1.0f / numTailFrames) + 1.0f;
+			}
+		}
 	}
 
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
-    {
-		// fill time info
+	{
+		// fill current render  info
+		playing = true;
 		frameNumber = 0;
+		level = velocity * 0.15;
+		bufferIndex = 0;
+
+		// fill current tail info
+		tailBufferIndex = 0;
+		userTailInProgress = false;
+		forcedTailInProgress = false;
 
 		// fill note info
-        cps = (float) MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-		variables[0] = cps;
-
-		// fill synth note state
-		playing = true;
-		level = velocity * 0.15;
-		tailOff = 0.0;
+		variables[0] = (float) MidiMessage::getMidiNoteInHertz (midiNoteNumber);
     }
 
     void stopNote (const bool allowTailOff)
@@ -79,9 +93,9 @@ public:
             // start a tail-off by setting this flag. The render callback will pick up on
             // this and do a fade out, calling clearCurrentNote() when it's finished.
 
-            if (tailOff == 0.0) // we only need to begin a tail-off if it's not already doing so - the
-                // stopNote method could be called more than once.
-                tailOff = 1.0;
+			if (!forcedTailInProgress) {
+				userTailInProgress = true;
+			}
         }
         else
         {
@@ -93,42 +107,93 @@ public:
 
     void pitchWheelMoved (const int /*newValue*/)
     {
-        // can't be bothered implementing this for the demo!
+        // TODO
     }
 
     void controllerMoved (const int /*controllerNumber*/, const int /*newValue*/)
     {
-        // not interested in controllers in this case.
+        // TODO
     }
 
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
     {
+		appendToTextFile("./debug.txt", String(numBufferFrames) + " " + String(numSamples));
+		assert(numBufferFrames == numSamples);
 		if (playing) {
-			// fill info buffers
-			if (tailOff > 0) {
+			// fill audio buffers
+			// if we are going at the end of our sample times within this render block
+			if (frameNumber + numBufferFrames > maxNumFrames) {
+				network->evaluateBlockPerformance(frameNumber, maxNumFrames - frameNumber, frameTimes + frameNumber, numVariables, variables, buffer);
+				outputBuffer.clear(maxNumFrames - frameNumber, numBufferFrames - (maxNumFrames - frameNumber));
 				playing = false;
 				clearCurrentNote();
 			}
-			else if (frameNumber + numSamples > maxNumFrames) {
-				network->evaluateBlockPerformance(frameNumber, maxNumFrames - frameNumber, sampleTimes + frameNumber, numVariables, variables, buffer);
-				outputBuffer.clear(maxNumFrames - frameNumber, numSamples - (maxNumFrames - frameNumber));
-				playing = false;
-				clearCurrentNote();
+			// else fill render block normally
+			else {
+				network->evaluateBlockPerformance(frameNumber, numBufferFrames, frameTimes + frameNumber, numVariables, variables, buffer);
+				frameNumber += numBufferFrames;
 			}
-			else {			
-				// fill audio buffers
-				network->evaluateBlockPerformance(frameNumber, numSamples, sampleTimes + frameNumber, numVariables, variables, buffer);
-				frameNumber += numSamples;
+
+			// apply MIDI velocity and possible tail
+			// if we are in the middle of a tail render
+			if (userTailInProgress || forcedTailInProgress) {
+				applyTail();
 			}
-			for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
-				float* channelBuffer = outputBuffer.getSampleData(i, startSample);
-				//memcpy(outputBuffer.getSampleData(i, startSample), buffer, blockSizeInBytes);
-				for (int j = 0; j < numSamples; j++) {
-					channelBuffer[j] = buffer[j] * level;
+			// else if we will need to begin a tail render in this block
+			else if (frameNumber + numSamples > forceTailFrameNumber) {
+				while (bufferIndex < forceTailFrameNumber) {
+					buffer[bufferIndex] = buffer[bufferIndex] * level;
+					bufferIndex++;
 				}
+				forcedTailInProgress = true;
+				applyTail();
+			}
+			// else no tail so just apply MIDI velocity
+			else {
+				while (bufferIndex < numSamples) {
+					buffer[bufferIndex] = buffer[bufferIndex] * level;
+					bufferIndex++;
+				}
+			}
+
+			// reset buffer index because we're done writing to it
+			bufferIndex = 0;
+
+			// copy to all outputs
+			for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
+				memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numBufferFrames);
 			}
 		}
     }
+
+	// all of the following are possible:
+	//		anywhere in the middle of the tail
+	//		anywhere in the middle of the buffer
+	//		buffer may run out before tail does
+	//		tail my run out before buffer does
+	inline void applyTail() {
+		// find out how many remain of the tail and this render block
+		unsigned numTailFramesRemaining = numTailFrames - tailBufferIndex;
+		unsigned numBufferFramesRemaining = numBufferFrames - bufferIndex;
+
+		// if our buffer is going to run out before our tail
+		if (numTailFramesRemaining > numBufferFramesRemaining) {
+			while (bufferIndex < numBufferFrames) {
+				buffer[bufferIndex] = buffer[bufferIndex] * level * tailBuffer[tailBufferIndex];
+				bufferIndex++;
+				tailBufferIndex++;
+			}
+		}
+
+		// else our tail is going to run out before our buffer
+		else {
+			while (tailBufferIndex < numTailFrames) {
+				buffer[bufferIndex] = buffer[bufferIndex] * level * tailBuffer[tailBufferIndex];
+				bufferIndex++;
+				tailBufferIndex++;
+			}
+		}
+	}
 
     bool canPlaySound (SynthesiserSound* sound)
     {
@@ -136,26 +201,34 @@ public:
     }
 
 private:
-	// Algorithm
+	// algorithm
     GPNetwork* network;
 
-	// Render Buffer
+	// render information
+	unsigned maxNumFrames;
+    float* frameTimes;
+	unsigned numBufferFrames;
 	float* buffer;
+
+	// tail information
+	unsigned numTailFrames;
+	float* tailBuffer;
+	unsigned forceTailFrameNumber;
 	
-	// Control Variables
+	// control variables
     unsigned numVariables;
     float* variables;
-	
-	// Render Variables
-	unsigned maxNumFrames;
-    float* sampleTimes;
 
-	// Current note info
-	unsigned frameNumber;
-    float cps;
+	// current note info
 	bool playing;
+	unsigned frameNumber;
     float level;
-	double tailOff;
+	unsigned bufferIndex;
+
+	// current tail info
+	unsigned tailBufferIndex;
+	bool userTailInProgress;
+	bool forcedTailInProgress;
 };
 
 
@@ -168,7 +241,7 @@ private:
 GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
 	:	lastUIWidth(400), lastUIHeight(478),
 		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
-		samplerate(0), numsamplesperblock(0),
+		samplerate(0), numsamplesperblock(0), taillengthseconds(TAILLEN),
 		numvariables(1),
 		maxnoteleninseconds(MAXNOTELEN), maxnumframes(0), allvoicessampletimes(nullptr),
 		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(nullptr), gpsynth(nullptr),
@@ -286,22 +359,16 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
-	//debugPrint("1\n");
 	deleteGenerationState();
-	//debugPrint("2\n");
 	delete gpsynth;
-	//debugPrint("3\n");
 	free(params);
-	//debugPrint("4\n");
 	free(fitnesses);
-	//debugPrint("5\n");
 	if (allvoicessampletimes != nullptr) {
 		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
 			free(allvoicessampletimes[i]);
 		}
 		free(allvoicessampletimes);
 	}
-	//debugPrint("6\n");
 }
 
 /*
@@ -312,6 +379,8 @@ GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudio
 
 void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+	debugPrint("processor prepareToPlay: " + String(sampleRate) + " " + String(samplesPerBlock) + "\n");
+
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     synth.setCurrentPlaybackSampleRate (sampleRate);
@@ -327,7 +396,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
 	// prepare copies for rendering and add voices
 	for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
 		currentCopies[i]->prepareToRender(samplerate, numsamplesperblock, maxnumframes, maxnoteleninseconds);
-		synth.addVoice(new GPVoice(currentCopies[i], (unsigned) samplesPerBlock, numvariables, maxnumframes, allvoicessampletimes[i]));
+		synth.addVoice(new GPVoice(currentCopies[i], maxnumframes, allvoicessampletimes[i], (unsigned) samplesPerBlock, (unsigned) taillengthseconds * samplerate, numvariables));
 	}
 	algorithmPrepared = true;
 
@@ -335,8 +404,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
     //delayBuffer.clear();
 }
 
-void GeneticProgrammingSynthesizerAudioProcessor::donePlaying()
+void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
 {
+	debugPrint("processor releaseResources: " + String(samplerate) + "\n");
+
 	// remove old voices
 	if (algorithmPrepared) {
 		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
@@ -348,17 +419,13 @@ void GeneticProgrammingSynthesizerAudioProcessor::donePlaying()
 		}
 	}
 	algorithmPrepared = false;
-}
 
-void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
-{
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
     keyboardState.reset();
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::reset()
 {
+	debugPrint("processor reset: " + String(samplerate) + "\n");
     // Use this method as the place to clear any delay lines, buffers, etc, as it
     // means there's been a break in the audio's continuity.
     //delayBuffer.clear();
@@ -467,8 +534,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::changeNumVariables(unsigned ne
 
 // custom methods
 void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm() {
+	debugPrint("setAlgorithm called: " + String(algorithm) + "\n");
 	// clear out old voices
-	donePlaying();
+	releaseResources();
 
 	// update current
 	currentAlgorithm = currentGeneration[algorithm];
@@ -512,7 +580,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 	if (generationActive) {
 		//debugPrint("got to here\n");
-		donePlaying();
+		releaseResources();
 		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 			fitnesses[i] = 0.0f;
 			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
@@ -599,7 +667,7 @@ bool GeneticProgrammingSynthesizerAudioProcessor::silenceInProducesSilenceOut() 
 
 double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 {
-    return 0.0;
+    return taillengthseconds;
 }
 
 /*

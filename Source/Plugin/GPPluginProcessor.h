@@ -12,6 +12,7 @@
 #define POPULATIONSIZE 10
 #define NUMVOICES 1
 #define MAXNOTELEN 1.0f
+#define TAILLEN 0.02f
 #define SAVEPRECISION 15
 
 #include "../../JuceLibraryCode/JuceHeader.h"
@@ -30,7 +31,6 @@ public:
 
 	// audio engine overrides
     void prepareToPlay (double sampleRate, int samplesPerBlock);
-	void donePlaying ();
     void releaseResources();
     void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
     void reset();
@@ -116,6 +116,7 @@ private:
 	// render info
 	float samplerate;
 	unsigned numsamplesperblock;
+	double taillengthseconds;
 	
 	// num variables
 	unsigned numvariables;
