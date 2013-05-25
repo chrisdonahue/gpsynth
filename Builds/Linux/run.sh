@@ -12,6 +12,10 @@ set -e
   --path ./\
   --values 622.25\
   --expinfo\
+  SHARED PARAMS\
+  --verbose\
+  --saveprecision 5\
+  --printprecision 3\
   EXPERIMENT PARAMS\
   --experiment 1\
   --suboptimizetype 0\
@@ -19,14 +23,11 @@ set -e
   --generations 2\
   --threshold 0.1\
   --erc\
-  AUXILLARY PARAMS\
-  --verbose\
+  AUXILIARY EXPERIMENT PARAMS\
   --savegenchamps\
   --nosavetargetenv\
   --nosavetargetspectrum\
   --backuptarget\
-  --printprecision 3\
-  --saveprecision 5\
   --loadwavblock 512\
   --render 1024\
   FITNESS FUNCTION WEIGHTS\
@@ -58,7 +59,6 @@ set -e
   --popsize 100\
   --nobackup\
   --backupprecision 50\
-  --bestfitness 0.0\
   --maxinitheight 10\
   --maxheight 10\
   SYNTH GENETIC PARAMS\

@@ -94,12 +94,12 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
 
         // set parameters that vary by fitness function
         if (params->fitnessFunctionType == 0) {
-            p->bestPossibleFitness = 0;
+            p->bestPossibleFitness = 0.0f;
             p->lowerFitnessIsBetter = true;
             lowerFitnessIsBetter = params->lowerFitnessIsBetter;
         }
         else {
-            p->bestPossibleFitness = 0;
+            p->bestPossibleFitness = 0.0f;
             p->lowerFitnessIsBetter = true;
             lowerFitnessIsBetter = params->lowerFitnessIsBetter;
         }

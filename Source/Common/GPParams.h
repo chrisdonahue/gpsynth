@@ -4,6 +4,13 @@
 #include "GPRandom.h"
 
 struct GPParams {
+	// synth and experiment shared params
+    bool verbose;
+    unsigned savePrecision;
+    unsigned printPrecision;
+    bool lowerFitnessIsBetter;
+    double bestPossibleFitness;
+
     // experiment parameters
     unsigned experimentNumber;
     unsigned suboptimizeType;
@@ -12,14 +19,11 @@ struct GPParams {
     double thresholdFitness;
     bool ephemeralRandomConstants;
 
-    // auxillary parameters
-    bool verbose;
+    // auxiliary experiment parameters
     bool saveGenerationChampions;
     bool saveTargetEnvelope;
     bool saveTargetSpectrum;
     bool backupTarget;
-    unsigned printPrecision;
-    unsigned savePrecision;
     unsigned wavFileBufferSize;
     unsigned renderBlockSize;
 
@@ -58,8 +62,6 @@ struct GPParams {
     unsigned populationSize;
     bool backupAllNetworks;
     unsigned backupPrecision;
-    bool lowerFitnessIsBetter;
-    double bestPossibleFitness;
     unsigned maxInitialHeight;
     unsigned maxHeight;
 

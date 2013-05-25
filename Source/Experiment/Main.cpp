@@ -46,6 +46,13 @@ public:
         // init params
         params = (GPParams*) malloc(sizeof(GPParams));
 
+		// synth and experiment shared params
+        params->verbose = false;
+        params->savePrecision = 4;
+        params->printPrecision = 3;
+        //params->lowerFitnessIsBetter = true; should be done in experiment
+        //params->bestPossibleFitness = 0; should be done in experiment
+		
         // experiment params
         params->experimentNumber = 0;
         params->suboptimizeType = 0;
@@ -55,13 +62,10 @@ public:
         params->ephemeralRandomConstants = true;
 
         // auxillary params
-        params->verbose = false;
         params->saveGenerationChampions = false;
         params->saveTargetEnvelope = false;
         params->saveTargetSpectrum = false;
         params->backupTarget = false;
-        params->printPrecision = 3;
-        params->savePrecision = 4;
         params->wavFileBufferSize = 256;
         params->renderBlockSize = 256;
 
@@ -100,8 +104,6 @@ public:
         params->populationSize = 500;
         params->backupAllNetworks = false;
         params->backupPrecision = 100;
-        //params->lowerFitnessIsBetter = true; should be done in experiment
-        //params->bestPossibleFitness = 0; should be done in experiment
         params->maxInitialHeight = 5;
         params->maxHeight = 12;
 
@@ -134,6 +136,9 @@ public:
         params->oscilNodeMinIndexOfModulation = 0.0;
         params->oscilNodeMaxIndexOfModulation = 2.0;
 
+        // modulation node
+        params->LFONodeFrequencyRange = 10;
+		
         // delay node
         params->delayNodeBufferMaxSeconds = 1.0;
 
@@ -148,9 +153,6 @@ public:
         // adsr node
         params->ADSRNodeEnvelopeMin = 0.0;
         params->ADSRNodeEnvelopeMax = 1.0;
-
-        // modulation node
-        params->LFONodeFrequencyRange = 10;
 
         // parse command line
         for (String* i = args.begin(); i < args.end(); i++) {
@@ -179,6 +181,20 @@ public:
             else if (i->equalsIgnoreCase("--expinfo")) {
                 printExperimentInfo = true;
             }
+			
+			// shared params
+            else if (i->equalsIgnoreCase("--verbose")) {
+                params->verbose = true;
+            }
+            else if (i->equalsIgnoreCase("--succinct")) {
+                params->verbose = false;
+            }
+            else if (i->equalsIgnoreCase("--saveprecision")) {
+                params->savePrecision = (++i)->getIntValue();
+            }
+            else if (i->equalsIgnoreCase("--printprecision")) {
+                params->printPrecision = (++i)->getIntValue();
+            }
 
             // experiment params
             else if (i->equalsIgnoreCase("--experiment")) {
@@ -204,12 +220,6 @@ public:
             }
 
             // auxillary params
-            else if (i->equalsIgnoreCase("--verbose")) {
-                params->verbose = true;
-            }
-            else if (i->equalsIgnoreCase("--succinct")) {
-                params->verbose = false;
-            }
             else if (i->equalsIgnoreCase("--savegenchamps")) {
                 params->saveGenerationChampions = true;
             }
@@ -233,12 +243,6 @@ public:
             }
             else if (i->equalsIgnoreCase("--nobackuptarget")) {
                 params->backupTarget = false;
-            }
-            else if (i->equalsIgnoreCase("--printprecision")) {
-                params->printPrecision = (++i)->getIntValue();
-            }
-            else if (i->equalsIgnoreCase("--saveprecision")) {
-                params->savePrecision = (++i)->getIntValue();
             }
             else if (i->equalsIgnoreCase("--loadwavblock")) {
                 params->wavFileBufferSize = (++i)->getIntValue();
@@ -346,9 +350,6 @@ public:
             }
             else if (i->equalsIgnoreCase("--backupprecision")) {
                 params->backupPrecision = (++i)->getIntValue();
-            }
-            else if (i->equalsIgnoreCase("--bestfitness"))  {
-                params->bestPossibleFitness = (++i)->getDoubleValue();
             }
             else if (i->equalsIgnoreCase("--maxinitheight")) {
                 params->maxInitialHeight = (++i)->getIntValue();

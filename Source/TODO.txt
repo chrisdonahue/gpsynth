@@ -51,6 +51,17 @@ Interactive:
         Next generation control, no fitness for now
         Save network button
 
+Names:
+	synthsearch
+	exploration synthesis
+		
+Web:
+	Save button posts network to mySQL db
+	make personal website utilizing django in some way for practice
+	maybe make database entries for synthesizers in order to set up a platform for future use
+	figure out how to host stuff on UTCS
+	host the web server from NN lab. also go there to get form
+
 Ideas:
     use GPHelper to map a range for OscilNode's index of modulation
     crossover at shallower nodes have different probabilities? (exponentially distribute crossover point selection depth)
@@ -91,6 +102,7 @@ TODO long run:
 	change prepareToRender to take maxnumframes instead of maxnotelen
 
 NEXT EXPERIMENTS:
+	run tests with valgrind after changing parameters to make sure nothings uninitialized
     SPLINE NODE
     CMAES/test without numerical mutation
         read Garcia paper to see how he did his suboptimizing GA. try testing that too

@@ -183,42 +183,13 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	// set up genetic algorithm
 	// params
-    // experiment params
-    params->numGenerations = 100;
-	params->thresholdFitness = 2.0;
-    params->ephemeralRandomConstants = true;
-
-    // auxillary params
-    params->verbose = false;
-    params->saveGenerationChampions = false;
-    params->saveTargetEnvelope = false;
-    params->saveTargetSpectrum = false;
-    params->backupTarget = false;
-    params->printPrecision = 3;
-    params->savePrecision = 4;
-    params->wavFileBufferSize = 256;
-    params->renderBlockSize = 256;
-
-    // frequency domain fitness parameters
-    strncpy(params->windowType, "rect", 5);
-    params->fftSize = 256;
-    params->fftOverlap = 0;
-    params->dBMagnitude = false;
-    // moving average
-    params->averageComparisonType = 1;
-    params->movingAveragePastRadius = 50;
-    params->movingAverageFutureRadius = 50;
-    params->exponentialMovingAverageAlpha = 0.2;
-    params->compareToMaxDeviation = true;
-    params->penaltyComparisonExponent = 1.0;
-    params->weightFftFrames = false;
-    params->frameWeightExponent = 0.33;
-    // phase penalty
-    params->penalizeBadPhase = 2;
-    // magnitude penalty
-    params->goodComparisonFactor = 0.1;
-    params->badComparisonFactor = 1.1;
-    params->baseComparisonFactor = 0.9;
+	// synth and experiment
+	params->verbose = false;
+	params->savePrecision = 20;
+	params->printPrecision = 1;
+	params->saveGenerationChampions = false;
+	params->lowerFitnessIsBetter = false;
+	params->bestPossibleFitness = 1.0f;
 
     // synth evolution params
     params->populationSize = POPULATIONSIZE;
@@ -258,6 +229,9 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     params->oscilNodeMinIndexOfModulation = 0.0;
     params->oscilNodeMaxIndexOfModulation = 2.0;
 
+    // modulation node
+    params->LFONodeFrequencyRange = 10;
+
     // delay node
     params->delayNodeBufferMaxSeconds = 1.0;
 
@@ -272,9 +246,6 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     // adsr node
     params->ADSRNodeEnvelopeMin = 0.0;
     params->ADSRNodeEnvelopeMax = 1.0;
-
-    // modulation node
-    params->LFONodeFrequencyRange = 10;
 
 	// primitives
 	currentPrimitives = new std::vector<GPNode*>(0);

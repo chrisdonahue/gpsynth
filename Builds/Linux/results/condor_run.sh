@@ -10,6 +10,10 @@ set -e
   --seed $1\
   --values 622.25\
   --expinfo\
+  SHARED PARAMS \
+  --verbose\
+  --saveprecision 10\
+  --printprecision 3\
   EXP PARAMS \
   --experiment 1\
   --suboptimizetype 0\
@@ -17,14 +21,11 @@ set -e
   --generations 200\
   --threshold 0.1\
   --erc\
-  AUX PARAMS \
-  --verbose\
+  AUX EXP PARAMS \
   --nosavegenchamps\
   --nosavetargetenv\
   --nosavetargetspectrum\
   --nobackuptarget\
-  --printprecision 3\
-  --saveprecision 10\
   --loadwavblock 256\
   --render 1024\
   FF WEIGHTS \
@@ -56,7 +57,6 @@ set -e
   --popsize 4000\
   --nobackup\
   --backupprecision 50\
-  --bestfitness 0.0\
   --maxinitheight 5\
   --maxheight 11\
   GENETIC PARAMS \
