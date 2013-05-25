@@ -38,7 +38,7 @@ public:
 	// custom plugin methods
 	void updateSampleTimes();
 	void changeNumVariables(unsigned numvariables);
-	void setAlgorithm(unsigned newalgo);
+	void setAlgorithm();
 	void fillFromGeneration();
 	void deleteGenerationState();
 	void nextGeneration();
@@ -143,7 +143,8 @@ private:
 	GPNetwork** currentCopies;
 	std::vector<GPNetwork**> currentGenerationCopies;
 
-	// algorithm memory for timer
+	// flags for timer on high-memory operations
+	bool nextGenerationPressed;
 	unsigned algorithmLastTimer;
 
 	// synthesiser

@@ -175,7 +175,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
 		generationActive(false), algorithmPrepared(false),
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr),
-		algorithmLastTimer(algorithm)
+		nextGenerationPressed(false), algorithmLastTimer(algorithm)
 {
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
@@ -198,7 +198,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     params->backupPrecision = 100;
     params->lowerFitnessIsBetter = false; //should be done in experiment
     params->bestPossibleFitness = 2.0; //should be done in experiment
-    params->maxInitialHeight = 5;
+    params->maxInitialHeight = 2;
     params->maxHeight = 10;
 
     // synth genetic params
@@ -256,8 +256,8 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 	currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
 	currentPrimitives->push_back(createNode("(+ (null) (null))", &rng));
 	currentPrimitives->push_back(createNode("(whitenoise)", &rng));
-	currentPrimitives->push_back(createNode("(time)", &rng));
-	currentPrimitives->push_back(createNode("(if (null) (null) (null))", &rng));
+	//currentPrimitives->push_back(createNode("(time)", &rng));
+	//currentPrimitives->push_back(createNode("(if (null) (null) (null))", &rng));
 	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
 	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
 	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
@@ -286,22 +286,22 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
-	debugPrint("1\n");
+	//debugPrint("1\n");
 	deleteGenerationState();
-	debugPrint("2\n");
+	//debugPrint("2\n");
 	delete gpsynth;
-	debugPrint("3\n");
+	//debugPrint("3\n");
 	free(params);
-	debugPrint("4\n");
+	//debugPrint("4\n");
 	free(fitnesses);
-	debugPrint("5\n");
+	//debugPrint("5\n");
 	if (allvoicessampletimes != nullptr) {
 		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
 			free(allvoicessampletimes[i]);
 		}
 		free(allvoicessampletimes);
 	}
-	debugPrint("6\n");
+	//debugPrint("6\n");
 }
 
 /*
@@ -456,27 +456,26 @@ void GeneticProgrammingSynthesizerAudioProcessor::updateSampleTimes() {
 		maxnoteleninseconds = allvoicessampletimes[0][maxnumframes - 1];
 
 	if (algorithmPrepared)
-		setAlgorithm(algorithm);
+		setAlgorithm();
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::changeNumVariables(unsigned newnumvar) {
 	numvariables = newnumvar;
 	if (algorithmPrepared)
-		setAlgorithm(algorithm);
+		setAlgorithm();
 }
 
 // custom methods
-void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm(unsigned newalgo) {
+void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm() {
 	// clear out old voices
 	donePlaying();
 
 	// update current
-	currentAlgorithm = currentGeneration[newalgo];
-	currentCopies = currentGenerationCopies[newalgo];
+	currentAlgorithm = currentGeneration[algorithm];
+	currentCopies = currentGenerationCopies[algorithm];
 
-	// update slider params
-	algorithm = newalgo;
-	algorithmFitness = fitnesses[newalgo];
+	// update fitness slider
+	algorithmFitness = fitnesses[algorithm];
 
 	// add new voices
 	// if an algorithm was previously prepared
@@ -496,6 +495,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		currentGenerationCopies[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
 		GPNetwork* net = currentGeneration[i];
+		appendToTextFile("./debug.txt", String(net->toString(3).c_str()) + String("\n"));
 		//net->traceNetwork();
 		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 			GPNetwork* copy = net->getCopy("clone");
@@ -505,13 +505,16 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 	}
 	generationActive = true;
 
-	setAlgorithm(algorithm);
+	//algorithm = 0;
+	setAlgorithm();
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 	if (generationActive) {
 		//debugPrint("got to here\n");
+		donePlaying();
 		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+			fitnesses[i] = 0.0f;
 			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 				delete currentGenerationCopies[i][j];
 			}
@@ -522,11 +525,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::nextGeneration() {
-	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
-		gpsynth->assignFitness(currentGeneration[i], fitnesses[i]);
-	}
-	fillFromGeneration();
-	return;
+	nextGenerationPressed = true;
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
@@ -548,10 +547,18 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::timerCallback() {
+	//debugPrint("GPPlugin Timer Callback\n");
+	if (nextGenerationPressed) {
+		nextGenerationPressed = false;
+		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
+			gpsynth->assignFitness(currentGeneration[i], fitnesses[i]);
+		}
+		fillFromGeneration();
+	}
 	// only set algorithm if algorithm has changed from the last set algorithm but has been constant for two callbacks
-	debugPrint("GPPlugin Timer Callback\n");
-	if (algorithmLastTimer != algorithm)
-		setAlgorithm(algorithm);
+	else if (algorithmLastTimer != algorithm) {
+		setAlgorithm();
+	}
 	algorithmLastTimer = algorithm;
 }
 
@@ -648,7 +655,6 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     {
 	case algorithmParam:
 		algorithm = (unsigned) newValue;
-		//setAlgorithm(algorithm);
 		algorithmFitness = fitnesses[algorithm];
 		break;
 	case algorithmFitnessParam:

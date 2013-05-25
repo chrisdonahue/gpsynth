@@ -187,10 +187,19 @@ GPNetwork* GPSynth::getIndividual() {
 }
 
 void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
+    // if no more networks remain advance population
+    if (unevaluated.empty()) {
+        nextGeneration();
+    }
+
+	// if too many networks were asked for print and return
     if (unevaluated.size() < networks.size()) {
         std::cout << "Requested multiple individuals out of population that did not have enough remaining" << std::endl;
         return;
     }
+
+	// fill 'er up! (you should assignFitness on all of these before asking for another block
+	// otherwise you will probably get the same networks)
 	unsigned i = 0;
 	for (std::set<GPNetwork*>::iterator iter = unevaluated.begin(); i < networks.size(); i++, iter++) {
 		networks[i] = *(iter);
