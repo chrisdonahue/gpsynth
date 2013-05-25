@@ -310,6 +310,7 @@ int GPSynth::nextGeneration() {
     for (unsigned i = 0; i < numToNumericMutate; i++) {
         GPNetwork* selected = selectFromEvaluated(params->numericMutationSelectionType, numForPossibleNumericMutation);
         GPNetwork* one = selected->getCopy("numeric mutation");
+        one->traceNetwork();
         numericallyMutate(one);
         nextGeneration->push_back(one);
         //selected->fitness = newfitness;
@@ -608,7 +609,7 @@ void GPSynth::mutate(unsigned mutationType, GPNetwork* one) {
 }
 
 void GPSynth::numericallyMutate(GPNetwork* one) {
-    //std::cout << "BEFORE NUMERIC MUTATION " << one->toString() << std::endl;
+    //std::cout << "BEFORE NUMERIC MUTATION " << one->toString(3) << std::endl;
     double bestProportion = generationBestFitness / generationAverageFitness;
     double temperatureConstant = params->numericMutationTemperatureConstant;
 
@@ -638,7 +639,7 @@ void GPSynth::numericallyMutate(GPNetwork* one) {
             p->setDValue((int) (value + mutationAmount));
         }
     }
-    //std::cout << "AFTER NUMERIC MUTATION " << one->toString() << std::endl;
+    //std::cout << "AFTER NUMERIC MUTATION " << one->toString(3) << std::endl;
 }
 
 /*

@@ -74,8 +74,11 @@ TODO long run:
     implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
     figure out how to start without being in initialise method (new thread)
     fleschter munsion? :/
-    Check if numerical mutation is working... (valgrind base test not changing with numeric mutation)
+    
+    improve numerical mutation:
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
+        check if temperature mapping is working as i would like it to
+
     fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
     fitness function compares candidate/target envelopes
     amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
