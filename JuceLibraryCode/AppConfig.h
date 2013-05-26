@@ -174,19 +174,19 @@
  #define JucePlugin_Build_RTAS             0
 #endif
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "Genetic Programming Synthesizer"
+ #define JucePlugin_Name                   "evosynth"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "Genetic Programming Synthesizer"
+ #define JucePlugin_Desc                   "explore synthesis algorithms using genetic programming"
 #endif
 #ifndef  JucePlugin_Manufacturer
- #define JucePlugin_Manufacturer           "Radio Hunches Software"
+ #define JucePlugin_Manufacturer           "radiohunches software"
 #endif
 #ifndef  JucePlugin_ManufacturerCode
  #define JucePlugin_ManufacturerCode       ''
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             'PLUG'
+ #define JucePlugin_PluginCode             'EVSY'
 #endif
 #ifndef  JucePlugin_MaxNumInputChannels
  #define JucePlugin_MaxNumInputChannels    2

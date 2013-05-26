@@ -34,21 +34,17 @@ Interactive:
         maxNoteLength
         maxNetworkHeight
         amplitude gain
+	
+	TODO for prototype:
+		Polyphony
+		Previous generation
+		Adjust layout
+		More primitives
+		Remember chosen save directory
+		TEST
 
     Prototype:
-        fix memory glitch
-        add tail off
-        primitive timer
-        change name
-
         fixed primitive set, fixed maxNoteLength, fixed maxNetworkHeight
-        One slider to select synth number
-        One slider to select level
-        One slider to assign fitness (with assign fitness button)
-        One slider for amplitude
-        On screen piano keyboard
-        Keyboard control
-        Next generation control, no fitness for now
         Save network button
 
 Names:

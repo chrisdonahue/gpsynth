@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  26 May 2013 11:54:07am
+  Creation date:  26 May 2013 4:47:23pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -210,21 +210,21 @@ void GeneticProgrammingSynthesizerComponent::paint (Graphics& g)
 
 void GeneticProgrammingSynthesizerComponent::resized()
 {
-    fitness->setBounds (80, 150, 300, 24);
-    algonum->setBounds (80, 120, 300, 24);
-    title->setBounds (112, 40, 176, 44);
-    algolabel->setBounds (6, 120, 68, 24);
-    fitlabel->setBounds (10, 148, 64, 24);
-    gasetlabel->setBounds (110, 90, 180, 20);
-    playsetlabel->setBounds (133, 190, 134, 22);
-    gain->setBounds (80, 220, 300, 24);
-    gainlabel->setBounds (32, 220, 32, 24);
-    save->setBounds (45, 280, 150, 24);
+    fitness->setBounds (80, 170, 300, 24);
+    algonum->setBounds (80, 140, 300, 24);
+    title->setBounds (112, 46, 176, 46);
+    algolabel->setBounds (6, 140, 68, 24);
+    fitlabel->setBounds (10, 168, 64, 24);
+    gasetlabel->setBounds (110, 110, 180, 20);
+    playsetlabel->setBounds (133, 220, 134, 22);
+    gain->setBounds (80, 250, 300, 24);
+    gainlabel->setBounds (32, 250, 32, 24);
+    save->setBounds (47, 300, 150, 24);
     logo->setBounds (0, 5, 400, 40);
-    load->setBounds (45, 315, 150, 24);
-    RHSlabel->setBounds (250, 370, 146, 25);
-    nextgen->setBounds (205, 280, 150, 24);
-    prevgen->setBounds (205, 315, 150, 24);
+    load->setBounds (47, 335, 150, 24);
+    RHSlabel->setBounds (254, 378, 146, 25);
+    nextgen->setBounds (207, 300, 150, 24);
+    prevgen->setBounds (207, 335, 150, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -329,49 +329,49 @@ BEGIN_JUCER_METADATA
                  initialHeight="400">
   <BACKGROUND backgroundColour="ff000000"/>
   <SLIDER name="fitness" id="16a1b0db54c88216" memberName="fitness" virtualName=""
-          explicitFocusOrder="0" pos="80 150 300 24" min="0" max="1" int="0"
+          explicitFocusOrder="0" pos="80 170 300 24" min="0" max="1" int="0"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="algonum" id="58d24870e11eeb51" memberName="algonum" virtualName=""
-          explicitFocusOrder="0" pos="80 120 300 24" min="0" max="9" int="1"
+          explicitFocusOrder="0" pos="80 140 300 24" min="0" max="9" int="1"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="title" id="64fb69a603b235c5" memberName="title" virtualName=""
-         explicitFocusOrder="0" pos="112 40 176 44" textCol="ff4a9a2d"
+         explicitFocusOrder="0" pos="112 46 176 46" textCol="ff4a9a2d"
          edTextCol="ff000000" edBkgCol="0" labelText="evosynth" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="45" bold="0" italic="0" justification="36"/>
   <LABEL name="algolabel" id="26fd3e265f6c4c7d" memberName="algolabel"
-         virtualName="" explicitFocusOrder="0" pos="6 120 68 24" textCol="ff637fe8"
+         virtualName="" explicitFocusOrder="0" pos="6 140 68 24" textCol="ff637fe8"
          edTextCol="ff000000" edBkgCol="0" labelText="algorithm" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="33"/>
   <LABEL name="fitlabel" id="4461d1426f065552" memberName="fitlabel" virtualName=""
-         explicitFocusOrder="0" pos="10 148 64 24" textCol="ff637fe8"
+         explicitFocusOrder="0" pos="10 168 64 24" textCol="ff637fe8"
          edTextCol="ff000000" edBkgCol="0" labelText="fitness" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="36"/>
   <LABEL name="gasetlabel" id="180d29bebe10a4cf" memberName="gasetlabel"
-         virtualName="" explicitFocusOrder="0" pos="110 90 180 20" textCol="ffffffff"
+         virtualName="" explicitFocusOrder="0" pos="110 110 180 20" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="genetic algorithm settings"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="36"/>
   <LABEL name="playsetlabel" id="4b4f0b44a043419a" memberName="playsetlabel"
-         virtualName="" explicitFocusOrder="0" pos="133 190 134 22" textCol="ffffffff"
+         virtualName="" explicitFocusOrder="0" pos="133 220 134 22" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="playback settings"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="36"/>
   <SLIDER name="gain" id="95c3e13e05b5350b" memberName="gain" virtualName=""
-          explicitFocusOrder="0" pos="80 220 300 24" min="0" max="1" int="0"
+          explicitFocusOrder="0" pos="80 250 300 24" min="0" max="1" int="0"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="gainlabel" id="8fa2033431b21d08" memberName="gainlabel"
-         virtualName="" explicitFocusOrder="0" pos="32 220 32 24" textCol="ff637fe8"
+         virtualName="" explicitFocusOrder="0" pos="32 250 32 24" textCol="ff637fe8"
          edTextCol="ff000000" edBkgCol="0" labelText="gain" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="save" id="55746809785deaaa" memberName="save" virtualName=""
-              explicitFocusOrder="0" pos="45 280 150 24" bgColOff="ff7575e8"
+              explicitFocusOrder="0" pos="47 300 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="save algorithm" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <IMAGEBUTTON name="logo" id="a545b1fcad830a39" memberName="logo" virtualName=""
@@ -380,20 +380,20 @@ BEGIN_JUCER_METADATA
                opacityNormal="1" colourNormal="0" resourceOver="" opacityOver="1"
                colourOver="0" resourceDown="" opacityDown="1" colourDown="0"/>
   <TEXTBUTTON name="load" id="50cb436ea9e66b16" memberName="load" virtualName=""
-              explicitFocusOrder="0" pos="45 315 150 24" bgColOff="ff7575e8"
+              explicitFocusOrder="0" pos="47 335 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="load algorithm" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="RHSlabel" id="c93e434e2bed1556" memberName="RHSlabel" virtualName=""
-         explicitFocusOrder="0" pos="250 370 146 25" textCol="ffffffff"
+         explicitFocusOrder="0" pos="254 378 146 25" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="&#169; 2013 Radio Hunches Software"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="10" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="nextgen" id="b9b03db880bd4c49" memberName="nextgen" virtualName=""
-              explicitFocusOrder="0" pos="205 280 150 24" bgColOff="ff7575e8"
+              explicitFocusOrder="0" pos="207 300 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="next generation" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="prevgen" id="9ba9053392282fa5" memberName="prevgen" virtualName=""
-              explicitFocusOrder="0" pos="205 315 150 24" bgColOff="ff7575e8"
+              explicitFocusOrder="0" pos="207 335 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="prev generation" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
@@ -617,3 +617,8 @@ static const unsigned char resource_GeneticProgrammingSynthesizerComponent_sine_
 
 const char* GeneticProgrammingSynthesizerComponent::sine_png = (const char*) resource_GeneticProgrammingSynthesizerComponent_sine_png;
 const int GeneticProgrammingSynthesizerComponent::sine_pngSize = 11683;
+
+
+
+//[EndFile] You can add extra defines here...
+//[/EndFile]

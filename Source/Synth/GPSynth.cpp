@@ -221,6 +221,7 @@ bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 	}
 
 	// check to make sure nu is the right height
+	nu->traceNetwork();
 	if (nu->height > params->maxHeight) {
 		std::cerr << "Tried replacing individual that is too tall for the population" << std::endl;
 		return false;
@@ -228,7 +229,6 @@ bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 
 	// otherwise lets go ahead and insert it into our population
 	nu->ID = old->ID;
-	nu->traceNetwork();
 
 	// replace the old network in the current generation
 	currentGeneration[oldGenerationID] = nu;
@@ -253,6 +253,9 @@ bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 
 	// delete the old
 	delete old;
+
+	// replacement successful
+	return true;
 }
 
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {

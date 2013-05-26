@@ -638,10 +638,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
-    WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
+    //WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
     FileBrowserComponent browser (FileBrowserComponent::saveMode,
                                   File::nonexistent,
-                                  &wildcardFilter,
+								  nullptr, //&wildcardFilter,
                                   nullptr);
     FileChooserDialogBox dialogBox ("choose a location to save the synthesis algorithm",
                                     String::empty,
@@ -657,7 +657,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
 
 void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() {
     WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
-    FileBrowserComponent browser (FileBrowserComponent::openMode,
+    FileBrowserComponent browser (FileBrowserComponent::canSelectFiles,
                                   File::nonexistent,
                                   &wildcardFilter,
                                   nullptr);
@@ -670,16 +670,19 @@ void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() 
     {
         File selectedFile = browser.getSelectedFile (0);
 		String algorithmText = readTextFromFile(selectedFile.getFileName());
-		GPNetwork* nu = new GPNetwork(algorithmText.toStdString(), &rng);
+		GPNetwork* nu = new GPNetwork(&rng, algorithmText.toStdString());
+		debugPrint("replacing: " + currentAlgorithm->toString(3) + " with: " + nu->toString(3));
 		if (gpsynth->replaceIndividual(currentAlgorithm, nu)) {
 			debugPrint("successful replace\n");
-			currentAlgorithm = nu;
 			currentGeneration[algorithm] = nu;
+			fitnesses[algorithm] = 0.0f;
 			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+				delete currentGenerationCopies[algorithm][j];
 				GPNetwork* copy = nu->getCopy("clone");
 				copy->traceNetwork();
 				currentGenerationCopies[algorithm][j] = copy;
 			}
+			setAlgorithm();
 		}
     }
 }
