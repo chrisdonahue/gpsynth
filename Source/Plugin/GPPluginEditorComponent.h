@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  21 May 2013 8:26:52pm
+  Creation date:  26 May 2013 11:54:07am
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -19,8 +19,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_96566F03__
-#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_96566F03__
+#ifndef __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_F77673E1__
+#define __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_F77673E1__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "GPPluginProcessor.h"
@@ -59,6 +59,9 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved);
     void buttonClicked (Button* buttonThatWasClicked);
 
+    // Binary resources:
+    static const char* sine_png;
+    static const int sine_pngSize;
 
 
     //==============================================================================
@@ -79,9 +82,13 @@ private:
     Label* gasetlabel;
     Label* playsetlabel;
     Slider* gain;
-    Label* amplabel;
+    Label* gainlabel;
     TextButton* save;
+    ImageButton* logo;
+    TextButton* load;
+    Label* RHSlabel;
     TextButton* nextgen;
+    TextButton* prevgen;
 
 
     //==============================================================================
@@ -91,4 +98,4 @@ private:
 };
 
 
-#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_96566F03__
+#endif   // __JUCER_HEADER_GENETICPROGRAMMINGSYNTHESIZERCOMPONENT_GPPLUGINEDITORCOMPONENT_F77673E1__
