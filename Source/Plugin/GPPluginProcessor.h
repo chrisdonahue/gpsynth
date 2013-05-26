@@ -41,8 +41,10 @@ public:
 	void setAlgorithm();
 	void fillFromGeneration();
 	void deleteGenerationState();
-	void nextGeneration();
 	void saveCurrentNetwork();
+	void loadReplacingCurrentNetwork();
+	void prevGeneration();
+	void nextGeneration();
     void timerCallback();
 	void debugPrint(String dbgmsg);
 
@@ -145,6 +147,7 @@ private:
 	std::vector<GPNetwork**> currentGenerationCopies;
 
 	// flags for timer on high-memory operations
+	bool prevGenerationPressed;
 	bool nextGenerationPressed;
 	unsigned algorithmLastTimer;
 

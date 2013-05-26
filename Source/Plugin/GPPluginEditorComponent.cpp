@@ -307,6 +307,8 @@ void GeneticProgrammingSynthesizerComponent::getSliders(std::map<String, Slider*
 
 void GeneticProgrammingSynthesizerComponent::getButtons(std::map<String, Button*>& buttons) {
 	buttons["save"] = save;
+	buttons["load"] = load;
+	buttons["prevgen"] = prevgen;
 	buttons["nextgen"] = nextgen;
 }
 //[/MiscUserCode]

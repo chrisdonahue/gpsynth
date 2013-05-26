@@ -206,6 +206,55 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 	}
 }
 
+bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
+	// check if old is already evaluated
+	if (evaluated.find(old) != evaluated.end()) {
+		std::cerr << "Tried replacing population individual that had already been evaluated" << std::endl;
+		return false;
+	}
+
+	// check if old is still in population
+	unsigned oldGenerationID = old->ID % populationSize;
+	if (currentGeneration[oldGenerationID] != old) {
+		std::cerr << "Tried replacing individual that is not in the current generation" << std::endl;
+		return false;
+	}
+
+	// check to make sure nu is the right height
+	if (nu->height > params->maxHeight) {
+		std::cerr << "Tried replacing individual that is too tall for the population" << std::endl;
+		return false;
+	}
+
+	// otherwise lets go ahead and insert it into our population
+	nu->ID = old->ID;
+	nu->traceNetwork();
+
+	// replace the old network in the current generation
+	currentGeneration[oldGenerationID] = nu;
+
+	// replace the old in evaluated/unevaluated
+	unevaluated.erase(old);
+	evaluated.erase(old);
+    if (nu->fitness != -1) {
+        if (params->verbose)
+            std::cout << "Replacement individual " << nu->ID << " made by " << nu->origin << " with height " << nu->height << " and structure " << nu->toString(params->printPrecision) << " was already evaluated and replaced algorithm " << old->ID << " ." << std::endl;
+        assignFitness(nu, nu->fitness);
+    }
+    else {
+        unevaluated.insert(nu);
+    }
+
+	// replace the old network in the string backups
+    if (params->backupAllNetworks) {
+		delete allNetworks[oldGenerationID];
+		allNetworks[oldGenerationID] = new std::string(nu->toString(params->backupPrecision));
+	}
+
+	// delete the old
+	delete old;
+}
+
 int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     // assign network fitness and move it to evaluated
     net->fitness = fitness;

@@ -293,7 +293,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
 		generationActive(false), algorithmPrepared(false),
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr),
-		nextGenerationPressed(false), algorithmLastTimer(algorithm)
+		prevGenerationPressed(false), nextGenerationPressed(false), algorithmLastTimer(algorithm)
 {
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
@@ -637,17 +637,13 @@ void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 	generationActive = false;
 }
 
-void GeneticProgrammingSynthesizerAudioProcessor::nextGeneration() {
-	nextGenerationPressed = true;
-}
-
 void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
-    WildcardFileFilter wildcardFilter ("*.synth", String::empty, "Foo files");
+    WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
     FileBrowserComponent browser (FileBrowserComponent::saveMode,
                                   File::nonexistent,
                                   &wildcardFilter,
                                   nullptr);
-    FileChooserDialogBox dialogBox ("Choose a location to save the synthesizer patch",
+    FileChooserDialogBox dialogBox ("choose a location to save the synthesis algorithm",
                                     String::empty,
                                     browser,
                                     false,
@@ -659,8 +655,45 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
     }
 }
 
+void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() {
+    WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
+    FileBrowserComponent browser (FileBrowserComponent::openMode,
+                                  File::nonexistent,
+                                  &wildcardFilter,
+                                  nullptr);
+    FileChooserDialogBox dialogBox ("choose a synthesis algorithm to replace the current algorithm",
+                                    String::empty,
+                                    browser,
+                                    false,
+                                    Colours::lightgrey);
+    if (dialogBox.show())
+    {
+        File selectedFile = browser.getSelectedFile (0);
+		String algorithmText = readTextFromFile(selectedFile.getFileName());
+		GPNetwork* nu = new GPNetwork(algorithmText.toStdString(), &rng);
+		if (gpsynth->replaceIndividual(currentAlgorithm, nu)) {
+			debugPrint("successful replace\n");
+			currentAlgorithm = nu;
+			currentGeneration[algorithm] = nu;
+			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+				GPNetwork* copy = nu->getCopy("clone");
+				copy->traceNetwork();
+				currentGenerationCopies[algorithm][j] = copy;
+			}
+		}
+    }
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::nextGeneration() {
+	nextGenerationPressed = true;
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::prevGeneration() {
+	prevGenerationPressed = true;
+}
+
 void GeneticProgrammingSynthesizerAudioProcessor::timerCallback() {
-	//debugPrint("GPPlugin Timer Callback\n");
+	// advance generation if requested in last timer cycle
 	if (nextGenerationPressed) {
 		nextGenerationPressed = false;
 		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
@@ -668,10 +701,15 @@ void GeneticProgrammingSynthesizerAudioProcessor::timerCallback() {
 		}
 		fillFromGeneration();
 	}
+	// revert to last generation if requested in last timer cycle
+	else if (prevGenerationPressed) {
+		// TODO: fill in later
+	}
 	// only set algorithm if algorithm has changed from the last set algorithm but has been constant for two callbacks
 	else if (algorithmLastTimer != algorithm) {
 		setAlgorithm();
 	}
+
 	algorithmLastTimer = algorithm;
 }
 

@@ -30,6 +30,7 @@ public:
     // EVOLUTION CONTROL
     GPNetwork* getIndividual();
     void getIndividuals(std::vector<GPNetwork*>& networks);
+	bool replaceIndividual(GPNetwork* old, GPNetwork* nu);
     int assignFitness(GPNetwork* net, double fitness);
     int prevGeneration();
     void printGenerationDelim();

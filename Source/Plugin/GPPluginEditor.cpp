@@ -148,6 +148,12 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::buttonClicked (Button* b
 	if (button == buttons["save"]) {
 		getProcessor()->saveCurrentNetwork();
 	}
+	else if (button == buttons["load"]) {
+		getProcessor()->loadReplacingCurrentNetwork();
+	}
+	else if (button == buttons["prevgen"]) {
+		getProcessor()->prevGeneration();
+	}
 	else if (button == buttons["nextgen"]) {
 		getProcessor()->nextGeneration();
 	}

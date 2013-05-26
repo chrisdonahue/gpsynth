@@ -94,3 +94,11 @@ void appendToTextFile(String path, String text) {
     }
     output.appendText(text);
 }
+
+String readTextFromFile(String path) {
+    File input(path);
+    if (!input.existsAsFile()) {
+		return String::empty;
+    }
+	return input.loadFileAsString();
+}
