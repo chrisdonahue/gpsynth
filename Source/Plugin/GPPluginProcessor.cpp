@@ -102,7 +102,7 @@ public:
         else
         {
             // we're being told to stop playing immediately, so reset everything..
-
+			playing = false;
             clearCurrentNote();
         }
     }
@@ -119,36 +119,35 @@ public:
 
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
     {
-		appendToTextFile("./debug.txt", "renderNextBlock: " + String(numBufferFrames) + " " + String(numSamples) + "\n");
+		//appendToTextFile("./debug.txt", "renderNextBlock: " + String(numBufferFrames) + " " + String(numSamples) + "\n");
 		assert(numBufferFrames == numSamples);
 		if (playing) {
 			// fill audio buffers
 			// if we are going at the end of our sample times within this render block
-			appendToTextFile("./debug.txt", String(frameNumber) + ", " + String(numBufferFrames) + ", " + String(maxNumFrames) + "\n");
+			//appendToTextFile("./debug.txt", String(frameNumber) + ", " + String(numBufferFrames) + ", " + String(maxNumFrames) + "\n");
 			if (frameNumber + numBufferFrames > maxNumFrames) {
-				appendToTextFile("./debug.txt", "2\n");
+				//appendToTextFile("./debug.txt", "2\n");
 				network->evaluateBlockPerformance(frameNumber, maxNumFrames - frameNumber, frameTimes + frameNumber, numVariables, variables, buffer);
 				outputBuffer.clear(maxNumFrames - frameNumber, numBufferFrames - (maxNumFrames - frameNumber));
-				playing = false;
-				clearCurrentNote();
+				frameNumber += maxNumFrames - frameNumber;
 			}
 			// else fill render block normally
 			else {
-				appendToTextFile("./debug.txt", "3\n");
+				//appendToTextFile("./debug.txt", "3\n");
 				network->evaluateBlockPerformance(frameNumber, numBufferFrames, frameTimes + frameNumber, numVariables, variables, buffer);
 				frameNumber += numBufferFrames;
 			}
 
-			appendToTextFile("./debug.txt", "4\n");
+			//appendToTextFile("./debug.txt", "4\n");
 			// apply MIDI velocity and possible tail
 			// if we are in the middle of a tail render
 			if (userTailInProgress || forcedTailInProgress) {
-				appendToTextFile("./debug.txt", "5\n");
+				//appendToTextFile("./debug.txt", "5\n");
 				applyTail();
 			}
 			// else if we will need to begin a tail render in this block
 			else if (frameNumber + numSamples > forceTailFrameNumber) {
-				appendToTextFile("./debug.txt", "6\n");
+				//appendToTextFile("./debug.txt", "6\n");
 				while (bufferIndex < forceTailFrameNumber) {
 					buffer[bufferIndex] = buffer[bufferIndex] * level;
 					bufferIndex++;
@@ -158,7 +157,7 @@ public:
 			}
 			// else no tail so just apply MIDI velocity
 			else {
-				appendToTextFile("./debug.txt", "7\n");
+				//appendToTextFile("./debug.txt", "7\n");
 				while (bufferIndex < numSamples) {
 					buffer[bufferIndex] = buffer[bufferIndex] * level;
 					bufferIndex++;
@@ -169,7 +168,7 @@ public:
 			bufferIndex = 0;
 
 			// copy to all outputs
-			appendToTextFile("./debug.txt", "8\n");
+			//appendToTextFile("./debug.txt", "8\n");
 			for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
 				memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numBufferFrames);
 			}
@@ -202,6 +201,9 @@ public:
 				bufferIndex++;
 				tailBufferIndex++;
 			}
+			// because our notes will always have a tail, this is the only time playing can be set to false
+			playing = false;
+			clearCurrentNote();
 		}
 	}
 
