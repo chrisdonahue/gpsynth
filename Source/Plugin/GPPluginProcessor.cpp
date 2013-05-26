@@ -66,18 +66,22 @@ public:
 			for (unsigned i = 0; i < numTailFrames; i++) {
 				tailBuffer[i] = i * (-1.0f / numTailFrames) + 1.0f;
 			}
+			//appendToTextFile("./debug.txt", "tail0: " + String(tailBuffer[0]) + " tail n/2: " + String(tailBuffer[numTailFrames/2]) + " tail n-1: " + String(tailBuffer[numTailFrames -1]) + "\n");
 		}
 	}
 
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
 	{
-		appendToTextFile("./debug.txt", "startNote");
-		// fill current render  info
+		//appendToTextFile("./debug.txt", "startNote");
+		// fill current note info
 		playing = true;
 		frameNumber = 0;
 		level = velocity * 0.15;
+
+		// fill current render block info
 		bufferIndex = 0;
+		numRequestedFrames = 0;
 
 		// fill current tail info
 		tailBufferIndex = 0;
@@ -95,7 +99,7 @@ public:
             // start a tail-off by setting this flag. The render callback will pick up on
             // this and do a fade out, calling clearCurrentNote() when it's finished.
 
-			if (!forcedTailInProgress) {
+			if (playing && !forcedTailInProgress) {
 				userTailInProgress = true;
 			}
         }
@@ -117,38 +121,46 @@ public:
         // TODO
     }
 
+	// MIGHT BE CALLED ON NUMSAMPLES <= NUM BUFFER FRAMES BUT SHOULDNT BE CALLED ON >
     void renderNextBlock (AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
     {
 		//appendToTextFile("./debug.txt", "renderNextBlock: " + String(numBufferFrames) + " " + String(numSamples) + "\n");
-		assert(numBufferFrames == numSamples);
+		assert(numSamples <= numBufferFrames);
 		if (playing) {
+			numRequestedFrames = (unsigned) numSamples;
+			/*
+			appendToTextFile("./debug.txt", "START: "
+				 + String(frameNumber) + ", "
+				 + String(numBufferFrames) + ", "
+				 + String(maxNumFrames) + ", "
+				 + String(userTailInProgress) + ", "
+				 + String(forcedTailInProgress) + ", "
+				 + String(forceTailFrameNumber) + ", "
+				 + String(tailBufferIndex) + ", "
+				 + String(numTailFrames) + "\n");
+				 */
 			// fill audio buffers
 			// if we are going at the end of our sample times within this render block
-			//appendToTextFile("./debug.txt", String(frameNumber) + ", " + String(numBufferFrames) + ", " + String(maxNumFrames) + "\n");
-			if (frameNumber + numBufferFrames > maxNumFrames) {
-				//appendToTextFile("./debug.txt", "2\n");
+			if (frameNumber + numRequestedFrames > maxNumFrames) {
 				network->evaluateBlockPerformance(frameNumber, maxNumFrames - frameNumber, frameTimes + frameNumber, numVariables, variables, buffer);
-				outputBuffer.clear(maxNumFrames - frameNumber, numBufferFrames - (maxNumFrames - frameNumber));
 				frameNumber += maxNumFrames - frameNumber;
 			}
 			// else fill render block normally
 			else {
-				//appendToTextFile("./debug.txt", "3\n");
-				network->evaluateBlockPerformance(frameNumber, numBufferFrames, frameTimes + frameNumber, numVariables, variables, buffer);
-				frameNumber += numBufferFrames;
+				network->evaluateBlockPerformance(frameNumber, numRequestedFrames, frameTimes + frameNumber, numVariables, variables, buffer);
+				frameNumber += numRequestedFrames;
 			}
 
-			//appendToTextFile("./debug.txt", "4\n");
 			// apply MIDI velocity and possible tail
 			// if we are in the middle of a tail render
 			if (userTailInProgress || forcedTailInProgress) {
-				//appendToTextFile("./debug.txt", "5\n");
 				applyTail();
 			}
-			// else if we will need to begin a tail render in this block
-			else if (frameNumber + numSamples > forceTailFrameNumber) {
-				//appendToTextFile("./debug.txt", "6\n");
-				while (bufferIndex < forceTailFrameNumber) {
+			// else if we will need to begin a force tail render in this block
+			// TODO: should this be GREQ?
+			else if (frameNumber >= forceTailFrameNumber) {
+				unsigned numUntailedFramesInBuffer = numRequestedFrames - (frameNumber - forceTailFrameNumber);
+				while (bufferIndex < numUntailedFramesInBuffer) {
 					buffer[bufferIndex] = buffer[bufferIndex] * level;
 					bufferIndex++;
 				}
@@ -157,7 +169,6 @@ public:
 			}
 			// else no tail so just apply MIDI velocity
 			else {
-				//appendToTextFile("./debug.txt", "7\n");
 				while (bufferIndex < numSamples) {
 					buffer[bufferIndex] = buffer[bufferIndex] * level;
 					bufferIndex++;
@@ -168,10 +179,20 @@ public:
 			bufferIndex = 0;
 
 			// copy to all outputs
-			//appendToTextFile("./debug.txt", "8\n");
 			for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
-				memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numBufferFrames);
+				memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numRequestedFrames);
 			}
+			/*
+			appendToTextFile("./debug.txt", "END: "
+				 + String(frameNumber) + ", "
+				 + String(numBufferFrames) + ", "
+				 + String(maxNumFrames) + ", "
+				 + String(userTailInProgress) + ", "
+				 + String(forcedTailInProgress) + ", "
+				 + String(forceTailFrameNumber) + ", "
+				 + String(tailBufferIndex) + ", "
+				 + String(numTailFrames) + "\n");
+				 */
 		}
     }
 
@@ -180,14 +201,16 @@ public:
 	//		anywhere in the middle of the buffer
 	//		buffer may run out before tail does
 	//		tail my run out before buffer does
+	// have to be in the middle of applying a tail
 	inline void applyTail() {
 		// find out how many remain of the tail and this render block
 		unsigned numTailFramesRemaining = numTailFrames - tailBufferIndex;
-		unsigned numBufferFramesRemaining = numBufferFrames - bufferIndex;
-
+		unsigned numBufferFramesRemaining = numRequestedFrames - bufferIndex;
+		//appendToTextFile("./debug.txt", "APPLY TAIL START: " + String(numTailFramesRemaining) + ", " + String(numBufferFramesRemaining) + "\n");
 		// if our buffer is going to run out before our tail
 		if (numTailFramesRemaining > numBufferFramesRemaining) {
-			while (bufferIndex < numBufferFrames) {
+			//appendToTextFile("./debug.txt", "1: " + String(bufferIndex) + ", " + String(tailBufferIndex) + "\n");
+			while (bufferIndex < numRequestedFrames) {
 				buffer[bufferIndex] = buffer[bufferIndex] * level * tailBuffer[tailBufferIndex];
 				bufferIndex++;
 				tailBufferIndex++;
@@ -196,15 +219,22 @@ public:
 
 		// else our tail is going to run out before our buffer
 		else {
+			//appendToTextFile("./debug.txt", "2: " + String(bufferIndex) + ", " + String(tailBufferIndex) + "\n");
 			while (tailBufferIndex < numTailFrames) {
 				buffer[bufferIndex] = buffer[bufferIndex] * level * tailBuffer[tailBufferIndex];
 				bufferIndex++;
 				tailBufferIndex++;
 			}
+			while (bufferIndex < numRequestedFrames) {
+				buffer[bufferIndex] = 0.0;
+				bufferIndex++;
+			}
 			// because our notes will always have a tail, this is the only time playing can be set to false
 			playing = false;
 			clearCurrentNote();
 		}
+		//appendToTextFile("./debug.txt", "3: " + String(bufferIndex) + ", " + String(tailBufferIndex) + "\n");
+		//appendToTextFile("./debug.txt", "APPLY TAIL END: " + String(numTailFramesRemaining) + ", " + String(numBufferFramesRemaining) + "\n");
 	}
 
     bool canPlaySound (SynthesiserSound* sound)
@@ -235,7 +265,10 @@ private:
 	bool playing;
 	unsigned frameNumber;
     float level;
+
+	// current render block info
 	unsigned bufferIndex;
+	unsigned numRequestedFrames;
 
 	// current tail info
 	unsigned tailBufferIndex;
@@ -391,7 +424,7 @@ GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudio
 
 void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-	debugPrint("processor prepareToPlay: " + String(sampleRate) + " " + String(samplesPerBlock) + "\n");
+	//debugPrint("processor prepareToPlay: " + String(sampleRate) + " " + String(samplesPerBlock) + "\n");
 
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
@@ -408,7 +441,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
 	// prepare copies for rendering and add voices
 	for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
 		currentCopies[i]->prepareToRender(samplerate, numsamplesperblock, maxnumframes, maxnoteleninseconds);
-		synth.addVoice(new GPVoice(currentCopies[i], maxnumframes, allvoicessampletimes[i], (unsigned) samplesPerBlock, (unsigned) taillengthseconds * samplerate, numvariables));
+		synth.addVoice(new GPVoice(currentCopies[i], maxnumframes, allvoicessampletimes[i], numsamplesperblock, (unsigned) (taillengthseconds * samplerate), numvariables));
 	}
 	algorithmPrepared = true;
 
@@ -418,7 +451,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::prepareToPlay (double sampleRa
 
 void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
 {
-	debugPrint("processor releaseResources: " + String(samplerate) + "\n");
+	//debugPrint("processor releaseResources: " + String(samplerate) + "\n");
 
 	// remove old voices
 	if (algorithmPrepared) {
@@ -437,7 +470,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
 
 void GeneticProgrammingSynthesizerAudioProcessor::reset()
 {
-	debugPrint("processor reset: " + String(samplerate) + "\n");
+	//debugPrint("processor reset: " + String(samplerate) + "\n");
     // Use this method as the place to clear any delay lines, buffers, etc, as it
     // means there's been a break in the audio's continuity.
     //delayBuffer.clear();
@@ -546,7 +579,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::changeNumVariables(unsigned ne
 
 // custom methods
 void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm() {
-	debugPrint("setAlgorithm called: " + String(algorithm) + "\n");
+	//debugPrint("setAlgorithm called: " + String(algorithm) + "\n");
 	// clear out old voices
 	releaseResources();
 
@@ -575,7 +608,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		currentGenerationCopies[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
 		GPNetwork* net = currentGeneration[i];
-		appendToTextFile("./debug.txt", String(net->toString(3).c_str()) + String("\n"));
+		debugPrint(String(net->toString(3).c_str()) + String("\n"));
 		//net->traceNetwork();
 		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 			GPNetwork* copy = net->getCopy("clone");
