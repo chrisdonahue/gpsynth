@@ -6,7 +6,7 @@ The Evolutionary Synthesizer (evosynth) is a tool that performs guided explorati
 
 ===== Q & A =====
 
-Q: How do I use this tool from a high level?
+Q: How do I use this tool?
 
 A:
 	---- genetic algorithm settings ----
@@ -47,6 +47,7 @@ A:
 		Ability to change primitive set
 		Ability to change max note length (currently hardcoded at 10 seconds)
 		Ability to change length of note tails (current hardcoded at 0.04 seconds)
+		Ability to change maxInitialHeight and maxHeight for expression trees (for performance)
 		'edit' button to edit {} parameters of the current algorithm using sliders
 		'random' button to replace current bad algorithm with new random-grown one
 		Variable control of LFO's (and more) using sliders
