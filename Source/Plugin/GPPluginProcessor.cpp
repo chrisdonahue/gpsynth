@@ -73,7 +73,7 @@ public:
     void startNote (const int midiNoteNumber, const float velocity,
                     SynthesiserSound* /*sound*/, const int /*currentPitchWheelPosition*/)
 	{
-		//appendToTextFile("./debug.txt", "startNote");
+		// appendToTextFile("./debug.txt", "startNote: " + String(network->ID) + "\n");
 		// fill current note info
 		playing = true;
 		frameNumber = 0;
@@ -179,6 +179,8 @@ public:
 			bufferIndex = 0;
 
 			// copy to all outputs
+			// TODO: this is the reason I dont have polyphony. Need to look at example plugin
+			// and copy it. Need to add buffer to outputBuffer instead of memcpy'ing it ; ;
 			for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
 				memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numRequestedFrames);
 			}
@@ -398,16 +400,12 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 GeneticProgrammingSynthesizerAudioProcessor::~GeneticProgrammingSynthesizerAudioProcessor()
 {
+	releaseResources();
 	deleteGenerationState();
+	clearSampleTimes();
 	delete gpsynth;
 	free(params);
 	free(fitnesses);
-	if (allvoicessampletimes != nullptr) {
-		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-			free(allvoicessampletimes[i]);
-		}
-		free(allvoicessampletimes);
-	}
 }
 
 /*
@@ -453,9 +451,12 @@ void GeneticProgrammingSynthesizerAudioProcessor::releaseResources()
 			currentCopies[i]->doneRendering();
 		}
 
+		/*
 		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
 			synth.removeVoice(i);
 		}
+		*/
+		synth.clearVoices();
 	}
 	algorithmPrepared = false;
 
@@ -541,13 +542,11 @@ void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffe
 */
 
 void GeneticProgrammingSynthesizerAudioProcessor::updateSampleTimes() {
+	// remove old sample time information
+	clearSampleTimes();
+
+	// update new max num frames from new maxnotelen or new samplerate
 	maxnumframes = (unsigned) maxnoteleninseconds * samplerate;
-	if (allvoicessampletimes != nullptr) {
-		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
-			free(allvoicessampletimes[i]);
-		}
-		free(allvoicessampletimes);
-	}
 	
 	// make sample timings for each voice to avoid concurrency issues
 	allvoicessampletimes = (float**) malloc(sizeof(float*) * numSynthVoicesPerAlgorithm);
@@ -558,11 +557,24 @@ void GeneticProgrammingSynthesizerAudioProcessor::updateSampleTimes() {
 			//debugPrint(String(allvoicessampletimes[i][j]) + "\n");
 		}
 	}
+
+	// correct rounding errors on maxnoteleninseconds
 	if (numSynthVoicesPerAlgorithm > 0 && maxnumframes > 0)
 		maxnoteleninseconds = allvoicessampletimes[0][maxnumframes - 1];
 
+	// reset algorithm if it was previously prepared
 	if (algorithmPrepared)
 		setAlgorithm();
+}
+
+void GeneticProgrammingSynthesizerAudioProcessor::clearSampleTimes() {
+	// free all previously used memory if nonempty
+	if (allvoicessampletimes != nullptr) {
+		for (unsigned i = 0; i < numSynthVoicesPerAlgorithm; i++) {
+			free(allvoicessampletimes[i]);
+		}
+		free(allvoicessampletimes);
+	}
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::changeNumVariables(unsigned newnumvar) {
@@ -609,6 +621,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 		//net->traceNetwork();
 		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 			GPNetwork* copy = net->getCopy("clone");
+			copy->ID = j;
 			copy->traceNetwork();
 			currentGenerationCopies[i][j] = copy;
 		}
@@ -676,6 +689,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() 
 			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 				delete currentGenerationCopies[algorithm][j];
 				GPNetwork* copy = nu->getCopy("clone");
+				copy->ID = j;
 				copy->traceNetwork();
 				currentGenerationCopies[algorithm][j] = copy;
 			}

@@ -10,7 +10,7 @@
 #define __PLUGINPROCESSOR_H_526ED7A9__
 
 #define POPULATIONSIZE 10
-#define NUMVOICES 1
+#define NUMVOICES 2
 #define MAXNOTELEN 10.0f
 #define TAILLEN 0.03f
 #define SAVEPRECISION 15
@@ -37,6 +37,7 @@ public:
 
 	// custom plugin methods
 	void updateSampleTimes();
+	void clearSampleTimes();
 	void changeNumVariables(unsigned numvariables);
 	void setAlgorithm();
 	void fillFromGeneration();

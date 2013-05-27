@@ -37,15 +37,12 @@ Interactive:
 	change allNetworks in GPSynth to std::string not std::string*.... so stupid
 	
 	TODO for prototype:
-		Polyphony
-		Test max initial depth/max height defaults
+		Polyphony (should just need to change outputBuffer filling)
+		More primitives
+		README
 		Remember chosen save directory
 		TEST
 		figure out why crashing with release config
-
-    Prototype:
-        fixed primitive set, fixed maxNoteLength, fixed maxNetworkHeight
-        Save network button
 
 Names:
 	synthsearch
