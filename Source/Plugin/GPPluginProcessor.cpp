@@ -182,7 +182,11 @@ public:
 			// TODO: this is the reason I dont have polyphony. Need to look at example plugin
 			// and copy it. Need to add buffer to outputBuffer instead of memcpy'ing it ; ;
 			for (int i = 0; i < outputBuffer.getNumChannels(); i++) {
-				memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numRequestedFrames);
+				float* chanBuff = outputBuffer.getSampleData(i, startSample);
+				for (int j = 0; j < numSamples; j++) {
+					chanBuff[j] += buffer[j];
+				}
+				//memcpy(outputBuffer.getSampleData(i, startSample), buffer, sizeof(float) * numRequestedFrames);
 			}
 			/*
 			appendToTextFile("./debug.txt", "END: "

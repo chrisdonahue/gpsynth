@@ -1,0 +1,54 @@
+version: 0.1
+
+===== INTRODUCTION =====
+
+The Evolutionary Synthesizer (evosynth) is a tool that performs guided exploration of the space of possible sound synthesis. The high level detail of what's going on is that multiple synthesis algorithms are being maintained in a virtual population and competing for fitness reward from you, the user. Your job is to listen to all of the algorithms (using the algorithm slider), and to assign a fitness between 0.0 and 1.0 for each of them (using the fitness slider). The higher the fitness slider, the higher the chance that the next population of synthesis algorithms will have characteristics of the selected algorithm.
+
+===== Q & A =====
+
+Q: How do I use this tool from a high level?
+
+A:
+	---- genetic algorithm settings ----
+	Audition some or all of the algorithms in the population using the algorithm slider. If you assign no fitnesses for any of the algorithms, the proceeding generation will have characteristics of the current generation at uniformly random probabilities. If you only assign one algorithm a non-zero fitness, the next population will only have characteristics of that algorithm.
+	
+	---- playback settings ----
+	Due to the nature of synthesis algorithms, some of the randomly constructed algorithms will sound like garbage, others will be too loud or too soft. A "gain" knob is included to adjust overall synthesis levels to avoid clipping.
+	
+	---- button controls ----
+	save algorithm: saves a text representation of the algorithm to your hard drive
+	load algorithm: loads a text representation of an algorithm from your hard drive
+	next generation: advances the population forward one generation and uses your fitness assignments
+	prev generation: reverts the population back by one generation (sorry, for now assigned fitnesses are not being saved from the past)
+	
+Q: Okay this is actually kind of cool... what's going on behind the scenes?
+
+A:
+
+	There will be a detailed paper about this soon, but as a summary evosynth is running a genetic algorithm on representations of synthesis algorithms. Genetic algorithms are algorithms that simulate the process of natural evolution on a population of phenotypes (in this case the sounds produced by the algorithms) by performing genetic operations on their genotypes (in this case S-expression tree representations of the algorithms).
+	
+	Each synthesis algorithm is encoded as an S-expression tree and maintained by a well-known technique called genetic programming. Genetic programming maintains a population of expression trees using a fairly organic system of crossover and mutation operations that manipulate the expression trees directly. When "next generation" is clicked, individuals from the population are selected proportionally to their user-provided fitness for genetic operations. Mutation randomly restructures a randomly-selected subtree of the selected algorithm (creating one new algorithm). Crossover selects two algorithms and swaps two randomly-selected subtrees from both (creating two new algorithms).
+
+Q: I see. What are in these algorithms?
+
+A:
+
+	There are a lot of possibilities for "primitives" which are the functional units that make up expression trees. In the future I will include a way to select which primitives are available for the population. For the moment, this is hardcoded and includes a number of sound building blocks such as sin wave oscillators, triangle wave oscillators, fm synthesisers, LFO's, constants, addition, multiplication and audio-based "logic" nodes. If you are really curious you can save a particular intriguing sound, open it in a text editor and look at what's going on.
+	
+	The expression trees read in prefix notation like LISP code. Objects in ()'s are functional nodes of the expression tree and objects in {} are the continuous (c) or discrete (d) constants of the encompassing functional node.
+	
+Q: I think this plugin is missing ___________:
+
+A:
+	
+	I appreciate you using the plug in long enough to have a feature suggestion! There are tons of things in the works, but please e-mail any feedback/crash reports/suggestions to radiohunches@gmail.com
+	
+	Some things that will be in future updates:
+		Ability to change primitive set
+		Ability to change max note length (currently hardcoded at 10 seconds)
+		Ability to change length of note tails (current hardcoded at 0.04 seconds)
+		'edit' button to edit {} parameters of the current algorithm using sliders
+		'random' button to replace current bad algorithm with new random-grown one
+		Variable control of LFO's (and more) using sliders
+		Save entire evolution history for later restoring
+		Novelty search to find good seed population

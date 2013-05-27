@@ -37,12 +37,11 @@ Interactive:
 	change allNetworks in GPSynth to std::string not std::string*.... so stupid
 	
 	TODO for prototype:
-		Polyphony (should just need to change outputBuffer filling)
 		More primitives
-		README
+		Check how fitness probabilities are working
 		Remember chosen save directory
 		TEST
-		figure out why crashing with release config
+		figure out why crashing in ableton
 
 Names:
 	synthsearch
