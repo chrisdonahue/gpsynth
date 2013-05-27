@@ -318,7 +318,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
     params->backupPrecision = 100;
     params->lowerFitnessIsBetter = false; //should be done in experiment
     params->bestPossibleFitness = 2.0; //should be done in experiment
-    params->maxInitialHeight = 2;
+    params->maxInitialHeight = 4;
     params->maxHeight = 10;
 
     // synth genetic params
@@ -375,20 +375,12 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 	currentPrimitives->push_back(createNode("(osc {d 0 0 1} {d 1 1 1})", &rng));
 	currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
 	currentPrimitives->push_back(createNode("(+ (null) (null))", &rng));
-	currentPrimitives->push_back(createNode("(whitenoise)", &rng));
-	//currentPrimitives->push_back(createNode("(time)", &rng));
-	//currentPrimitives->push_back(createNode("(if (null) (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	//currentPrimitives->push_back(createNode("(* (null) (null))", &rng));
-	// create
+	currentPrimitives->push_back(createNode("(lfo* {c 0 0.0 20} (null))", &rng));
+	currentPrimitives->push_back(createNode("(fm {d 0 0 1} {d 1 1 20} {c 0 1.0 5.0} (null))", &rng));
+	currentPrimitives->push_back(createNode("(time)", &rng));
+	currentPrimitives->push_back(createNode("(if (null) (null) (null))", &rng));
+
+	// create synth
 	gpsynth = new GPSynth(params, &rng, currentPrimitives);
 
 	// networks and population

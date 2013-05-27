@@ -18,6 +18,8 @@
 
 LFONode::LFONode(bool terminal, GPMutatableParam* rate, GPNode* mod)
 {
+	terminalLFO = terminal;
+
     mutatableParams.push_back(rate);
 
     if (terminalLFO) {

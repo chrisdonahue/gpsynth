@@ -46,16 +46,16 @@ void MixerNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
         for (unsigned i = 0; i < numSamples; i++) {
             float levelone;
             float leveltwo;
-            buffer[i] = descendantBuffers[1][i] * levelone + descendantBuffers[2][i] * leveltwo;
+            buffer[i] = descendantBuffers[0][i] * levelone + descendantBuffers[1][i] * leveltwo;
         }
     }
     else {
         for (unsigned i = 0; i < numSamples; i++) {
             if (buffer[i] <= 0) {
-                buffer[i] = descendantBuffers[1][i];
+                buffer[i] = descendantBuffers[0][i];
             }
             else {
-                buffer[i] = descendantBuffers[2][i];
+                buffer[i] = descendantBuffers[1][i];
             }
         }
     }

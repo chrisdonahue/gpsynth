@@ -138,7 +138,7 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
     else if (type.compare("lfo*") == 0) {
 		GPMutatableParam* lforate = createMutatableParam(tokenizer, true, "lforate");
 		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        return new LFONode(true, lforate, signal);
+        return new LFONode(false, lforate, signal);
     }
     // mixer nodes
     else if (type.compare("if") == 0) {
@@ -166,7 +166,7 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
     else if (type.compare("fm") == 0) {
 		GPMutatableParam* oscilvarnum = createMutatableParam(tokenizer, false, "oscilvarnum");
 		GPMutatableParam* oscilpartial = createMutatableParam(tokenizer, true, "oscilpartial");
-		GPMutatableParam* oscilindex = createMutatableParam(tokenizer, false, "oscilindex");
+		GPMutatableParam* oscilindex = createMutatableParam(tokenizer, true, "oscilindex");
 		GPNode* modsignal = createNode(tokenizer, subtreeArgs);
         return new OscilNode(false, oscilvarnum, oscilpartial, oscilindex, modsignal);
     }

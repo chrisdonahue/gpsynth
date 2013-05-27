@@ -12,7 +12,7 @@
 #define POPULATIONSIZE 10
 #define NUMVOICES 1
 #define MAXNOTELEN 10.0f
-#define TAILLEN 0.04f
+#define TAILLEN 0.03f
 #define SAVEPRECISION 15
 
 #include "../../JuceLibraryCode/JuceHeader.h"
