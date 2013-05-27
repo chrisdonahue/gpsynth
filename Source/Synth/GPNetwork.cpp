@@ -149,3 +149,8 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
 void GPNetwork::ephemeralRandom(GPRandom* r) {
     root->ephemeralRandom(r);
 }
+
+// method to compare networks by identification
+bool compareNetworksByID(GPNetwork* one, GPNetwork* two) {
+	return one->ID < two->ID;
+}

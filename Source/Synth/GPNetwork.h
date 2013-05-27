@@ -66,4 +66,6 @@ private:
     std::vector<GPMutatableParam*> allMutatableParams;
 };
 
+extern bool compareNetworksByID(GPNetwork* one, GPNetwork* two);
+
 #endif

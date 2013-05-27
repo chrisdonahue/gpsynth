@@ -133,6 +133,7 @@ private:
 	GPRandom rng;
 	GPParams* params;
 	std::vector<GPNode*>* currentPrimitives;
+	unsigned generationNum;
 	GPSynth* gpsynth;
 	
 	// networks and population

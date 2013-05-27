@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  26 May 2013 4:47:23pm
+  Creation date:  26 May 2013 6:57:44pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -138,7 +138,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     load->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
 
     addAndMakeVisible (RHSlabel = new Label (L"RHSlabel",
-                                             L"\xa9 2013 Radio Hunches Software"));
+                                             L"\xa9 2013 radio hunches software"));
     RHSlabel->setFont (Font (10.0000f, Font::plain));
     RHSlabel->setJustificationType (Justification::centredLeft);
     RHSlabel->setEditable (false, false, false);
@@ -147,13 +147,13 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     RHSlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
     addAndMakeVisible (nextgen = new TextButton (L"nextgen"));
-    nextgen->setButtonText (L"next generation");
+    nextgen->setButtonText (L"next generation >>");
     nextgen->addListener (this);
     nextgen->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
     nextgen->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
 
     addAndMakeVisible (prevgen = new TextButton (L"prevgen"));
-    prevgen->setButtonText (L"prev generation");
+    prevgen->setButtonText (L"<< prev generation");
     prevgen->addListener (this);
     prevgen->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
     prevgen->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
@@ -212,19 +212,19 @@ void GeneticProgrammingSynthesizerComponent::resized()
 {
     fitness->setBounds (80, 170, 300, 24);
     algonum->setBounds (80, 140, 300, 24);
-    title->setBounds (112, 46, 176, 46);
+    title->setBounds (112, 50, 176, 46);
     algolabel->setBounds (6, 140, 68, 24);
     fitlabel->setBounds (10, 168, 64, 24);
     gasetlabel->setBounds (110, 110, 180, 20);
     playsetlabel->setBounds (133, 220, 134, 22);
     gain->setBounds (80, 250, 300, 24);
     gainlabel->setBounds (32, 250, 32, 24);
-    save->setBounds (47, 300, 150, 24);
+    save->setBounds (25, 300, 150, 24);
     logo->setBounds (0, 5, 400, 40);
-    load->setBounds (47, 335, 150, 24);
-    RHSlabel->setBounds (254, 378, 146, 25);
-    nextgen->setBounds (207, 300, 150, 24);
-    prevgen->setBounds (207, 335, 150, 24);
+    load->setBounds (25, 335, 150, 24);
+    RHSlabel->setBounds (258, 378, 146, 25);
+    nextgen->setBounds (225, 300, 150, 24);
+    prevgen->setBounds (225, 335, 150, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -337,7 +337,7 @@ BEGIN_JUCER_METADATA
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="title" id="64fb69a603b235c5" memberName="title" virtualName=""
-         explicitFocusOrder="0" pos="112 46 176 46" textCol="ff4a9a2d"
+         explicitFocusOrder="0" pos="112 50 176 46" textCol="ff4a9a2d"
          edTextCol="ff000000" edBkgCol="0" labelText="evosynth" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="45" bold="0" italic="0" justification="36"/>
@@ -371,7 +371,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="save" id="55746809785deaaa" memberName="save" virtualName=""
-              explicitFocusOrder="0" pos="47 300 150 24" bgColOff="ff7575e8"
+              explicitFocusOrder="0" pos="25 300 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="save algorithm" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <IMAGEBUTTON name="logo" id="a545b1fcad830a39" memberName="logo" virtualName=""
@@ -380,21 +380,21 @@ BEGIN_JUCER_METADATA
                opacityNormal="1" colourNormal="0" resourceOver="" opacityOver="1"
                colourOver="0" resourceDown="" opacityDown="1" colourDown="0"/>
   <TEXTBUTTON name="load" id="50cb436ea9e66b16" memberName="load" virtualName=""
-              explicitFocusOrder="0" pos="47 335 150 24" bgColOff="ff7575e8"
+              explicitFocusOrder="0" pos="25 335 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="load algorithm" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="RHSlabel" id="c93e434e2bed1556" memberName="RHSlabel" virtualName=""
-         explicitFocusOrder="0" pos="254 378 146 25" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="&#169; 2013 Radio Hunches Software"
+         explicitFocusOrder="0" pos="258 378 146 25" textCol="ffffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="&#169; 2013 radio hunches software"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="10" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="nextgen" id="b9b03db880bd4c49" memberName="nextgen" virtualName=""
-              explicitFocusOrder="0" pos="207 300 150 24" bgColOff="ff7575e8"
-              bgColOn="ff0606e6" buttonText="next generation" connectedEdges="0"
+              explicitFocusOrder="0" pos="225 300 150 24" bgColOff="ff7575e8"
+              bgColOn="ff0606e6" buttonText="next generation &gt;&gt;" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="prevgen" id="9ba9053392282fa5" memberName="prevgen" virtualName=""
-              explicitFocusOrder="0" pos="207 335 150 24" bgColOff="ff7575e8"
-              bgColOn="ff0606e6" buttonText="prev generation" connectedEdges="0"
+              explicitFocusOrder="0" pos="225 335 150 24" bgColOff="ff7575e8"
+              bgColOn="ff0606e6" buttonText="&lt;&lt; prev generation" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

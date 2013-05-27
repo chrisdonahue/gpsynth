@@ -204,6 +204,9 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 	for (std::set<GPNetwork*>::iterator iter = unevaluated.begin(); i < networks.size(); i++, iter++) {
 		networks[i] = *(iter);
 	}
+
+	// sort synth voices by ID
+	std::sort(networks.begin(), networks.end(), compareNetworksByID);
 }
 
 bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
@@ -279,14 +282,46 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
 }
 
 int GPSynth::prevGeneration() {
+	// check to see we're not at generation 1
     if (currentGenerationNumber == 0) {
         std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
         return currentGenerationNumber;
     }
-    //clearGenerationState();
-    /*
-        // TODO: implement this, requires GPNetwork(std::string)
-    */
+
+	// check to see if we are backing up
+	if (!params->backupAllNetworks) {
+        std::cerr << "Attempted to revert to a previous generation but no networks backed up" << std::endl;
+        return currentGenerationNumber;
+	}
+
+	// clear out current generation state
+	clearGenerationState();
+
+	// recreate the old networks
+	std::vector<GPNetwork*> lastGeneration(0);
+	for (unsigned i = 0; i < populationSize; i++) {
+		// sort by ID in fillFromGeneration()
+		std::string oldnetstring = *(allNetworks[((currentGenerationNumber - 1) * populationSize) + i]);
+		GPNetwork* oldnetwork = new GPNetwork(rng, oldnetstring);
+		lastGeneration.push_back(oldnetwork);
+	}
+	
+	// delete old strings
+	// we have to remove 2 * popsize because we're supposed to be at the end state of 2 gens ago
+	for (unsigned i = 0; i < populationSize * 2; i++) {
+		delete allNetworks[allNetworks.size() - 1];
+		allNetworks.pop_back();
+	}
+	//appendToTextFile("./debug.txt", "ALL NETWORKS AFTER DELETE: " + String(allNetworks.size()) + "\n");
+
+	// add old networks back to population
+	nextNetworkID -=  2 * populationSize;
+	for (unsigned i = 0; i < populationSize; i++) {
+		addNetworkToPopulation(lastGeneration[i]);
+	}
+	//appendToTextFile("./debug.txt", "ALL NETWORKS AFTER ADD: " + String(allNetworks.size()) + "\n");
+
+	// decrement generation number and return it
     currentGenerationNumber--;
     return currentGenerationNumber;
 }

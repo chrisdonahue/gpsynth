@@ -289,12 +289,14 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		samplerate(0), numsamplesperblock(0), taillengthseconds(TAILLEN),
 		numvariables(1),
 		maxnoteleninseconds(MAXNOTELEN), maxnumframes(0), allvoicessampletimes(nullptr),
-		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(nullptr), gpsynth(nullptr),
+		seed(time(NULL)), rng(seed), params((GPParams*) malloc(sizeof(GPParams))), currentPrimitives(nullptr), generationNum(0), gpsynth(nullptr),
 		currentAlgorithm(nullptr), currentGeneration(POPULATIONSIZE, nullptr),
 		generationActive(false), algorithmPrepared(false),
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr),
 		prevGenerationPressed(false), nextGenerationPressed(false), algorithmLastTimer(algorithm)
 {
+	saveTextFile("./debug.txt", String::empty);
+
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		fitnesses[i] = 0.0f;
@@ -312,7 +314,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
     // synth evolution params
     params->populationSize = POPULATIONSIZE;
-    params->backupAllNetworks = false;
+    params->backupAllNetworks = true;
     params->backupPrecision = 100;
     params->lowerFitnessIsBetter = false; //should be done in experiment
     params->bestPossibleFitness = 2.0; //should be done in experiment
@@ -600,15 +602,18 @@ void GeneticProgrammingSynthesizerAudioProcessor::setAlgorithm() {
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
+	// delete the memory from the previous generation
 	deleteGenerationState();
 
+	// get the next batch of victims
 	gpsynth->getIndividuals(currentGeneration);
 
 	// fill synthesizer voices
+	debugPrint("----- GENERATION " + String(generationNum) + " -----\n");
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		currentGenerationCopies[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
 		GPNetwork* net = currentGeneration[i];
-		debugPrint(String(net->toString(3).c_str()) + String("\n"));
+		debugPrint(String(net->ID) + ": " + String(net->toString(3).c_str()) + String("\n"));
 		//net->traceNetwork();
 		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 			GPNetwork* copy = net->getCopy("clone");
@@ -618,7 +623,7 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 	}
 	generationActive = true;
 
-	//algorithm = 0;
+	// set the new algorithm
 	setAlgorithm();
 }
 
@@ -671,9 +676,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() 
         File selectedFile = browser.getSelectedFile (0);
 		String algorithmText = readTextFromFile(selectedFile.getFileName());
 		GPNetwork* nu = new GPNetwork(&rng, algorithmText.toStdString());
-		debugPrint("replacing: " + currentAlgorithm->toString(3) + " with: " + nu->toString(3));
+		//debugPrint("replacing: " + currentAlgorithm->toString(3) + " with: " + nu->toString(3));
 		if (gpsynth->replaceIndividual(currentAlgorithm, nu)) {
-			debugPrint("successful replace\n");
+			//debugPrint("successful replace\n");
 			currentGeneration[algorithm] = nu;
 			fitnesses[algorithm] = 0.0f;
 			for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
@@ -702,11 +707,16 @@ void GeneticProgrammingSynthesizerAudioProcessor::timerCallback() {
 		for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 			gpsynth->assignFitness(currentGeneration[i], fitnesses[i]);
 		}
+		generationNum++;
 		fillFromGeneration();
 	}
 	// revert to last generation if requested in last timer cycle
 	else if (prevGenerationPressed) {
-		// TODO: fill in later
+		prevGenerationPressed = false;
+		if (gpsynth->prevGeneration() != generationNum) {
+			generationNum--;
+			fillFromGeneration();
+		}
 	}
 	// only set algorithm if algorithm has changed from the last set algorithm but has been constant for two callbacks
 	else if (algorithmLastTimer != algorithm) {

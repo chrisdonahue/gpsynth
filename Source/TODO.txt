@@ -34,12 +34,13 @@ Interactive:
         maxNoteLength
         maxNetworkHeight
         amplitude gain
+	change allNetworks in GPSynth to std::string not std::string*.... so stupid
 	
 	TODO for prototype:
 		Polyphony
 		Previous generation
-		Adjust layout
 		More primitives
+		Test max initial depth/max height defaults
 		Remember chosen save directory
 		TEST
 
