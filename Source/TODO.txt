@@ -13,6 +13,7 @@ GPSynth.cpp:
     Maybe implement other types of reproduction
     do TODOs
     maybe remove rawFitness container
+	change allNetworks in GPSynth to std::string not std::string*.... so stupid
 
 Node subclasses:
     DelayNode
@@ -34,7 +35,6 @@ Interactive:
         maxNoteLength
         maxNetworkHeight
         amplitude gain
-	change allNetworks in GPSynth to std::string not std::string*.... so stupid
 	
 	TODO for prototype:
 		More primitives

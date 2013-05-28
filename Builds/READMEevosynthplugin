@@ -19,7 +19,7 @@ A:
 	save algorithm: saves a text representation of the algorithm to your hard drive
 	load algorithm: loads a text representation of an algorithm from your hard drive
 	next generation: advances the population forward one generation and uses your fitness assignments
-	prev generation: reverts the population back by one generation (sorry, for now assigned fitnesses are not being saved from the past)
+	prev generation: reverts the population back by one generation and DELETES all algorithms in the current generation (sorry, for now assigned fitnesses are not being saved from the past)
 	
 Q: Okay this is actually kind of cool... what's going on behind the scenes?
 
