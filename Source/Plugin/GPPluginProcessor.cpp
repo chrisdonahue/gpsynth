@@ -302,6 +302,9 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr),
 		prevGenerationPressed(false), nextGenerationPressed(false), algorithmLastTimer(algorithm)
 {
+	// remaining from default plugin
+	lastPosInfo.resetToDefault();
+	
 	//saveTextFile("./debug.txt", String::empty);
 
     // set up default fitnesses
@@ -395,9 +398,6 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 
 	// init synth
 	synth.addSound(new GPSound());
-
-	// remaining from default plugin
-	lastPosInfo.resetToDefault();
 
 	// start algorithm change timer
 	startTimer(300);
@@ -781,6 +781,7 @@ bool GeneticProgrammingSynthesizerAudioProcessor::silenceInProducesSilenceOut() 
 
 double GeneticProgrammingSynthesizerAudioProcessor::getTailLengthSeconds() const
 {
+	// TODO: what does this do?
     return taillengthseconds;
 }
 
@@ -813,19 +814,11 @@ float GeneticProgrammingSynthesizerAudioProcessor::getParameter (int index)
     // UI-related, or anything at all that may block in any way!
     switch (index)
     {
-	case algorithmParam:
-		return (float) algorithm;
-		break;
-	case algorithmFitnessParam:
-		return algorithmFitness;
-		break;
-    case gainParam:
-        return gain;
-		break;
-    default:
-		break;
+		case algorithmParam:		return (float) algorithm;
+		case algorithmFitnessParam:	return algorithmFitness;
+		case gainParam:				return gain;
+		default:					return 0.0f;
     }
-	return 0.0f;
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float newValue)
@@ -835,19 +828,19 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     // UI-related, or anything at all that may block in any way!
     switch (index)
     {
-	case algorithmParam:
-		algorithm = (unsigned) newValue;
-		algorithmFitness = fitnesses[algorithm];
-		break;
-	case algorithmFitnessParam:
-		algorithmFitness = newValue;
-		fitnesses[algorithm] = (double) newValue;
-		break;
-    case gainParam:
-        gain = newValue;
-		break;
-    default:
-        break;
+		case algorithmParam:
+			algorithm = (unsigned) newValue;
+			algorithmFitness = fitnesses[algorithm];
+			break;
+		case algorithmFitnessParam:
+			algorithmFitness = newValue;
+			fitnesses[algorithm] = (double) newValue;
+			break;
+		case gainParam:
+			gain = newValue;
+			break;
+		default:
+			break;
     }
 }
 
@@ -855,22 +848,16 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int 
 {
     switch (index)
     {
-	case algorithmParam:
-		return "algorithm";
-		break;
-	case algorithmFitnessParam:
-		return "algorithmFitness";
-		break;
-    case gainParam:
-        return "gain";
-		break;
-    default:
-        break;
+		case algorithmParam:		return "algorithm";
+		case algorithmFitnessParam:	return "algorithmFitness";
+		case gainParam:				return "gain";
+		default:					break;
     }
 
     return String::empty;
 }
 
+// TODO: wtf is this?
 const String GeneticProgrammingSynthesizerAudioProcessor::getParameterText (int index)
 {
     return String (getParameter (index), 2);
