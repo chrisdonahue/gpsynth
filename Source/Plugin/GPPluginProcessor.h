@@ -14,6 +14,8 @@
 #define MAXNOTELEN 10.0f
 #define TAILLEN 0.03f
 #define SAVEPRECISION 15
+#define FILETYPE ".syn"
+#define FILETYPEREGEX "*.syn*"
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
@@ -114,6 +116,9 @@ public:
     // filter's other parameters, and the UI component will update them when it gets
     // resized.
     int lastUIWidth, lastUIHeight;
+
+	// this is the folder the user chose to save to/load from, initial String::empty
+	File synthFolder;
 
 private:
 	// render info

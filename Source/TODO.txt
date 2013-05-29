@@ -42,6 +42,7 @@ Interactive:
 		Remember chosen save directory
 		TEST
 		figure out why crashing in ableton
+		figure out why algorithm slider 0-1 in ableton params
 
 Names:
 	synthsearch

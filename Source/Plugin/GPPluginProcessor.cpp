@@ -291,6 +291,7 @@ private:
 
 GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
 	:	lastUIWidth(400), lastUIHeight(478),
+		synthFolder(File::nonexistent),
 		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
 		samplerate(0), numsamplesperblock(0), taillengthseconds(TAILLEN),
 		numvariables(1),
@@ -301,7 +302,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 		numSynthVoicesPerAlgorithm(NUMVOICES), currentCopies(nullptr), currentGenerationCopies(POPULATIONSIZE, nullptr),
 		prevGenerationPressed(false), nextGenerationPressed(false), algorithmLastTimer(algorithm)
 {
-	saveTextFile("./debug.txt", String::empty);
+	//saveTextFile("./debug.txt", String::empty);
 
     // set up default fitnesses
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
@@ -537,6 +538,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::processBlock (AudioSampleBuffe
         // If the host fails to fill-in the current time, we'll just clear it to a default..
         lastPosInfo.resetToDefault();
     }
+
+	// clear the midi messages buffer because we're not producing output
+	midiMessages.clear();
 }
 
 /*
@@ -617,11 +621,11 @@ void GeneticProgrammingSynthesizerAudioProcessor::fillFromGeneration() {
 	gpsynth->getIndividuals(currentGeneration);
 
 	// fill synthesizer voices
-	debugPrint("----- GENERATION " + String(generationNum) + " -----\n");
+	//debugPrint("----- GENERATION " + String(generationNum) + " -----\n");
 	for (unsigned i = 0; i < POPULATIONSIZE; i++) {
 		currentGenerationCopies[i] = (GPNetwork**) malloc(sizeof(GPNetwork*) * numSynthVoicesPerAlgorithm);
 		GPNetwork* net = currentGeneration[i];
-		debugPrint(String(net->ID) + ": " + String(net->toString(3).c_str()) + String("\n"));
+		//debugPrint(String(net->ID) + ": " + String(net->toString(3).c_str()) + String("\n"));
 		//net->traceNetwork();
 		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
 			GPNetwork* copy = net->getCopy("clone");
@@ -653,8 +657,9 @@ void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 
 void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
     //WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
-    FileBrowserComponent browser (FileBrowserComponent::saveMode,
-                                  File::nonexistent,
+    FileBrowserComponent browser (FileBrowserComponent::saveMode |
+									FileBrowserComponent::canSelectFiles,
+                                  synthFolder,
 								  nullptr, //&wildcardFilter,
                                   nullptr);
     FileChooserDialogBox dialogBox ("choose a location to save the synthesis algorithm",
@@ -665,14 +670,16 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
     if (dialogBox.show())
     {
         File selectedFile = browser.getSelectedFile (0);
-		saveTextFile(selectedFile.getFileName() + String(".synth"), String(currentAlgorithm->toString(SAVEPRECISION).c_str()));
+		synthFolder = selectedFile.getParentDirectory();
+		saveTextFile(selectedFile.getFullPathName() + String(FILETYPE), String(currentAlgorithm->toString(SAVEPRECISION).c_str()));
     }
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() {
-    WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
-    FileBrowserComponent browser (FileBrowserComponent::canSelectFiles,
-                                  File::nonexistent,
+    WildcardFileFilter wildcardFilter (String(FILETYPEREGEX), String::empty, "synth files");
+    FileBrowserComponent browser (FileBrowserComponent::openMode |
+									FileBrowserComponent::canSelectFiles,
+                                  synthFolder,
                                   &wildcardFilter,
                                   nullptr);
     FileChooserDialogBox dialogBox ("choose a synthesis algorithm to replace the current algorithm",
@@ -683,7 +690,8 @@ void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() 
     if (dialogBox.show())
     {
         File selectedFile = browser.getSelectedFile (0);
-		String algorithmText = readTextFromFile(selectedFile.getFileName());
+		String algorithmText = readTextFromFile(selectedFile.getFullPathName());
+		synthFolder = selectedFile.getParentDirectory();
 		GPNetwork* nu = new GPNetwork(&rng, algorithmText.toStdString());
 		//debugPrint("replacing: " + currentAlgorithm->toString(3) + " with: " + nu->toString(3));
 		if (gpsynth->replaceIndividual(currentAlgorithm, nu)) {

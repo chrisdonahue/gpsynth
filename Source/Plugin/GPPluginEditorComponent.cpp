@@ -160,7 +160,9 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
 
 
     //[UserPreSize]
+	algonum->removeListener (this);
 	algonum->setRange (0, POPULATIONSIZE - 1, 1);
+	algonum->addListener (this);
     //[/UserPreSize]
 
     setSize (400, 400);
