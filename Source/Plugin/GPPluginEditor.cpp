@@ -98,7 +98,7 @@ bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyPressed (const KeyPre
     return true;
 }
 
-bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyStateChanged (const bool isKeyDown)
+bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyStateChanged (bool isKeyDown)
 {
     return true;
 }
@@ -135,8 +135,10 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slid
         // It's vital to use setParameterNotifyingHost to change any parameters that are automatable
         // by the host, rather than just modifying them directly, otherwise the host won't know
         // that they've changed.
+		int algonum = (int) slider->getValue();
+		float newValue = algonum / float(POPULATIONSIZE);
         getProcessor()->setParameterNotifyingHost (GeneticProgrammingSynthesizerAudioProcessor::algorithmParam,
-                                                   (float) slider->getValue());
+                                                   newValue);
     }
     else if (slider == sliders["fitness"])
     {

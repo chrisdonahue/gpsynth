@@ -826,11 +826,18 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     // This method will be called by the host, probably on the audio thread, so
     // it's absolutely time-critical. Don't use critical sections or anything
     // UI-related, or anything at all that may block in any way!
+	// For now JUCE deals with this as [0.0f, 1.0f] from all hosts
     switch (index)
     {
 		case algorithmParam:
-			algorithm = (unsigned) newValue;
+			if (newValue >= 1.0f) {
+				algorithm = POPULATIONSIZE - 1;
+			}
+			else {
+				algorithm = (unsigned) (newValue * POPULATIONSIZE);
+			}
 			algorithmFitness = fitnesses[algorithm];
+			setParameterNotifyingHost(algorithmFitnessParam, algorithmFitness);
 			break;
 		case algorithmFitnessParam:
 			algorithmFitness = newValue;
@@ -849,7 +856,7 @@ const String GeneticProgrammingSynthesizerAudioProcessor::getParameterName (int 
     switch (index)
     {
 		case algorithmParam:		return "algorithm";
-		case algorithmFitnessParam:	return "algorithmFitness";
+		case algorithmFitnessParam:	return "fitness";
 		case gainParam:				return "gain";
 		default:					break;
     }
