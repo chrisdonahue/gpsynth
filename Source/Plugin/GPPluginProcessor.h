@@ -15,7 +15,7 @@
 #define TAILLEN 0.03f
 #define SAVEPRECISION 15
 #define FILETYPE ".syn"
-#define FILETYPEREGEX "*.syn*"
+#define FILETYPEREGEX "*.syn"
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Synth/GPSynth.h"
@@ -118,6 +118,7 @@ public:
     int lastUIWidth, lastUIHeight;
 
 	// this is the folder the user chose to save to/load from, initial String::empty
+	bool fileBrowserOpen;
 	File synthFolder;
 
 private:

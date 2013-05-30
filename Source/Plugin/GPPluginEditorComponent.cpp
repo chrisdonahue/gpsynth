@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  29 May 2013 7:00:44pm
+  Creation date:  29 May 2013 9:13:27pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -49,13 +49,13 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     addAndMakeVisible (fitness = new Slider (L"fitness"));
     fitness->setRange (0, 1, 0);
     fitness->setSliderStyle (Slider::LinearHorizontal);
-    fitness->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    fitness->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
     fitness->addListener (this);
 
     addAndMakeVisible (algonum = new Slider (L"algonum"));
     algonum->setRange (0, 9, 1);
     algonum->setSliderStyle (Slider::LinearHorizontal);
-    algonum->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    algonum->setTextBoxStyle (Slider::TextBoxLeft, false, 50, 20);
     algonum->addListener (this);
 
     addAndMakeVisible (title = new Label (L"title",
@@ -106,7 +106,7 @@ GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent (
     addAndMakeVisible (gain = new Slider (L"gain"));
     gain->setRange (0, 1, 0);
     gain->setSliderStyle (Slider::LinearHorizontal);
-    gain->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    gain->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
     gain->addListener (this);
 
     addAndMakeVisible (gainlabel = new Label (L"gainlabel",
@@ -290,20 +290,6 @@ void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWa
     //[/UserbuttonClicked_Post]
 }
 
-bool GeneticProgrammingSynthesizerComponent::keyPressed (const KeyPress& key)
-{
-    //[UserCode_keyPressed] -- Add your code here...
-    return true;  // Return true if your handler uses this key event, or false to allow it to be passed-on.
-    //[/UserCode_keyPressed]
-}
-
-bool GeneticProgrammingSynthesizerComponent::keyStateChanged (const bool isKeyDown)
-{
-    //[UserCode_keyStateChanged] -- Add your code here...
-    return true;  // Return true if your handler uses this key event, or false to allow it to be passed-on.
-    //[/UserCode_keyStateChanged]
-}
-
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -343,19 +329,15 @@ BEGIN_JUCER_METADATA
                  variableInitialisers="" snapPixels="2" snapActive="1" snapShown="1"
                  overlayOpacity="0.330000013" fixedSize="0" initialWidth="400"
                  initialHeight="400">
-  <METHODS>
-    <METHOD name="keyPressed (const KeyPress&amp; key)"/>
-    <METHOD name="keyStateChanged (const bool isKeyDown)"/>
-  </METHODS>
   <BACKGROUND backgroundColour="ff000000"/>
   <SLIDER name="fitness" id="16a1b0db54c88216" memberName="fitness" virtualName=""
           explicitFocusOrder="0" pos="80 170 300 24" min="0" max="1" int="0"
-          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          style="LinearHorizontal" textBoxPos="NoTextBox" textBoxEditable="0"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="algonum" id="58d24870e11eeb51" memberName="algonum" virtualName=""
           explicitFocusOrder="0" pos="80 140 300 24" min="0" max="9" int="1"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+          textBoxWidth="50" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="title" id="64fb69a603b235c5" memberName="title" virtualName=""
          explicitFocusOrder="0" pos="112 50 176 46" textCol="ff4a9a2d"
          edTextCol="ff000000" edBkgCol="0" labelText="evosynth" editableSingleClick="0"
@@ -383,7 +365,7 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="36"/>
   <SLIDER name="gain" id="95c3e13e05b5350b" memberName="gain" virtualName=""
           explicitFocusOrder="0" pos="80 250 300 24" min="0" max="1" int="0"
-          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          style="LinearHorizontal" textBoxPos="NoTextBox" textBoxEditable="0"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="gainlabel" id="8fa2033431b21d08" memberName="gainlabel"
          virtualName="" explicitFocusOrder="0" pos="32 250 32 24" textCol="ff637fe8"

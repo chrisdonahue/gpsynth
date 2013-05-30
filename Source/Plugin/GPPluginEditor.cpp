@@ -14,7 +14,7 @@
 GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizerAudioProcessorEditor (GeneticProgrammingSynthesizerAudioProcessor* ownerFilter)
     : AudioProcessorEditor (ownerFilter),
 	  mainEditor(),
-      midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+      //midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
 	  sliders(), buttons()
 {
 	// add main component
@@ -45,7 +45,7 @@ GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizer
 		*/
 
     // add the midi keyboard component..
-    addAndMakeVisible (&midiKeyboard);
+    //addAndMakeVisible (&midiKeyboard);
 
 	/*
     // add a label that will display the current timecode and status..
@@ -55,7 +55,8 @@ GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizer
 
     // add the triangular resizer component for the bottom-right of the UI
     addAndMakeVisible (resizer = new ResizableCornerComponent (this, &resizeLimits));
-    resizeLimits.setSizeLimits (400, 478, 400, 478);
+    //resizeLimits.setSizeLimits (400, 478, 400, 478);
+    resizeLimits.setSizeLimits (400, 400, 400, 400);
 
     // set our component's initial size to be the last one that was stored in the filter's settings
     setSize (ownerFilter->lastUIWidth,
@@ -85,7 +86,7 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::resized()
 
     const int keyboardHeight = 70;
 	mainEditor.setBounds(0, 0, 400, 400);
-    midiKeyboard.setBounds (4, getHeight() - keyboardHeight - 4, getWidth() - 8, keyboardHeight);
+    //midiKeyboard.setBounds (4, getHeight() - keyboardHeight - 4, getWidth() - 8, keyboardHeight);
 
     //resizer->setBounds (getWidth() - 16, getHeight() - 16, 16, 16);
 
@@ -95,12 +96,18 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::resized()
 
 bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyPressed (const KeyPress& key)
 {
-    return true;
+	//if (!(getProcessor()->fileBrowserOpen))
+	//	return true;
+	//else
+		return true;
 }
 
 bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyStateChanged (bool isKeyDown)
 {
-    return true;
+	//if (!(getProcessor()->fileBrowserOpen))
+	//	return true;
+	//else
+		return true;
 }
 
 // This timer periodically checks whether any of the filter's parameters have changed...

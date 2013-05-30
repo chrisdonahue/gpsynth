@@ -43,7 +43,7 @@ public:
 private:
 	// JUCE GUI stuff
 	GeneticProgrammingSynthesizerComponent mainEditor;
-    MidiKeyboardComponent midiKeyboard;
+    //MidiKeyboardComponent midiKeyboard;
     ScopedPointer<ResizableCornerComponent> resizer;
     ComponentBoundsConstrainer resizeLimits;
 

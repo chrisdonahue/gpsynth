@@ -19,6 +19,7 @@ Node subclasses:
     DelayNode
     NoiseNode other types of noise
     OscilNode other waveforms/add frequency input
+	virtual std::string getPrimitiveString() = 0;
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
@@ -36,15 +37,11 @@ Interactive:
         maxNetworkHeight
         amplitude gain
 	
-	TODO for prototype:
-		More primitives
-		Check how fitness probabilities are working
-		TEST
-		figure out why crashing in ableton
-			compare to juce demo plugin which appears to work
-			something with stopNote and playing = false?
-		figure out why algorithm slider 0-1 in ableton params
-			demo just has 0-1.0 for both params. maybe need to set ranges somewhere?
+	v0.2:
+		more primitives
+		check how fitness probabilities are working
+		display name of synth if loaded or saved
+
 Names:
 	synthsearch
 	exploration synthesis

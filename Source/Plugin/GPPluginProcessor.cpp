@@ -290,8 +290,8 @@ private:
 */
 
 GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioProcessor()
-	:	lastUIWidth(400), lastUIHeight(478),
-		synthFolder(File::nonexistent),
+	:	lastUIWidth(400), lastUIHeight(400),
+		fileBrowserOpen(false), synthFolder(File::nonexistent),
 		algorithm(0), algorithmFitness(0), gain(1.0f), fitnesses((double*) malloc(sizeof(double) * POPULATIONSIZE)),
 		samplerate(0), numsamplesperblock(0), taillengthseconds(TAILLEN),
 		numvariables(1),
@@ -656,6 +656,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::deleteGenerationState() {
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
+    FileChooser myChooser ("choose a synthesis algorithm to replace the current algorithm",
+                           File::getSpecialLocation (File::currentExecutableFile),
+                           FILETYPEREGEX);
+	/*
     //WildcardFileFilter wildcardFilter ("*.synth", String::empty, "synth files");
     FileBrowserComponent browser (FileBrowserComponent::saveMode |
 									FileBrowserComponent::canSelectFiles,
@@ -667,29 +671,40 @@ void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {
                                     browser,
                                     false,
                                     Colours::lightgrey);
-    if (dialogBox.show())
+									*/
+	fileBrowserOpen = true;
+    if (myChooser.browseForFileToSave(false))
     {
-        File selectedFile = browser.getSelectedFile (0);
+		fileBrowserOpen = false;
+        File selectedFile = myChooser.getResult();
 		synthFolder = selectedFile.getParentDirectory();
 		saveTextFile(selectedFile.getFullPathName() + String(FILETYPE), String(currentAlgorithm->toString(SAVEPRECISION).c_str()));
     }
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::loadReplacingCurrentNetwork() {
+    FileChooser myChooser ("choose a synthesis algorithm to replace the current algorithm",
+                           File::getSpecialLocation (File::currentExecutableFile),
+                           FILETYPEREGEX);
+	/*
     WildcardFileFilter wildcardFilter (String(FILETYPEREGEX), String::empty, "synth files");
     FileBrowserComponent browser (FileBrowserComponent::openMode |
 									FileBrowserComponent::canSelectFiles,
                                   synthFolder,
                                   &wildcardFilter,
                                   nullptr);
-    FileChooserDialogBox dialogBox ("choose a synthesis algorithm to replace the current algorithm",
+    FileChooserDialogBox dialogBox ("",
                                     String::empty,
                                     browser,
                                     false,
                                     Colours::lightgrey);
-    if (dialogBox.show())
+									*/
+
+	fileBrowserOpen = true;
+    if (myChooser.browseForFileToOpen())
     {
-        File selectedFile = browser.getSelectedFile (0);
+		fileBrowserOpen = false;
+        File selectedFile = myChooser.getResult();
 		String algorithmText = readTextFromFile(selectedFile.getFullPathName());
 		synthFolder = selectedFile.getParentDirectory();
 		GPNetwork* nu = new GPNetwork(&rng, algorithmText.toStdString());
@@ -830,7 +845,10 @@ void GeneticProgrammingSynthesizerAudioProcessor::setParameter (int index, float
     switch (index)
     {
 		case algorithmParam:
-			if (newValue >= 1.0f) {
+			if (newValue <= 0.0f) {
+				algorithm = 0;
+			}
+			else if (newValue >= 1.0f) {
 				algorithm = POPULATIONSIZE - 1;
 			}
 			else {
