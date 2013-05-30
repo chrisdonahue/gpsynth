@@ -39,7 +39,6 @@ Interactive:
 	TODO for prototype:
 		More primitives
 		Check how fitness probabilities are working
-		Remember chosen save directory
 		TEST
 		figure out why crashing in ableton
 			compare to juce demo plugin which appears to work

@@ -93,7 +93,16 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::resized()
     getProcessor()->lastUIHeight = getHeight();
 }
 
-//==============================================================================
+bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyPressed (const KeyPress& key)
+{
+    return true;
+}
+
+bool GeneticProgrammingSynthesizerAudioProcessorEditor::keyStateChanged (const bool isKeyDown)
+{
+    return true;
+}
+
 // This timer periodically checks whether any of the filter's parameters have changed...
 void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 {

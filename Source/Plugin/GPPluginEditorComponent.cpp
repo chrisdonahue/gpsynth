@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  26 May 2013 6:57:44pm
+  Creation date:  29 May 2013 7:00:44pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -290,6 +290,20 @@ void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWa
     //[/UserbuttonClicked_Post]
 }
 
+bool GeneticProgrammingSynthesizerComponent::keyPressed (const KeyPress& key)
+{
+    //[UserCode_keyPressed] -- Add your code here...
+    return true;  // Return true if your handler uses this key event, or false to allow it to be passed-on.
+    //[/UserCode_keyPressed]
+}
+
+bool GeneticProgrammingSynthesizerComponent::keyStateChanged (const bool isKeyDown)
+{
+    //[UserCode_keyStateChanged] -- Add your code here...
+    return true;  // Return true if your handler uses this key event, or false to allow it to be passed-on.
+    //[/UserCode_keyStateChanged]
+}
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -329,6 +343,10 @@ BEGIN_JUCER_METADATA
                  variableInitialisers="" snapPixels="2" snapActive="1" snapShown="1"
                  overlayOpacity="0.330000013" fixedSize="0" initialWidth="400"
                  initialHeight="400">
+  <METHODS>
+    <METHOD name="keyPressed (const KeyPress&amp; key)"/>
+    <METHOD name="keyStateChanged (const bool isKeyDown)"/>
+  </METHODS>
   <BACKGROUND backgroundColour="ff000000"/>
   <SLIDER name="fitness" id="16a1b0db54c88216" memberName="fitness" virtualName=""
           explicitFocusOrder="0" pos="80 170 300 24" min="0" max="1" int="0"

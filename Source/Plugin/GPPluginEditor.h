@@ -22,6 +22,7 @@ class GeneticProgrammingSynthesizerComponent;
 /** This is the editor component that our filter will display.
 */
 class GeneticProgrammingSynthesizerAudioProcessorEditor  : public AudioProcessorEditor,
+											//public KeyListener,
                                             public SliderListener,
 											public ButtonListener,
                                             public Timer
@@ -31,6 +32,8 @@ public:
     ~GeneticProgrammingSynthesizerAudioProcessorEditor();
 
     //==============================================================================
+	bool keyPressed (const KeyPress &key);
+	bool keyStateChanged (bool isKeyDown);
     void timerCallback();
     void paint (Graphics& g);
     void resized();
