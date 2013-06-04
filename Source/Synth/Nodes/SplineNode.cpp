@@ -17,17 +17,19 @@
 */
 
 // points should always have something in it
-SplineNode::SplineNode(bool terminal, GPRandom* r, bool ephemeralRandom, GPMutatableParam* splineType, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& points, GPNode* signal)
+SplineNode::SplineNode(bool terminal, GPRandom* r, bool ephemeralRandom, GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& points, GPNode* signal)
 {
+    assert(!(splinetype->isMutatable));
     assert(!(numpoints->isMutatable));
     if (ephemeralRandom)
         assert(points.size() == 2);
 
     terminalSpline = terminal;
     rng = r;
+    splineType = splinetype->getDValue();
     numPoints = numpoints->getDValue();
 
-    mutatableParams.push_back(splineType);
+    mutatableParams.push_back(splinetype);
     mutatableParams.push_back(numpoints);
 
     // randomize the initial points (determines the range if ephemeralRandom == true)
@@ -167,29 +169,29 @@ void SplineNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
 
     // get minimum value for spline envelope
-    float minAttackHeight = mutatableParams[0]->getCMin();
-    for (int i = 0; i < numPoints + 1; i++) {
-        int heightIndex = i * 2;
-        if (mutatableParams[heightIndex]->getCMin() < minAttackHeight)
-            minAttackHeight = mutatableParams[heightIndex]->getCMin();
+    float minSplineHeight = mutatableParams[2]->getCMin();
+    for (int i = 1; i < numPoints; i++) {
+        int heightIndex = (i * 2) + 2;
+        if (mutatableParams[heightIndex]->getCMin() < minSplineHeight)
+            minSplineHeight = mutatableParams[heightIndex]->getCMin();
     }
     
     // get maximum value for attack or sustain
-    float maxAttackHeight = mutatableParams[0]->getCMax();
-    for (int i = 0; i < numPoints + 1; i++) {
-        int heightIndex = i * 2;
-        if (mutatableParams[heightIndex]->getCMax() > maxAttackHeight)
-            maxAttackHeight = mutatableParams[heightIndex]->getCMax();
+    float maxSplineHeight = mutatableParams[0]->getCMax();
+    for (int i = 1; i < numPoints; i++) {
+        int heightIndex = (i * 2) + 2;
+        if (mutatableParams[heightIndex]->getCMax() > maxSplineHeight)
+            maxSplineHeight = mutatableParams[heightIndex]->getCMax();
     }
     
     // update min/max of terminal Spline 
     if (terminalSpline) {
-		minimum = minAttackHeight;
-		maximum = maxAttackHeight;
+		minimum = minSplineHeight;
+		maximum = maxSplineHeight;
 	}
 	// update descendants and min/max of non-terminal Spline
 	else {
-        intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
+        intervalMultiply(&minimum, &maximum, minSplineHeight, maxSplineHeight, descendants[0]->minimum, descendants[0]->maximum);
 	}
     
     fillFromParams();

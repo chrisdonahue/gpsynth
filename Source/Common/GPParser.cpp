@@ -177,7 +177,7 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
     // spline node
     else if (type.compare("spline") == 0) {
         GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
-        GPMutatableParam* splinenum = createMutatableParam(tokenizer, true, "splinenum");
+        GPMutatableParam* splinenum = createMutatableParam(tokenizer, false, "splinenum");
 
         int numSplinePoints = splinenum->getDValue();
         std::vector<GPMutatableParam*> splinepoints;

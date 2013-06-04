@@ -33,7 +33,7 @@ public:
 
 private:
     bool terminalSpline;
-    unsigned splineType;
+    int splineType;
     int numPoints;
     GPRandom* rng;
     float maxSegmentLength;
