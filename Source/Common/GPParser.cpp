@@ -174,6 +174,43 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
     else if (type.compare("silence") == 0) {
         return new SilenceNode();
     }
+    // spline node
+    else if (type.compare("spline") == 0) {
+        GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
+        GPMutatableParam* splinenum = createMutatableParam(tokenizer, true, "splinenum");
+
+        int numSplinePoints = splinenum->getDValue();
+        std::vector<GPMutatableParam*> splinepoints;
+        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizer, true, "splinepoint");
+        splinepoints.push_back(splineinitialvalue);
+
+        for (int i = 0; i < numSplinePoints; i++) {
+            GPMutatableParam* splinelength = createMutatableParam(tokenizer, true, "splinelength");
+            GPMutatableParam* splinepoint = createMutatableParam(tokenizer, true, "splinepoint");
+            splinepoints.push_back(splinelength);
+            splinepoints.push_back(splinepoint);
+        }
+        
+        return new SplineNode(true, rng, false, splinetype, splinenum, splinepoints, NULL);
+    }
+    else if (type.compare("spline*") == 0) {
+        GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
+        GPMutatableParam* splinenum = createMutatableParam(tokenizer, true, "splinenum");
+
+        int numSplinePoints = splinenum->getDValue();
+        std::vector<GPMutatableParam*> splinepoints;
+        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizer, true, "splinepoint");
+        splinepoints.push_back(splineinitialvalue);
+
+        for (int i = 0; i < numSplinePoints; i++) {
+            GPMutatableParam* splinelength = createMutatableParam(tokenizer, true, "splinelength");
+            GPMutatableParam* splinepoint = createMutatableParam(tokenizer, true, "splinepoint");
+            splinepoints.push_back(splinelength);
+            splinepoints.push_back(splinepoint);
+        }
+        
+        return new SplineNode(false, rng, false, splinetype, splinenum, splinepoints, createNode(tokenizer, subtreeArgs));
+    }
     // time node
     else if (type.compare("time") == 0) {
         return new TimeNode();

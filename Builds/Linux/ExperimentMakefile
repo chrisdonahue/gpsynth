@@ -59,6 +59,7 @@ OBJECTS := \
   $(OBJDIR)/NoiseNode.o \
   $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/SilenceNode.o \
+  $(OBJDIR)/SplineNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
   $(OBJDIR)/JUCEFileIO.o \
@@ -193,6 +194,11 @@ $(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
 $(OBJDIR)/SilenceNode.o: ../../Source/Synth/Nodes/SilenceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SilenceNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SplineNode.o: ../../Source/Synth/Nodes/SplineNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SplineNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp
