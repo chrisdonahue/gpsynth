@@ -222,49 +222,35 @@ void SplineNode::toString(std::stringstream& ss) {
 */
 
 void SplineNode::fillFromParams() {
-	// update class values from mutatable params
-    delay = mutatableParams[0]->getCValue();
-    delayFrames = delay * sampleRate;
-
-    attack = mutatableParams[1]->getCValue();
-    attackFrames = delayFrames + attack * sampleRate;
-    attackheight = mutatableParams[2]->getCValue();
-
-    decay = mutatableParams[3]->getCValue();
-    decayFrames = attackFrames + decay * sampleRate;
-
-    sustain = mutatableParams[4]->getCValue();
-    sustainFrames = decayFrames + sustain * sampleRate;
-    sustainheight = mutatableParams[5]->getCValue();
-
-    release = mutatableParams[6]->getCValue();
-    releaseFrames = sustainFrames + release * sampleRate;
-
-	// calculate the length of the envelope in frames
-    framesInEnvelope = (unsigned) (delay * sampleRate) + (unsigned) (attack * sampleRate) + (unsigned) (decay * sampleRate) + (unsigned) (sustain * sampleRate) + (unsigned) (release * sampleRate);
-
-	// if we are pre-rendering the buffer for efficiency do so here
-    envelope = (float*) malloc(sizeof(float) * framesInEnvelope);
-
-    // delay
-    unsigned framesFilled = 0;
-    for (unsigned i = 0; i < (unsigned) (delay * sampleRate); i++, framesFilled++) {
-        envelope[framesFilled] = 0.0;
+    if (splineType == 0) {
+        unsigned currentFrame = 0;
+        unsigned usedPoints = 0;
+        float currentLevel = mutatableParams[2]->getCValue();
+        while (currentFrame < maxNumFrames && usedPoints < numPoints) {
+            float transitionLength = mutatableParams[(usedPoints * 2) + 2 + 1]->getCValue();
+            float nextLevel = mutatableParams[(usedPoints * 2) + 2 + 2]->getCValue();
+            unsigned currentTransitionFrame = 0;
+            unsigned numTransitionFrames = (unsigned) transitionLength * sampleRate;
+            float slope = (nextLevel - currentLevel) / float(numTransitionFrames);
+            while (currentTransitionFrame < numTransitionFrames && currentFrame < maxNumFrames) {
+                envelope[currentFrame] = currentLevel + currentTransitionFrame * slope;
+                currentFrame++;
+                currentTransitionFrame++;
+            }
+            usedPoints++;
+            currentLevel = nextLevel;
+        }
+        while (currentFrame < maxNumFrames) {
+            envelope[currentFrame] = currentLevel;
+            currentFrame++;
+        }
     }
-    // attack
-    for (unsigned i = 0; i < (unsigned) (attack * sampleRate); i++, framesFilled++) {
-        envelope[framesFilled] = (i / (attack * sampleRate)) * attackheight;
-    }
-    // decay
-    for (unsigned i = 0; i < (unsigned) (decay * sampleRate); i++, framesFilled++) {
-        envelope[framesFilled] = attackheight - ((i / (decay * sampleRate)) * (attackheight - sustainheight));
-    }
-    // sustain
-    for (unsigned i = 0; i < (unsigned) (sustain * sampleRate); i++, framesFilled++) {
-        envelope[framesFilled] = sustainheight;
-    }
-    // release
-    for (unsigned i = 0; i < (unsigned) (release * sampleRate); i++, framesFilled++) {
-        envelope[framesFilled]  = sustainheight - ((i / (release * sampleRate)) * (sustainheight));
+    else {
+        unsigned currentFrame = 0;
+        float currentLevel = mutatableParams[2]->getCValue();
+        while (currentFrame < maxNumFrames) {
+            envelope[currentFrame] = currentLevel;
+            currentFrame++;
+        }
     }
 }

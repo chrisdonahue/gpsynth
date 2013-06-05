@@ -38,24 +38,12 @@ private:
     GPRandom* rng;
     float maxSegmentLength;
 
-    double sampleRate;
+    unsigned maxNumFrames;
+    float sampleRate;
 
     bool releaseFinished;
     unsigned framesInEnvelope;
     float* envelope;
-
-    double delay;
-    unsigned delayFrames;
-    double attack;
-    unsigned attackFrames;
-    double decay;
-    unsigned decayFrames;
-    double sustain;
-    unsigned sustainFrames;
-    double release;
-    unsigned releaseFrames;
-    double attackheight;
-    double sustainheight;
 };
 
 #endif

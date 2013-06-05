@@ -174,7 +174,7 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
     else if (type.compare("silence") == 0) {
         return new SilenceNode();
     }
-    // spline node
+    // spline node (already created)
     else if (type.compare("spline") == 0) {
         GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
         GPMutatableParam* splinenum = createMutatableParam(tokenizer, false, "splinenum");
