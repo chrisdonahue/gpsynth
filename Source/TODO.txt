@@ -63,13 +63,11 @@ Ideas:
 Thoughts:
     Don't necessarily have to foray into filters too much. For now focus on best possible FM synthesis recreation
     Maybe can do filterednoise primative at a later point
-    Add spline to likely replace ADSR
     Multiple variable nodes to population... replace v0 oscil node with frequency determined by child
     consider constantNode intervalMutliply
         everything except constant has the tightest possible bound on min/max? hard to say
     synth partial continuous between [0, nyquist/centerfreq]?
         variablenode interval for cps stuff is 1 to nyquist
-    consider removing all the node-specific stuff from GPParams
     consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
 TODO long run:
@@ -94,7 +92,8 @@ TODO long run:
 
 NEXT EXPERIMENTS:
 	run tests with valgrind after changing parameters to make sure nothings uninitialized
-    SPLINE NODE
+        Fix JUCEFileIO... load method not working. Seems that Juce 2.0.40 might have a new way of loading wav files
+    SPLINE NODE test/finish implementing
     CMAES/test without numerical mutation
         read Garcia paper to see how he did his suboptimizing GA. try testing that too
     figure out why simple average fitness function seems to work the best

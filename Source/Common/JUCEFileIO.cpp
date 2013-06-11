@@ -47,6 +47,12 @@ void loadWavFile(String path, unsigned chunkSize, unsigned numFrames, float* buf
     afr->read(&asb, 0, numFrames, 0, false, true);
     float* chanData = asb.getSampleData(0);
     memcpy(buffer, chanData, sizeof(float) * numFrames);
+
+    std::cerr << "Loading: " << path << std::endl;
+    for (unsigned i = 0; i < numFrames; i++) {
+        if (i % 200 == 0)
+            std::cerr << buffer[i] << std::endl;
+    }
 }
 
 void saveWavFile(String path, String desc, String origin, float sampleRate, unsigned chunkSize, unsigned numFrames, float* data) {
