@@ -200,7 +200,11 @@ void PluginListComponent::optionsMenuCallback (int result)
         case 6:   showSelectedFolder(); break;
         case 7:   removeMissingPlugins(); break;
 
-        default:  scanFor (formatManager.getFormat (result - 10)); break;
+        default:
+            if (AudioPluginFormat* format = formatManager.getFormat (result - 10))
+                scanFor (*format);
+
+            break;
     }
 }
 
@@ -243,6 +247,18 @@ void PluginListComponent::filesDropped (const StringArray& files, int, int)
     list.scanAndAddDragAndDroppedFiles (formatManager, files, typesFound);
 }
 
+FileSearchPath PluginListComponent::getLastSearchPath (PropertiesFile& properties, AudioPluginFormat& format)
+{
+    return properties.getValue ("lastPluginScanPath_" + format.getName(),
+                                format.getDefaultLocationsToSearch().toString());
+}
+
+void PluginListComponent::setLastSearchPath (PropertiesFile& properties, AudioPluginFormat& format,
+                                             const FileSearchPath& newPath)
+{
+    properties.setValue ("lastPluginScanPath_" + format.getName(), newPath.toString());
+}
+
 //==============================================================================
 class PluginListComponent::Scanner    : private Timer
 {
@@ -262,7 +278,7 @@ public:
         if (path.getNumPaths() > 0) // if the path is empty, then paths aren't used for this format.
         {
             if (propertiesToUse != nullptr)
-                path = propertiesToUse->getValue ("lastPluginScanPath_" + formatToScan.getName(), path.toString());
+                path = getLastSearchPath (*propertiesToUse, formatToScan);
 
             pathList.setSize (500, 300);
             pathList.setPath (path);
@@ -311,7 +327,7 @@ private:
 
         if (propertiesToUse != nullptr)
         {
-            propertiesToUse->setValue ("lastPluginScanPath_" + formatToScan.getName(), pathList.getPath().toString());
+            setLastSearchPath (*propertiesToUse, formatToScan, pathList.getPath());
             propertiesToUse->saveIfNeeded();
         }
 
@@ -401,10 +417,9 @@ private:
 
 };
 
-void PluginListComponent::scanFor (AudioPluginFormat* format)
+void PluginListComponent::scanFor (AudioPluginFormat& format)
 {
-    if (format != nullptr)
-        currentScanner = new Scanner (*this, *format, propertiesToUse, numThreads);
+    currentScanner = new Scanner (*this, format, propertiesToUse, numThreads);
 }
 
 void PluginListComponent::scanFinished (const StringArray& failedFiles)

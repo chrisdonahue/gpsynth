@@ -23,14 +23,6 @@
   ==============================================================================
 */
 
-/*
-    This file contains posix routines that are common to both the Linux and Mac builds.
-
-    It gets included directly in the cpp files for these platforms.
-*/
-
-
-//==============================================================================
 CriticalSection::CriticalSection() noexcept
 {
     pthread_mutexattr_t atts;
@@ -957,8 +949,8 @@ void Thread::setCurrentThreadAffinityMask (const uint32 affinityMask)
 bool DynamicLibrary::open (const String& name)
 {
     close();
-    handle = dlopen (name.toUTF8(), RTLD_LOCAL | RTLD_NOW);
-    return handle != 0;
+    handle = dlopen (name.isEmpty() ? nullptr : name.toUTF8().getAddress(), RTLD_LOCAL | RTLD_NOW);
+    return handle != nullptr;
 }
 
 void DynamicLibrary::close()
@@ -1077,9 +1069,7 @@ private:
 
 bool ChildProcess::start (const String& command)
 {
-    StringArray tokens;
-    tokens.addTokens (command, true);
-    return start (tokens);
+    return start (StringArray::fromTokens (command, true));
 }
 
 bool ChildProcess::start (const StringArray& args)

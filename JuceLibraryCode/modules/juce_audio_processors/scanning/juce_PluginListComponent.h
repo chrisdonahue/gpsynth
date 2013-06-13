@@ -66,6 +66,16 @@ public:
     */
     void setNumberOfThreadsForScanning (int numThreads);
 
+    /** Returns the last search path stored in a given properties file for the specified format. */
+    static FileSearchPath getLastSearchPath (PropertiesFile& properties, AudioPluginFormat& format);
+
+    /** Stores a search path in a properties file for the given format. */
+    static void setLastSearchPath (PropertiesFile& properties, AudioPluginFormat& format,
+                                   const FileSearchPath& newPath);
+
+    /** Triggers a scan for the given format. */
+    void scanFor (AudioPluginFormat& format);
+
     //==============================================================================
     /** @internal */
     void resized();
@@ -95,7 +105,6 @@ private:
     friend class ScopedPointer<Scanner>;
     ScopedPointer<Scanner> currentScanner;
 
-    void scanFor (AudioPluginFormat*);
     void scanFinished (const StringArray&);
 
     static void optionsMenuStaticCallback (int, PluginListComponent*);
