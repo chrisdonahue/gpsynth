@@ -91,8 +91,6 @@ TODO long run:
 	split GPParams into GPMatchingExperimentParams, GPSynthParams and perhaps GPNodeParams
 
 NEXT EXPERIMENTS:
-	run tests with valgrind after changing parameters to make sure nothings uninitialized
-        Fix JUCEFileIO... load method not working. Seems that Juce 2.0.40 might have a new way of loading wav files
     SPLINE NODE test/finish implementing
     CMAES/test without numerical mutation
         read Garcia paper to see how he did his suboptimizing GA. try testing that too
