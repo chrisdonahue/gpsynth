@@ -47,6 +47,9 @@ public:
     }
 
     // PURE VIRTUAL METHODS THAT ALL SUBCLASSES WILL IMPLEMENT
+    // might want this to be a collection of nodes returned
+    // virtual GPNode* getPrimitive() = 0;
+    // virtual GPNode* fromString(std::string nodestring) = 0;
     virtual GPNode* getCopy() = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
     virtual void toString(std::stringstream& ss) = 0;
