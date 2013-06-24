@@ -1,0 +1,15 @@
+Amplitude Modulation:
+	x_a(t) = [1 + alpha * a_m(t)] * A_c * sin(w_c*t + phase_c)
+	Where (A_c, w_c, phase_c) are parameters of the sinusoidal carrier wave
+	alpha element of [0, 1] is called the modulation index
+	a_m(t) element of [-1, 1] is the amplitude modulation signal
+	
+Frequency Modulation:
+	x(t) = A_c * cos[w_c * t + phase_c + A_m * sin(w_m * t + phase_m)]
+	Where A_c, w_c, phase_c describe the carrier sinusoid
+	A_m, w_m, phase_m specify the modulator sinuosoid
+
+Chowning:
+	x(t) = A * sin(w_c * t + I * sin (w_m * t ))
+	where I = d/m = the modulation index, the ratio of the peak deviation to the modulating frequency
+	
