@@ -1,14 +1,13 @@
 /*
   ==============================================================================
 
-    OscilNode.cpp
-    Created: 6 Feb 2013 11:05:21am
+    AMNode.cpp
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#include "OscilNode.h"
+#include "AMNode.h"
 
 /*
     ========================
@@ -16,28 +15,20 @@
     ========================
 */
 
-OscilNode::OscilNode(bool terminal, GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, GPNode* mod) {
-    terminalOscil = terminal;
+AMNode::AMNode(GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* o, GPMutatableParam* a, GPNode* mod) {
     assert(!(vn->isMutatable) && !(vn->isContinuous));
     variableNum = vn->getDValue();
 
     mutatableParams.push_back(vn);
     mutatableParams.push_back(p);
+    mutatableParams.push_back(o);
+    mutatableParams.push_back(a);
 
-    if (terminalOscil) {
-        arity = 0;
-    }
-    else {
-        mutatableParams.push_back(i);
-        descendants.push_back(mod);
-        arity = 1;
-    }
-    
-    minimum = -1;
-    maximum = 1;
+    descendants.push_back(mod);
+    arity = 1;
 }
 
-OscilNode::~OscilNode() {
+AMNode::~AMNode() {
 }
 
 /*
@@ -46,61 +37,43 @@ OscilNode::~OscilNode() {
     =========
 */
 
-OscilNode* OscilNode::getCopy() {
-    if (terminalOscil)
-        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), NULL, NULL);
-    else
-        return new OscilNode(terminalOscil, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+AMNode* AMNode::getCopy() {
+    return new AMNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
-void OscilNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
-    if (terminalOscil) {
-        for (unsigned i = 0; i < numSamples; i++) {
-            // produce a sine wave at frequency *currentIndex * p
-            buffer[i] = sin(w * (sampleTimes[i]) * (constantVariables[variableNum]));
-        }
-    }
-    else {
-        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
-        for (unsigned i = 0; i < numSamples; i++) {
-            // equivalent to chowning 1973 FM synthesis assuming buffer is a sine wave
-            buffer[i] = sin( (w * (sampleTimes[i]) * (constantVariables[variableNum])) + (index * buffer[i]));
-        }
+void AMNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
+    descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
+    for (unsigned i = 0; i < numSamples; i++) {
+        buffer[i] = (offset + alpha * buffer[i]) * sin (w * (sampleTimes[i]) * (constantVariables[variableNum]));
     }
 }
 
-void OscilNode::updateMutatedParams() {
+void AMNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
 
 	// update angular frequency constant
     partial = mutatableParams[1]->getValue();
     w = 2.0 * M_PI * partial;
 	
-	// update index of modulation and descendant if this is an FM oscillator
-    if (!terminalOscil) {
-        index = mutatableParams[2]->getCValue();
-    }
+	// update AM params
+    offset = mutatableParams[2]->getCValue();
+    alpha = mutatableParams[3]->getCValue();
     
     // minimum/maximum constant and declared in constructor
+    intervalMultiply(&minimum, &maximum, descendants[0]->minimum, descendants[0]->maximum, alpha, alpha);
+    intervalAdd(&minimum, &maximum, minimum, maximum, offset, offset);
 }
 
-void OscilNode::toString(std::stringstream& ss) {
-    if (terminalOscil) {
-        ss << "(osc ";
-        mutatableParams[0]->toString(ss);
-        ss << " ";
-        mutatableParams[1]->toString(ss);
-        ss << ")";
-    }
-    else {
-        ss << "(fm "; 
-        mutatableParams[0]->toString(ss);
-        ss << " ";
-        mutatableParams[1]->toString(ss);
-        ss << " ";
-        mutatableParams[2]->toString(ss);
-        ss << " ";
-        descendants[0]->toString(ss);
-        ss << ")";
-    }
+void AMNode::toString(std::stringstream& ss) {
+    ss << "(am "; 
+    mutatableParams[0]->toString(ss);
+    ss << " ";
+    mutatableParams[1]->toString(ss);
+    ss << " ";
+    mutatableParams[2]->toString(ss);
+    ss << " ";
+    mutatableParams[3]->toString(ss);
+    ss << " ";
+    descendants[0]->toString(ss);
+    ss << ")";
 }

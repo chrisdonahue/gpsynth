@@ -1,44 +1,36 @@
 /*
   ==============================================================================
 
-    OscilNode.h
-    Created: 6 Feb 2013 11:05:21am
+    AMNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef OSCILNODE_H
-#define OSCILNODE_H
+#ifndef AMNODE_H
+#define AMNODE_H
 
 #include "../GPNode.h"
 
-class OscilNode: public GPNode {
+class AMNode: public GPNode {
 public:
-    OscilNode(bool terminal, GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, GPNode* mod);
-    ~OscilNode();
+    AMNode(GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* o, GPMutatableParam* a, GPNode* mod);
+    ~AMNode();
 
 	// overrides
-    OscilNode* getCopy();
+    AMNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();
 
-    enum Parameters {
-		SINGEN,
-		SAWGEN,
-		TRIGEN,
-        totalNumParams
-    };
-
 private:
-    bool terminalOscil;
-    float partial;
     int variableNum;
+    float partial;
+    float offset;
+    float alpha;
     double w;
-    double index;
 };
 
 #endif

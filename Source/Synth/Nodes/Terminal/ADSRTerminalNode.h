@@ -1,25 +1,24 @@
 /*
   ==============================================================================
 
-    ADSRNode.h
-    Created: 6 Feb 2013 11:05:21am
+    ADSRTerminalNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef ADSRNODE_H
-#define ADSRNODE_H
+#ifndef ADSRTERMINALNODE_H
+#define ADSRTERMINALNODE_H
 
 #include "../GPNode.h"
 
-class ADSRNode: public GPNode {
+class ADSRTerminalNode: public GPNode {
 public:
-    ADSRNode(bool terminal, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal);
-    ~ADSRNode();
+    ADSRTerminalNode(GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel);
+    ~ADSRTerminalNode();
 
 	// overrides
-    ADSRNode* getCopy();
+    ADSRTerminalNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
@@ -32,7 +31,6 @@ public:
     void fillFromParams();
 
 private:
-    bool terminalADSR;
     double sampleRate;
     bool releaseFinished;
     unsigned framesInEnvelope;

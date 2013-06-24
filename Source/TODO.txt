@@ -18,9 +18,6 @@ GPSynth.cpp:
 Node subclasses:
     DelayNode
     NoiseNode other types of noise
-    OscilNode other waveforms/add frequency input
-	virtual std::string getPrimitiveString() = 0;
-    virtual GPNode* parse or something lol
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
@@ -36,12 +33,21 @@ Interactive:
         available primitives (two adjacent lists) (oscils with center frequency at 3rd, 4th, 5th, 7th, etc)
         maxNoteLength
         maxNetworkHeight
-        amplitude gain
 	
 	v0.2:
 		more primitives
+        options page:
+            num networks
+            maxnotelen
+            maxnetworkheight
+            initialnetworkmaxheight
+            primitive selector
+        random button
+        reset button
+        string view of network with sliders for mutatable params and update button
 		check how fitness probabilities are working
 		display name of synth if loaded or saved
+        vst plugin save current generation
 
 Names:
 	synthsearch
