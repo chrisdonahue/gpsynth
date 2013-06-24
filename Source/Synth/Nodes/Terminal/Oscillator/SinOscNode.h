@@ -1,44 +1,35 @@
 /*
   ==============================================================================
 
-    OscilNode.h
-    Created: 6 Feb 2013 11:05:21am
+    SinOsc.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef OSCILNODE_H
-#define OSCILNODE_H
+#ifndef SINOSCNODE_H
+#define SINOSCNODE_H
 
 #include "../GPNode.h"
 
-class OscilNode: public GPNode {
+class SinOsc: public GPNode {
 public:
-    OscilNode(bool terminal, GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, GPNode* mod);
-    ~OscilNode();
+    SinOsc(GPMutatableParam* vn, GPMutatableParam* partial, GPMutatableParam* phase);
+    ~SinOsc();
 
 	// overrides
-    OscilNode* getCopy();
+    SinOsc* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();
 
-    enum Parameters {
-		SINGEN,
-		SAWGEN,
-		TRIGEN,
-        totalNumParams
-    };
-
 private:
-    bool terminalOscil;
     float partial;
+    float phase;
     int variableNum;
     double w;
-    double index;
 };
 
 #endif

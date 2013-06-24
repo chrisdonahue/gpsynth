@@ -36,6 +36,10 @@ Interactive:
 	
 	v0.2:
 		more primitives
+            may have to implement wave table reading synthesis with interpolation
+            generator nodes would then just generate buffer based on mutatable params at setRenderInfo time or construction depending on what is necessary
+            could try Audacity stuff for now
+            FINISH and TEST SPLINE
         options page:
             num networks
             maxnotelen
