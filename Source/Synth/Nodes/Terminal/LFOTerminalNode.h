@@ -1,25 +1,24 @@
 /*
   ==============================================================================
 
-    LFONode.h
-    Created: 6 Feb 2013 11:05:21am
+    LFOTerminalNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef LFONODE_H
-#define LFONODE_H
+#ifndef LFOTERMINALNODE_H
+#define LFOTERMINALNODE_H
 
 #include "../GPNode.h"
 
-class LFONode: public GPNode {
+class LFOTerminalNode: public GPNode {
 public:
-    LFONode(bool terminal, GPMutatableParam* rate, GPNode* mod);
-    ~LFONode();
+    LFOTerminalNode(GPMutatableParam* rate;
+    ~LFOTerminalNode();
 
 	// overrides
-    LFONode* getCopy();
+    LFOTerminalNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
@@ -27,9 +26,8 @@ public:
 	void updateMutatedParams();
 
 private:
-    bool terminalLFO;
     float rate;
-    float w;
+    double w;
 };
 
 #endif

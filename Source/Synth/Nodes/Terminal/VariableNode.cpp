@@ -2,7 +2,6 @@
   ==============================================================================
 
     VariableNode.cpp
-    Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
@@ -42,6 +41,7 @@ void VariableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
     firstFrameNumber;
     sampleTimes;
     numConstantVariables;
+
     for (unsigned i = 0; i < numSamples; i++) {
         buffer[i] = constantVariables[variableNum];
     }

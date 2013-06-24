@@ -2,7 +2,6 @@
   ==============================================================================
 
     ConstantNode.h
-    Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
@@ -15,7 +14,7 @@
 
 class ConstantNode: public GPNode {
 public:
-    ConstantNode(bool terminal, bool pi, GPMutatableParam* v, GPNode* signal);
+    ConstantNode(bool pi, GPMutatableParam* v, GPNode* signal);
     ~ConstantNode();
 
 	// overrides
@@ -29,7 +28,6 @@ public:
 	void updateMutatedParams();
 
 private:
-	bool terminalConstant;
     bool isPi;
     double value;
 };

@@ -2,7 +2,6 @@
   ==============================================================================
 
     TimeNode.cpp
-    Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
@@ -48,6 +47,7 @@ void TimeNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numS
     firstFrameNumber;
     numConstantVariables;
     constantVariables;
+
     for (unsigned i = 0; i < numSamples; i++) {
         buffer[i] = sampleTimes[i];
     }
