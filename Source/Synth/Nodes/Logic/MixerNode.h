@@ -2,7 +2,6 @@
   ==============================================================================
 
     MixerNode.h
-    Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
   ==============================================================================
@@ -15,7 +14,7 @@
 
 class MixerNode: public GPNode {
 public:
-    MixerNode(bool fade, GPNode* mod, GPNode* sigone, GPNode* sigtwo);
+    MixerNode(GPNode* mod, GPNode* sigone, GPNode* sigtwo);
     ~MixerNode();
 
 	// overrides
@@ -27,11 +26,6 @@ public:
 	void updateMutatedParams();
 
 private:
-    bool fadeMixer;
-    float signalOneMin;
-    float signalOneMax;
-    float signalTwoMin;
-    float signalTwoMax;
 };
 
 #endif

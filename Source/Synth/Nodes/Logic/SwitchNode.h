@@ -1,26 +1,26 @@
 /*
   ==============================================================================
 
-    MultiplyNode.h
-    Created: 6 Feb 2013 11:06:13am
+    SwitchNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef MULTIPLYNODE_H
-#define MULTIPLYNODE_H
+#ifndef SWITCHNODE_H
+#define SWITCHNODE_H
 
-#include "FunctionNode.h"
+#include "../GPNode.h"
 
-class MultiplyNode: public FunctionNode {
+class SwitchNode: public GPNode {
 public:
-    MultiplyNode(GPNode* zero, GPNode* one);
-    ~MultiplyNode();
+    SwitchNode(bool fade, GPNode* mod, GPNode* sigone, GPNode* sigtwo);
+    ~SwitchNode();
 
 	// overrides
-    MultiplyNode* getCopy();
+    SwitchNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
+    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

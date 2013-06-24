@@ -1,25 +1,24 @@
 /*
   ==============================================================================
 
-    SplineNode.h
-    Created: 6 Feb 2013 11:05:21am
+    SplineEnvelopeNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef SPLINENODE_H
-#define SPLINENODE_H
+#ifndef SPLINEENVELOPENODE_H
+#define SPLINEENVELOPENODE_H
 
 #include "../GPNode.h"
 
-class SplineNode: public GPNode {
+class SplineEnvelopeNode: public GPNode {
 public:
-    SplineNode(bool terminal, GPRandom* r, bool ephemeralRandom, GPMutatableParam* splineType, GPMutatableParam* numPoints, std::vector<GPMutatableParam*>& points, GPNode* signal);
-    ~SplineNode();
+    SplineEnvelopeNode(GPRandom* r, bool ephemeralRandom, GPMutatableParam* splineType, GPMutatableParam* numPoints, std::vector<GPMutatableParam*>& points, GPNode* signal);
+    ~SplineEnvelopeNode();
 
 	// overrides
-    SplineNode* getCopy();
+    SplineEnvelopeNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
@@ -32,7 +31,6 @@ public:
     void fillFromParams();
 
 private:
-    bool terminalSpline;
     int splineType;
     int numPoints;
     GPRandom* rng;

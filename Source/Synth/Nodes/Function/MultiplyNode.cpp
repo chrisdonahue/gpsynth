@@ -2,7 +2,6 @@
   ==============================================================================
 
     MultiplyNode.cpp
-    Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
@@ -43,7 +42,7 @@ void MultiplyNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
     descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
     descendants[1]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, descendantBuffers[0]);
     for (unsigned i = 0; i < numSamples; i++) {
-        buffer[i] *= descendantBuffers[0][i];
+        buffer[i] = buffer[i] * descendantBuffers[0][i];
     }
 }
 

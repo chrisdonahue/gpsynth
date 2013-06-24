@@ -2,7 +2,6 @@
   ==============================================================================
 
     AddNode.cpp
-    Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
@@ -43,12 +42,11 @@ void AddNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSa
     descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
     descendants[1]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, descendantBuffers[0]);
     for (unsigned i = 0; i < numSamples; i++) {
-        buffer[i] += descendantBuffers[0][i];
+        buffer[i] = buffer[i] + descendantBuffers[0][i];
     }
 }
 
 void AddNode::updateMutatedParams() {
     FunctionNode::updateMutatedParams();
-    minimum = descendants[0]->minimum + descendants[1]->minimum;
-    maximum = descendants[0]->maximum + descendants[1]->maximum;
+    intervalAdd(&minimum, &maximum, descendants[0]->minimum, descendants[0]->maximum, descendants[1]->minimum, descendants[1]->maximum);
 }

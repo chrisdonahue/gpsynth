@@ -1,25 +1,25 @@
 /*
   ==============================================================================
 
-    AddNode.h
+    SubtractNode.h
     Created: 6 Feb 2013 11:06:13am
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef ADDNODE_H
-#define ADDNODE_H
+#ifndef SUBTRACTNODE_H
+#define SUBTRACTNODE_H
 
 #include "FunctionNode.h"
 
-class AddNode: public FunctionNode {
+class SubtractNode: public FunctionNode {
 public:
-    AddNode(GPNode* zero, GPNode* one);
-    ~AddNode();
+    SubtractNode(GPNode* zero, GPNode* one);
+    ~SubtractNode();
 
 	// overrides
-    AddNode* getCopy();
+    SubtractNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 
     // optional overrides

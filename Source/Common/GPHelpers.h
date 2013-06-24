@@ -18,17 +18,53 @@ inline void continuousMapRange(double w, double x, double y, double z, double* m
     *b = (y - w * (*m));
 }
 
-inline void intervalMultiply(float* min, float* max, float zeromin, float zeromax, float onemin, float onemax) {
+inline void intervalAdd(float* min, float* max, float a, float b, float c, float d) {
+    float differences[4];
+    differences[0] = a + c;
+    differences[1] = a + d;
+    differences[2] = b + c;
+    differences[3] = b + d;
+
+	*min = differences[0];
+	*max = differences[0];
+
+    for (unsigned i = 1; i < 4; i++) {
+        if (differences[i] < *min)
+            *min = differences[i];
+        if (differences[i] > *max)
+            *max = differences[i];
+    }
+}
+
+inline void intervalSubtract(float* min, float* max, float a, float b, float c, float d) {
+    float differences[4];
+    differences[0] = a - c;
+    differences[1] = a - d;
+    differences[2] = b - c;
+    differences[3] = b - d;
+
+	*min = differences[0];
+	*max = differences[0];
+
+    for (unsigned i = 1; i < 4; i++) {
+        if (differences[i] < *min)
+            *min = differences[i];
+        if (differences[i] > *max)
+            *max = differences[i];
+    }
+}
+
+inline void intervalMultiply(float* min, float* max, float a, float b, float c, float d) {
     float products[4];
-    products[0] = zeromin * onemin;
-    products[1] = zeromin * onemax;
-    products[2] = zeromax * onemin;
-    products[3] = zeromax * onemax;
+    products[0] = a * c;
+    products[1] = a * d;
+    products[2] = b * c;
+    products[3] = b * d;
 
 	*min = products[0];
 	*max = products[0];
 
-    for (char i = 1; i < 4; i++) {
+    for (unsigned i = 1; i < 4; i++) {
         if (products[i] < *min)
             *min = products[i];
         if (products[i] > *max)

@@ -2,7 +2,6 @@
   ==============================================================================
 
     GPPrimitives.h
-    Created: 6 Feb 2013 11:05:02am
     Author:  cdonahue
 
   ==============================================================================
@@ -24,14 +23,12 @@
 #include "Nodes/Function/AddNode.h"
 #include "Nodes/Function/SubtractNode.h"
 #include "Nodes/Function/MultiplyNode.h"
-#include "Nodes/Function/DivideNode.h"
-#include "Nodes/Function/ExponentNode.h"
-#include "Nodes/Function/LogNode.h"
 #include "Nodes/Function/SineNode.h"
 #include "Nodes/Function/CosineNode.h"
 
 // Logic includes
 #include "Nodes/Logic/MixerNode.h"
+#include "Nodes/Logic/SwitchNode.h"
 
 // Modulation includes
 #include "Nodes/Modulation/AMNode.h"

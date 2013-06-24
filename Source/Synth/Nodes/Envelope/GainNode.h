@@ -1,25 +1,24 @@
 /*
   ==============================================================================
 
-    ConstantNode.h
-    Created: 6 Feb 2013 11:06:13am
+    GainNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef CONSTANTNODE_H
-#define CONSTANTNODE_H
+#ifndef GAINNODE_H
+#define GAINNODE_H
 
 #include "../GPNode.h"
 
-class ConstantNode: public GPNode {
+class GainNode: public GPNode {
 public:
-    ConstantNode(bool terminal, bool pi, GPMutatableParam* v, GPNode* signal);
-    ~ConstantNode();
+    GainNode(bool pi, GPMutatableParam* v, GPNode* signal);
+    ~GainNode();
 
 	// overrides
-    ConstantNode* getCopy();
+    GainNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
@@ -29,9 +28,7 @@ public:
 	void updateMutatedParams();
 
 private:
-	bool terminalConstant;
-    bool isPi;
-    double value;
+    float value;
 };
 
 #endif

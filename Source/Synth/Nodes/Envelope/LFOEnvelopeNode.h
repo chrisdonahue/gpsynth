@@ -1,25 +1,24 @@
 /*
   ==============================================================================
 
-    LFONode.h
-    Created: 6 Feb 2013 11:05:21am
+    LFOEnvelopeNode.h
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#ifndef LFONODE_H
-#define LFONODE_H
+#ifndef LFOENVELOPENODE_H
+#define LFOENVELOPENODE_H
 
 #include "../GPNode.h"
 
-class LFONode: public GPNode {
+class LFOEnvelopeNode: public GPNode {
 public:
-    LFONode(bool terminal, GPMutatableParam* rate, GPNode* mod);
-    ~LFONode();
+    LFOEnvelopeNode(GPMutatableParam* rate, GPNode* mod);
+    ~LFOEnvelopeNode();
 
 	// overrides
-    LFONode* getCopy();
+    LFOEnvelopeNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
     void toString(std::stringstream& ss);
 
@@ -27,7 +26,6 @@ public:
 	void updateMutatedParams();
 
 private:
-    bool terminalLFO;
     float rate;
     float w;
 };

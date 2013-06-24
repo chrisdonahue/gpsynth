@@ -1,14 +1,13 @@
 /*
   ==============================================================================
 
-    SineNode.cpp
-    Created: 6 Feb 2013 11:06:13am
+    CosineNode.cpp
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#include "SineNode.h"
+#include "CosineNode.h"
 
 /*
     ========================
@@ -16,15 +15,15 @@
     ========================
 */
 
-SineNode::SineNode(GPNode* zero) {
+CosineNode::CosineNode(GPNode* zero) {
     arity = 1;
 
     descendants.push_back(zero);
 
-    symbol = "sin";
+    symbol = "cos";
 }
 
-SineNode::~SineNode() {
+CosineNode::~CosineNode() {
 }
 
 /*
@@ -33,19 +32,19 @@ SineNode::~SineNode() {
     =========
 */
 
-SineNode* SineNode::getCopy() {
-    SineNode* ret = new SineNode(descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+CosineNode* CosineNode::getCopy() {
+    CosineNode* ret = new CosineNode(descendants[0] == NULL ? NULL : descendants[0]->getCopy());
     return ret;
 }
 
-void SineNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
+void CosineNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
     for (unsigned i = 0; i < numSamples; i++) {
-        buffer[i] = sin(buffer[i]);
+        buffer[i] = cos(buffer[i]);
     }
 }
 
-void SineNode::updateMutatedParams() {
+void CosineNode::updateMutatedParams() {
     FunctionNode::updateMutatedParams();
     minimum = -1.0;
     maximum = 1.0;

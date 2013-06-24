@@ -1,14 +1,13 @@
 /*
   ==============================================================================
 
-    ADSRNode.cpp
-    Created: 6 Feb 2013 11:05:21am
+    ADSREnvelopeNode.cpp
     Author:  cdonahue
 
   ==============================================================================
 */
 
-#include "ADSRNode.h"
+#include "ADSREnvelopeNode.h"
 
 /*
     ========================
@@ -16,9 +15,8 @@
     ========================
 */
 
-ADSRNode::ADSRNode(bool terminal, GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal)
+ADSREnvelopeNode::ADSREnvelopeNode(GPMutatableParam* del, GPMutatableParam* atk, GPMutatableParam* atkh, GPMutatableParam* dec, GPMutatableParam* sus, GPMutatableParam* sush, GPMutatableParam* rel, GPNode* signal)
 {
-    terminalADSR = terminal;
     releaseFinished = false;
     framesInEnvelope = 0;
     envelope = NULL;
@@ -32,16 +30,11 @@ ADSRNode::ADSRNode(bool terminal, GPMutatableParam* del, GPMutatableParam* atk, 
     mutatableParams.push_back(sush);
     mutatableParams.push_back(rel);
 
-    if (terminalADSR) {
-        arity = 0;
-    }
-    else {
-        arity = 1;
-        descendants.push_back(signal);
-    }
+    arity = 1;
+    descendants.push_back(signal);
 }
 
-ADSRNode::~ADSRNode() {
+ADSREnvelopeNode::~ADSREnvelopeNode() {
     if (preparedToRender) {
         free(envelope);
     }
@@ -53,22 +46,17 @@ ADSRNode::~ADSRNode() {
     =========
 */
 
-ADSRNode* ADSRNode::getCopy() {
-    if (terminalADSR) {
-        return new ADSRNode(terminalADSR, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), NULL);
-    }
-    else {
-        return new ADSRNode(terminalADSR, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
-    }
+ADSREnvelopeNode* ADSREnvelopeNode::getCopy() {
+    return new ADSREnvelopeNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
-void ADSRNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {
+void ADSREnvelopeNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {
     doneRendering();
     sampleRate = sr;
     GPNode::setRenderInfo(sr, blockSize, maxNumFrames, maxTime);
 }
 
-void ADSRNode::doneRendering() {
+void ADSREnvelopeNode::doneRendering() {
     if (preparedToRender) {
         sampleRate = 0;
         free(envelope);
@@ -76,64 +64,41 @@ void ADSRNode::doneRendering() {
     GPNode::doneRendering();
 }
 
-void ADSRNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
+void ADSREnvelopeNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     // if frame number is within the envelope
     if (firstFrameNumber < framesInEnvelope)
         releaseFinished = false;
     else
         releaseFinished = true;
 
-    // if this is a terminal node
-    if (terminalADSR) {
-        if (!releaseFinished) {
-            if (firstFrameNumber + numSamples > framesInEnvelope) {
-                for (unsigned i = 0; firstFrameNumber + i < framesInEnvelope; i++) {
-                    buffer[i] = envelope[firstFrameNumber + i];
-                }
-                for (unsigned i = framesInEnvelope - firstFrameNumber; i < numSamples; i++) {
-                    buffer[i] = 0.0;
-                }
-                releaseFinished = true;
+    if (!releaseFinished) {
+        // TODO: slight enhancement would be to only evaluate remaining samples
+        descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
+        // if ADSR hasn't finished releasing but will within these n frames
+        if (firstFrameNumber + numSamples > framesInEnvelope) {
+            for (unsigned i = 0; firstFrameNumber + i < framesInEnvelope; i++) {
+                buffer[i] = buffer[i] * envelope[firstFrameNumber + i];
             }
-            else {
-                for (unsigned i = 0; i < numSamples; i++) {
-                    buffer[i] = envelope[firstFrameNumber + i];
-                }
+            for (unsigned i = framesInEnvelope - firstFrameNumber; i < numSamples; i++) {
+                buffer[i] = 0.0;
+            }
+            releaseFinished = true;
+        }
+        // else if ADSR hasn't finished releasing and won't within n
+        else {
+            for (unsigned i = 0; i < numSamples; i++) {
+                buffer[i] = buffer[i] * envelope[firstFrameNumber + i];
             }
         }
     }
-    // if this is not a terminal node
     else {
-        if (!releaseFinished) {
-            // TODO: slight enhancement would be to only evaluate remaining samples
-            descendants[0]->evaluateBlockPerformance(firstFrameNumber, numSamples, sampleTimes, numConstantVariables, constantVariables, buffer);
-            // if ADSR hasn't finished releasing but will within these n frames
-            if (firstFrameNumber + numSamples > framesInEnvelope) {
-                for (unsigned i = 0; firstFrameNumber + i < framesInEnvelope; i++) {
-                    buffer[i] = buffer[i] * envelope[firstFrameNumber + i];
-                }
-                for (unsigned i = framesInEnvelope - firstFrameNumber; i < numSamples; i++) {
-                    buffer[i] = 0.0;
-                }
-                releaseFinished = true;
-            }
-            // else if ADSR hasn't finished releasing and won't within n
-            else {
-                for (unsigned i = 0; i < numSamples; i++) {
-                    buffer[i] = buffer[i] * envelope[firstFrameNumber + i];
-                }
-            }
-        }
-    }
-    // else if ADSR has finished releasing for all n frames
-    if (releaseFinished) {
         for (unsigned i = 0; i < numSamples; i++) {
             buffer[i] = 0.0;
         }
     }
 }
 
-void ADSRNode::updateMutatedParams() {
+void ADSREnvelopeNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
 
 	// get minimum value for attack or sustain
@@ -147,33 +112,19 @@ void ADSRNode::updateMutatedParams() {
     	maxAttackHeight = mutatableParams[5]->getCMax();
     
     // update min/max of terminal ADSR 
-    if (terminalADSR) {
-		minimum = minAttackHeight;
-		maximum = maxAttackHeight;
-	}
-	// update descendants and min/max of non-terminal ADSR
-	else {
-        intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
-	}
+    intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
     
     fillFromParams();
 }
 
-void ADSRNode::toString(std::stringstream& ss) {
-	if (terminalADSR) {
-	    ss << "(adsr";
-	}
-	else {
-		ss << "(adsr*";
-	}
+void ADSREnvelopeNode::toString(std::stringstream& ss) {
+    ss << "(adsr*";
     for (unsigned i = 0; i < mutatableParams.size(); i++) {
       ss << " ";
       mutatableParams[i]->toString(ss);
     }
-    if (!terminalADSR) {
-        ss << " ";
-        descendants[0]->toString(ss);
-    }
+    ss << " ";
+    descendants[0]->toString(ss);
     ss << ")";
 }
 
@@ -183,7 +134,7 @@ void ADSRNode::toString(std::stringstream& ss) {
     ==============
 */
 
-void ADSRNode::fillFromParams() {
+void ADSREnvelopeNode::fillFromParams() {
 	// update class values from mutatable params
     delay = mutatableParams[0]->getCValue();
     delayFrames = delay * sampleRate;
