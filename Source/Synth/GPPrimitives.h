@@ -39,7 +39,7 @@
 #include "Nodes/Terminal/Oscillator/SinOscillatorNode.h"
 #include "Nodes/Terminal/Oscillator/TriangleOscillatorNode.h"
 #include "Nodes/Terminal/Oscillator/SawOscillatorNode.h"
-#include "Nodes/Terminal/Oscillator/SqureOscillatorNode.h"
+#include "Nodes/Terminal/Oscillator/SquareOscillatorNode.h"
 #include "Nodes/Terminal/ADSRTerminalNode.h"
 #include "Nodes/Terminal/ConstantNode.h"
 #include "Nodes/Terminal/LFOTerminalNode.h"
@@ -48,5 +48,6 @@
 #include "Nodes/Terminal/SplineTerminalNode.h"
 #include "Nodes/Terminal/TimeNode.h"
 #include "Nodes/Terminal/VariableNode.h"
+#include "Nodes/Terminal/WaveTableNode.h"
 
 #endif
