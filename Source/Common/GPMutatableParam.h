@@ -41,23 +41,39 @@ public:
             return new GPMutatableParam(type, isMutatable, dvalue, dminimum, dmaximum);
     }
 
-    // render as string
+    // render to a string stream
     void toString(std::stringstream& ss) {
         ss << "{";
         if (isContinuous) {
-        ss << "c " << cminimum << " " << cvalue << " " << cmaximum;
+            ss << "c " << cminimum << " " << cvalue << " " << cmaximum;
         }
         else {
-        ss << "d " << dminimum << " " << dvalue << " " << dmaximum;
+            ss << "d " << dminimum << " " << dvalue << " " << dmaximum;
         }
         ss << "}";
     }
 
+    // get mutatble param as string
     std::string toString(unsigned precision) {
         std::stringstream ss;
         ss.precision(precision);
         toString(ss);
         return ss.str();
+    }
+
+    // set type
+    void setType(std::string newtype) {
+        type = newtype;
+    }
+
+    // mark as mutatable
+    void setMutatable() {
+        isMutatable = true;
+    }
+
+    // mark as unmutatable
+    void setUnmutatable() {
+        isMutatable = false;
     }
 
     // set discrete values

@@ -34,7 +34,7 @@ LFOTerminalNode::~LFOTerminalNode() {
 */
 
 LFOTerminalNode* LFOTerminalNode::getCopy() {
-    return new LFOTerminalNode(terminalLFO, mutatableParams[0]->getCopy(), NULL);
+    return new LFOTerminalNode(mutatableParams[0]->getCopy());
 }
 
 void LFOTerminalNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {

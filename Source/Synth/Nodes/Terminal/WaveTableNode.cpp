@@ -47,7 +47,7 @@ void WaveTableNode::toString(std::stringstream& ss) {
     ss << "(" << symbol;
     for (unsigned i = 0; i < mutatableParams.size(); i++) {
         ss << " ";
-        mutatableParams[i]->toString();
+        mutatableParams[i]->toString(ss);
     }
     ss << ")";
 }

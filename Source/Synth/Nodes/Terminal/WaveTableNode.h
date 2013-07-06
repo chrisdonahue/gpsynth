@@ -37,7 +37,7 @@ public:
     int variableNum;
     float partial;
     float phase;
-    WaveTableOsc osc;
+    WaveTableOsc* osc;
 private:
 };
 

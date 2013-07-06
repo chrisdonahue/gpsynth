@@ -82,14 +82,14 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
             // SUPPLY AVAILABLE NODES
             nodes->push_back(new AddNode(NULL, NULL));
             nodes->push_back(new MultiplyNode(NULL, NULL));
-            nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
-            nodes->push_back(new OscilNode(true, specialValues->getCopy(), oscilPartial->getCopy(), NULL, NULL));
-            nodes->push_back(new OscilNode(false, specialValues->getCopy(), oscilPartial->getCopy(), oscilModIndex->getCopy(), NULL));
+            //nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
+            //nodes->push_back(new OscilNode(true, specialValues->getCopy(), oscilPartial->getCopy(), NULL, NULL));
+            //nodes->push_back(new OscilNode(false, specialValues->getCopy(), oscilPartial->getCopy(), oscilModIndex->getCopy(), NULL));
             nodes->push_back(new NoiseNode(rng));
             //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
             //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-            nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-            nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+            //nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+            //nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
         }
 
         // set parameters that vary by fitness function

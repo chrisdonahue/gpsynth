@@ -56,7 +56,6 @@ void SinOscNode::updateMutatedParams() {
 	// update angular frequency constant
     partial = mutatableParams[1]->getValue();
     phase = mutatableParams[2]->getValue();
-    w = 2.0 * M_PI * partial;
 	
     // minimum/maximum constant and declared in constructor
 }
@@ -84,7 +83,7 @@ void SinOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsi
 
     double ar[tableLen], ai[tableLen];   // for ifft
 
-    double topFreq = baseFreq * 2.0 / sampleRate;
+    //double topFreq = baseFreq * 2.0 / sampleRate;
     double scale = 0.0;
     for (; maxHarms >= 1; maxHarms >>= 1) {
         defineHarmonics(tableLen, maxHarms, ar, ai);

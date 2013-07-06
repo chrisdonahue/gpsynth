@@ -59,7 +59,6 @@ SplineTerminalNode::SplineTerminalNode(GPRandom* r, bool ephemeralRandom, GPMuta
     }
 
     arity = 1;
-    descendants.push_back(signal);
 }
 
 SplineTerminalNode::~SplineTerminalNode() {

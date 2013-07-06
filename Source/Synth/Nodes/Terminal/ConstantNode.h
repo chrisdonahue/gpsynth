@@ -14,7 +14,7 @@
 
 class ConstantNode: public GPNode {
 public:
-    ConstantNode(bool pi, GPMutatableParam* v, GPNode* signal);
+    ConstantNode(bool pi, GPMutatableParam* v);
     ~ConstantNode();
 
 	// overrides

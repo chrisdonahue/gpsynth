@@ -40,6 +40,35 @@ std::vector<std::string> split(const std::string &s, const char* delims) {
     ====================
 */
 
+std::vector<GPMutatableParam*> parseMutatableParams(std::vector<std::string> tokens, unsigned* currentIndex) {
+    std::vector<GPMutatableParam*> ret;
+    unsigned tokens_remaining = tokens.size() - (*currentIndex);
+    GPMutatableParam* current = NULL;
+
+    // if we have at least 4 tokens remaining
+    while (tokens_remaining >= 4) {
+        // try to make a mutatable param
+        current = createMutatableParam(tokenizer, true, "");
+
+        // if bad parse reset the tokenizer position and break
+        if (current == NULL) {
+            *currentIndex -= 4;
+            break;
+        }
+
+        // otherwise add it to the return array
+        else {
+            ret.push_back(current);
+        }
+        
+        // update number of tokens remaining
+        tokens_remaining = tokens.size() - (*currentIndex);
+    }
+
+    // return the list of mutatable params
+    return ret;
+}
+
 GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, bool ismutatable, std::string type) {
     // get tokens
     std::string tag = tokens[consume];
@@ -69,109 +98,288 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
 }
 
 GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRandom* rng) {
-    // fields for tokens
+    // parse node string tag
     std::string type = tokens[consume];
-    std::string last;
+
+    // parse mutatable params list
+    std::vector<GPMutatableParam*> params = parseMutatableParams(tokenizer);
 
     // radius around constant nodes (any nonzero value should be the same)
     // float constantRadius = 1;
 
     // ADSR nodes
     if (type.compare("adsr") == 0) {
-		GPMutatableParam* adsrdelay = createMutatableParam(tokenizer, true, "adsrdelay");
-		GPMutatableParam* adsrattack = createMutatableParam(tokenizer, true, "adsrattack");
-		GPMutatableParam* adsrattackheight = createMutatableParam(tokenizer, true, "adsrattackheight");
-		GPMutatableParam* adsrdecay = createMutatableParam(tokenizer, true, "adsrdecay");
-		GPMutatableParam* adsrsustain = createMutatableParam(tokenizer, true, "adsrsustain");
-		GPMutatableParam* adsrsustainheight = createMutatableParam(tokenizer, true, "adsrsustainheight");
-		GPMutatableParam* adsrrelease = createMutatableParam(tokenizer, true, "adsrrelease");
-        return new ADSRNode(true, adsrdelay, adsrattack, adsrattackheight, adsrdecay, adsrsustain, adsrsustainheight, adsrrelease, NULL);
+        if (params.size() != 7) {
+            std::cerr << "Incorrect number of mutatable params for an ADSR Terminal Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("adsr_terminal_delay");
+        params[1]->setType("adsr_terminal_attack");
+        params[2]->setType("adsr_terminal_attack_height");
+        params[3]->setType("adsr_terminal_decay");
+        params[4]->setType("adsr_terminal_sustain");
+        params[5]->setType("adsr_terminal_sustain_height");
+        params[6]->setType("adsr_terminal_release");
+
+        return new ADSRTerminalNode(params[0], params[1], params[2], params[3], params[4], params[5], params[6]);
     }
     else if (type.compare("adsr*") == 0) {
-		GPMutatableParam* adsrdelay = createMutatableParam(tokenizer, true, "adsrdelay");
-		GPMutatableParam* adsrattack = createMutatableParam(tokenizer, true, "adsrattack");
-		GPMutatableParam* adsrattackheight = createMutatableParam(tokenizer, true, "adsrattackheight");
-		GPMutatableParam* adsrdecay = createMutatableParam(tokenizer, true, "adsrdecay");
-		GPMutatableParam* adsrsustain = createMutatableParam(tokenizer, true, "adsrsustain");
-		GPMutatableParam* adsrsustainheight = createMutatableParam(tokenizer, true, "adsrsustainheight");
-		GPMutatableParam* adsrrelease = createMutatableParam(tokenizer, true, "adsrrelease");
+        if (params.size() != 7) {
+            std::cerr << "Incorrect number of mutatable params for an ADSR Envelope Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("adsr_envelope_delay");
+        params[1]->setType("adsr_envelope_attack");
+        params[2]->setType("adsr_envelope_attack_height");
+        params[3]->setType("adsr_envelope_decay");
+        params[4]->setType("adsr_envelope_sustain");
+        params[5]->setType("adsr_envelope_sustain_height");
+        params[6]->setType("adsr_envelope_release");
+
 		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        return new ADSRNode(false, adsrdelay, adsrattack, adsrattackheight, adsrdecay, adsrsustain, adsrsustainheight, adsrrelease, signal);
+        if (signal == NULL) {
+            return NULL;
+        }
+
+        return new ADSREnvelopeNode(params[0], params[1], params[2], params[3], params[4], params[5], params[6], signal);
     }
     // constant nodes
     else if (type.compare("pi") == 0) {
-        return new ConstantNode(true, true, NULL, NULL);
-    }
-    else if (type.compare("pi*") == 0) {
-		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        return new ConstantNode(false, true, NULL, signal);
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Pi Node" << std::endl;
+            return NULL;
+        }
+
+        return new ConstantNode(true, NULL);
     }
     else if (type.compare("const") == 0) {
-		GPMutatableParam* constantvalue = createMutatableParam(tokenizer, true, "constantvalue");
-        return new ConstantNode(true, false, constantvalue, NULL);
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for a Constant Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("constant_value");
+
+        return new ConstantNode(false, params[0]);
     }
-    else if (type.compare("const*") == 0) {
-		GPMutatableParam* constantvalue = createMutatableParam(tokenizer, true, "constantvalue");
+    else if (type.compare("gain") == 0) {
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for a Gain Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("gain_value");
+
 		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        return new ConstantNode(false, false, constantvalue, signal);
+        if (signal == NULL) {
+            return NULL;
+        }
+
+        return new GainNode(params[0], signal);
     }
     // function nodes
     else if (type.compare("+") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for an Add Node" << std::endl;
+            return NULL;
+        }
+
 		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
+        
+
 		GPNode* signalone = createNode(tokenizer, subtreeArgs);
+        if (signalone == NULL) {
+            return NULL;
+        }
+
         return new AddNode(signalzero, signalone);
     }
-    else if (type.compare("*") == 0) {
+    else if (type.compare("-") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Subtract Node" << std::endl;
+            return NULL;
+        }
+
 		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
+        
+
 		GPNode* signalone = createNode(tokenizer, subtreeArgs);
+        if (signalone == NULL) {
+            return NULL;
+        }
+
+        return new SubtractNode(signalzero, signalone);
+    }
+    else if (type.compare("*") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Multiply Node" << std::endl;
+            return NULL;
+        }
+
+		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
+        
+
+		GPNode* signalone = createNode(tokenizer, subtreeArgs);
+        if (signalone == NULL) {
+            return NULL;
+        }
+
         return new MultiplyNode(signalzero, signalone);
     }
     else if (type.compare("sin") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Sine Node" << std::endl;
+            return NULL;
+        }
+
 		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
+       
         return new SineNode(signalzero);
+    }
+    else if (type.compare("cos") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Cosine Node" << std::endl;
+            return NULL;
+        }
+
+		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
+       
+        return new CosineNode(signalzero);
     }
     // LFO nodes
     else if (type.compare("lfo") == 0) {
-		GPMutatableParam* lforate = createMutatableParam(tokenizer, true, "lforate");
-        return new LFONode(true, lforate, NULL);
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for an LFO Terminal Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("lfo_terminal_rate");
+
+        return new LFOTerminalNode(params[0]);
     }
     else if (type.compare("lfo*") == 0) {
-		GPMutatableParam* lforate = createMutatableParam(tokenizer, true, "lforate");
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for an LFO Envelope Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("lfo_envelope_rate");
+
 		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        return new LFONode(false, lforate, signal);
+        if (signal == NULL) {
+            return NULL;
+        }
+
+        return new LFOEnvelopeNode(params[0], signal);
     }
     // mixer nodes
-    else if (type.compare("if") == 0) {
+    else if (type.compare("switch") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Switch Node" << std::endl;
+            return NULL;
+        }
+
 		GPNode* control = createNode(tokenizer, subtreeArgs);
+        if (control == NULL) {
+            return NULL;
+        }
 		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
 		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        return new MixerNode(false, control, signalzero, signalone);
+        if (signalone == NULL) {
+            return NULL;
+        }
+
+        return new SwitchNode(control, signalzero, signalone);
     }
     else if (type.compare("mix") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Mixer Node" << std::endl;
+            return NULL;
+        }
+
 		GPNode* control = createNode(tokenizer, subtreeArgs);
+        if (control == NULL) {
+            return NULL;
+        }
 		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
+        if (signalzero == NULL) {
+            return NULL;
+        }
 		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        return new MixerNode(true, control, signalzero, signalone);
+        if (signalone == NULL) {
+            return NULL;
+        }
+
+        return new MixerNode(control, signalzero, signalone);
     }
     // noise node
     else if (type.compare("whitenoise") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Noise Node" << std::endl;
+            return NULL;
+        }
+
         return new NoiseNode(rng);
     }
-    // oscil node
-    else if (type.compare("osc") == 0) {
-		GPMutatableParam* oscilvarnum = createMutatableParam(tokenizer, false, "oscilvarnum");
-		GPMutatableParam* oscilpartial = createMutatableParam(tokenizer, true, "oscilpartial");
-		return new OscilNode(true, oscilvarnum, oscilpartial, NULL, NULL);
+    // modulation nodes
+    else if (type.compare("am") == 0) {
+        if (params.size() != 4) {
+            std::cerr << "Incorrect number of mutatable params for an AM Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("am_var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("am_partial");
+        params[2]->setType("am_offset");
+        params[3]->setType("am_alpha");
+
+		GPNode* signal = createNode(tokenizer, subtreeArgs);
+        if (signal == NULL) {
+            return NULL;
+        }
+
+        return new AMNode(params[0], params[1], params[2], params[3], signal);
     }
-    else if (type.compare("fm") == 0) {
-		GPMutatableParam* oscilvarnum = createMutatableParam(tokenizer, false, "oscilvarnum");
-		GPMutatableParam* oscilpartial = createMutatableParam(tokenizer, true, "oscilpartial");
-		GPMutatableParam* oscilindex = createMutatableParam(tokenizer, true, "oscilindex");
-		GPNode* modsignal = createNode(tokenizer, subtreeArgs);
-        return new OscilNode(false, oscilvarnum, oscilpartial, oscilindex, modsignal);
+    else if (type.compare("pm") == 0) {
+        if (params.size() != 3) {
+            std::cerr << "Incorrect number of mutatable params for a PM Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("pm_var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("pm_partial");
+        params[2]->setType("pm_index");
+
+		GPNode* signal = createNode(tokenizer, subtreeArgs);
+        if (signal == NULL) {
+            return NULL;
+        }
+
+        return new PMNode(params[0], params[1], params[2], signal);
     }
     // silence node
     else if (type.compare("silence") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Silence Node" << std::endl;
+            return NULL;
+        }
+
         return new SilenceNode();
     }
     // spline node (already created)
@@ -191,7 +399,8 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             splinepoints.push_back(splinepoint);
         }
         
-        return new SplineNode(true, rng, false, splinetype, splinenum, splinepoints, NULL);
+        return NULL;
+        //return new SplineTerminalNode(rng, false, splinetype, splinenum, splinepoints, NULL);
     }
     else if (type.compare("spline*") == 0) {
         GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
@@ -209,17 +418,44 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             splinepoints.push_back(splinepoint);
         }
         
-        return new SplineNode(false, rng, false, splinetype, splinenum, splinepoints, createNode(tokenizer, subtreeArgs));
+        return NULL;
+        //return new SplineEnvelopeNode(rng, false, splinetype, splinenum, splinepoints, createNode(tokenizer, subtreeArgs));
     }
     // time node
     else if (type.compare("time") == 0) {
+        if (params.size() != 0) {
+            std::cerr << "Incorrect number of mutatable params for a Time Node" << std::endl;
+            return NULL;
+        }
+
         return new TimeNode();
     }
     // variable node
     else if (type.compare("var") == 0) {
-		GPMutatableParam* variablevarnum = createMutatableParam(tokenizer, false, "variablevarnum");
-		GPMutatableParam* variablerange = createMutatableParam(tokenizer, true, "variablerange");
-        return new VariableNode(variablevarnum, variablerange);
+        if (params.size() != 2) {
+            std::cerr << "Incorrect number of mutatable params for a Variable Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("var_range");
+
+        return new VariableNode(params[0], params[1]);
+    }
+    // wave table oscillator nodes
+    else if (type.compare("sinosc") == 0) {
+        if (params.size() != 3) {
+            std::cerr << "Incorrect number of mutatable params for a Sin Osc Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("sinosc_var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("sinosc_partial");
+        params[2]->setType("sinosc_phase");
+
+        return new SinOscNode(params[0], params[1], params[2]);
     }
 	// null node
 	else if (type.compare("null") == 0) {
@@ -227,7 +463,7 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
 	}
 	// otherwise s-expression formatting is wrong
     else {
-        std::cerr << "Tried to build S-expression from improperly formatted string" << std::endl;
+        std::cerr << "Incorrect node type string: " << type << std::endl;
         return NULL;
     }
 }

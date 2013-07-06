@@ -14,7 +14,7 @@
 
 class SwitchNode: public GPNode {
 public:
-    SwitchNode(bool fade, GPNode* mod, GPNode* sigone, GPNode* sigtwo);
+    SwitchNode(GPNode* mod, GPNode* sigone, GPNode* sigtwo);
     ~SwitchNode();
 
 	// overrides

@@ -79,12 +79,7 @@ SplineEnvelopeNode* SplineEnvelopeNode::getCopy() {
         paramCopies[i] = mutatableParams[i]->getCopy();
     }
 
-    if (terminalSpline) {
-        return new SplineEnvelopeNode(terminalSpline, rng, false, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies, NULL);
-    }
-    else {
-        return new SplineEnvelopeNode(terminalSpline, rng, false, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies, descendants[0] == NULL ? NULL : descendants[0]->getCopy());
-    }
+    return new SplineEnvelopeNode(rng, false, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies, descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
 void SplineEnvelopeNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {

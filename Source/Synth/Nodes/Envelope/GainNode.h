@@ -14,7 +14,7 @@
 
 class GainNode: public GPNode {
 public:
-    GainNode(bool pi, GPMutatableParam* v, GPNode* signal);
+    GainNode(GPMutatableParam* v, GPNode* signal);
     ~GainNode();
 
 	// overrides

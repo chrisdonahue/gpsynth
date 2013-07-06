@@ -46,7 +46,7 @@ ADSRTerminalNode::~ADSRTerminalNode() {
 */
 
 ADSRTerminalNode* ADSRTerminalNode::getCopy() {
-    return new ADSRTerminalNode(terminalADSRTerminal, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy());
+    return new ADSRTerminalNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), mutatableParams[2]->getCopy(), mutatableParams[3]->getCopy(), mutatableParams[4]->getCopy(), mutatableParams[5]->getCopy(), mutatableParams[6]->getCopy());
 }
 
 void ADSRTerminalNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {

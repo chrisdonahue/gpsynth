@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    SinOsc.h
+    SinOscNode.h
     Author:  cdonahue
 
   ==============================================================================
@@ -10,15 +10,15 @@
 #ifndef SINOSCNODE_H
 #define SINOSCNODE_H
 
-#include "../../../GPNode.h"
+#include "../WaveTableNode.h"
 
-class SinOsc: public GPNode {
+class SinOscNode: public WaveTableNode {
 public:
-    SinOsc(GPMutatableParam* vn, GPMutatableParam* partial, GPMutatableParam* phase);
-    ~SinOsc();
+    SinOscNode(GPMutatableParam* vn, GPMutatableParam* partial, GPMutatableParam* phase);
+    ~SinOscNode();
 
 	// GPNode overrides
-    SinOsc* getCopy();
+    SinOscNode* getCopy();
     void setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime);
 	
 	// WaveTable overrides
