@@ -63,6 +63,9 @@ OBJECTS := \
   $(OBJDIR)/AMNode.o \
   $(OBJDIR)/PMNode.o \
   $(OBJDIR)/SinOscNode.o\
+  $(OBJDIR)/SawOscNode.o\
+  $(OBJDIR)/SquareOscNode.o\
+  $(OBJDIR)/TriangleOscNode.o\
   $(OBJDIR)/ADSRTerminalNode.o \
   $(OBJDIR)/ConstantNode.o \
   $(OBJDIR)/LFOTerminalNode.o \
@@ -210,6 +213,21 @@ $(OBJDIR)/PMNode.o: ../../Source/Synth/Nodes/Modulation/PMNode.cpp
 $(OBJDIR)/SinOscNode.o: ../../Source/Synth/Nodes/Terminal/Oscillator/SinOscNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SinOscNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SawOscNode.o: ../../Source/Synth/Nodes/Terminal/Oscillator/SawOscNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SawOscNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SquareOscNode.o: ../../Source/Synth/Nodes/Terminal/Oscillator/SquareOscNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SquareOscNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/TriangleOscNode.o: ../../Source/Synth/Nodes/Terminal/Oscillator/TriangleOscNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling TriangleOscNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/ADSRTerminalNode.o: ../../Source/Synth/Nodes/Terminal/ADSRTerminalNode.cpp

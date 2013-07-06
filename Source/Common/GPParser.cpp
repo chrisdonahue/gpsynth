@@ -456,6 +456,45 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
 
         return new SinOscNode(params[0], params[1], params[2]);
     }
+    else if (type.compare("sawosc") == 0) {
+        if (params.size() != 3) {
+            std::cerr << "Incorrect number of mutatable params for a Saw Osc Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("sawosc_var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("sawosc_partial");
+        params[2]->setType("sawosc_phase");
+
+        return new SawOscNode(params[0], params[1], params[2]);
+    }
+    else if (type.compare("squareosc") == 0) {
+        if (params.size() != 3) {
+            std::cerr << "Incorrect number of mutatable params for a Square Osc Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("squareosc_var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("squareosc_partial");
+        params[2]->setType("squareosc_phase");
+
+        return new SquareOscNode(params[0], params[1], params[2]);
+    }
+    else if (type.compare("triangleosc") == 0) {
+        if (params.size() != 3) {
+            std::cerr << "Incorrect number of mutatable params for a Triangle Osc Node" << std::endl;
+            return NULL;
+        }
+
+        params[0]->setType("triangleosc_var_num");
+        params[0]->setUnmutatable();
+        params[1]->setType("triangleosc_partial");
+        params[2]->setType("triangleosc_phase");
+
+        return new TriangleOscNode(params[0], params[1], params[2]);
+    }
 	// null node
 	else if (type.compare("null") == 0) {
 		return NULL;

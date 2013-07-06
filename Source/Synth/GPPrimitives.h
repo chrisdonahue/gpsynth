@@ -37,9 +37,9 @@
 
 // Terminal includes
 #include "Nodes/Terminal/Oscillator/SinOscNode.h"
-//#include "Nodes/Terminal/Oscillator/TriangleOscillatorNode.h"
-//#include "Nodes/Terminal/Oscillator/SawOscillatorNode.h"
-//#include "Nodes/Terminal/Oscillator/SquareOscillatorNode.h"
+#include "Nodes/Terminal/Oscillator/SawOscNode.h"
+#include "Nodes/Terminal/Oscillator/SquareOscNode.h"
+#include "Nodes/Terminal/Oscillator/TriangleOscNode.h"
 #include "Nodes/Terminal/ADSRTerminalNode.h"
 #include "Nodes/Terminal/ConstantNode.h"
 #include "Nodes/Terminal/LFOTerminalNode.h"
