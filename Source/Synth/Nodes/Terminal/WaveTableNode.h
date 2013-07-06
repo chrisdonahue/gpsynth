@@ -14,20 +14,17 @@
 
 class WaveTableNode: public GPNode {
 public:
-    WaveTableNode(GPMutatableParam* rate;
-    ~WaveTableNode();
-
-	// overrides
-    WaveTableNode* getCopy();
-	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
+    // overrides
     void toString(std::stringstream& ss);
-
-    // optional overrides
 	void updateMutatedParams();
 
+	// subclass overrides
+    virtual WaveTableNode* getCopy() = 0
+	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
+
+    // oscillator symbol
+    std::string symbol;
 private:
-    float rate;
-    double w;
 };
 
 #endif

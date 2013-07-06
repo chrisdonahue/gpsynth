@@ -10,32 +10,10 @@
 #include "WaveTableNode.h"
 
 /*
-    ========================
-    CONSTRUCTION/DESTRUCTION
-    ========================
-*/
-
-WaveTableNode::WaveTableNode(GPMutatableParam* rate)
-{
-    mutatableParams.push_back(rate);
-
-    arity = 0;
-    minimum = -1;
-    maximum = 1;   
-}
-
-WaveTableNode::~WaveTableNode() {
-}
-
-/*
     =========
     OVERRIDES
     =========
 */
-
-WaveTableNode* WaveTableNode::getCopy() {
-    return new WaveTableNode(terminalLFO, mutatableParams[0]->getCopy(), NULL);
-}
 
 void WaveTableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
     for (unsigned i = 0; i < numSamples; i++) {
@@ -55,7 +33,10 @@ void WaveTableNode::updateMutatedParams() {
 }
 
 void WaveTableNode::toString(std::stringstream& ss) {
-    ss << "(lfo ";
-    mutatableParams[0]->toString(ss);
+    ss << "(" << symbol;
+    for (unsigned i = 0; i < mutatableParams.size(); i++) {
+        ss << " ";
+        mutatableParams[i]->toString();
+    }
     ss << ")";
 }
