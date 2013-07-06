@@ -92,7 +92,6 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
     }
     // else something went wrong
     else {
-        std::cerr << "Tried to create mutatable param from incorrectly formatted string" << std::endl;
         return NULL;
     }
 }

@@ -1035,7 +1035,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     delete ADSRTestNet;
 
     // constant node envelope test network
-    std::string constantNodeEnvelopeTest = "(const* {c 0 0.5 1.0} " + sinTest + ")";
+    std::string constantNodeEnvelopeTest = "(gain {c 0 0.5 1.0} " + sinTest + ")";
     GPNetwork* constantNodeEnvelopeTestNet = new GPNetwork(rng, constantNodeEnvelopeTest);
     constantNodeEnvelopeTestNet->traceNetwork();
     constantNodeEnvelopeTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
@@ -1049,8 +1049,27 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     saveWavFile("./constantNodeEnvelopesineWaveTest.wav", String(constantNodeEnvelopeTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete constantNodeEnvelopeTestNet;
 
+    // sin oscillator test
+    std::string oscillatorTest = "(sinosc {d 0 0 1} {c 0.0 1.0 10.0} {c 0.0 0.0 1.0})";
+    GPNetwork* oscillatorTestNetPreCopy = new GPNetwork(rng, oscillatorTest);
+    oscillatorTestNetPreCopy->traceNetwork();
+    GPNetwork* oscillatorTestNet = oscillatorTestNetPreCopy->getCopy("test");
+    delete oscillatorTestNetPreCopy;
+    oscillatorTestNet->traceNetwork();
+    oscillatorTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "----TESTING SINE WAVE OSCILLATOR----" << std::endl;
+    std::cout << "Network: " << std::endl << oscillatorTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << oscillatorTestNet->height << std::endl;
+    std::cout << "Min: " << oscillatorTestNet->minimum << std::endl;
+    std::cout << "Max: " << oscillatorTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(oscillatorTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    oscillatorTestNet->doneRendering();
+    saveWavFile("./oscillatorTest.wav", String(oscillatorTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete oscillatorTestNet;
+
     // additive synthesis test
-    std::string additiveSynthesisTest = "(+ (const* {c 0 0.5 1.0} (osc {d 0 0 1} {d 0 1 10})) (const* {c 0 0.5 1.0} (osc {d 0 1 1} {d 0 1 10})))";
+    /*
+    std::string additiveSynthesisTest = "(+ (gain {c 0 0.5 1.0} (sinosc {d 0 0 1} {d 0 1 10})) (gain {c 0 0.5 1.0} (sinosc {d 0 1 1} {d 0 1 10})))";
     GPNetwork* additiveSynthesisTestNet = new GPNetwork(rng, additiveSynthesisTest);
     additiveSynthesisTestNet->traceNetwork();
     additiveSynthesisTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
@@ -1079,23 +1098,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete FMSynthesisTestNet;
 
-    // additive synthesis test
-    std::string oscillatorTest = "(osc {d 0 0 1} {c 0.0 1.0 10.0})";
-    GPNetwork* oscillatorTestNetPreCopy = new GPNetwork(rng, oscillatorTest);
-    oscillatorTestNetPreCopy->traceNetwork();
-    GPNetwork* oscillatorTestNet = oscillatorTestNetPreCopy->getCopy("test");
-    delete oscillatorTestNetPreCopy;
-    oscillatorTestNet->traceNetwork();
-    oscillatorTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
-    std::cout << "----TESTING SINE WAVE OSCILLATOR----" << std::endl;
-    std::cout << "Network: " << std::endl << oscillatorTestNet->toString(10) << std::endl;
-    std::cout << "Height: " << oscillatorTestNet->height << std::endl;
-    std::cout << "Min: " << oscillatorTestNet->minimum << std::endl;
-    std::cout << "Max: " << oscillatorTestNet->maximum << std::endl;
-    renderIndividualByBlockPerformance(oscillatorTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
-    oscillatorTestNet->doneRendering();
-    saveWavFile("./oscillatorTest.wav", String(oscillatorTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
-    delete oscillatorTestNet;
+    */
 
     // free test buffer
     free(variables);

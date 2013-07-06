@@ -17,6 +17,7 @@ class WaveTableNode: public GPNode {
 public:
     // overrides
     void setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime);
+    void doneRendering();
     void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 	void updateMutatedParams();
     void toString(std::stringstream& ss);
@@ -35,6 +36,7 @@ public:
     // member variables
     std::string symbol;
     int variableNum;
+    float sampleRate;
     float partial;
     float phase;
     WaveTableOsc* osc;

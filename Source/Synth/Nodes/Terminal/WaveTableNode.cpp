@@ -16,7 +16,18 @@
 */
 
 void WaveTableNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
+	sampleRate = sr;
+	osc = new WaveTableOsc();
+	makeAddAllWaveTables((double) sr, 2, 99999, 20.0f, (double) 20.0f * 2.0 / sampleRate);
+	//makeAddAllWaveTables((double) sr, 2, 99999, 20.0f, (double) sr/2);
 	GPNode::setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
+}
+
+void WaveTableNode::doneRendering() {
+	if (preparedToRender) {
+		delete osc;
+	}
+	GPNode::doneRendering();
 }
 
 void WaveTableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) {
@@ -31,7 +42,7 @@ void WaveTableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned
 	}
 	
 	// fill the audio buffer
-	float freqVal = constantVariables[variableNum] * partial;
+	float freqVal = (constantVariables[variableNum] * partial) / sampleRate;
     for (unsigned i = 0; i < numSamples; i++) {
         osc->setFrequency(freqVal);
         buffer[i] = osc->getOutput();

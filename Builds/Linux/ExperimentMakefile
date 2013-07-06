@@ -62,7 +62,6 @@ OBJECTS := \
   $(OBJDIR)/CosineNode.o \
   $(OBJDIR)/AMNode.o \
   $(OBJDIR)/PMNode.o \
-  $(OBJDIR)/FMNode.o \
   $(OBJDIR)/SinOscNode.o\
   $(OBJDIR)/ADSRTerminalNode.o \
   $(OBJDIR)/ConstantNode.o \
@@ -193,9 +192,9 @@ $(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/Logic/MixerNode.cpp
 	@echo "Compiling MixerNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/Logic/SwitchNode.cpp
+$(OBJDIR)/SwitchNode.o: ../../Source/Synth/Nodes/Logic/SwitchNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MixerNode.cpp"
+	@echo "Compiling SwitchNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/AMNode.o: ../../Source/Synth/Nodes/Modulation/AMNode.cpp
@@ -206,11 +205,6 @@ $(OBJDIR)/AMNode.o: ../../Source/Synth/Nodes/Modulation/AMNode.cpp
 $(OBJDIR)/PMNode.o: ../../Source/Synth/Nodes/Modulation/PMNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling PMNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FMNode.o: ../../Source/Synth/Nodes/Modulation/FMNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FMNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/SinOscNode.o: ../../Source/Synth/Nodes/Terminal/Oscillator/SinOscNode.cpp

@@ -16,6 +16,8 @@
 */
 
 GainNode::GainNode(GPMutatableParam* v, GPNode* signal) {
+    mutatableParams.push_back(v);
+
     arity = 1;
     descendants.push_back(signal);
 

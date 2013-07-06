@@ -3,7 +3,7 @@
 set -e
 
 # LOCAL TRUMPET TEST
-#<<COMMENT
+<<COMMENT
 #gdb --args \
 valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
@@ -68,10 +68,10 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --crossover 0.25 --cselect 0 --ctype 0\
   --reproduction 0.25 --rselect 0\
   > 2GenValgrind.txt
-#COMMENT
+COMMENT
 
 # SANITY TEST
-<<COMMENT
+#<<COMMENT
 #gdb --args \
 valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
@@ -79,7 +79,7 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt"
   --experiment 0 \
   --loadwavblock 256 \
 > testValgrind.txt
-COMMENT
+#COMMENT
 
 # FITNESS FUNCTION SAVE
 <<COMMENT

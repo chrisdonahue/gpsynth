@@ -46,8 +46,6 @@ SinOscNode* SinOscNode::getCopy() {
 
 void SinOscNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
 	WaveTableNode::setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
-	makeAddAllWaveTables((double) sr, 2, 99999, 20.0f, (double) sr/2);
-    return;
 }
 
 void SinOscNode::updateMutatedParams() {
@@ -66,8 +64,9 @@ void SinOscNode::updateMutatedParams() {
     ===================
 */
 
-void SinOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsigned constantRatioLimit, double baseFreq, double topFreq) {
+void SinOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsigned constantRatioLimit, double baseFrequency, double topFrequency) {
     // calc number of harmonics where the highest harmonic baseFreq and lowest alias an octave higher would meet
+    double baseFreq = baseFrequency;
     int maxHarms = sampleRate / (3.0 * baseFreq) + 0.5;
 
     // round up to nearest power of two
@@ -83,6 +82,7 @@ void SinOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsi
 
     double ar[tableLen], ai[tableLen];   // for ifft
 
+	double topFreq = topFrequency;
     //double topFreq = baseFreq * 2.0 / sampleRate;
     double scale = 0.0;
     for (; maxHarms >= 1; maxHarms >>= 1) {
