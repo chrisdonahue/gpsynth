@@ -10,7 +10,7 @@
 #ifndef GAINNODE_H
 #define GAINNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class GainNode: public GPNode {
 public:

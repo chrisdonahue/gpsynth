@@ -10,7 +10,7 @@
 #ifndef LFOENVELOPENODE_H
 #define LFOENVELOPENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class LFOEnvelopeNode: public GPNode {
 public:

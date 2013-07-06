@@ -10,26 +10,25 @@
 #ifndef SINOSCNODE_H
 #define SINOSCNODE_H
 
-#include "../GPNode.h"
+#include "../../../GPNode.h"
 
 class SinOsc: public GPNode {
 public:
     SinOsc(GPMutatableParam* vn, GPMutatableParam* partial, GPMutatableParam* phase);
     ~SinOsc();
 
-	// overrides
+	// GPNode overrides
     SinOsc* getCopy();
-	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
+    void setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime);
+	
+	// WaveTable overrides
+	void makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsigned constantRatioLimit, double baseFreq, double topFreq);
+    void defineHarmonics(int len, int numHarmonics, double* ar, double* ai);
 
     // optional overrides
 	void updateMutatedParams();
 
 private:
-    float partial;
-    float phase;
-    int variableNum;
-    double w;
 };
 
 #endif

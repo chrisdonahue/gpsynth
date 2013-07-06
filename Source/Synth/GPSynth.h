@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "GPNetwork.h"
-#include "Nodes/FunctionNode.h"
 
 class GPSynth {
 public:

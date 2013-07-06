@@ -14,7 +14,7 @@
 
 // Envelope includes
 #include "Nodes/Envelope/ADSREnvelopeNode.h"
-#include "Nodes/Terminal/GainNode.h"
+#include "Nodes/Envelope/GainNode.h"
 #include "Nodes/Envelope/LFOEnvelopeNode.h"
 #include "Nodes/Envelope/SplineEnvelopeNode.h"
 
@@ -33,13 +33,13 @@
 // Modulation includes
 #include "Nodes/Modulation/AMNode.h"
 #include "Nodes/Modulation/PMNode.h"
-#include "Nodes/Modulation/FMNode.h"
+//#include "Nodes/Modulation/FMNode.h"
 
 // Terminal includes
-#include "Nodes/Terminal/Oscillator/SinOscillatorNode.h"
-#include "Nodes/Terminal/Oscillator/TriangleOscillatorNode.h"
-#include "Nodes/Terminal/Oscillator/SawOscillatorNode.h"
-#include "Nodes/Terminal/Oscillator/SquareOscillatorNode.h"
+#include "Nodes/Terminal/Oscillator/SinOscNode.h"
+//#include "Nodes/Terminal/Oscillator/TriangleOscillatorNode.h"
+//#include "Nodes/Terminal/Oscillator/SawOscillatorNode.h"
+//#include "Nodes/Terminal/Oscillator/SquareOscillatorNode.h"
 #include "Nodes/Terminal/ADSRTerminalNode.h"
 #include "Nodes/Terminal/ConstantNode.h"
 #include "Nodes/Terminal/LFOTerminalNode.h"

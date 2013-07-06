@@ -10,7 +10,7 @@
 #ifndef TIMENODE_H
 #define TIMENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class TimeNode: public GPNode {
 public:

@@ -10,7 +10,7 @@
 #ifndef ADSRENVELOPENODE_H
 #define ADSRENVELOPENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class ADSREnvelopeNode: public GPNode {
 public:

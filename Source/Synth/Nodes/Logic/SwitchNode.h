@@ -10,7 +10,7 @@
 #ifndef SWITCHNODE_H
 #define SWITCHNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class SwitchNode: public GPNode {
 public:

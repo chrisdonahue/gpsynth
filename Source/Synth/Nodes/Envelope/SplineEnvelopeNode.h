@@ -10,7 +10,7 @@
 #ifndef SPLINEENVELOPENODE_H
 #define SPLINEENVELOPENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class SplineEnvelopeNode: public GPNode {
 public:

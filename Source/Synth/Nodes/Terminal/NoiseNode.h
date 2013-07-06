@@ -10,7 +10,7 @@
 #ifndef NOISENODE_H
 #define NOISENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 #include <list>
 
 class NoiseNode: public GPNode {

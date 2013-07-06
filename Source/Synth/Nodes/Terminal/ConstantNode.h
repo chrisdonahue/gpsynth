@@ -10,7 +10,7 @@
 #ifndef CONSTANTNODE_H
 #define CONSTANTNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class ConstantNode: public GPNode {
 public:

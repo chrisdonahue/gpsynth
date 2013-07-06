@@ -10,7 +10,7 @@
 #ifndef FUNCTIONNODE_H
 #define FUNCTIONNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class FunctionNode: public GPNode {
 public:

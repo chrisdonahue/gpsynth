@@ -10,7 +10,7 @@
 #ifndef VARIABLENODE_H
 #define VARIABLENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class VariableNode: public GPNode {
 public:

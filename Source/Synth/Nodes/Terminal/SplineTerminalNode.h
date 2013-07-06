@@ -10,7 +10,7 @@
 #ifndef SPLINETERMINALNODE_H
 #define SPLINETERMINALNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class SplineTerminalNode: public GPNode {
 public:

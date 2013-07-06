@@ -10,20 +10,34 @@
 #ifndef WAVETABLENODE_H
 #define WAVETABLENODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
+#include "../../../Dependencies/WaveTableOsc/WaveTableOsc.h"
 
 class WaveTableNode: public GPNode {
 public:
     // overrides
-    void toString(std::stringstream& ss);
+    void setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime);
+    void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 	void updateMutatedParams();
+    void toString(std::stringstream& ss);
 
-	// subclass overrides
-    virtual WaveTableNode* getCopy() = 0
-	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
+	// WaveTable helpers
+	void fft(int N, double* ar, double* ai);
+	float makeAddWaveTable(int len, double* ar, double* ai, double scale, double topFreq);
 
-    // oscillator symbol
+	// GPNode subclass overrides
+    virtual WaveTableNode* getCopy() = 0;
+
+	// WaveTable subclass overrides
+	virtual void makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsigned constantRatioLimit, double baseFreq, double topFreq) = 0;
+    virtual void defineHarmonics(int len, int numHarmonics, double* ar, double* ai) = 0;
+
+    // member variables
     std::string symbol;
+    int variableNum;
+    float partial;
+    float phase;
+    WaveTableOsc osc;
 private:
 };
 

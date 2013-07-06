@@ -10,7 +10,7 @@
 #ifndef ADSRTERMINALNODE_H
 #define ADSRTERMINALNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class ADSRTerminalNode: public GPNode {
 public:

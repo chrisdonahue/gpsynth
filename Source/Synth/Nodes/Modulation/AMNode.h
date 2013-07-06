@@ -10,7 +10,7 @@
 #ifndef AMNODE_H
 #define AMNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class AMNode: public GPNode {
 public:

@@ -10,11 +10,11 @@
 #ifndef LFOTERMINALNODE_H
 #define LFOTERMINALNODE_H
 
-#include "../GPNode.h"
+#include "../../GPNode.h"
 
 class LFOTerminalNode: public GPNode {
 public:
-    LFOTerminalNode(GPMutatableParam* rate;
+    LFOTerminalNode(GPMutatableParam* rate);
     ~LFOTerminalNode();
 
 	// overrides

@@ -48,21 +48,33 @@ OBJECTS := \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
-  $(OBJDIR)/ADSRNode.o \
-  $(OBJDIR)/ConstantNode.o \
+  $(OBJDIR)/ADSREnvelopeNode.o \
+  $(OBJDIR)/GainNode.o \
+  $(OBJDIR)/LFOEnvelopeNode.o \
+  $(OBJDIR)/SplineEnvelopeNode.o \
   $(OBJDIR)/FunctionNode.o \
   $(OBJDIR)/AddNode.o \
+  $(OBJDIR)/SubtractNode.o \
   $(OBJDIR)/MultiplyNode.o \
   $(OBJDIR)/SineNode.o \
-  $(OBJDIR)/LFONode.o \
   $(OBJDIR)/MixerNode.o \
+  $(OBJDIR)/SwitchNode.o \
+  $(OBJDIR)/CosineNode.o \
+  $(OBJDIR)/AMNode.o \
+  $(OBJDIR)/PMNode.o \
+  $(OBJDIR)/FMNode.o \
+  $(OBJDIR)/SinOscNode.o\
+  $(OBJDIR)/ADSRTerminalNode.o \
+  $(OBJDIR)/ConstantNode.o \
+  $(OBJDIR)/LFOTerminalNode.o \
   $(OBJDIR)/NoiseNode.o \
-  $(OBJDIR)/OscilNode.o \
   $(OBJDIR)/SilenceNode.o \
-  $(OBJDIR)/SplineNode.o \
+  $(OBJDIR)/SplineTerminalNode.o \
   $(OBJDIR)/TimeNode.o \
   $(OBJDIR)/VariableNode.o \
+  $(OBJDIR)/WaveTableNode.o \
   $(OBJDIR)/JUCEFileIO.o \
+  $(OBJDIR)/WaveTableOsc.o \
   $(OBJDIR)/kiss_fft.o \
   $(OBJDIR)/kiss_fftr.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
@@ -96,11 +108,6 @@ strip:
 	@echo Stripping GPAudioTargetMatchingExperiment
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
-$(OBJDIR)/JUCEFileIO.o: ../../Source/Common/JUCEFileIO.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling JUCEFileIO.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/ExperimentMain.o: ../../Source/Experiment/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
@@ -131,84 +138,139 @@ $(OBJDIR)/GPNetwork.o: ../../Source/Synth/GPNetwork.cpp
 	@echo "Compiling GPNetwork.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ADSRNode.o: ../../Source/Synth/Nodes/ADSRNode.cpp
+$(OBJDIR)/ADSREnvelopeNode.o: ../../Source/Synth/Nodes/Envelope/ADSREnvelopeNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ADSRNode.cpp"
+	@echo "Compiling ADSREnvelopeNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/OscilNode.o: ../../Source/Synth/Nodes/OscilNode.cpp
+$(OBJDIR)/GainNode.o: ../../Source/Synth/Nodes/Envelope/GainNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling OscilNode.cpp"
+	@echo "Compiling GainNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ModOscilNode.o: ../../Source/Synth/Nodes/ModOscilNode.cpp
+$(OBJDIR)/LFOEnvelopeNode.o: ../../Source/Synth/Nodes/Envelope/LFOEnvelopeNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ModOscilNode.cpp"
+	@echo "Compiling LFOEnvelopeNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/FilterNode.o: ../../Source/Synth/Nodes/FilterNode.cpp
+$(OBJDIR)/SplineEnvelopeNode.o: ../../Source/Synth/Nodes/Envelope/SplineEnvelopeNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling FilterNode.cpp"
+	@echo "Compiling SplineEnvelopeNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/LFONode.o: ../../Source/Synth/Nodes/LFONode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LFONode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/MixerNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MixerNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/NoiseNode.o: ../../Source/Synth/Nodes/NoiseNode.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling NoiseNode.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/FunctionNode.cpp
+$(OBJDIR)/FunctionNode.o: ../../Source/Synth/Nodes/Function/FunctionNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling FunctionNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/AddNode.o: ../../Source/Synth/Nodes/AddNode.cpp
+$(OBJDIR)/AddNode.o: ../../Source/Synth/Nodes/Function/AddNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AddNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MultiplyNode.o: ../../Source/Synth/Nodes/MultiplyNode.cpp
+$(OBJDIR)/SubtractNode.o: ../../Source/Synth/Nodes/Function/SubtractNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SubtractNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MultiplyNode.o: ../../Source/Synth/Nodes/Function/MultiplyNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MultiplyNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/SineNode.o: ../../Source/Synth/Nodes/SineNode.cpp
+$(OBJDIR)/SineNode.o: ../../Source/Synth/Nodes/Function/SineNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SineNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/ConstantNode.cpp
+$(OBJDIR)/CosineNode.o: ../../Source/Synth/Nodes/Function/CosineNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling CosineNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/Logic/MixerNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MixerNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MixerNode.o: ../../Source/Synth/Nodes/Logic/SwitchNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MixerNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/AMNode.o: ../../Source/Synth/Nodes/Modulation/AMNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling AMNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/PMNode.o: ../../Source/Synth/Nodes/Modulation/PMNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling PMNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/FMNode.o: ../../Source/Synth/Nodes/Modulation/FMNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling FMNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SinOscNode.o: ../../Source/Synth/Nodes/Terminal/Oscillator/SinOscNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling SinOscNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ADSRTerminalNode.o: ../../Source/Synth/Nodes/Terminal/ADSRTerminalNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ADSRTerminalNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ConstantNode.o: ../../Source/Synth/Nodes/Terminal/ConstantNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ConstantNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/SilenceNode.o: ../../Source/Synth/Nodes/SilenceNode.cpp
+$(OBJDIR)/LFOTerminalNode.o: ../../Source/Synth/Nodes/Terminal/LFOTerminalNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LFOTerminalNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/NoiseNode.o: ../../Source/Synth/Nodes/Terminal/NoiseNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling NoiseNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/SilenceNode.o: ../../Source/Synth/Nodes/Terminal/SilenceNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling SilenceNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/SplineNode.o: ../../Source/Synth/Nodes/SplineNode.cpp
+$(OBJDIR)/SplineTerminalNode.o: ../../Source/Synth/Nodes/Terminal/SplineTerminalNode.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling SplineNode.cpp"
+	@echo "Compiling SplineTerminalNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/TimeNode.cpp
+$(OBJDIR)/TimeNode.o: ../../Source/Synth/Nodes/Terminal/TimeNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling TimeNode.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/VariableNode.o: ../../Source/Synth/Nodes/VariableNode.cpp
+$(OBJDIR)/VariableNode.o: ../../Source/Synth/Nodes/Terminal/VariableNode.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling VariableNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/WaveTableNode.o: ../../Source/Synth/Nodes/Terminal/WaveTableNode.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling WaveTableNode.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/JUCEFileIO.o: ../../Source/Common/JUCEFileIO.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling JUCEFileIO.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/WaveTableOsc.o: ../../Source/Dependencies/WaveTableOsc/WaveTableOsc.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling WaveTableOsc.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/kiss_fft.o: ../../Source/Dependencies/kissfft/kiss_fft.c
