@@ -94,6 +94,9 @@ void SquareOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp, u
         if (tableLen > constantRatioLimit) // variable table size (constant oversampling but with minimum table size)
             tableLen >>= 1;
     }
+
+    free(ai);
+    free(ar);
 }
 
 void SquareOscNode::defineHarmonics(int len, int numHarmonics, double* ar, double* ai) {

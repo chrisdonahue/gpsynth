@@ -94,6 +94,9 @@ void TriangleOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp,
         if (tableLen > constantRatioLimit) // variable table size (constant oversampling but with minimum table size)
             tableLen >>= 1;
     }
+
+    free(ai);
+    free(ar);
 }
 
 void TriangleOscNode::defineHarmonics(int len, int numHarmonics, double* ar, double* ai) {

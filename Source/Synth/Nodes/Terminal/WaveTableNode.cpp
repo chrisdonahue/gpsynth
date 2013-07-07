@@ -153,6 +153,8 @@ float WaveTableNode::makeAddWaveTable(int len, double* ar, double* ai, double sc
         
     if (osc->addWaveTable(len, wave, topFreq))
         scale = 0.0;
-    
+
+    free(wave);
+
     return scale;
 }

@@ -94,6 +94,9 @@ void SawOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsi
         if (tableLen > constantRatioLimit) // variable table size (constant oversampling but with minimum table size)
             tableLen >>= 1;
     }
+
+    free(ai);
+    free(ar);
 }
 
 void SawOscNode::defineHarmonics(int len, int numHarmonics, double* ar, double* ai) {
