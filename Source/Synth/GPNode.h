@@ -119,7 +119,7 @@ public:
         preparedToRender = true;
     }
 
-    // NON-OVERRIDABLE FUNCTIONS
+    // OPTIONALLY OVERRIDABLE FUNCTIONS
     // propogate ephemeral random constants
     void ephemeralRandom(GPRandom* r) {
         for (unsigned i = 0; i < mutatableParams.size(); i++) {

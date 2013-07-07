@@ -34,6 +34,7 @@ private:
     int splineType;
     int numPoints;
     GPRandom* rng;
+    float minSegmentLength;
     float maxSegmentLength;
 
     unsigned maxNumFrames;

@@ -372,46 +372,108 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
     }
     // spline node (already created)
     else if (type.compare("spline") == 0) {
-		/*
-        GPMutatableParam* splinetype = createMutatableParam(tokenizerArgs, false, "splinetype");
-        GPMutatableParam* splinenum = createMutatableParam(tokenizerArgs, false, "splinenum");
+        // if this is a primitive spline that we want to randomize
+        if (params.size() % 2 == 0) {
+            // make sure we have the right number of arguments
+            if (params.size() != 4) {
+                std::cerr << "Incorrect number of mutatable params for Spline Node primitive" << std::endl;
+                return NULL;
+            }
+            params[0]->setType("spline_type");
+            params[0]->setUnmutatable();
+            params[1]->setType("spline_num_points");
+            params[1]->setUnmutatable();
+            params[2]->setType("spline_amp_range");
+            params[3]->setType("spline_segment_length_range");
 
-        int numSplinePoints = splinenum->getDValue();
-        std::vector<GPMutatableParam*> splinepoints;
-        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizerArgs, true, "splinepoint");
-        splinepoints.push_back(splineinitialvalue);
+            std::vector<GPMutatableParam*> splinepoints;
+            splinepoints.push_back(params[2]);
+            splinepoints.push_back(params[3]);
 
-        for (int i = 0; i < numSplinePoints; i++) {
-            GPMutatableParam* splinelength = createMutatableParam(tokenizerArgs, true, "splinelength");
-            GPMutatableParam* splinepoint = createMutatableParam(tokenizerArgs, true, "splinepoint");
-            splinepoints.push_back(splinelength);
-            splinepoints.push_back(splinepoint);
+            return new SplineTerminalNode(rng, true, params[0], params[1], splinepoints);
         }
-        
-        return new SplineTerminalNode(rng, false, splinetype, splinenum, splinepoints, NULL);
-		*/
-        return NULL;
+        // else interpret this is a previously instantiated spline
+        else {
+            // make sure we at least have a type, numPoints and final length
+            if (params.size() < 3) {
+                std::cerr << "Incorrect number of mutatable params for Spline Node" << std::endl;
+                return NULL;
+            }
+            params[0]->setType("spline_type");
+            params[0]->setUnmutatable();
+            params[1]->setType("spline_num_points");
+            params[1]->setUnmutatable();
+
+            std::vector<GPMutatableParam*> splinepoints;
+            unsigned currentParam = 2;
+            while (currentParam + 2 < params.size()) {
+                params[currentParam]->setType("spline_amp");
+                splinepoints.push_back(params[currentParam]);
+                currentParam++;
+                params[currentParam]->setType("spline_segment_length");
+                currentParam++;
+                splinepoints.push_back(params[currentParam]);
+            }
+            params[currentParam]->setType("spline_amp_final");
+            splinepoints.push_back(params[currentParam]);
+
+            return new SplineTerminalNode(rng, false, params[0], params[1], splinepoints);
+        }
     }
     else if (type.compare("spline*") == 0) {
-		/*
-        GPMutatableParam* splinetype = createMutatableParam(tokenizerArgs, false, "splinetype");
-        GPMutatableParam* splinenum = createMutatableParam(tokenizerArgs, true, "splinenum");
+        // if this is a primitive spline that we want to randomize
+        if (params.size() % 2 == 0) {
+            // make sure we have the right number of arguments
+            if (params.size() != 4) {
+                std::cerr << "Incorrect number of mutatable params for Spline Node primitive" << std::endl;
+                return NULL;
+            }
+            params[0]->setType("spline_type");
+            params[0]->setUnmutatable();
+            params[1]->setType("spline_num_points");
+            params[1]->setUnmutatable();
+            params[2]->setType("spline_amp_range");
+            params[3]->setType("spline_segment_length_range");
 
-        int numSplinePoints = splinenum->getDValue();
-        std::vector<GPMutatableParam*> splinepoints;
-        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizerArgs, true, "splinepoint");
-        splinepoints.push_back(splineinitialvalue);
+            std::vector<GPMutatableParam*> splinepoints;
+            splinepoints.push_back(params[2]);
+            splinepoints.push_back(params[3]);
 
-        for (int i = 0; i < numSplinePoints; i++) {
-            GPMutatableParam* splinelength = createMutatableParam(tokenizerArgs, true, "splinelength");
-            GPMutatableParam* splinepoint = createMutatableParam(tokenizerArgs, true, "splinepoint");
-            splinepoints.push_back(splinelength);
-            splinepoints.push_back(splinepoint);
+            GPNode* signal;
+            if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
+
+            return new SplineEnvelopeNode(rng, true, params[0], params[1], splinepoints, signal);
         }
-        
-        return new SplineEnvelopeNode(rng, false, splinetype, splinenum, splinepoints, createNode(tokenizerArgs, subtreeArgs));
-		*/
-        return NULL;
+        // else interpret this is a previously instantiated spline
+        else {
+            // make sure we at least have a type, numPoints and final length
+            if (params.size() < 3) {
+                std::cerr << "Incorrect number of mutatable params for Spline Node" << std::endl;
+                return NULL;
+            }
+            params[0]->setType("spline_type");
+            params[0]->setUnmutatable();
+            params[1]->setType("spline_num_points");
+            params[1]->setUnmutatable();
+
+            std::vector<GPMutatableParam*> splinepoints;
+            unsigned currentParam = 2;
+            while (currentParam + 2 < params.size()) {
+                params[currentParam]->setType("spline_amp");
+                splinepoints.push_back(params[currentParam]);
+                currentParam++;
+                params[currentParam]->setType("spline_segment_length");
+                currentParam++;
+                splinepoints.push_back(params[currentParam]);
+            }
+            params[currentParam]->setType("spline_amp_final");
+            splinepoints.push_back(params[currentParam]);
+
+            GPNode* signal;
+            if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
+
+            return new SplineEnvelopeNode(rng, false, params[0], params[1], splinepoints, signal);
+        }
     }
     // time node
     else if (type.compare("time") == 0) {

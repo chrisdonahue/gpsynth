@@ -35,6 +35,7 @@ SplineTerminalNode::SplineTerminalNode(GPRandom* r, bool ephemeralRandom, GPMuta
         // use points array to determine range of mutatable params
         minimum = points[0]->getCMin();
         maximum = points[0]->getCMax();
+        minSegmentLength = points[1]->getCMin();
         maxSegmentLength = points[1]->getCMax();
 
         // create the initial value for the spline function
@@ -44,13 +45,16 @@ SplineTerminalNode::SplineTerminalNode(GPRandom* r, bool ephemeralRandom, GPMuta
 
         // create the array of spline points
         for (int i = 0; i < numPoints; i++) {
-            GPMutatableParam* newSplineLength = new GPMutatableParam("splinelength", true, 0.0f, 0.0f, maxSegmentLength);
+            GPMutatableParam* newSplineLength = new GPMutatableParam("splinelength", true, 0.0f, minSegmentLength, maxSegmentLength);
             GPMutatableParam* newSplinePoint = new GPMutatableParam("splinepoint", true, minimum, minimum, maximum);
             newSplineLength->ephemeralRandom(rng);
             newSplinePoint->ephemeralRandom(rng);
             mutatableParams.push_back(newSplineLength);
             mutatableParams.push_back(newSplinePoint);
         }
+
+        delete points[1];
+        delete points[0];
     }
     else {
         for (unsigned i = 0; i < points.size(); i++) {
