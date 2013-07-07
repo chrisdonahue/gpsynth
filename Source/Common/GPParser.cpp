@@ -390,7 +390,7 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             splinepoints.push_back(params[2]);
             splinepoints.push_back(params[3]);
 
-            return new SplineTerminalNode(rng, true, params[0], params[1], splinepoints);
+            return new SplineTerminalNode(params[0], params[1], splinepoints);
         }
         // else interpret this is a previously instantiated spline
         else {
@@ -417,7 +417,7 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[currentParam]->setType("spline_amp_final");
             splinepoints.push_back(params[currentParam]);
 
-            return new SplineTerminalNode(rng, false, params[0], params[1], splinepoints);
+            return new SplineTerminalNode(params[0], params[1], splinepoints);
         }
     }
     else if (type.compare("spline*") == 0) {

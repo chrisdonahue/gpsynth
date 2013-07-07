@@ -14,7 +14,7 @@
 
 class SplineTerminalNode: public GPNode {
 public:
-    SplineTerminalNode(GPRandom* r, bool ephemeralRandom, GPMutatableParam* splineType, GPMutatableParam* numPoints, std::vector<GPMutatableParam*>& points);
+    SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& pointsOrParams);
     ~SplineTerminalNode();
 
 	// overrides
@@ -23,6 +23,7 @@ public:
     void toString(std::stringstream& ss);
 
     // optional overrides
+    void ephemeralRandom(GPRandom* rng);
 	void setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);
     void doneRendering();
 	void updateMutatedParams();
@@ -32,10 +33,12 @@ public:
 
 private:
     int splineType;
-    int numPoints;
-    GPRandom* rng;
+    int numSegments;
+
     float minSegmentLength;
     float maxSegmentLength;
+    float minAmplitude;
+    float maxAmplitude;
 
     unsigned maxNumFrames;
     float sampleRate;

@@ -73,6 +73,15 @@ public:
     bool preparedToRender;
 
     // OVERRIDABLE FUNCTIONS
+    virtual void ephemeralRandom(GPRandom* rng) {
+        for (unsigned i = 0; i < mutatableParams.size(); i++) {
+            mutatableParams[i]->ephemeralRandom(rng);
+        }
+        for (unsigned i = 0; i < arity; i++) {
+            descendants[i]->ephemeralRandom(rng);
+        }
+    }
+
     virtual void prepareToPlay() {
     }
 
@@ -119,17 +128,7 @@ public:
         preparedToRender = true;
     }
 
-    // OPTIONALLY OVERRIDABLE FUNCTIONS
-    // propogate ephemeral random constants
-    void ephemeralRandom(GPRandom* r) {
-        for (unsigned i = 0; i < mutatableParams.size(); i++) {
-            mutatableParams[i]->ephemeralRandom(r);
-        }
-        for (unsigned i = 0; i < arity; i++) {
-            descendants[i]->ephemeralRandom(r);
-        }
-    }
-
+    // NON-OVERRIDABLE FUNCTIONS
     // this trace method ensures that I only have assign descendant pointers correctly during genetic operations
     void trace(std::vector<GPNode*>* allnodes, std::vector<GPMutatableParam*>* allmutatableparams, GPNode* p, int* treeHeight, int currentDepth) {
         // assign parent

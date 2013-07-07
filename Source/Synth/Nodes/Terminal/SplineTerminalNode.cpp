@@ -16,49 +16,46 @@
 */
 
 // points should always have something in it
-SplineTerminalNode::SplineTerminalNode(GPRandom* r, bool ephemeralRandom, GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& points)
+SplineTerminalNode::SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>& pointsOrParams)
 {
     assert(!(splinetype->isMutatable));
-    assert(!(numpoints->isMutatable));
-    if (ephemeralRandom)
-        assert(points.size() == 2);
+    assert(!(numsegments->isMutatable));
 
-    rng = r;
     splineType = splinetype->getDValue();
-    numPoints = numpoints->getDValue();
+    numSegments = numsegments->getDValue();
 
     mutatableParams.push_back(splinetype);
-    mutatableParams.push_back(numpoints);
+    mutatableParams.push_back(numsegments);
 
-    // randomize the initial points (determines the range if ephemeralRandom == true)
-    if (ephemeralRandom) {
-        // use points array to determine range of mutatable params
-        minimum = points[0]->getCMin();
-        maximum = points[0]->getCMax();
-        minSegmentLength = points[1]->getCMin();
-        maxSegmentLength = points[1]->getCMax();
+    // randomize the initial pointsOrParams (determines the range if ephemeralRandom == true)
+    if (true) {
+        // use pointsOrParams array to determine range of mutatable params
+        minimum = pointsOrParams[0]->getCMin();
+        maximum = pointsOrParams[0]->getCMax();
+        minSegmentLength = pointsOrParams[1]->getCMin();
+        maxSegmentLength = pointsOrParams[1]->getCMax();
 
         // create the initial value for the spline function
         GPMutatableParam* initialValue = new GPMutatableParam("splinepoint", true, minimum, maximum, maximum);
-        initialValue->ephemeralRandom(rng);
+        //initialValue->ephemeralRandom(rng);
         mutatableParams.push_back(initialValue);
 
-        // create the array of spline points
-        for (int i = 0; i < numPoints; i++) {
+        // create the array of spline pointsOrParams
+        for (int i = 0; i < numSegments; i++) {
             GPMutatableParam* newSplineLength = new GPMutatableParam("splinelength", true, 0.0f, minSegmentLength, maxSegmentLength);
             GPMutatableParam* newSplinePoint = new GPMutatableParam("splinepoint", true, minimum, minimum, maximum);
-            newSplineLength->ephemeralRandom(rng);
-            newSplinePoint->ephemeralRandom(rng);
+            //newSplineLength->ephemeralRandom(rng);
+            //newSplinePoint->ephemeralRandom(rng);
             mutatableParams.push_back(newSplineLength);
             mutatableParams.push_back(newSplinePoint);
         }
 
-        delete points[1];
-        delete points[0];
+        delete pointsOrParams[1];
+        delete pointsOrParams[0];
     }
     else {
-        for (unsigned i = 0; i < points.size(); i++) {
-            mutatableParams.push_back(points[i]);
+        for (unsigned i = 0; i < pointsOrParams.size(); i++) {
+            mutatableParams.push_back(pointsOrParams[i]);
         }
     }
 
@@ -77,12 +74,17 @@ SplineTerminalNode::~SplineTerminalNode() {
 
 SplineTerminalNode* SplineTerminalNode::getCopy() {
     // make copies of spline points
-    std::vector<GPMutatableParam*> paramCopies(numPoints * 2 + 1);
+    std::vector<GPMutatableParam*> paramCopies(numSegments * 2 + 1);
     for (unsigned i = 2; i < mutatableParams.size(); i++) {
         paramCopies[i] = mutatableParams[i]->getCopy();
     }
 
-    return new SplineTerminalNode(rng, false, mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies);
+    return new SplineTerminalNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies);
+}
+
+void SplineTerminalNode::ephemeralRandom(GPRandom* rng) {
+    // if this is a primitive fill the mutatable params buffer
+    GPNode::ephemeralRandom(rng);
 }
 
 void SplineTerminalNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {
@@ -136,7 +138,7 @@ void SplineTerminalNode::updateMutatedParams() {
 
     // get minimum value for spline envelope
     float minSplineHeight = mutatableParams[2]->getCMin();
-    for (int i = 1; i < numPoints; i++) {
+    for (int i = 1; i < numSegments; i++) {
         int heightIndex = (i * 2) + 2;
         if (mutatableParams[heightIndex]->getCMin() < minSplineHeight)
             minSplineHeight = mutatableParams[heightIndex]->getCMin();
@@ -144,7 +146,7 @@ void SplineTerminalNode::updateMutatedParams() {
     
     // get maximum value for attack or sustain
     float maxSplineHeight = mutatableParams[0]->getCMax();
-    for (int i = 1; i < numPoints; i++) {
+    for (int i = 1; i < numSegments; i++) {
         int heightIndex = (i * 2) + 2;
         if (mutatableParams[heightIndex]->getCMax() > maxSplineHeight)
             maxSplineHeight = mutatableParams[heightIndex]->getCMax();
@@ -177,7 +179,7 @@ void SplineTerminalNode::fillFromParams() {
         unsigned currentFrame = 0;
         unsigned usedPoints = 0;
         float currentLevel = mutatableParams[2]->getCValue();
-        while (currentFrame < maxNumFrames && usedPoints < numPoints) {
+        while (currentFrame < maxNumFrames && usedPoints < numSegments) {
             float transitionLength = mutatableParams[(usedPoints * 2) + 2 + 1]->getCValue();
             float nextLevel = mutatableParams[(usedPoints * 2) + 2 + 2]->getCValue();
             unsigned currentTransitionFrame = 0;
