@@ -109,10 +109,13 @@ void SinOscNode::defineHarmonics(int len, int numHarmonics, double* ar, double* 
         ar[idx] = 0;
     }
 
-    // sawtooth
-    for (int idx = 1, jdx = len - 1; idx <= numHarmonics; idx++, jdx--) {
-        double temp = -1.0 / idx;
-        ar[idx] = -temp;
-        ar[jdx] = temp;
+    // sin
+    ar[1] = 1.0f;
+    ar[len - 1] = -1.0f;
+
+    /*
+    for (int idx = 0; idx < len; idx++) {
+        std::cout << "idx: " << idx << ", ar[idx]: " << ar[idx] << ", ai[idx]: " << ai[idx] << std::endl;
     }
+    */
 }

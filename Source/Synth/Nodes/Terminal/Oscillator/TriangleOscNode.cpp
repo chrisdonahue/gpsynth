@@ -109,10 +109,11 @@ void TriangleOscNode::defineHarmonics(int len, int numHarmonics, double* ar, dou
         ar[idx] = 0;
     }
 
-    // sawtooth
-    for (int idx = 1, jdx = len - 1; idx <= numHarmonics; idx++, jdx--) {
-        double temp = -1.0 / idx;
-        ar[idx] = -temp;
-        ar[jdx] = temp;
-    }
+	// triangle
+	float sign = 1;
+	for (int idx = 1, jdx = len - 1; idx <= numHarmonics; idx++, jdx--) {
+		double temp = idx & 0x01 ? 1.0 / (idx * idx) * (sign = -sign) : 0.0;
+		ar[idx] = -temp;
+		ar[jdx] = temp;
+	}
 }

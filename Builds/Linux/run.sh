@@ -73,12 +73,12 @@ COMMENT
 # SANITY TEST
 #<<COMMENT
 #gdb --args \
-valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
+#valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
   --path ./\
   --experiment 0 \
   --loadwavblock 256 \
-> testValgrind.txt
+#> testValgrind.txt
 #COMMENT
 
 # FITNESS FUNCTION SAVE

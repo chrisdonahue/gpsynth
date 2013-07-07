@@ -109,10 +109,10 @@ void SquareOscNode::defineHarmonics(int len, int numHarmonics, double* ar, doubl
         ar[idx] = 0;
     }
 
-    // sawtooth
-    for (int idx = 1, jdx = len - 1; idx <= numHarmonics; idx++, jdx--) {
-        double temp = -1.0 / idx;
-        ar[idx] = -temp;
-        ar[jdx] = temp;
-    }
+	// square
+	for (int idx = 1, jdx = len - 1; idx <= numHarmonics; idx++, jdx--) {
+		double temp = idx & 0x01 ? 1.0 / idx : 0.0;
+		ar[idx] = -temp;
+		ar[jdx] = temp;
+	}
 }

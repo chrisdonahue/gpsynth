@@ -1050,22 +1050,76 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     delete constantNodeEnvelopeTestNet;
 
     // sin oscillator test
-    std::string oscillatorTest = "(sinosc {d 0 0 1} {c 0.0 1.0 10.0} {c 0.0 0.0 1.0})";
-    GPNetwork* oscillatorTestNetPreCopy = new GPNetwork(rng, oscillatorTest);
-    oscillatorTestNetPreCopy->traceNetwork();
-    GPNetwork* oscillatorTestNet = oscillatorTestNetPreCopy->getCopy("test");
-    delete oscillatorTestNetPreCopy;
-    oscillatorTestNet->traceNetwork();
-    oscillatorTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::string sinOscTest = "(sinosc {d 0 0 1} {c 0.0 1.0 10.0} {c 0.0 0.0 1.0})";
+    GPNetwork* sinOscTestNetPreCopy = new GPNetwork(rng, sinOscTest);
+    sinOscTestNetPreCopy->traceNetwork();
+    GPNetwork* sinOscTestNet = sinOscTestNetPreCopy->getCopy("test");
+    delete sinOscTestNetPreCopy;
+    sinOscTestNet->traceNetwork();
+    sinOscTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
     std::cout << "----TESTING SINE WAVE OSCILLATOR----" << std::endl;
-    std::cout << "Network: " << std::endl << oscillatorTestNet->toString(10) << std::endl;
-    std::cout << "Height: " << oscillatorTestNet->height << std::endl;
-    std::cout << "Min: " << oscillatorTestNet->minimum << std::endl;
-    std::cout << "Max: " << oscillatorTestNet->maximum << std::endl;
-    renderIndividualByBlockPerformance(oscillatorTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
-    oscillatorTestNet->doneRendering();
-    saveWavFile("./oscillatorTest.wav", String(oscillatorTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
-    delete oscillatorTestNet;
+    std::cout << "Network: " << std::endl << sinOscTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << sinOscTestNet->height << std::endl;
+    std::cout << "Min: " << sinOscTestNet->minimum << std::endl;
+    std::cout << "Max: " << sinOscTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(sinOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    sinOscTestNet->doneRendering();
+    saveWavFile("./sinOscTest.wav", String(sinOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete sinOscTestNet;
+
+    // saw oscillator test
+    std::string sawOscTest = "(sawosc {d 0 0 1} {c 0.0 1.0 10.0} {c 0.0 0.0 1.0})";
+    GPNetwork* sawOscTestNetPreCopy = new GPNetwork(rng, sawOscTest);
+    sawOscTestNetPreCopy->traceNetwork();
+    GPNetwork* sawOscTestNet = sawOscTestNetPreCopy->getCopy("test");
+    delete sawOscTestNetPreCopy;
+    sawOscTestNet->traceNetwork();
+    sawOscTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "----TESTING SAWTOOTH WAVE OSCILLATOR----" << std::endl;
+    std::cout << "Network: " << std::endl << sawOscTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << sawOscTestNet->height << std::endl;
+    std::cout << "Min: " << sawOscTestNet->minimum << std::endl;
+    std::cout << "Max: " << sawOscTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(sawOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    sawOscTestNet->doneRendering();
+    saveWavFile("./sawOscTest.wav", String(sawOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete sawOscTestNet;
+
+    // square oscillator test
+    std::string squareOscTest = "(squareosc {d 0 0 1} {c 0.0 1.0 10.0} {c 0.0 0.0 1.0})";
+    GPNetwork* squareOscTestNetPreCopy = new GPNetwork(rng, squareOscTest);
+    squareOscTestNetPreCopy->traceNetwork();
+    GPNetwork* squareOscTestNet = squareOscTestNetPreCopy->getCopy("test");
+    delete squareOscTestNetPreCopy;
+    squareOscTestNet->traceNetwork();
+    squareOscTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "----TESTING SQUARE WAVE OSCILLATOR----" << std::endl;
+    std::cout << "Network: " << std::endl << squareOscTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << squareOscTestNet->height << std::endl;
+    std::cout << "Min: " << squareOscTestNet->minimum << std::endl;
+    std::cout << "Max: " << squareOscTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(squareOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    squareOscTestNet->doneRendering();
+    saveWavFile("./squareOscTest.wav", String(squareOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete squareOscTestNet;
+
+    // triangle oscillator test
+    std::string triangleOscTest = "(triangleosc {d 0 0 1} {c 0.0 1.0 10.0} {c 0.0 0.0 1.0})";
+    GPNetwork* triangleOscTestNetPreCopy = new GPNetwork(rng, triangleOscTest);
+    triangleOscTestNetPreCopy->traceNetwork();
+    GPNetwork* triangleOscTestNet = triangleOscTestNetPreCopy->getCopy("test");
+    delete triangleOscTestNetPreCopy;
+    triangleOscTestNet->traceNetwork();
+    triangleOscTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "----TESTING TRIANGLE WAVE OSCILLATOR----" << std::endl;
+    std::cout << "Network: " << std::endl << triangleOscTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << triangleOscTestNet->height << std::endl;
+    std::cout << "Min: " << triangleOscTestNet->minimum << std::endl;
+    std::cout << "Max: " << triangleOscTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(triangleOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    triangleOscTestNet->doneRendering();
+    saveWavFile("./triangleOscTest.wav", String(triangleOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete triangleOscTestNet;
 
     // additive synthesis test
     /*
