@@ -26,6 +26,8 @@ public:
 	void updateMutatedParams();
 
 private:
+	float controlMin;
+	float controlMax;
 };
 
 #endif

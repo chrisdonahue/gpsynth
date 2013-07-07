@@ -2,3 +2,4 @@ https://ccrma.stanford.edu/~jos/pmupd/Time_Varying_Filters.html
 http://www.acoustics.hut.fi/publications/reports/sound_synth_report.pdf
 http://en.wikibooks.org/wiki/PADsynth_Synthesis_Algorithm
 
+http://www.earlevel.com/main/2012/05/08/a-wavetable-oscillator%E2%80%94part-2/

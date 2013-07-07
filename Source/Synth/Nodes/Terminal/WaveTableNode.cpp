@@ -147,7 +147,7 @@ float WaveTableNode::makeAddWaveTable(int len, double* ar, double* ai, double sc
     }
     
     // normalize
-    float wave[len];
+    float* wave = (float*) malloc(sizeof(float) * len);
     for (int idx = 0; idx < len; idx++)
         wave[idx] = ai[idx] * scale;
         

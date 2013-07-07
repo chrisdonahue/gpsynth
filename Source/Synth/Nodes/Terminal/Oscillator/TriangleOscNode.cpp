@@ -80,7 +80,9 @@ void TriangleOscNode::makeAddAllWaveTables(double sampleRate, unsigned overSamp,
     v++;            // and increment to power of 2
     int tableLen = v * 2 * overSamp;  // double for the sample rate, then oversampling
 
-    double ar[tableLen], ai[tableLen];   // for ifft
+	// for ifft
+	double* ar = (double*) malloc(sizeof(double) * tableLen);
+	double* ai = (double*) malloc(sizeof(double) * tableLen);
 
 	double topFreq = topFrequency;
     //double topFreq = baseFreq * 2.0 / sampleRate;
