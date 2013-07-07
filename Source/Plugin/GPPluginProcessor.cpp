@@ -388,7 +388,7 @@ GeneticProgrammingSynthesizerAudioProcessor::GeneticProgrammingSynthesizerAudioP
 	//currentPrimitives->push_back(createNode("(+ (null) (null))", &rng));
 	//currentPrimitives->push_back(createNode("(lfo* {c 0 0.0 20} (null))", &rng));
 	//currentPrimitives->push_back(createNode("(pm {d 0 0 1} {d 1 1 20} {c 0 1.0 5.0} (null))", &rng));
-	//currentPrimitives->push_back(createNode("(time)", &rng));
+	currentPrimitives->push_back(createNode("(time)", &rng));
 	//currentPrimitives->push_back(createNode("(if (null) (null) (null))", &rng));
 
 	// create synth

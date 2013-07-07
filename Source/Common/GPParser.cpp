@@ -40,7 +40,7 @@ std::vector<std::string> split(const std::string &s, const char* delims) {
     ====================
 */
 
-std::vector<GPMutatableParam*> parseMutatableParams(std::vector<std::string> tokens, unsigned* currentIndex) {
+std::vector<GPMutatableParam*> parseMutatableParams(tokenizerFunctionArgs) {
     std::vector<GPMutatableParam*> ret;
     unsigned tokens_remaining = tokens.size() - (*currentIndex);
     GPMutatableParam* current = NULL;
@@ -48,7 +48,7 @@ std::vector<GPMutatableParam*> parseMutatableParams(std::vector<std::string> tok
     // if we have at least 4 tokens remaining
     while (tokens_remaining >= 4) {
         // try to make a mutatable param
-        current = createMutatableParam(tokenizer, true, "");
+        current = createMutatableParam(tokenizerArgs, "", true);
 
         // if bad parse reset the tokenizer position and break
         if (current == NULL) {
@@ -69,7 +69,7 @@ std::vector<GPMutatableParam*> parseMutatableParams(std::vector<std::string> tok
     return ret;
 }
 
-GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, bool ismutatable, std::string type) {
+GPMutatableParam* createMutatableParam(tokenizerFunctionArgs, std::string type, bool ismutatable) {
     // get tokens
     std::string tag = tokens[consume];
     std::string minstr = tokens[consume];
@@ -96,12 +96,40 @@ GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned
     }
 }
 
-GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRandom* rng) {
+/*
+	returns true for a successful parse, false for an unsuccessful parse
+*/
+
+bool parseChild(tokenizerFunctionArgs, subtreeFunctionArgs, GPNode** child) {
+	// make sure we're not out of tokens
+    unsigned tokens_remaining = tokens.size() - (*currentIndex);
+	if (tokens_remaining <= 0) {
+		std::cerr << "Child expected but not found" << std::endl;
+		*child = NULL;
+		return false;
+	}
+
+	// cache the type of the upcoming child to check later if it was intentionally null
+	std::string child_type = tokens[*currentIndex];
+
+	// create the child and deref the return value
+	*child = createNode(tokenizerArgs, subtreeArgs);
+	
+	// check if return child null and return successful parse if it was intentional
+	if (*child == NULL) {
+		return child_type.compare("null") == 0;
+	}
+
+	// child was non null representing a successful parse
+	return true;
+}
+
+GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
     // parse node string tag
     std::string type = tokens[consume];
 
     // parse mutatable params list
-    std::vector<GPMutatableParam*> params = parseMutatableParams(tokenizer);
+    std::vector<GPMutatableParam*> params = parseMutatableParams(tokenizerArgs);
 
     // radius around constant nodes (any nonzero value should be the same)
     // float constantRadius = 1;
@@ -135,10 +163,8 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
         params[5]->setType("adsr_envelope_sustain_height");
         params[6]->setType("adsr_envelope_release");
 
-		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        if (signal == NULL) {
-            return NULL;
-        }
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
         return new ADSREnvelopeNode(params[0], params[1], params[2], params[3], params[4], params[5], params[6], signal);
     }
@@ -167,10 +193,8 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
         }
         params[0]->setType("gain_value");
 
-		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        if (signal == NULL) {
-            return NULL;
-        }
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
         return new GainNode(params[0], signal);
     }
@@ -181,16 +205,11 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
         
-
-		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        if (signalone == NULL) {
-            return NULL;
-        }
+		GPNode* signalone;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalone)) return NULL;
 
         return new AddNode(signalzero, signalone);
     }
@@ -200,16 +219,11 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
         
-
-		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        if (signalone == NULL) {
-            return NULL;
-        }
+		GPNode* signalone;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalone)) return NULL;
 
         return new SubtractNode(signalzero, signalone);
     }
@@ -219,16 +233,11 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
         
-
-		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        if (signalone == NULL) {
-            return NULL;
-        }
+		GPNode* signalone;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalone)) return NULL;
 
         return new MultiplyNode(signalzero, signalone);
     }
@@ -238,10 +247,8 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
        
         return new SineNode(signalzero);
     }
@@ -251,10 +258,8 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
        
         return new CosineNode(signalzero);
     }
@@ -275,10 +280,8 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
         }
         params[0]->setType("lfo_envelope_rate");
 
-		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        if (signal == NULL) {
-            return NULL;
-        }
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
         return new LFOEnvelopeNode(params[0], signal);
     }
@@ -289,18 +292,14 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* control = createNode(tokenizer, subtreeArgs);
-        if (control == NULL) {
-            return NULL;
-        }
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
-		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        if (signalone == NULL) {
-            return NULL;
-        }
+		GPNode* control;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &control)) return NULL;
+
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
+        
+		GPNode* signalone;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalone)) return NULL;
 
         return new SwitchNode(control, signalzero, signalone);
     }
@@ -310,18 +309,14 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             return NULL;
         }
 
-		GPNode* control = createNode(tokenizer, subtreeArgs);
-        if (control == NULL) {
-            return NULL;
-        }
-		GPNode* signalzero = createNode(tokenizer, subtreeArgs);
-        if (signalzero == NULL) {
-            return NULL;
-        }
-		GPNode* signalone = createNode(tokenizer, subtreeArgs);
-        if (signalone == NULL) {
-            return NULL;
-        }
+		GPNode* control;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &control)) return NULL;
+
+		GPNode* signalzero;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalzero)) return NULL;
+        
+		GPNode* signalone;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signalone)) return NULL;
 
         return new MixerNode(control, signalzero, signalone);
     }
@@ -340,17 +335,14 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for an AM Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("am_var_num");
         params[0]->setUnmutatable();
         params[1]->setType("am_partial");
         params[2]->setType("am_offset");
         params[3]->setType("am_alpha");
 
-		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        if (signal == NULL) {
-            return NULL;
-        }
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
         return new AMNode(params[0], params[1], params[2], params[3], signal);
     }
@@ -359,16 +351,13 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for a PM Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("pm_var_num");
         params[0]->setUnmutatable();
         params[1]->setType("pm_partial");
         params[2]->setType("pm_index");
 
-		GPNode* signal = createNode(tokenizer, subtreeArgs);
-        if (signal == NULL) {
-            return NULL;
-        }
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
         return new PMNode(params[0], params[1], params[2], signal);
     }
@@ -383,42 +372,46 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
     }
     // spline node (already created)
     else if (type.compare("spline") == 0) {
-        GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
-        GPMutatableParam* splinenum = createMutatableParam(tokenizer, false, "splinenum");
+		/*
+        GPMutatableParam* splinetype = createMutatableParam(tokenizerArgs, false, "splinetype");
+        GPMutatableParam* splinenum = createMutatableParam(tokenizerArgs, false, "splinenum");
 
         int numSplinePoints = splinenum->getDValue();
         std::vector<GPMutatableParam*> splinepoints;
-        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizer, true, "splinepoint");
+        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizerArgs, true, "splinepoint");
         splinepoints.push_back(splineinitialvalue);
 
         for (int i = 0; i < numSplinePoints; i++) {
-            GPMutatableParam* splinelength = createMutatableParam(tokenizer, true, "splinelength");
-            GPMutatableParam* splinepoint = createMutatableParam(tokenizer, true, "splinepoint");
+            GPMutatableParam* splinelength = createMutatableParam(tokenizerArgs, true, "splinelength");
+            GPMutatableParam* splinepoint = createMutatableParam(tokenizerArgs, true, "splinepoint");
             splinepoints.push_back(splinelength);
             splinepoints.push_back(splinepoint);
         }
         
+        return new SplineTerminalNode(rng, false, splinetype, splinenum, splinepoints, NULL);
+		*/
         return NULL;
-        //return new SplineTerminalNode(rng, false, splinetype, splinenum, splinepoints, NULL);
     }
     else if (type.compare("spline*") == 0) {
-        GPMutatableParam* splinetype = createMutatableParam(tokenizer, false, "splinetype");
-        GPMutatableParam* splinenum = createMutatableParam(tokenizer, true, "splinenum");
+		/*
+        GPMutatableParam* splinetype = createMutatableParam(tokenizerArgs, false, "splinetype");
+        GPMutatableParam* splinenum = createMutatableParam(tokenizerArgs, true, "splinenum");
 
         int numSplinePoints = splinenum->getDValue();
         std::vector<GPMutatableParam*> splinepoints;
-        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizer, true, "splinepoint");
+        GPMutatableParam* splineinitialvalue = createMutatableParam(tokenizerArgs, true, "splinepoint");
         splinepoints.push_back(splineinitialvalue);
 
         for (int i = 0; i < numSplinePoints; i++) {
-            GPMutatableParam* splinelength = createMutatableParam(tokenizer, true, "splinelength");
-            GPMutatableParam* splinepoint = createMutatableParam(tokenizer, true, "splinepoint");
+            GPMutatableParam* splinelength = createMutatableParam(tokenizerArgs, true, "splinelength");
+            GPMutatableParam* splinepoint = createMutatableParam(tokenizerArgs, true, "splinepoint");
             splinepoints.push_back(splinelength);
             splinepoints.push_back(splinepoint);
         }
         
+        return new SplineEnvelopeNode(rng, false, splinetype, splinenum, splinepoints, createNode(tokenizerArgs, subtreeArgs));
+		*/
         return NULL;
-        //return new SplineEnvelopeNode(rng, false, splinetype, splinenum, splinepoints, createNode(tokenizer, subtreeArgs));
     }
     // time node
     else if (type.compare("time") == 0) {
@@ -435,7 +428,6 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for a Variable Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("var_num");
         params[0]->setUnmutatable();
         params[1]->setType("var_range");
@@ -448,7 +440,6 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for a Sin Osc Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("sinosc_var_num");
         params[0]->setUnmutatable();
         params[1]->setType("sinosc_partial");
@@ -461,7 +452,6 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for a Saw Osc Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("sawosc_var_num");
         params[0]->setUnmutatable();
         params[1]->setType("sawosc_partial");
@@ -474,7 +464,6 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for a Square Osc Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("squareosc_var_num");
         params[0]->setUnmutatable();
         params[1]->setType("squareosc_partial");
@@ -487,7 +476,6 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
             std::cerr << "Incorrect number of mutatable params for a Triangle Osc Node" << std::endl;
             return NULL;
         }
-
         params[0]->setType("triangleosc_var_num");
         params[0]->setUnmutatable();
         params[1]->setType("triangleosc_partial");
@@ -495,7 +483,7 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
 
         return new TriangleOscNode(params[0], params[1], params[2]);
     }
-	// null node
+	// explicitly null node for primitives
 	else if (type.compare("null") == 0) {
 		return NULL;
 	}
@@ -515,11 +503,12 @@ GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRa
 GPNode* createNode(std::string nodestring, GPRandom* rng) {
 	std::vector<std::string> tokens = split(nodestring, " }{)(");
     unsigned index = 0;
-	return createNode(tokens, &index, rng);
+	std::string error;
+	return createNode(tokens, &index, rng, error);
 }
 
 GPMutatableParam* createMutatableParam(std::string paramstring, std::string type, bool ismutatable) {
 	std::vector<std::string> tokens = split(paramstring, " }{)(");
     unsigned index = 0;
-	return createMutatableParam(tokens, &index, ismutatable, type);
+	return createMutatableParam(tokens, &index, type, ismutatable);
 }

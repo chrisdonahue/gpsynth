@@ -15,13 +15,14 @@ extern std::vector<std::string> split(const std::string &s, const char* delims);
 // S-EXPRESSION PARSING
 // macro to "consume" a token when we observe it
 #define consume (*currentIndex)++
-extern GPNode* createNode(std::vector<std::string> tokens, unsigned* currentIndex, GPRandom* rng, std::string& error);
-// macro for standard structure of vector of tokens/index
-#define tokenizer tokens, currentIndex
-// macro for calling createNode easily
-#define subtreeArgs rng
-extern std::vector<GPMutatableParam*> parseMutatableParams(std::vector<std::string> tokens, unsigned* currentIndex);
-extern GPMutatableParam* createMutatableParam(std::vector<std::string> tokens, unsigned* currentIndex, bool ismutatable, std::string type);
+#define tokenizerFunctionArgs std::vector<std::string> tokens, unsigned* currentIndex
+#define tokenizerArgs tokens, currentIndex
+#define subtreeFunctionArgs GPRandom* rng, std::string& error
+#define subtreeArgs rng, error
+extern std::vector<GPMutatableParam*> parseMutatableParams(tokenizerFunctionArgs);
+extern GPMutatableParam* createMutatableParam(tokenizerFunctionArgs, std::string type, bool ismutatable);
+extern bool parseChild(tokenizerFunctionArgs, subtreeFunctionArgs, GPNode** child);
+extern GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs);
 
 // EASY ACCESS
 extern GPNode* createNode(std::string nodestring, GPRandom* rng);
