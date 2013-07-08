@@ -1024,7 +1024,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     GPNetwork* ADSRTestNet = new GPNetwork(rng, ADSRTest);
     ADSRTestNet->traceNetwork();
     ADSRTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
-    std::cout << "----TESTING ADSR----" << std::endl;
+    std::cout << "---- TESTING ADSR----" << std::endl;
     std::cout << "Network: " << std::endl << ADSRTestNet->toString(10) << std::endl;
     std::cout << "Height: " << ADSRTestNet->height << std::endl;
     std::cout << "Min: " << ADSRTestNet->minimum << std::endl;
@@ -1120,6 +1120,22 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     triangleOscTestNet->doneRendering();
     saveWavFile("./triangleOscTest.wav", String(triangleOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete triangleOscTestNet;
+
+    // spline test network
+    std::string splineTest = "(spline {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2})";
+    GPNetwork* splineTestNet = new GPNetwork(rng, splineTest);
+    splineTestNet->ephemeralRandom(rng);
+    splineTestNet->traceNetwork();
+    splineTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "---- TESTING SPLINE----" << std::endl;
+    std::cout << "Network: " << std::endl << splineTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << splineTestNet->height << std::endl;
+    std::cout << "Min: " << splineTestNet->minimum << std::endl;
+    std::cout << "Max: " << splineTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(splineTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    splineTestNet->doneRendering();
+    saveWavFile("./splineEnvelopeTest.wav", String(splineTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete splineTestNet;
 
     // additive synthesis test
     /*

@@ -382,7 +382,6 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[0]->setType("spline_type");
             params[0]->setUnmutatable();
             params[1]->setType("spline_num_points");
-            params[1]->setUnmutatable();
             params[2]->setType("spline_amp_range");
             params[3]->setType("spline_segment_length_range");
 
@@ -431,7 +430,6 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[0]->setType("spline_type");
             params[0]->setUnmutatable();
             params[1]->setType("spline_num_points");
-            params[1]->setUnmutatable();
             params[2]->setType("spline_amp_range");
             params[3]->setType("spline_segment_length_range");
 
