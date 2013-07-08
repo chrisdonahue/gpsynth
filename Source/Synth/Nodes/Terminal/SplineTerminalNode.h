@@ -34,17 +34,11 @@ public:
 private:
     int splineType;
     int numSegments;
+    bool isPrimitive;
 
-    float minSegmentLength;
-    float maxSegmentLength;
-    float minAmplitude;
-    float maxAmplitude;
-
-    unsigned maxNumFrames;
     float sampleRate;
 
-    bool releaseFinished;
-    unsigned framesInEnvelope;
+    unsigned envelopeSize;
     float* envelope;
 };
 
