@@ -968,7 +968,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
 
     // SIN TEST NETWORK
     std::cout << "----TESTING BASIC SINE WAVE----" << std::endl;
-    std::string sinTest = "(sin (* (* (const {d 1 2 5}) (pi)) (* (time) (const {c 0.0 440.0 22050.0}))))";
+    std::string sinTest = "(sin (* (* (const {d 2 2 2}) (pi)) (* (time) (const {c 440.0 440.0 440.0}))))";
     GPNetwork* sinTestNet = new GPNetwork(rng, sinTest);
 
     std::cout << "Network before trace:" << std::endl << sinTestNet->toString(10) << std::endl;
@@ -1121,13 +1121,13 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     saveWavFile("./triangleOscTest.wav", String(triangleOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete triangleOscTestNet;
 
-    // spline test network
+    // erc spline test network
     std::string splineTest = "(spline {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2})";
     GPNetwork* splineTestNet = new GPNetwork(rng, splineTest);
     splineTestNet->ephemeralRandom(rng);
     splineTestNet->traceNetwork();
     splineTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
-    std::cout << "---- TESTING SPLINE----" << std::endl;
+    std::cout << "---- TESTING ERC SPLINE ----" << std::endl;
     std::cout << "Network: " << std::endl << splineTestNet->toString(10) << std::endl;
     std::cout << "Height: " << splineTestNet->height << std::endl;
     std::cout << "Min: " << splineTestNet->minimum << std::endl;
@@ -1136,6 +1136,37 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     splineTestNet->doneRendering();
     saveWavFile("./splineEnvelopeTest.wav", String(splineTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete splineTestNet;
+
+    // instantiated spline test network
+    std::string splineInstantiatedTest = "(spline {d 0 0 0} {d 0 3 5} {c 0 0.4 1} {c 0 0.1 0.2} {c 0 0.2 1} {c 0 0 0.3} {c 0 0.5 1} {c 0 1.5 2.0} {c -1.0 -0.5 1.0})";
+    GPNetwork* splineInstantiatedTestNet = new GPNetwork(rng, splineInstantiatedTest);
+    splineInstantiatedTestNet->traceNetwork();
+    splineInstantiatedTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "---- TESTING SPLINE ----" << std::endl;
+    std::cout << "Network: " << std::endl << splineInstantiatedTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << splineInstantiatedTestNet->height << std::endl;
+    std::cout << "Min: " << splineInstantiatedTestNet->minimum << std::endl;
+    std::cout << "Max: " << splineInstantiatedTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(splineInstantiatedTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    splineInstantiatedTestNet->doneRendering();
+    saveWavFile("./splineInstantiatedEnvelopeTest.wav", String(splineInstantiatedTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete splineInstantiatedTestNet;
+
+    // spline sine envelope
+    std::string splineEnvelopeTest = "(spline* {d 0 0 0} {d 0 0 10} {c 0 0 1.0} {c 0 0 0.2} " + sinTest + ")";
+    GPNetwork* splineSineEnvelopeTestNet = new GPNetwork(rng, splineEnvelopeTest);
+    splineSineEnvelopeTestNet->ephemeralRandom(rng);
+    splineSineEnvelopeTestNet->traceNetwork();
+    splineSineEnvelopeTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds);
+    std::cout << "---- TESTING SPLINE SINE ENVELOPE ----" << std::endl;
+    std::cout << "Network: " << std::endl << splineSineEnvelopeTestNet->toString(10) << std::endl;
+    std::cout << "Height: " << splineSineEnvelopeTestNet->height << std::endl;
+    std::cout << "Min: " << splineSineEnvelopeTestNet->minimum << std::endl;
+    std::cout << "Max: " << splineSineEnvelopeTestNet->maximum << std::endl;
+    renderIndividualByBlockPerformance(splineSineEnvelopeTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
+    splineSineEnvelopeTestNet->doneRendering();
+    saveWavFile("./splineSineWaveEnvelopeTest.wav", String(splineSineEnvelopeTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    delete splineSineEnvelopeTestNet;
 
     // additive synthesis test
     /*

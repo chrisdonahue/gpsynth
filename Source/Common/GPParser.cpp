@@ -81,6 +81,10 @@ GPMutatableParam* createMutatableParam(tokenizerFunctionArgs, std::string type, 
         float min = (float) std::atof(minstr.c_str());
         float val = (float) std::atof(valstr.c_str());
         float max = (float) std::atof(maxstr.c_str());
+        if (min > val || val > max || min > max) {
+            std::cerr << "Invalid mutatable param: " << "{" << tag << " " << minstr << " " << valstr << " " << maxstr << "}" << std::endl;
+            return NULL;
+        }
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
     // else if the param is discrete
@@ -88,6 +92,10 @@ GPMutatableParam* createMutatableParam(tokenizerFunctionArgs, std::string type, 
         int min = std::atoi(minstr.c_str());
         int val = std::atoi(valstr.c_str());
         int max = std::atoi(maxstr.c_str());
+        if (min > val || val > max || min > max) {
+            std::cerr << "Invalid mutatable param: " << "{" << tag << " " << minstr << " " << valstr << " " << maxstr << "}" << std::endl;
+            return NULL;
+        }
         return new GPMutatableParam(type, ismutatable, val, min, max);
     }
     // else something went wrong
@@ -410,8 +418,8 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
                 splinepoints.push_back(params[currentParam]);
                 currentParam++;
                 params[currentParam]->setType("spline_segment_length");
-                currentParam++;
                 splinepoints.push_back(params[currentParam]);
+                currentParam++;
             }
             params[currentParam]->setType("spline_amp_final");
             splinepoints.push_back(params[currentParam]);
@@ -440,7 +448,7 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             GPNode* signal;
             if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
-            return new SplineEnvelopeNode(rng, true, params[0], params[1], splinepoints, signal);
+            return new SplineEnvelopeNode(params[0], params[1], splinepoints, signal);
         }
         // else interpret this is a previously instantiated spline
         else {
@@ -461,8 +469,8 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
                 splinepoints.push_back(params[currentParam]);
                 currentParam++;
                 params[currentParam]->setType("spline_segment_length");
-                currentParam++;
                 splinepoints.push_back(params[currentParam]);
+                currentParam++;
             }
             params[currentParam]->setType("spline_amp_final");
             splinepoints.push_back(params[currentParam]);
@@ -470,7 +478,7 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             GPNode* signal;
             if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
 
-            return new SplineEnvelopeNode(rng, false, params[0], params[1], splinepoints, signal);
+            return new SplineEnvelopeNode(params[0], params[1], splinepoints, signal);
         }
     }
     // time node

@@ -17,6 +17,7 @@ GPSynth.cpp:
 
 Node subclasses:
     DelayNode
+    SplineNode other spline types
     NoiseNode other types of noise
 
 Interactive:
@@ -81,6 +82,10 @@ Thoughts:
     consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
 TODO long run:
+    Envelope and Terminal could be subclasses of same code
+    toString for all subclasses could be moved to GPNode with std::string symbol
+    figure out and include true FM synthesis primitive
+    createNode surrounds createNode parse into try except block. first error throws. prevents a whole lot of stuff from propogating
     print ranges/save all networks in text file that can be used from command line to render all generation wavs/just save ID's instead of waves
     implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
     figure out how to start without being in initialise method (new thread)
@@ -101,17 +106,13 @@ TODO long run:
 	split GPParams into GPMatchingExperimentParams, GPSynthParams and perhaps GPNodeParams
 
 NEXT EXPERIMENTS:
-    SPLINE NODE test/finish implementing
     CMAES/test without numerical mutation
         read Garcia paper to see how he did his suboptimizing GA. try testing that too
+
     figure out why simple average fitness function seems to work the best
         maybe use naive average and blend with moving average?
         probably because it does a better job highlighting the peak. try moving average with very large radius to pick up the upper peaks as well. try constant penalty system
         consider changing proportion * bad + base to just bad + base...
         lower the average is on the frequency domain the better. probably want to do exponential moving average with like n/2 lookahead/behind in order to allow it to decrease towards the end to capture tiny partials
-
-    look at AUDACITY rendering code and replicate that in OscilNode?
-        might have to use double precision for M_PI ;;
-        look for better implementations of FM with variable frequency online
 
 "a lot of decisions for the fitness function were made with human judgement from the output of their changes as any change to the fitness function leaves comparisons between fitness functions useless. so i graded by improvements in the underlying fitness function"

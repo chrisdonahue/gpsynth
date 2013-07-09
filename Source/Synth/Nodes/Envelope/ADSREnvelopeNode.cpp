@@ -111,7 +111,7 @@ void ADSREnvelopeNode::updateMutatedParams() {
     if (mutatableParams[5]->getCMax() > maxAttackHeight)
     	maxAttackHeight = mutatableParams[5]->getCMax();
     
-    // update min/max of terminal ADSR 
+    // update min/max of envelope ADSR 
     intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
     
     fillFromParams();

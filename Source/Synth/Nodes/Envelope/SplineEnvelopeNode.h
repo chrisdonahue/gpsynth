@@ -14,7 +14,7 @@
 
 class SplineEnvelopeNode: public GPNode {
 public:
-    SplineEnvelopeNode(GPRandom* r, bool ephemeralRandom, GPMutatableParam* splineType, GPMutatableParam* numPoints, std::vector<GPMutatableParam*>& points, GPNode* signal);
+    SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& pointsOrParams, GPNode* signal);
     ~SplineEnvelopeNode();
 
 	// overrides
@@ -23,6 +23,7 @@ public:
     void toString(std::stringstream& ss);
 
     // optional overrides
+    void ephemeralRandom(GPRandom* rng);
 	void setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);
     void doneRendering();
 	void updateMutatedParams();
@@ -32,15 +33,12 @@ public:
 
 private:
     int splineType;
-    int numPoints;
-    GPRandom* rng;
-    float maxSegmentLength;
+    int numSegments;
+    bool isPrimitive;
 
-    unsigned maxNumFrames;
     float sampleRate;
 
-    bool releaseFinished;
-    unsigned framesInEnvelope;
+    unsigned envelopeSize;
     float* envelope;
 };
 

@@ -72,8 +72,8 @@ COMMENT
 
 # SANITY TEST
 #<<COMMENT
-#gdb --args \
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="testValgrind.txt" \
+#gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
   --path ./\
   --experiment 0 \

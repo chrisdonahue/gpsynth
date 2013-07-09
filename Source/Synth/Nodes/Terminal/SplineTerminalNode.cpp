@@ -19,7 +19,7 @@
 SplineTerminalNode::SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>& pointsOrParams)
 {
     assert(!(splinetype->isMutatable));
-    bool isPrimitive = (pointsOrParams.size() == 2 && numsegments->isMutatable);
+    isPrimitive = (pointsOrParams.size() == 2 && numsegments->isMutatable);
     assert(isPrimitive || !(numsegments->isMutatable));
 
     splineType = splinetype->getDValue();
@@ -83,7 +83,7 @@ void SplineTerminalNode::ephemeralRandom(GPRandom* rng) {
         // create the segments
         for (int i = 0; i < numSegments; i++) {
             GPMutatableParam* newSplineAmp = ampRangeCopy->getCopy();
-            GPMutatableParam* newSplineSegmentLength = ampRangeCopy->getCopy();
+            GPMutatableParam* newSplineSegmentLength = segmentLengthRangeCopy->getCopy();
             mutatableParams.push_back(newSplineAmp);
             mutatableParams.push_back(newSplineSegmentLength);
         }
@@ -105,6 +105,7 @@ void SplineTerminalNode::setRenderInfo(float sr, unsigned blockSize, unsigned ma
     doneRendering();
     sampleRate = sr;
     envelopeSize = maxNumFrames;
+    envelope = (float*) malloc(sizeof(float) * envelopeSize);
     GPNode::setRenderInfo(sr, blockSize, maxNumFrames, maxTime);
 }
 
@@ -126,15 +127,16 @@ void SplineTerminalNode::evaluateBlockPerformance(unsigned firstFrameNumber, uns
 void SplineTerminalNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
 
+    assert(!isPrimitive);
+
     // get minimum and maximum value for spline envelope
     float minSplineHeight = mutatableParams[2]->getCMin();
     float maxSplineHeight = mutatableParams[2]->getCMax();
-    for (int i = 0; i < numSegments; i++) {
-        int heightIndex = (i * 2) + 3;
-        if (mutatableParams[heightIndex]->getCMin() < minSplineHeight)
-            minSplineHeight = mutatableParams[heightIndex]->getCMin();
-        if (mutatableParams[heightIndex]->getCMax() > maxSplineHeight)
-            maxSplineHeight = mutatableParams[heightIndex]->getCMax();
+    for (int i = 4; i < mutatableParams.size(); i += 2) {
+        if (mutatableParams[i]->getCMin() < minSplineHeight)
+            minSplineHeight = mutatableParams[i]->getCMin();
+        if (mutatableParams[i]->getCMax() > maxSplineHeight)
+            maxSplineHeight = mutatableParams[i]->getCMax();
     }
     
     // update min/max of terminal Spline 
@@ -168,7 +170,8 @@ void SplineTerminalNode::fillFromParams() {
             float transitionLength = mutatableParams[(usedPoints * 2) + 2 + 1]->getCValue();
             float nextLevel = mutatableParams[(usedPoints * 2) + 2 + 2]->getCValue();
             unsigned currentTransitionFrame = 0;
-            unsigned numTransitionFrames = (unsigned) transitionLength * sampleRate;
+            unsigned numTransitionFrames = (unsigned) (transitionLength * sampleRate);
+            // may be infinite if numTransitionFrames is 0 but will never be used in that case
             float slope = (nextLevel - currentLevel) / float(numTransitionFrames);
             while (currentTransitionFrame < numTransitionFrames && currentFrame < envelopeSize) {
                 envelope[currentFrame] = currentLevel + currentTransitionFrame * slope;
