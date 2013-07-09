@@ -94,6 +94,10 @@ void SplineEnvelopeNode::ephemeralRandom(GPRandom* rng) {
         newSplineAmpFinal->setType("spline_amp_final");
         mutatableParams.push_back(newSplineAmpFinal);
 
+        // delete copies
+        delete ampRangeCopy;
+        delete segmentLengthRangeCopy;
+
         // set as no longer primitive
         isPrimitive = false;
     }
