@@ -426,14 +426,16 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
     }
     // run Beagle CMAES
     else if (suboptimizeType == 1) {
-        std::vector<GPMutatableParams*> params = candidate->getAllMutatableParams();
+        std::vector<GPMutatableParam*>* candidateParams = candidate->getAllMutatableParams();
         
         try {
+            using namespace Beagle;
+
             // Build system
             System::Handle lSystem = new System;
 
             // Install the GA float vector and CMA-ES packages
-            const unsigned int lVectorSize = params->size();
+            const unsigned int lVectorSize = candidateParams->size();
             lSystem->addPackage(new GA::PackageFloatVector(lVectorSize));
             lSystem->addPackage(new GA::PackageCMAES(lVectorSize));
 
@@ -449,9 +451,12 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
 
             // Launch evolution
             lEvolver->evolve(lVivarium, lSystem);
-        } catch(Exception& inException) {
+        }
+        /*
+        catch(Exception& inException) {
             inException.terminate(std::cerr);
-        } catch (std::exception& inException) {
+        }*/
+        catch (std::exception& inException) {
             std::cerr << "Standard exception caught:" << std::endl << std::flush;
             std::cerr << inException.what() << std::endl << std::flush;
         }

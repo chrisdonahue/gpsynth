@@ -13,21 +13,28 @@
 
 #define dbRef -54.0
 
+// Common GPSynth includes
 #include "../Common/GPParams.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/JUCEFileIO.h"
 
+// GPSynth includes
 #include "../Synth/GPNode.h"
 #include "../Synth/GPPrimitives.h"
 #include "../Synth/GPSynth.h"
 
+// JUCE include
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Dependencies/kissfft/kiss_fftr.h"
+
+// BEAGLE includes
+#include <numeric>
+#include <stdexcept>
+#include "beagle/GA.hpp"
 #include "AudioComparisonEvalOp.hpp"
 
+// other includes
 #include <limits>
 #include <fstream>
-#include <numeric>
 
 class GPExperiment {
 public:
