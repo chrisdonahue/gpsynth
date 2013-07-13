@@ -171,14 +171,11 @@ GPNetwork* GPExperiment::evolve() {
     float* champBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
 
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
-        // render candidate
+        // get individual from EA and suboptimize/evaluate it
         GPNetwork* candidate = synth->getIndividual();
-        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
-        suboptimizeAndCompareToTarget(params->suboptimizeType, candidate, candidateData);
-        candidate->doneRendering();
+        double fitness = suboptimizeAndCompareToTarget(params->suboptimizeType, candidate, candidateData);
         
-        // evaluate candidate
-        double fitness = compareToTarget(params->fitnessFunctionType, candidateData);
+        // report fitness to EA
         numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
@@ -422,6 +419,43 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
 double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer) {
     // suboptimize according to suboptimize type
     if (suboptimizeType == 0) {
+        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
+        renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
+        double fitness = compareToTarget(params->fitnessFunctionType, buffer);
+        candidate->doneRendering();
+    }
+    // run Beagle CMAES
+    else if (suboptimizeType == 1) {
+        std::vector<GPMutatableParams*> params = candidate->getAllMutatableParams();
+        
+        try {
+            // Build system
+            System::Handle lSystem = new System;
+
+            // Install the GA float vector and CMA-ES packages
+            const unsigned int lVectorSize = params->size();
+            lSystem->addPackage(new GA::PackageFloatVector(lVectorSize));
+            lSystem->addPackage(new GA::PackageCMAES(lVectorSize));
+
+            // Add evaluation operator allocator
+            lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
+
+            // Initialize the evolver
+            Evolver::Handle lEvolver = new Evolver;
+            lEvolver->initialize(lSystem, argc, argv);
+            
+            // Create population
+            Vivarium::Handle lVivarium = new Vivarium;
+
+            // Launch evolution
+            lEvolver->evolve(lVivarium, lSystem);
+        } catch(Exception& inException) {
+            inException.terminate(std::cerr);
+        } catch (std::exception& inException) {
+            std::cerr << "Standard exception caught:" << std::endl << std::flush;
+            std::cerr << inException.what() << std::endl << std::flush;
+        }
+
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
     }
     return -1;

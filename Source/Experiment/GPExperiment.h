@@ -23,9 +23,11 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Dependencies/kissfft/kiss_fftr.h"
+#include "AudioComparisonEvalOp.hpp"
 
 #include <limits>
 #include <fstream>
+#include <numeric>
 
 class GPExperiment {
 public:
