@@ -45,6 +45,7 @@ OBJECTS := \
   $(OBJDIR)/ExperimentMain.o \
   $(OBJDIR)/GPRandom.o \
   $(OBJDIR)/GPParser.o \
+  $(OBJDIR)/GPAudioUtil.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/AudioComparisonEvalOp.o \
   $(OBJDIR)/GPSynth.o \
@@ -124,6 +125,11 @@ $(OBJDIR)/GPRandom.o: ../../Source/Common/GPRandom.cpp
 $(OBJDIR)/GPParser.o: ../../Source/Common/GPParser.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPParser.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPAudioUtil.o: ../../Source/Common/GPAudioUtil.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPAudioUtil.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPExperiment.o: ../../Source/Experiment/GPExperiment.cpp
