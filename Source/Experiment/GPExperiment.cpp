@@ -444,7 +444,8 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
 
             // Initialize the evolver
             Evolver::Handle lEvolver = new Evolver;
-            lEvolver->initialize(lSystem, argc, argv);
+            //lEvolver->initialize(lSystem, argc, argv);
+            lEvolver->initialize(lSystem, 0, nullptr);
             
             // Create population
             Vivarium::Handle lVivarium = new Vivarium;
