@@ -10,7 +10,7 @@ class GPMutatableParam {
 public:
     // discrete constructor
     GPMutatableParam(std::string t, bool mut, int val, int min, int max) {
-        assert(!mutatable || (min <= val && val <= max));
+        assert(!mut || (min <= val && val <= max));
         type = t;
         continuous = false;
         mutatable = mut;
@@ -21,7 +21,7 @@ public:
 
     // continuous constructor
     GPMutatableParam(std::string t, bool mut, float val, float min, float max) {
-        assert(!mutatable || (min <= val && val <= max));
+        assert(!mut || (min <= val && val <= max));
         type = t;
         continuous = true;
         mutatable = mut;

@@ -31,6 +31,7 @@ GPSynth::GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes) :
     nextNetworkID = 0;
     lowerFitnessIsBetter = params->lowerFitnessIsBetter;
     overallBestFitness = lowerFitnessIsBetter ? std::numeric_limits<double>::max() : 0;
+    currentGenerationAlive = false;
 
     // categorize primitives
     availableFunctions = new std::vector<GPNode*>();
@@ -165,6 +166,8 @@ void GPSynth::initPopulation() {
         addNetworkToPopulation(newnet);
     }
     assert(unevaluated.size() == populationSize);
+
+    currentGenerationAlive = true;
 }
 
 /*
@@ -276,6 +279,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     // calculate num remaining and print summary if generation is done
     int numStillNeedingEvaluation = populationSize - evaluated.size();
     if (numStillNeedingEvaluation == 0) {
+        endGeneration();
         printGenerationSummary();
     }
     return numStillNeedingEvaluation;
@@ -330,19 +334,18 @@ void GPSynth::printGenerationDelim() {
     std::cout << "------------------------- START OF GENERATION " << currentGenerationNumber << " -------------------------" << std::endl;
 }
 
-void GPSynth::printGenerationSummary() {
-    assert(evaluated.size() == rawFitnesses.size());
-    assert(evaluated.size() == populationSize);
-
+void GPSynth::endGeneration() {
     // parse assigned fitnesses
     unsigned generationBestNetworkID = 0;
     double generationCumulativeFitness = 0;
+    // TODO: iterate through std::set here
     for (unsigned i = 0; i < rawFitnesses.size(); i++) {
         // grab and check that fitness is positive
         double fitness = rawFitnesses[i];
         if (fitness < 0) {
+            // TODO: what to do here?
             std::cerr << "Negative fitness value detected when summarizing generation" << std::endl;
-            return;
+            //return;
         }
 
         // determine if we have a new generation champion
@@ -376,13 +379,17 @@ void GPSynth::printGenerationSummary() {
 		champ->fitness = generationBestFitness;
 		champ->traceNetwork();
 	}
+    
+    currentGenerationAlive = false;
+}
 
+void GPSynth::printGenerationSummary() {
     // print generation summary
     std::cerr << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << generationChamp->ID << " made by " << generationChamp->origin << " with height " << generationChamp->height << " and structure " << generationChamp->toString(params->savePrecision) << std::endl;
 }
 
 int GPSynth::nextGeneration() {
-    assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize && unevaluated.size() == 0);
+    assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize && unevaluated.size() == 0 && !currentGenerationAlive);
 
     // CREATE TEMP CONTAINER FOR NEXT GENERATION
     std::vector<GPNetwork*>* nextGeneration = new std::vector<GPNetwork*>();

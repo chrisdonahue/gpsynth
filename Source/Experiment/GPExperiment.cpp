@@ -201,10 +201,19 @@ GPNetwork* GPExperiment::evolve() {
                 saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
             }
 
+            synth->endGeneration();
+            synth->printGenerationSummary();
+
             // increment number of evaluted generations
             numEvaluatedGenerations++;
             numEvaluatedThisGeneration = 0;
         }
+    }
+
+    // check if we hit the threshold and need to print the last generation summary
+    if (minFitnessAchieved <= fitnessThreshold && numUnevaluatedThisGeneration != 0) {
+        synth->endGeneration();
+        synth->printGenerationSummary();
     }
 
     free(candidateData);
@@ -495,7 +504,7 @@ void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsi
 }
 
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
-	double ret;
+	double ret = -1;
 	
 	// amplitude comparison
 	if (type == 0) {
@@ -505,11 +514,6 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 	// spectral comparison
 	else if (type == 1) {
 		ret = GPAudioUtil::compareSpectraWeighted(params->dBMagnitude, params->fftSize, params->fftOverlap, numTargetFrames, fftOutputBufferSize, fftConfig, candidateFrames, candidateAmplitudeBuffer, candidateSpectraBuffer, candidateMagnitudeBuffer, candidatePhaseBuffer, analysisWindow, targetMagnitude, targetPhase, binUndershootingPenalty, binOvershootingPenalty, fftFrameWeight, params->penalizeBadPhase, params->magnitudeWeight, params->phaseWeight);
-	}
-	
-	// not implemented comparison
-	else {
-		ret = -1;
 	}
 	
 	return ret;

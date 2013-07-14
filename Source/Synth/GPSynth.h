@@ -32,6 +32,7 @@ public:
 	bool replaceIndividual(GPNetwork* old, GPNetwork* nu);
     int assignFitness(GPNetwork* net, double fitness);
     int prevGeneration();
+    void endGeneration();
     void printGenerationDelim();
     void printGenerationSummary();
 
@@ -72,6 +73,7 @@ private:
     double overallBestFitness;
     double generationBestFitness;
     double generationAverageFitness;
+    bool currentGenerationAlive;
 
     // CONVERGENCE-VARYING
     double convergenceFactor;
