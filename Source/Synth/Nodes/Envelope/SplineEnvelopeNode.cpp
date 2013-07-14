@@ -18,9 +18,9 @@
 // points should always have something in it
 SplineEnvelopeNode::SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>& pointsOrParams, GPNode* signal)
 {
-    assert(!(splinetype->isMutatable));
-    isPrimitive = (pointsOrParams.size() == 2 && numsegments->isMutatable);
-    assert(isPrimitive || !(numsegments->isMutatable));
+    assert(splinetype->isUnmutatable());
+    isPrimitive = (pointsOrParams.size() == 2 && numsegments->isMutatable());
+    assert(isPrimitive || numsegments->isUnmutatable());
 
     splineType = splinetype->getDValue();
 

@@ -122,7 +122,7 @@ void GPAudioUtil::FftReal(kiss_fftr_cfg cfg, unsigned numFrames, const float* in
 	==========
 */
 
-double GPAudioUtil::compareAmplitudes(unsigned numSamples, float* samplesOne, float* samplesTwo) {
+double GPAudioUtil::compareAmplitudes(unsigned numSamples, const float* samplesOne, const float* samplesTwo) {
     double sum = 0;
     for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
         double error = fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
@@ -131,7 +131,7 @@ double GPAudioUtil::compareAmplitudes(unsigned numSamples, float* samplesOne, fl
     return sum;
 }
 
-double GPAudioUtil::compareAmplitudesWeighted(unsigned numSamples, float* samplesOne, float* samplesTwo, float weight) {
+double GPAudioUtil::compareAmplitudesWeighted(unsigned numSamples, const float* samplesOne, const float* samplesTwo, float weight) {
     double sum = 0;
     for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
         double error = fabs(samplesTwo[frameNum] - samplesOne[frameNum]);

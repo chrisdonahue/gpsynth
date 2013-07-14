@@ -897,8 +897,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     sinTestNetNewCenter->traceNetwork();
     std::vector<GPMutatableParam*>* amp = sinTestNetNewCenter->getAllMutatableParams();
     GPMutatableParam* cf = amp->at(amp->size() - 1);
-    cf->setCValue(30);
-    cf->setCRange(15, 300);
+    cf->setCData(15, 30, 300);
     std::cout << "Network after mutate:" << std::endl << sinTestNetNewCenter->toString(10) << std::endl;
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNetNewCenter->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 

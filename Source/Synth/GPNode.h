@@ -142,7 +142,7 @@ public:
         
         // add this nodes mutatable params to the collection of all mutatable params
         for (unsigned i = 0; i < mutatableParams.size(); i++) {
-            if (mutatableParams[i]->isMutatable)
+            if (mutatableParams[i]->isMutatable())
                 allmutatableparams->push_back(mutatableParams[i]);
         }
         

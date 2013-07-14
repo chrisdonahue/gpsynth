@@ -714,7 +714,7 @@ void GPSynth::numericallyMutate(GPNetwork* one) {
     std::vector<GPMutatableParam*>* params = one->getAllMutatableParams();
     for (unsigned i = 0; i < params->size(); i++) {
         GPMutatableParam* p = params->at(i);
-        if (p->isContinuous) {
+        if (p->isContinuous()) {
             double value = p->getCValue();
             double min = p->getCMin();
             double max = p->getCMax();
@@ -722,7 +722,7 @@ void GPSynth::numericallyMutate(GPNetwork* one) {
             double rand = rng->random();
             double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
             //std::cout << "CONTINUOUS VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
-            p->setCValue(value + mutationAmount);
+            p->setCData(min, value + mutationAmount, max);
         }
         else {
             int value = p->getDValue();
@@ -732,7 +732,7 @@ void GPSynth::numericallyMutate(GPNetwork* one) {
             double rand = rng->random();
             double mutationAmount = (rand * temperatureFactor * 2) - temperatureFactor;
             //std::cout << "DISCRETE VALUE: " << value << ", MUTATION AMOUNT: " << mutationAmount << ", MIN: " << min << ", MAX: " << max << std::endl;
-            p->setDValue((int) (value + mutationAmount));
+            p->setDData(min, (int) (value + mutationAmount), max);
         }
     }
     //std::cout << "AFTER NUMERIC MUTATION " << one->toString(3) << std::endl;

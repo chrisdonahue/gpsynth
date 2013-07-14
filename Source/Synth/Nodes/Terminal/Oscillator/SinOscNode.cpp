@@ -16,7 +16,7 @@
 */
 
 SinOscNode::SinOscNode(GPMutatableParam* vn, GPMutatableParam* partial, GPMutatableParam* phase) {
-    assert(!(vn->isMutatable) && !(vn->isContinuous));
+    assert(vn->isUnmutatable() && vn->isDiscrete());
     variableNum = vn->getDValue();
 
     mutatableParams.push_back(vn);

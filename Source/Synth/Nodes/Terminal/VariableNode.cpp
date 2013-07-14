@@ -16,7 +16,7 @@
 */
 
 VariableNode::VariableNode(GPMutatableParam* vn, GPMutatableParam* range) {
-    assert(!(vn->isMutatable));
+    assert(vn->isMutatable());
     variableNum = vn->getDValue();
     mutatableParams.push_back(vn);
     mutatableParams.push_back(range);

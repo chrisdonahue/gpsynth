@@ -16,7 +16,7 @@
 */
 
 PMNode::PMNode(GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, GPNode* mod) {
-    assert(!(vn->isMutatable) && !(vn->isContinuous));
+    assert(vn->isUnmutatable() && vn->isDiscrete());
     variableNum = vn->getDValue();
 
     mutatableParams.push_back(vn);
