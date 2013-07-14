@@ -11,11 +11,10 @@
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
-#define dbRef -54.0
-
 // Common GPSynth includes
 #include "../Common/GPParams.h"
 #include "../Common/GPHelpers.h"
+#include "../Common/GPAudioUtil.h"
 #include "../Common/JUCEFileIO.h"
 
 // GPSynth includes
@@ -24,7 +23,7 @@
 #include "../Synth/GPSynth.h"
 
 // JUCE include
-#include "../../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
 // BEAGLE includes
 #include <numeric>
@@ -33,6 +32,7 @@
 #include "AudioComparisonEvalOp.hpp"
 
 // other includes
+#include "../Dependencies/kissfft/kiss_fftr.h"
 #include <limits>
 #include <fstream>
 
@@ -65,14 +65,22 @@ private:
     float* targetFrames;
     float* targetEnvelope;
     // freq domain
-    kiss_fft_cpx* targetSpectrum;
-    double* targetSpectrumMagnitudes;
-    double* targetSpectrumPhases;
+    unsigned fftOutputBufferSize;
+    kiss_fft_cpx* targetSpectra;
+    double* targetMagnitude;
+    double* targetPhase;
     // fitness function analysis
     float* analysisWindow;
     double* binOvershootingPenalty;
     double* binUndershootingPenalty;
     double* fftFrameWeight;
+    
+    // COMPARISON BUFFERS
+    kiss_fftr_cfg fftConfig;
+    kiss_fft_scalar* candidateAmplitudeBuffer;
+    kiss_fft_cpx* candidateSpectraBuffer;
+    double* candidateMagnitudeBuffer;
+    double* candidatePhaseBuffer;
 
     // EVALUATION DATA
     float* targetSampleTimes;
@@ -97,20 +105,10 @@ private:
     void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvalues, float* constantvalues, int64 numsamples, float* sampletimes, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
 
-    // FOURIER TRANSFORM
-    float dBRef;
-    unsigned calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o);
-    void FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase);
-
     // WAVEFORM OPERATIONS
-    void window(const char* type, unsigned n, float* windowBuffer);
     void findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* minratiobelow);
-    void applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window);
-    void applyEnvelope(unsigned n, float* buffer, const float* envelope);
-    void applyEnvelope(unsigned n, const float* buffer, const float* envelope, float* windowedBuffer);
     void followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate);
     void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
-    double compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo);
 
     // GRAPH HELPERS
     void fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer);

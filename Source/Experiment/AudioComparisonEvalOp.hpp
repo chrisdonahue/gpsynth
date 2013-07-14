@@ -60,7 +60,6 @@
 
 #include "beagle/GA.hpp"
 #include <vector>
-#include "../Dependencies/kissfft/kiss_fftr.h"
 
 /*!
  *  \class AudioComparisonEvalOp AudioComparisonEvalOp.hpp "AudioComparisonEvalOp.hpp"

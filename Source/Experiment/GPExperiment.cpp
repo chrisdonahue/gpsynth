@@ -19,8 +19,7 @@
 GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, unsigned numconstants, float* constants, bool* rq) :
     params(p), seed(s), targetPath(target), savePath(path),
     numConstantValues(numconstants), constantValues(constants),
-    requestedQuit(rq),
-    dBRef(dbRef)
+    requestedQuit(rq)
 {
     // AUDIO SANITY TEST
     if (params->experimentNumber == 0) {
@@ -138,12 +137,17 @@ GPExperiment::~GPExperiment() {
         free(targetSampleTimes);
         if (params->fitnessFunctionType == 1) {
             free(analysisWindow);
-            free(targetSpectrum);
-            free(targetSpectrumMagnitudes);
-            free(targetSpectrumPhases);
+            free(targetSpectra);
+            free(targetMagnitude);
+            free(targetPhase);
             free(binOvershootingPenalty);
             free(binUndershootingPenalty);
             free(fftFrameWeight);
+			free(fftConfig);
+			free(candidateAmplitudeBuffer);
+			free(candidateSpectraBuffer);
+			free(candidateMagnitudeBuffer);
+			free(candidatePhaseBuffer);
         }
         delete synth;
     }
@@ -277,24 +281,33 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
         // calculate with fft window size/overlap
         unsigned n = params->fftSize;
         unsigned overlap = params->fftOverlap;
-        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n, overlap);
+        fftOutputBufferSize = GPAudioUtil::calculateFftBufferSize(numTargetFrames, n, overlap);
         unsigned numBins = (n/2) + 1;
         unsigned numFftFrames = fftOutputBufferSize / numBins;
         
         // allocate window
         analysisWindow = (float*) malloc(sizeof(float) * n);
-        window(params->windowType, n, analysisWindow);
+        GPAudioUtil::window(params->windowType, n, analysisWindow);
 
-        // allocate output buffers
-        targetSpectrum = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        targetSpectrumMagnitudes = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        targetSpectrumPhases = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        // allocate target FFT buffers
+	    kiss_fft_scalar* targetAmplitudeBuffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+        targetSpectra = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        targetMagnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        targetPhase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
         fftFrameWeight = (double*) malloc(sizeof(double) * numFftFrames);
+        
+        // allocate candidate FFT buffers for speedy comparison
+        fftConfig = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
+		candidateAmplitudeBuffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+    	candidateSpectraBuffer = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
+        candidateMagnitudeBuffer = (double*) malloc(sizeof(double) * fftOutputBufferSize);
+        candidatePhaseBuffer = (double*) malloc(sizeof(double) * fftOutputBufferSize);
 
         // take fft of target data
-        FftReal(numTargetFrames, targetFrames, n, overlap, analysisWindow, targetSpectrum, params->dBMagnitude, dBRef, targetSpectrumMagnitudes, targetSpectrumPhases);
+        GPAudioUtil::FftReal(fftConfig, numTargetFrames, targetFrames, n, overlap, analysisWindow, targetAmplitudeBuffer, targetSpectra, params->dBMagnitude, DBREF, targetMagnitude, targetPhase);
+        free(targetAmplitudeBuffer);
 
         // allocate buffers
         double* timeAxis = (double*) malloc(sizeof(double) * (numBins - 1));
@@ -316,14 +329,14 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
             // find moving average
             unsigned dataOffset = (i * numBins) + 1;
             double frameAverage, maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, maxRatioBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetSpectrumMagnitudes + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &frameAverage, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
+            findMovingAverage(params->averageComparisonType, numBins - 1, targetMagnitude + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &frameAverage, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
             fftFrameWeight[i] = frameAverage;
             frameAverageSum += frameAverage;
 
             // compare each bin EXCEPT DC OFFSET to the moving average magnitude
             for (unsigned j = 1; j < numBins; j++) {
                 unsigned binIndex = (i * numBins) + j;
-                double binMagnitude = targetSpectrumMagnitudes[binIndex];
+                double binMagnitude = targetMagnitude[binIndex];
                 double binAverage = mac[j - 1];
                 
                 // calculate bin comparison metric data
@@ -380,10 +393,10 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
                 for (unsigned j = 0; j < numBins - 1; j++) {
                     timeAxis[j] = time;
                 }
-                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetSpectrumMagnitudes + dataOffset));
+                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetMagnitude + dataOffset));
                 saveTextFile(savePath + tag + String("movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
-                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binUndershootingPenalty + dataOffset));
-                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetSpectrumMagnitudes + dataOffset, binOvershootingPenalty + dataOffset));
+                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binUndershootingPenalty + dataOffset));
+                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binOvershootingPenalty + dataOffset));
             }
         }
         // free temp buffers
@@ -482,138 +495,24 @@ void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsi
 }
 
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
-    double ret = -1;
-    double silenceTest = 0;
-    if (type == 0) {
-        double sum = 0;
-        for (int frameNum = 0; frameNum < numTargetFrames; frameNum++) {
-            sum += pow(targetFrames[frameNum] - candidateFrames[frameNum], 2);
-            silenceTest += candidateFrames[frameNum];
-            /*
-            if (frameNum % 128 == 0) {
-                std::cout << targetFrames[frameNum] << ", " << candidateFrames[frameNum];
-                std::cout << " sum: " << sum << " frameNum: " << frameNum << std::endl;
-            }
-            */
-        }
-        ret = sqrt(sum);
-    }
-    else if (type == 1) {
-        unsigned n = params->fftSize;
-        unsigned overlap = params->fftOverlap;
-
-        unsigned fftOutputBufferSize = calculateFftBufferSize(numTargetFrames, n, overlap);
-        kiss_fft_cpx* output = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        double* magnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        double* phase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-
-        FftReal(numTargetFrames, candidateFrames, n, overlap, analysisWindow, output, params->dBMagnitude, dBRef, magnitude, phase);
-
-        double magnitudeError = 0;
-        double phaseError = 0;
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
-        for (unsigned i = 0; i < numFftFrames; i++) {
-            double frameMagnitudeError = 0;
-            double framePhaseError = 0;
-            unsigned frameIndex = (i * numBins);
-            for (unsigned j = 1; j < numBins; j++) {
-                unsigned binIndex = frameIndex + j;
-                if (magnitude[binIndex] < targetSpectrumMagnitudes[binIndex]) {
-                    frameMagnitudeError += pow(targetSpectrumMagnitudes[binIndex] - magnitude[binIndex], binUndershootingPenalty[binIndex]);
-                }
-                else {
-                    frameMagnitudeError += pow(magnitude[binIndex] - targetSpectrumMagnitudes[binIndex], binOvershootingPenalty[binIndex]);
-                }
-                framePhaseError += pow(fabs(phase[binIndex] - targetSpectrumPhases[binIndex]), params->penalizeBadPhase);
-            }
-            magnitudeError += fftFrameWeight[i] * frameMagnitudeError;
-            //std::cerr << i << ": " << fftFrameWeight[i] << ", " << frameMagnitudeError << ", " << magnitudeError << std::endl;
-            phaseError += framePhaseError;
-        }
-        ret = params->magnitudeWeight * magnitudeError + params->phaseWeight * phaseError;
-        free(phase);
-        free(magnitude);
-        free(output);
-    }
-    return ret;
-}
-
-/*
-    ===========
-    FFT METHODS
-    ===========
-*/
-
-unsigned GPExperiment::calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o) {
-    unsigned numFftCalls = 0;
-    unsigned shift = n - o;
-    for (unsigned i = 0; i < numFrames;) {
-        numFftCalls++;
-        i += shift;
-    }
-    return numFftCalls * ((n/2) + 1);
-}
-
-void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase) {
-    kiss_fftr_cfg cfg;
-    // TODO: we shouldnt need to continuously realloc this
-    cfg = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-    kiss_fft_scalar in[n];
-
-    unsigned fftOutputSize = (n/2 + 1);
-    unsigned shift = n - overlap;
-    int64 numCompleted = 0;
-    int64 numRemaining = numFrames;
-    int64 numFftOutputUsed = 0;
-    while (numRemaining > 0) {
-        // fill the input buffer
-        unsigned numToTransform = numRemaining > n ? n : numRemaining;
-        for (size_t i = 0; i < numToTransform; i++) {
-            in[i] = input[numCompleted + i];
-        }
-        numCompleted += shift;
-        numRemaining -= shift;
-        // 0 out rest of input buffer if we're out of frames
-        for (size_t i = numToTransform; i < n; i++) {
-            in[i] = 0;
-        }
-
-        // apply window
-        applyWindow(n, in, window);
-
-        // perform fft
-        kiss_fftr(cfg, in, out + numFftOutputUsed);
-
-        // analyze output
-        //printf("FREQ\t\tREAL\tIMAG\tMAG\tPHASE\n");
-        if (dB) {
-            for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
-                magnitude[bin] = 10 * log10(out[bin].r * out[bin].r + out[bin].i * out[bin].i) - dBref;
-                if (out[bin].r == 0 && out[bin].i == 0) {
-                    phase[bin] = 0;
-                }
-                else {
-                    phase[bin] = atan(out[bin].i / out[bin].r);
-                }
-            }
-        }
-        else {
-            for (size_t bin = numFftOutputUsed; bin < numFftOutputUsed + fftOutputSize; bin++) {
-                magnitude[bin] = sqrt(out[bin].r * out[bin].r + out[bin].i * out[bin].i);
-                if (out[bin].r == 0 && out[bin].i == 0) {
-                    phase[bin] = 0;
-                }
-                else {
-                    phase[bin] = atan(out[bin].i / out[bin].r);
-                }
-            //    printf("%.1lf\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\n", (44100.0 / n) * bin, out[bin].r, out[bin].i, magnitude[bin], phase[bin]);
-                //std::cout << "BIN: " << bin << ", REAL: " << out[bin].r << ", IMAGINARY:" << out[bin].i << ", MAG: " << magnitude[bin] << ", PHASE: " << phase[bin] << std::endl;
-            }
-        }
-        numFftOutputUsed += fftOutputSize;
-    }
-    free(cfg);
+	double ret;
+	
+	// amplitude comparison
+	if (type == 0) {
+		ret = GPAudioUtil::compareAmplitudesWeighted(numTargetFrames, candidateFrames, targetFrames, 2.0f);
+	}
+	
+	// spectral comparison
+	else if (type == 1) {
+		ret = GPAudioUtil::compareSpectraWeighted(params->dBMagnitude, params->fftSize, params->fftOverlap, numTargetFrames, fftOutputBufferSize, fftConfig, candidateFrames, candidateAmplitudeBuffer, candidateSpectraBuffer, candidateMagnitudeBuffer, candidatePhaseBuffer, analysisWindow, targetMagnitude, targetPhase, binUndershootingPenalty, binOvershootingPenalty, fftFrameWeight, params->penalizeBadPhase, params->magnitudeWeight, params->phaseWeight);
+	}
+	
+	// not implemented comparison
+	else {
+		ret = -1;
+	}
+	
+	return ret;
 }
 
 /*
@@ -621,23 +520,6 @@ void GPExperiment::FftReal(unsigned numFrames, const float* input, unsigned n, u
     WAVEFORM OPERATIONS
     ===================
 */
-
-void GPExperiment::window(const char* type, unsigned n, float* windowBuffer) {
-    if (strcmp(type, "hann") == 0) {
-        // 0.5 * (1 - cos(2*pi*n)/(N-1))
-        double insideCosineValue = 0.0;
-        double increment = (2 * M_PI)/(n - 1);
-        for (unsigned i = 0; i < n; i++) {
-            windowBuffer[i] = 0.5 * (1 - cos(insideCosineValue));
-            insideCosineValue += increment;
-        }
-    }
-    else if (strcmp(type, "rect") == 0) {
-        for (unsigned i = 0; i < n; i++) {
-            windowBuffer[i] = 1.0;
-        }
-    }
-}
 
 void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* maxratiobelow) {
     // NON-MOVING AVERAGE
@@ -747,24 +629,6 @@ void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* bu
     *frameaverage = sum / double(n);
 }
 
-void GPExperiment::applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window) {
-    for (unsigned i = 0; i < n; i++) {
-        buffer[i] *= window[i];
-    }
-}
-
-void GPExperiment::applyEnvelope(unsigned n, float* buffer, const float* envelope) {
-  for (unsigned i = 0; i < n; i++) {
-    buffer[i] *= envelope[i];
-  }
-}
-
-void GPExperiment::applyEnvelope(unsigned n, const float* buffer, const float* envelope, float* envelopedBuffer) {
-  for (unsigned i = 0; i < n; i++) {
-    envelopedBuffer[i] = buffer[i] * envelope[i];
-  }
-}
-
 // FROM: http://musicdsp.org/showArchiveComment.php?ArchiveID=136 
 void GPExperiment::followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate) {
     double attack_coef = exp(log(0.01)/( attack_in_ms * samplerate * 0.001));
@@ -854,23 +718,6 @@ void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float
     env[n - 1] = wav[n - 1];
 }
 
-double GPExperiment::compareWaveforms(unsigned type, unsigned numSamples, float* samplesOne, float* samplesTwo) {
-    double ret = -1;
-    if (type == 0) {
-        double sum = 0;
-        for (unsigned frameNum = 0; frameNum < numSamples; frameNum++) {
-            double error = fabs(samplesTwo[frameNum] - samplesOne[frameNum]);
-            sum += error;
-            /*
-            if (frameNum % 128 == 0) {
-                std::cout << "frame " << frameNum << "; one: " << samplesOne[frameNum] << ", two: " << samplesTwo[frameNum] << ", error: " << error << ", sum: " << sum << std::endl;
-            }
-            */
-        }
-        ret = sum;
-    }
-    return ret;
-}
 
 /*
     =============
@@ -1017,7 +864,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sinTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
-    assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
+    assert(GPAudioUtil::compareAmplitudes(numframes, silenceBuffer, testBuffer) == 0);
 
     sinTestNet->traceNetwork();
     std::cout << "Network after trace:" << std::endl << sinTestNet->toString(10) << std::endl;
@@ -1026,7 +873,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sinTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
-    assert(compareWaveforms(0, numframes, silenceBuffer, testBuffer) == 0);
+    assert(GPAudioUtil::compareAmplitudes(numframes, silenceBuffer, testBuffer) == 0);
 
     sinTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 
     sinTestNet->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 
@@ -1037,7 +884,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
     loadWavFile("./tests/sineWave440TestTarget.wav", wavchunk, numframes, comparisonBuffer);
-    double error = compareWaveforms(0, numframes, comparisonBuffer, testBuffer);
+    double error = GPAudioUtil::compareAmplitudes(numframes, comparisonBuffer, testBuffer);
     std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
     assert(error < 10);
     saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
