@@ -19,6 +19,10 @@ Node subclasses:
     DelayNode
     SplineNode other spline types
     NoiseNode other types of noise
+    toString for all subclasses could be moved to GPNode with std::string symbol
+    Envelope and Terminal could be subclasses of same code
+    figure out and include true FM synthesis primitive
+    more efficiency in subclasses. constantnode could be prerendered and memcpy'd during setRenderInfo, LFO node during updateMutatedParams with malloc in setRenderInfo, etc.
 
 Interactive:
     10 networks, 4 or 5 faders, one keyboard
@@ -82,29 +86,32 @@ Thoughts:
     consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
 TODO long run:
-    Envelope and Terminal could be subclasses of same code
-    toString for all subclasses could be moved to GPNode with std::string symbol
-    figure out and include true FM synthesis primitive
-    createNode surrounds createNode parse into try except block. first error throws. prevents a whole lot of stuff from propogating
-    print ranges/save all networks in text file that can be used from command line to render all generation wavs/just save ID's instead of waves
-    implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
+	split GPParams into GPMatchingExperimentParams, GPSynthParams and perhaps GPNodeParams
+
+    Parser:
+        createNode surrounds createNode parse into try except block. first error throws. prevents a whole lot of stuff from propogating
+        add namespace to JUCEFileIO and GPParser
+
+    try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
+	look at/fix all errors/warnings reported by visual studio (use rebuild command)
     figure out how to start without being in initialise method (new thread)
-    fleschter munsion? :/
+    print ranges/save all networks in text file that can be used from command line to render all generation wavs/just save ID's instead of waves
     
     improve numerical mutation:
         maybe relate numericalMutation to the fitness of the individual. this way particular numbers can be altered more in accordance to deviations from the mean
         check if temperature mapping is working as i would like it to
 
-    fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
-    fitness function compares candidate/target envelopes
-    amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
-    try adding frequency child to OscilNode, adding variable0 primative into set and seeing if better matches are made... perhaps OscilNode still uses 0 + child value for detuning
-    Get filters (simple) working again. Switch filter libs probably
-    more efficiency in subclasses. constantnode could be prerendered and memcpy'd during setRenderInfo, LFO node during updateMutatedParams with malloc in setRenderInfo, etc.
-	look at/fix all errors reported by visual studio (use rebuild command)
-	split GPParams into GPMatchingExperimentParams, GPSynthParams and perhaps GPNodeParams
+    fitness function:
+        fitness function considers noise somehow? as a separate factor alongside spectral/envelope and/or subtract noise from spectral evaluation
+        fitness function compares candidate/target envelopes
+        amp dB FFT for under/over comparison, not for fitness comparison due to -inf values for some bins... not sure how to deal with this
 
-NEXT EXPERIMENTS:
+    long long run:
+        Get filters (simple) working again. Switch filter libs probably
+        implement a structure for fading more params by the convergence of the population. numeric mutation, numeric mutation amounts, mutation, etc.
+        fleschter munsion? :/
+
+TODO NEXT EXPERIMENTS:
     CMAES/test without numerical mutation
         read Garcia paper to see how he did his suboptimizing GA. try testing that too
 

@@ -208,7 +208,7 @@ GPNetwork* GPExperiment::evolve() {
     }
 
     // check if we hit the threshold and need to print the last generation summary
-    if (minFitnessAchieved <= fitnessThreshold && numUnevaluatedThisGeneration != 0) {
+    if (numUnevaluatedThisGeneration != 0) {
         synth->endGeneration();
         synth->printGenerationSummary();
     }
