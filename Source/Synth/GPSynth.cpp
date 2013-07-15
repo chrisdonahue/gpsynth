@@ -338,20 +338,21 @@ void GPSynth::endGeneration() {
     // parse assigned fitnesses
     unsigned generationBestNetworkID = 0;
     double generationCumulativeFitness = 0;
-    // TODO: iterate through std::set here
-    for (unsigned i = 0; i < rawFitnesses.size(); i++) {
-        // grab and check that fitness is positive
-        double fitness = rawFitnesses[i];
+    for (std::set<GPNetwork*>::iterator i = evaluated.begin(); i != evaluated.end(); i++) {
+        // find fitness
+        GPNetwork* evaluatedNet = (*i);
+        unsigned generationID = evaluatedNet->ID % populationSize;
+        double fitness = rawFitnesses[generationID];
+
+        // report if fitness negative
         if (fitness < 0) {
-            // TODO: what to do here?
             std::cerr << "Negative fitness value detected when summarizing generation" << std::endl;
-            //return;
         }
 
         // determine if we have a new generation champion
         bool newGenChamp = lowerFitnessIsBetter ? fitness < generationBestFitness : fitness > generationBestFitness;
         if (newGenChamp) {
-            generationBestNetworkID = i;
+            generationBestNetworkID = generationID;
             generationBestFitness = fitness;
         }
 
@@ -360,7 +361,7 @@ void GPSynth::endGeneration() {
     }
 
     // calculate average fitness
-    generationAverageFitness = generationCumulativeFitness / populationSize;
+    generationAverageFitness = generationCumulativeFitness / evaluated.size();
 
     // update generation champ
     GPNetwork* best = currentGeneration[generationBestNetworkID];
