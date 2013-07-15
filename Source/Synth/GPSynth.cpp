@@ -335,6 +335,8 @@ void GPSynth::printGenerationDelim() {
 }
 
 void GPSynth::endGeneration() {
+    assert(currentGenerationAlive);
+
     // parse assigned fitnesses
     unsigned generationBestNetworkID = 0;
     double generationCumulativeFitness = 0;
@@ -390,7 +392,10 @@ void GPSynth::printGenerationSummary() {
 }
 
 int GPSynth::nextGeneration() {
-    assert(evaluated.size() == rawFitnesses.size() && evaluated.size() == populationSize && unevaluated.size() == 0 && !currentGenerationAlive);
+    assert(!currentGenerationAlive);
+    assert(evaluated.size() == rawFitnesses.size());
+    assert(evaluated.size() == populationSize);
+    assert(unevaluated.size() == 0);
 
     // CREATE TEMP CONTAINER FOR NEXT GENERATION
     std::vector<GPNetwork*>* nextGeneration = new std::vector<GPNetwork*>();
@@ -507,6 +512,8 @@ int GPSynth::nextGeneration() {
         addNetworkToPopulation(nextGeneration->at(i));
     }
     delete nextGeneration;
+
+    currentGenerationAlive = true;
 
     return currentGenerationNumber;
 }

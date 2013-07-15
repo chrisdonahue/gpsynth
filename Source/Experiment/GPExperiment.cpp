@@ -201,9 +201,6 @@ GPNetwork* GPExperiment::evolve() {
                 saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
             }
 
-            synth->endGeneration();
-            synth->printGenerationSummary();
-
             // increment number of evaluted generations
             numEvaluatedGenerations++;
             numEvaluatedThisGeneration = 0;
@@ -445,6 +442,7 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
         double fitness = compareToTarget(params->fitnessFunctionType, buffer);
         candidate->doneRendering();
+        return fitness;
     }
     // run Beagle CMAES
     else if (suboptimizeType == 1) {
@@ -505,7 +503,7 @@ void GPExperiment::renderIndividualByBlockPerformance(GPNetwork* candidate, unsi
 
 double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 	double ret = -1;
-	
+
 	// amplitude comparison
 	if (type == 0) {
 		ret = GPAudioUtil::compareAmplitudesWeighted(numTargetFrames, candidateFrames, targetFrames, 2.0f);
