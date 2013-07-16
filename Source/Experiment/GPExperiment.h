@@ -44,6 +44,7 @@ public:
 
     // EVOLUTION CONTROL
     GPNetwork* evolve();
+    double beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer);
 
 private:
     // EXPERIMENT PARAMETERS

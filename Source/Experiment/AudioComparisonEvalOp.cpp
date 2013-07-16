@@ -58,9 +58,16 @@ AudioComparisonEvalOp::AudioComparisonEvalOp() :
  */
 Fitness::Handle AudioComparisonEvalOp::evaluate(Individual& inIndividual, Context& ioContext)
 {
+    // get params
+    std::vector<GPMutatableParam*>* params = candidate->getAllMutatableParams();
+
+    // assert BEAGLE things
 	Beagle_AssertM(inIndividual.size() == 1);
 	GA::FloatVector::Handle lFloatVector = castHandleT<GA::FloatVector>(inIndividual[0]);
 	Beagle_AssertM(lFloatVector->size() == 5);
+
+    // old code for reference
+    /*
 	double lU   = 10.0;
 	double lSum = 0.0;
 	for(unsigned int i=0; i<5; ++i) {
@@ -72,5 +79,27 @@ Fitness::Handle AudioComparisonEvalOp::evaluate(Individual& inIndividual, Contex
 	}
 	lSum += (lU*lU);
 	double lF = 161.8 / lSum;
-	return new FitnessSimple(lF);
+    */
+
+    // assign new values from individual
+    for (unsigned i = 0; i < params->size(); i++) {
+        GPMutatableParam* param = params->at(i);
+        if (param->isDiscrete()) {
+            int newDValue = (int) (*lFloatVector)[i];
+            param->setDValue(newDValue);
+        }
+        else {
+            float newCValue = (float) (*lFloatVector)[i];
+            param->setCValue(newCValue);
+        }
+    }
+
+    // update candidate params
+    candidate->updateMutatedParams();
+
+    // evaluate the new organism using the call back method
+    double fitness = (*callback) (type, candidate, candidateFramesBuffer);
+
+    // report fitness to the system
+	return new FitnessSimple(fitness);
 }

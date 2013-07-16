@@ -76,7 +76,7 @@ public:
         mutatable = false;
     }
 
-    // set discrete values
+    // set discrete data
     void setDData(int min, int val, int max) {
         assert(!continuous);
         assert(!mutatable || (min <= val && val <= max));
@@ -86,12 +86,22 @@ public:
     }
 
     // set continuous values
+    void setDValue(int newvalue) {
+        setDData(dminimum, newvalue, dmaximum);
+    }
+
+    // set continuous data
     void setCData(float min, float val, float max) {
         assert(continuous);
         assert(!mutatable || (min <= val && val <= max));
         cminimum = min;
         cvalue = val;
         cmaximum = max;
+    }
+
+    // set continuous values
+    void setCValue(float newvalue) {
+        setCData(cminimum, newvalue, cmaximum);
     }
 
     // type accessor

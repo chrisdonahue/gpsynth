@@ -517,6 +517,11 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 	return ret;
 }
 
+double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
+        renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
+        return compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
+}
+
 /*
     ===================
     WAVEFORM OPERATIONS

@@ -60,6 +60,7 @@
 
 #include "beagle/GA.hpp"
 #include <vector>
+#include "../Source/Synth/GPNetwork.h"
 
 /*!
  *  \class AudioComparisonEvalOp AudioComparisonEvalOp.hpp "AudioComparisonEvalOp.hpp"
@@ -86,6 +87,11 @@ public:
 
 	virtual Beagle::Fitness::Handle evaluate(Beagle::Individual& inIndividual,
 	        Beagle::Context& ioContext);
+
+    unsigned type;
+    GPNetwork* candidate;
+    float* candidateFramesBuffer;
+    double (*callback)(unsigned, GPNetwork*, float*);
 
 };
 

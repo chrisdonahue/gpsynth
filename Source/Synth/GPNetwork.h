@@ -39,9 +39,10 @@ public:
     std::vector<GPMutatableParam*>* getAllMutatableParams();
 
     // HELPERS
-    void prepareToRender(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);
-    void doneRendering();
     void traceNetwork();
+    void prepareToRender(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);
+    void updateMutatedParams();
+    void doneRendering();
     void replaceSubtree(GPNode* one, GPNode* two);
     void ephemeralRandom(GPRandom* r);
 
@@ -56,6 +57,7 @@ public:
     float maximum;
 
     // render state
+    bool traced;
     bool preparedToRender;
 
 private:

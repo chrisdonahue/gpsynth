@@ -112,7 +112,7 @@ TODO long run:
         fleschter munsion? :/
 
 TODO NEXT EXPERIMENTS:
-    CMAES/test without numerical mutation
+    CMAES set min/max values, run and test (turn off numerical mutation)
         read Garcia paper to see how he did his suboptimizing GA. try testing that too
 
     figure out why simple average fitness function seems to work the best

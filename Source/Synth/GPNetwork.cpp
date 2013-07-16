@@ -19,7 +19,7 @@
 GPNetwork::GPNetwork(GPNode* r, std::string o) :
     ID(-1), origin(o), height(-1), fitness(-1),
     minimum((-1) * std::numeric_limits<float>::infinity()), maximum(std::numeric_limits<float>::infinity()),
-    preparedToRender(false),
+    traced(false), preparedToRender(false),
     renderRoot(new SilenceNode()), root(r), allNodes(0), allMutatableParams(0)
 {
 }
@@ -27,7 +27,7 @@ GPNetwork::GPNetwork(GPNode* r, std::string o) :
 GPNetwork::GPNetwork(GPRandom* rng, std::string netstring) :
     ID(-1), origin("string"), height(-1), fitness(-1),
     minimum((-1) * std::numeric_limits<float>::infinity()), maximum(std::numeric_limits<float>::infinity()),
-    preparedToRender(false),
+    traced(false), preparedToRender(false),
     renderRoot(new SilenceNode()), allNodes(0), allMutatableParams(0)
 {
 	root = createNode(netstring, rng);
@@ -72,14 +72,12 @@ bool GPNetwork::equals(GPNetwork* other, unsigned precision) {
 }
 
 GPNode* GPNetwork::getRandomNetworkNode(GPRandom* r) {
-    if (allNodes.size() == 0) {
-        std::cerr << "Tried to get a random node of an empty or untraced network. This shouldn't happen" << std::endl;
-        return NULL;
-    }
+    assert(traced = true);
     return allNodes[r->random(allNodes.size())];
 }
 
 std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
+    assert(traced = true);
     return &allMutatableParams;
 }
 
@@ -89,6 +87,13 @@ std::vector<GPMutatableParam*>* GPNetwork::getAllMutatableParams() {
     =======
 */
 
+void GPNetwork::traceNetwork() {
+    allNodes.clear();
+    allMutatableParams.clear();
+    root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
+    traced = true;
+}
+
 // renderRoot = silence and root = realroot whenever preparedToRender is false
 // renderRoot = realroot and root = realroot whenever preparedToRender is true
 void GPNetwork::prepareToRender(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime) {
@@ -97,11 +102,17 @@ void GPNetwork::prepareToRender(float sr, unsigned blockSize, unsigned maxNumFra
         delete renderRoot;
     }
     root->setRenderInfo(sr, blockSize, maxNumFrames, maxTime);
+    renderRoot = root;
+    preparedToRender = true;
+    updateMutatedParams();
+}
+
+// only changed the params
+void GPNetwork::updateMutatedParams() {
+    assert(preparedToRender);
     root->updateMutatedParams();
     minimum = root->minimum;
     maximum = root->maximum;
-    renderRoot = root;
-    preparedToRender = true;
 }
 
 void GPNetwork::doneRendering() {
@@ -112,12 +123,6 @@ void GPNetwork::doneRendering() {
         renderRoot = new SilenceNode();
         preparedToRender = false;
     }
-}
-
-void GPNetwork::traceNetwork() {
-    allNodes.clear();
-    allMutatableParams.clear();
-    root->trace(&allNodes, &allMutatableParams, NULL, &height, 0);
 }
 
 /*
@@ -144,6 +149,8 @@ void GPNetwork::replaceSubtree(GPNode* old, GPNode* nu) {
     // assign nu parent pointer
     nu->parent = old->parent;
     */
+
+    traced = false;
 }
 
 void GPNetwork::ephemeralRandom(GPRandom* r) {
