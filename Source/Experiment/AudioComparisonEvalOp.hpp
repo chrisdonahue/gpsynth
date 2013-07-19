@@ -1,38 +1,12 @@
 /*
- *  Function maximization with real-valued GA (MaxFctFloat):
- *  A simple real-valued GA example with Open BEAGLE
- *
- *  Copyright (C) 2001-2006 by Christian Gagne and Marc Parizeau
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  Contact:
- *  Laboratoire de Vision et Systemes Numeriques
- *  Departement de genie electrique et de genie informatique
- *  Universite Laval, Quebec, Canada, G1K 7P4
- *  http://vision.gel.ulaval.ca
- *
+ *  Function maximization with real-valued GA (AudioComparison):
  */
 
 /*!
  *  \file   AudioComparisonEvalOp.hpp
- *  \brief  Definition of the type AudioComparisonEvalOp.
- *  \author Christian Gagne
+ *  \brief  Audio Spectrum Comparison
+ *  \author Chris Donahue
  *  \author Marc Parizeau
- *  $Revision: 1.10 $
- *  $Date: 2007/08/08 19:26:48 $
  */
 
 /*!
@@ -61,6 +35,7 @@
 #include "beagle/GA.hpp"
 #include <vector>
 #include "../Source/Synth/GPNetwork.h"
+#include <cmath>
 
 /*!
  *  \class AudioComparisonEvalOp AudioComparisonEvalOp.hpp "AudioComparisonEvalOp.hpp"
@@ -87,12 +62,17 @@ public:
 
 	virtual Beagle::Fitness::Handle evaluate(Beagle::Individual& inIndividual,
 	        Beagle::Context& ioContext);
+    virtual void registerParams(Beagle::System& ioSystem);
 
     unsigned type;
     GPNetwork* candidate;
     float* candidateFramesBuffer;
     double (*callback)(unsigned, GPNetwork*, float*);
 
+protected:
+    Beagle::Vector::Handle mFltVectorMin;
+    Beagle::Vector::Handle mFltVectorMax;
+    Beagle::Vector::Handle mFltVectorInc;
 };
 
 #endif // AudioComparisonEvalOp_hpp

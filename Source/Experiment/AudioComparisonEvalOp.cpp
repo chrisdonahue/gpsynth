@@ -1,44 +1,15 @@
 /*
  *  Function maximization with real-valued GA (AudioComparison):
- *  A simple real-valued GA example with Open BEAGLE
- *
- *  Copyright (C) 2001-2006 by Christian Gagne and Marc Parizeau
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  Contact:
- *  Laboratoire de Vision et Systemes Numeriques
- *  Departement de genie electrique et de genie informatique
- *  Universite Laval, Quebec, Canada, G1K 7P4
- *  http://vision.gel.ulaval.ca
- *
  */
 
 /*!
  *  \file   AudioComparisonEvalOp.cpp
- *  \brief  Implementation of the class AudioComparisonEvalOp.
- *  \author Christian Gagne
- *  \author Marc Parizeau
- *  $Revision: 1.9 $
- *  $Date: 2007/08/08 19:26:48 $
+ *  \brief  Audio Spectrum Comparison
+ *  \author Chris Donahue
  */
 
 #include "beagle/GA.hpp"
 #include "AudioComparisonEvalOp.hpp"
-
-#include <cmath>
 
 using namespace Beagle;
 
@@ -49,6 +20,53 @@ AudioComparisonEvalOp::AudioComparisonEvalOp() :
 		EvaluationOp("AudioComparisonEvalOp")
 { }
 
+/*!
+ *  \brief Register the AudioComparison parameters.
+ *  \param ioSystem Evolutionary system.
+ *	from AudioComparisonEvalOp.cpp
+ */
+void AudioComparisonEvalOp::registerParams(System& ioSystem)
+{
+	Beagle::EvaluationOp::registerParams(ioSystem);
+	{
+		std::ostringstream lOSS;
+		lOSS << "Values of the available objects that can be put into the AudioComparison. ";
+		lOSS << "If the object values is not specified, it will be randomly generated ";
+		lOSS << "at the initialization time.";
+		Register::Description lDescription(
+		    "AudioComparison object values",
+		    "Vector",
+		    "",
+		    lOSS.str()
+		);
+		mObjectValues = castHandleT<Vector>(
+		                    ioSystem.getRegister().insertEntry("ks.object.values", new Vector(0), lDescription));
+	}
+	{
+		std::ostringstream lOSS;
+		lOSS << "Weights of the available objects that can be put into the AudioComparison. ";
+		lOSS << "If the object weights is not specified, it will be randomly generated ";
+		lOSS << "at the initialization time.";
+		Register::Description lDescription(
+		    "AudioComparison object weights",
+		    "Vector",
+		    "",
+		    lOSS.str()
+		);
+		mObjectWeights = castHandleT<Vector>(
+		                     ioSystem.getRegister().insertEntry("ks.object.weights", new Vector(0), lDescription));
+	}
+	{
+		Register::Description lDescription(
+		    "Initial integer vectors sizes",
+		    "UInt",
+		    "0",
+		    "Integer vector size of initialized individuals."
+		);
+		mIntVectorSize = castHandleT<UInt>(
+		                     ioSystem.getRegister().insertEntry("ga.init.vectorsize", new UInt(0), lDescription));
+	}
+}
 
 /*!
  *  \brief Evaluate the fitness of the given individual.
@@ -64,7 +82,7 @@ Fitness::Handle AudioComparisonEvalOp::evaluate(Individual& inIndividual, Contex
     // assert BEAGLE things
 	Beagle_AssertM(inIndividual.size() == 1);
 	GA::FloatVector::Handle lFloatVector = castHandleT<GA::FloatVector>(inIndividual[0]);
-	Beagle_AssertM(lFloatVector->size() == 5);
+	Beagle_AssertM(lFloatVector->size() == params->size());
 
     // old code for reference
     /*
