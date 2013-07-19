@@ -1,0 +1,7 @@
+Remove FindPacc from CMakeLists
+manually set in CMakeCache:
+    PACC_LIB_FOUND_DIR
+    PACC_INCLUDE_FOUND_DIRR
+    PACC_HAVE_PARALLEL_STL
+run cmake
+run make
