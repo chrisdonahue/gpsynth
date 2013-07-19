@@ -3,7 +3,8 @@ macro(FindPacc)
 	message(STATUS "++ Try to find PACC libraries and headers")
 	if(NOT DEFINED PACC_DIR)
 		message(STATUS "++ PACC_DIR not set; attempt to find PACC in default locations...")
-		set(PACC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/PACC" CACHE PATH "PACC location")		# CMake will automaticaly search in system-specific directory, like /usr/lib on Linux
+        #set(PACC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/PACC" CACHE PATH "PACC location")		# CMake will automaticaly search in system-specific directory, like /usr/lib on Linux
+        set(PACC_DIR "/u/cdonahue/lib/pacc-1.4.1-Source/PACC" CACHE PATH "PACC location")		# CMake will automaticaly search in system-specific directory, like /usr/lib on Linux
 	endif(NOT DEFINED PACC_DIR)
 	
 	if(UNIX)
