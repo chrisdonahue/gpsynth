@@ -19,7 +19,7 @@ ifeq ($(CONFIG),Debug)
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../Source/Dependencies/OpenBEAGLE/include
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 #-ffast-math
   CXXFLAGS += $(CFLAGS) 
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -lpacc -L../../Source/Dependencies/OpenBEAGLE/lib -Wl,-rpath="../../Source/Dependencies/OpenBEAGLE/lib" -lopenbeagle -lopenbeagle-GA
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -L../../Source/Dependencies/OpenBEAGLE/pacc-1.4.1-Source/pacc-cmake/lib -lpacc -L../../Source/Dependencies/OpenBEAGLE/lib -Wl,-rpath="../../Source/Dependencies/OpenBEAGLE/lib" -lopenbeagle -lopenbeagle-GA
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
   TARGET := GPAudioTargetMatchingExperiment
