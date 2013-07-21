@@ -448,88 +448,83 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
     else if (suboptimizeType == 1) {
         std::vector<GPMutatableParam*>* candidateParams = candidate->getAllMutatableParams();
         
-        try {
-            using namespace Beagle;
+        if (candidateParams->size() != 0) {
+            try {
+                using namespace Beagle;
 
-            // Build system
-            System::Handle lSystem = new System;
+                // Build system
+                System::Handle lSystem = new System;
 
-            // Install the GA float vector and CMA-ES packages
-            const unsigned int lVectorSize = candidateParams->size();
-            lSystem->addPackage(new GA::PackageFloatVector(lVectorSize));
-            lSystem->addPackage(new GA::PackageCMAES(lVectorSize));
+                // Install the GA float vector and CMA-ES packages
+                const unsigned int lVectorSize = candidateParams->size();
+                lSystem->addPackage(new GA::PackageFloatVector(lVectorSize));
+                lSystem->addPackage(new GA::PackageCMAES(lVectorSize));
 
-			// Initialize state space
-            FloatArray::Handle minValueArray = new FloatArray(lVectorSize);
-            FloatArray::Handle maxValueArray = new FloatArray(lVectorSize);
-            FloatArray::Handle incValueArray = new FloatArray(lVectorSize);
-			//PACC::Vector minVector(candidateParams->size());
-			//PACC::Vector maxVector(candidateParams->size());
-			//PACC::Vector incVector(candidateParams->size());
-			//PACC::Vector minInitVector(candidateParams->size());
-			//PACC::Vector maxInitVector(candidateParams->size());
+                // Initialize state space
+                DoubleArray::Handle minValueArray = new DoubleArray(lVectorSize);
+                DoubleArray::Handle maxValueArray = new DoubleArray(lVectorSize);
+                DoubleArray::Handle incValueArray = new DoubleArray(lVectorSize);
 
-			// populate min float vector
-			for (unsigned i = 0; i < candidateParams->size(); i++) {
-				//minVector[i] = candidateParams->at(i)->getMin();
-				//minInitVector[i] = candidateParams->at(i)->getMin();
-                minValueArray->at(i) = candidateParams->at(i)->getMin();
-			}
-	
-			// populate max float vector
-			for (unsigned i = 0; i < candidateParams->size(); i++) {
-				//maxVector[i] = candidateParams->at(i)->getMax();
-				//maxInitVector[i] = candidateParams->at(i)->getMax();
-                maxValueArray->at(i) = candidateParams->at(i)->getMax();
-			}
-	
-			// populate inc float vector
-			for (unsigned i = 0; i < candidateParams->size(); i++) {
-				GPMutatableParam* param = candidateParams->at(i);
-				if (param->isDiscrete()) {
-                    incValueArray->at(i) = 1.0f;
-					//incVector[i] = 1.0;
-				}
-				else {
-                    incValueArray->at(i) = 0.01f;
-					//incVector[i] = 0.01;
-				}
-			}
-			
-			//Vector::Handle mFltVectorMin = new Vector(minVector);
-			//Vector::Handle mFltVectorMax = new Vector(maxVector);
-			//Vector::Handle mFltVectorInc = new Vector(incVector);
-			
-			// register state space with system
-			Register::Description lDescription("Parameter state space", "Vector", "", "");
-			lSystem->getRegister().insertEntry("ga.init.minvalue", minValueArray, lDescription);
-			lSystem->getRegister().insertEntry("ga.init.maxvalue", maxValueArray, lDescription);
-			lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
-			lSystem->getRegister().insertEntry("ga.float.maxvalue", maxValueArray, lDescription);
-			lSystem->getRegister().insertEntry("ga.float.inc", incValueArray, lDescription);
+                // populate min float vector
+                for (unsigned i = 0; i < candidateParams->size(); i++) {
+                    minValueArray->at(i) = candidateParams->at(i)->getMin();
+                }
+        
+                // populate max float vector
+                for (unsigned i = 0; i < candidateParams->size(); i++) {
+                    maxValueArray->at(i) = candidateParams->at(i)->getMax();
+                }
+        
+                // populate inc float vector
+                for (unsigned i = 0; i < candidateParams->size(); i++) {
+                    GPMutatableParam* param = candidateParams->at(i);
+                    if (param->isDiscrete()) {
+                        incValueArray->at(i) = 1.0f;
+                    }
+                    else {
+                        incValueArray->at(i) = 0.01f;
+                    }
+                }
+                
+                // register state space with system
+                Register::Description lDescription("Parameter state space", "Vector", "", "");
+                lSystem->getRegister().insertEntry("ga.init.minvalue", minValueArray, lDescription);
+                lSystem->getRegister().insertEntry("ga.init.maxvalue", maxValueArray, lDescription);
+                lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
+                lSystem->getRegister().insertEntry("ga.float.maxvalue", maxValueArray, lDescription);
+                lSystem->getRegister().insertEntry("ga.float.inc", incValueArray, lDescription);
 
-            // Add evaluation operator allocator
-            lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
+                // Add evaluation operator allocator
+                lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
 
-            // Initialize the evolver
-            Evolver::Handle lEvolver = new Evolver;
-            //lEvolver->initialize(lSystem, argc, argv);
-            lEvolver->initialize(lSystem, 0, nullptr);
-            
-            // Create population
-            Vivarium::Handle lVivarium = new Vivarium;
+                // Initialize the evolver
+                Evolver::Handle lEvolver = new Evolver;
+                
+                // Ridiculous hack to create command line args
+                char** argv = (char**) malloc(sizeof(char*) * 1);
+                const char* arg = "-OBsystem=audiocomparison-cmaes.conf";
+                char* argdyn = (char*) malloc(sizeof(char) * (strlen(arg) + 1));
+                strcpy(argdyn, arg);
+                argv[0] = argdyn;
+                lEvolver->initialize(lSystem, 1, argv);
+                free(argv);
+                free(argdyn);
+                
+                // Create population
+                Vivarium::Handle lVivarium = new Vivarium;
 
-            // Launch evolution
-            lEvolver->evolve(lVivarium, lSystem);
-        }
-        /*
-        catch(Exception& inException) {
-            inException.terminate(std::cerr);
-        }*/
-        catch (std::exception& inException) {
-            std::cerr << "Standard exception caught:" << std::endl << std::flush;
-            std::cerr << inException.what() << std::endl << std::flush;
-            return -1;
+                // Launch evolution
+                lEvolver->evolve(lVivarium, lSystem);
+            }
+            /*
+            catch(Exception& inException) {
+                inException.terminate(std::cerr);
+            }*/
+            catch (std::exception& inException) {
+                std::cerr << "Standard exception caught:" << std::endl << std::flush;
+                std::cerr << inException.what() << std::endl << std::flush;
+                return -1;
+            }
         }
 
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
