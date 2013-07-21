@@ -27,6 +27,7 @@ AudioComparisonEvalOp::AudioComparisonEvalOp() :
  */
 void AudioComparisonEvalOp::registerParams(System& ioSystem)
 {
+	/*
 	Beagle::EvaluationOp::registerParams(ioSystem);
 	{
 		std::ostringstream lOSS;
@@ -66,6 +67,7 @@ void AudioComparisonEvalOp::registerParams(System& ioSystem)
 		mIntVectorSize = castHandleT<UInt>(
 		                     ioSystem.getRegister().insertEntry("ga.init.vectorsize", new UInt(0), lDescription));
 	}
+	*/
 }
 
 /*!

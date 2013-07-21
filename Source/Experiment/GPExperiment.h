@@ -29,6 +29,7 @@
 #include <numeric>
 #include <stdexcept>
 #include "beagle/GA.hpp"
+#include "PACC/Math/Vector.hpp"
 #include "AudioComparisonEvalOp.hpp"
 
 // other includes
