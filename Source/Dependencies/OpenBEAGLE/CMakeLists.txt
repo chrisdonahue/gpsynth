@@ -315,7 +315,7 @@ endif(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 set(BEAGLE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Check for PACC
-# FindPacc()
+FindPacc()
 
 # Check for zlib
 find_package(ZLIB)

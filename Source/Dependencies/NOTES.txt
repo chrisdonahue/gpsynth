@@ -1,7 +1,16 @@
-Remove FindPacc from CMakeLists
-manually set in CMakeCache:
-    PACC_LIB_FOUND_DIR
-    PACC_INCLUDE_FOUND_DIR
-    PACC_HAVE_PARALLEL_STL
-run cmake
-run make
+un pacc-1.4.1-Source.tar.gz
+cd pacc-1.4.1-Source
+mkdir pacc-cmake
+cd pacc-cmake
+cmake ../
+make
+cd ..
+mkdir PACC
+mkdir PACC/include
+cp -r src/PACC ../PACC/include
+
+unzip open beagle
+cd OpenBEAGLE
+cmake -i -DPACC_DIR=../pacc-1.4.1-Source/src/PACC -DBEAGLE_NO_HPC=ON
+    BEAGLE_BUILD_EXAMPLES=OFF
+    BEAGLE_NO_HPC
