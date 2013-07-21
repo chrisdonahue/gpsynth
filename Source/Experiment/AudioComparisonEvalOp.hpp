@@ -35,7 +35,11 @@
 #include "beagle/GA.hpp"
 #include <vector>
 #include "../Source/Synth/GPNetwork.h"
+#include "GPExperiment.h"
 #include <cmath>
+#include "AudioComparisonParams.hpp"
+
+class GPExperiment;
 
 /*!
  *  \class AudioComparisonEvalOp AudioComparisonEvalOp.hpp "AudioComparisonEvalOp.hpp"
@@ -64,10 +68,10 @@ public:
 	        Beagle::Context& ioContext);
     virtual void registerParams(Beagle::System& ioSystem);
 
+    GPExperiment* experiment;
     unsigned type;
     GPNetwork* candidate;
     float* candidateFramesBuffer;
-    double (*callback)(unsigned, GPNetwork*, float*);
 
 protected:
 

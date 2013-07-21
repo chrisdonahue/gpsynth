@@ -27,6 +27,13 @@ AudioComparisonEvalOp::AudioComparisonEvalOp() :
  */
 void AudioComparisonEvalOp::registerParams(System& ioSystem)
 {
+    Object::Handle objParams = ioSystem.getRegister().getEntry("audio.params");
+    AudioComparisonParams::Handle expParams = castHandleT<AudioComparisonParams>(objParams);
+    experiment = expParams->experiment;
+    type = expParams->type;
+    candidate = expParams->candidate;
+    candidateFramesBuffer = expParams->candidateFramesBuffer;
+
 	/*
 	Beagle::EvaluationOp::registerParams(ioSystem);
 	{
@@ -118,7 +125,7 @@ Fitness::Handle AudioComparisonEvalOp::evaluate(Individual& inIndividual, Contex
     candidate->updateMutatedParams();
 
     // evaluate the new organism using the call back method
-    double fitness = (*callback) (type, candidate, candidateFramesBuffer);
+    double fitness = experiment->beagleComparisonCallback(type, candidate, candidateFramesBuffer);
 
     // report fitness to the system
 	return new FitnessSimple(fitness);

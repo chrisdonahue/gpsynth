@@ -85,6 +85,7 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
             //nodes->push_back(new OscilNode(true, specialValues->getCopy(), oscilPartial->getCopy(), NULL, NULL));
             //nodes->push_back(new OscilNode(false, specialValues->getCopy(), oscilPartial->getCopy(), oscilModIndex->getCopy(), NULL));
             nodes->push_back(new NoiseNode(rng));
+            nodes->push_back(createNode("(const {c -1.0 0.0 1.0})", rng));
             //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
             //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
             //nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
@@ -177,6 +178,8 @@ GPNetwork* GPExperiment::evolve() {
     while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
         // get individual from EA and suboptimize/evaluate it
         GPNetwork* candidate = synth->getIndividual();
+        candidate->traceNetwork();
+        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
         double fitness = suboptimizeAndCompareToTarget(params->suboptimizeType, candidate, candidateData);
         
         // report fitness to EA
@@ -438,7 +441,6 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
 double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer) {
     // suboptimize according to suboptimize type
     if (suboptimizeType == 0) {
-        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
         double fitness = compareToTarget(params->fitnessFunctionType, buffer);
         candidate->doneRendering();
@@ -495,7 +497,17 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 lSystem->getRegister().insertEntry("ga.float.inc", incValueArray, lDescription);
 
                 // Add evaluation operator allocator
+                Register::Description hackDescription("Hack", "", "", "");
+                AudioComparisonParams::Handle evalParams = new AudioComparisonParams();
+                evalParams->experiment = this;
+                evalParams->type = suboptimizeType;
+                evalParams->candidate = candidate;
+                evalParams->candidateFramesBuffer = buffer;
+                lSystem->getRegister().insertEntry("audio.params", evalParams, hackDescription);
                 lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
+
+                // Set information about alloc
+                lSystem->getFactory().getAllocator("AudioComparisonEvalOp");
 
                 // Initialize the evolver
                 Evolver::Handle lEvolver = new Evolver;

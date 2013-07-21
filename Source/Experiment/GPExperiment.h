@@ -31,6 +31,7 @@
 #include "beagle/GA.hpp"
 //#include "PACC/Math/Vector.hpp"
 #include "AudioComparisonEvalOp.hpp"
+#include "AudioComparisonParams.hpp"
 
 // other includes
 #include "../Dependencies/kissfft/kiss_fftr.h"
