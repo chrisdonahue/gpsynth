@@ -70,9 +70,7 @@ public:
     double (*callback)(unsigned, GPNetwork*, float*);
 
 protected:
-    Beagle::Vector::Handle mFltVectorMin;
-    Beagle::Vector::Handle mFltVectorMax;
-    Beagle::Vector::Handle mFltVectorInc;
+
 };
 
 #endif // AudioComparisonEvalOp_hpp

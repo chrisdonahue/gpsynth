@@ -459,6 +459,55 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
             lSystem->addPackage(new GA::PackageFloatVector(lVectorSize));
             lSystem->addPackage(new GA::PackageCMAES(lVectorSize));
 
+			// Initialize state space
+            FloatArray::Handle minValueArray = new FloatArray(lVectorSize);
+            FloatArray::Handle maxValueArray = new FloatArray(lVectorSize);
+            FloatArray::Handle incValueArray = new FloatArray(lVectorSize);
+			//PACC::Vector minVector(candidateParams->size());
+			//PACC::Vector maxVector(candidateParams->size());
+			//PACC::Vector incVector(candidateParams->size());
+			//PACC::Vector minInitVector(candidateParams->size());
+			//PACC::Vector maxInitVector(candidateParams->size());
+
+			// populate min float vector
+			for (unsigned i = 0; i < candidateParams->size(); i++) {
+				//minVector[i] = candidateParams->at(i)->getMin();
+				//minInitVector[i] = candidateParams->at(i)->getMin();
+                minValueArray->at(i) = candidateParams->at(i)->getMin();
+			}
+	
+			// populate max float vector
+			for (unsigned i = 0; i < candidateParams->size(); i++) {
+				//maxVector[i] = candidateParams->at(i)->getMax();
+				//maxInitVector[i] = candidateParams->at(i)->getMax();
+                maxValueArray->at(i) = candidateParams->at(i)->getMax();
+			}
+	
+			// populate inc float vector
+			for (unsigned i = 0; i < candidateParams->size(); i++) {
+				GPMutatableParam* param = candidateParams->at(i);
+				if (param->isDiscrete()) {
+                    incValueArray->at(i) = 1.0f;
+					//incVector[i] = 1.0;
+				}
+				else {
+                    incValueArray->at(i) = 0.01f;
+					//incVector[i] = 0.01;
+				}
+			}
+			
+			//Vector::Handle mFltVectorMin = new Vector(minVector);
+			//Vector::Handle mFltVectorMax = new Vector(maxVector);
+			//Vector::Handle mFltVectorInc = new Vector(incVector);
+			
+			// register state space with system
+			Register::Description lDescription("Parameter state space", "Vector", "", "");
+			lSystem->getRegister().insertEntry("ga.init.minvalue", minValueArray, lDescription);
+			lSystem->getRegister().insertEntry("ga.init.maxvalue", maxValueArray, lDescription);
+			lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
+			lSystem->getRegister().insertEntry("ga.float.maxvalue", maxValueArray, lDescription);
+			lSystem->getRegister().insertEntry("ga.float.inc", incValueArray, lDescription);
+
             // Add evaluation operator allocator
             lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
 
@@ -480,9 +529,13 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
         catch (std::exception& inException) {
             std::cerr << "Standard exception caught:" << std::endl << std::flush;
             std::cerr << inException.what() << std::endl << std::flush;
+            return -1;
         }
 
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
+        double fitness = compareToTarget(params->fitnessFunctionType, buffer);
+        candidate->doneRendering();
+        return fitness;
     }
     return -1;
 }
@@ -518,6 +571,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 }
 
 double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
+		std::cerr << candidate->toString(5) << std::endl;
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
         return compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
 }

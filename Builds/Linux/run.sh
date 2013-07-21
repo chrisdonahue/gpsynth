@@ -4,8 +4,8 @@ set -e
 
 # LOCAL TRUMPET TEST
 #<<COMMENT
-#gdb --args \
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
+gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\
@@ -19,7 +19,7 @@ set -e
   --printprecision 3\
   EXPERIMENT PARAMS\
   --experiment 1\
-  --suboptimizetype 0\
+  --suboptimizetype 1\
   --fitnesstype 1\
   --generations 2\
   --threshold 0.1\
