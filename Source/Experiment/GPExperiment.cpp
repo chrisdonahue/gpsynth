@@ -504,23 +504,13 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 evalParams->candidate = candidate;
                 evalParams->candidateFramesBuffer = buffer;
                 lSystem->getRegister().insertEntry("audio.params", evalParams, hackDescription);
-                lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
 
-                // Set information about alloc
-                lSystem->getFactory().getAllocator("AudioComparisonEvalOp");
+                // Set evaluation op
+                lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
 
                 // Initialize the evolver
                 Evolver::Handle lEvolver = new Evolver;
-                
-                // Ridiculous hack to create command line args
-                char** argv = (char**) malloc(sizeof(char*) * 1);
-                const char* arg = "-OBsystem=audiocomparison-cmaes.conf";
-                char* argdyn = (char*) malloc(sizeof(char) * (strlen(arg) + 1));
-                strcpy(argdyn, arg);
-                argv[0] = argdyn;
-                lEvolver->initialize(lSystem, 1, argv);
-                free(argv);
-                free(argdyn);
+                lEvolver->initialize(lSystem, "/u/cdonahue/gpsynth/Builds/Linux/audiocomparison-cmaes.conf");
                 
                 // Create population
                 Vivarium::Handle lVivarium = new Vivarium;
@@ -528,10 +518,12 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 // Launch evolution
                 lEvolver->evolve(lVivarium, lSystem);
             }
-            /*
-            catch(Exception& inException) {
+            catch(Beagle::Exception& inException) {
+                std::cerr << "Beagle exception caught:" << std::endl << std::flush;
+                std::cerr << inException.what() << std::endl << std::flush;
                 inException.terminate(std::cerr);
-            }*/
+                return -1;
+            }
             catch (std::exception& inException) {
                 std::cerr << "Standard exception caught:" << std::endl << std::flush;
                 std::cerr << inException.what() << std::endl << std::flush;
@@ -578,7 +570,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 }
 
 double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
-		std::cerr << candidate->toString(5) << std::endl;
+		std::cerr << std::endl << candidate->toString(5) << std::endl;
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
         return compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
 }

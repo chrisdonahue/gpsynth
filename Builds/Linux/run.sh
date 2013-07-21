@@ -5,7 +5,7 @@ set -e
 # LOCAL TRUMPET TEST
 #<<COMMENT
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
-#gdb --args \
+gdb --args \
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\

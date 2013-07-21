@@ -28,6 +28,7 @@
 // BEAGLE includes
 #include <numeric>
 #include <stdexcept>
+#include "beagle/Exception.hpp"
 #include "beagle/GA.hpp"
 //#include "PACC/Math/Vector.hpp"
 #include "AudioComparisonEvalOp.hpp"
