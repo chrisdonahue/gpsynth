@@ -570,8 +570,10 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 }
 
 double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
-		std::cerr << std::endl << candidate->toString(5) << std::endl;
+		std::cerr << std::endl << candidate->toString(5);
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
+        double fitness = compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
+        std::cerr << " fitness: " << fitness << std::endl;
         return compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
 }
 

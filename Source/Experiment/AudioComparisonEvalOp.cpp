@@ -27,6 +27,9 @@ AudioComparisonEvalOp::AudioComparisonEvalOp() :
  */
 void AudioComparisonEvalOp::registerParams(System& ioSystem)
 {
+    Beagle::EvaluationOp::registerParams(ioSystem);
+
+    // hack to load in the network and other stuff
     Object::Handle objParams = ioSystem.getRegister().getEntry("audio.params");
     AudioComparisonParams::Handle expParams = castHandleT<AudioComparisonParams>(objParams);
     experiment = expParams->experiment;
