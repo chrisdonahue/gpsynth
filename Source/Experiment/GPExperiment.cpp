@@ -508,6 +508,9 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 // Set evaluation op
                 lSystem->setEvaluationOp("AudioComparisonEvalOp", new AudioComparisonEvalOp::Alloc);
 
+                // Set fitness type
+                lSystem->getFactory().setConcept("Fitness", "FitnessSimpleMin");
+
                 // Initialize the evolver
                 Evolver::Handle lEvolver = new Evolver;
                 lEvolver->initialize(lSystem, "/u/cdonahue/gpsynth/Builds/Linux/audiocomparison-cmaes.conf");

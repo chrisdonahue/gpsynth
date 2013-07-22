@@ -131,5 +131,5 @@ Fitness::Handle AudioComparisonEvalOp::evaluate(Individual& inIndividual, Contex
     double fitness = experiment->beagleComparisonCallback(type, candidate, candidateFramesBuffer);
 
     // report fitness to the system
-	return new FitnessSimple(fitness);
+	return new FitnessSimpleMin(fitness);
 }
