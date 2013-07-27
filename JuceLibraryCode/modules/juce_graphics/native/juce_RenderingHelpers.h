@@ -1,30 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_RENDERINGHELPERS_JUCEHEADER__
-#define __JUCE_RENDERINGHELPERS_JUCEHEADER__
+#ifndef JUCE_RENDERINGHELPERS_H_INCLUDED
+#define JUCE_RENDERINGHELPERS_H_INCLUDED
 
 #if JUCE_MSVC
  #pragma warning (push)
@@ -122,15 +121,15 @@ public:
     }
 
     template <typename Type>
-    Rectangle<float> transformed (const Rectangle<Type>& r) const noexcept
+    Rectangle<Type> transformed (const Rectangle<Type>& r) const noexcept
     {
-        return r.toFloat().transformed (complexTransform);
+        return r.transformedBy (complexTransform);
     }
 
     Rectangle<int> deviceSpaceToUserSpace (const Rectangle<int>& r) const noexcept
     {
         return isOnlyTranslated ? r.translated (-xOffset, -yOffset)
-                                : r.toFloat().transformed (complexTransform.inverted()).getSmallestIntegerContainer();
+                                : r.transformedBy (complexTransform.inverted());
     }
 
     AffineTransform complexTransform;
@@ -2066,7 +2065,7 @@ public:
             else if (transform.isIntegerScaling)
             {
                 cloneClipIfMultiplyReferenced();
-                clip = clip->clipToRectangle (transform.transformed (r).getSmallestIntegerContainer());
+                clip = clip->clipToRectangle (transform.transformed (r));
             }
             else
             {
@@ -2096,7 +2095,7 @@ public:
                 RectangleList scaledList;
 
                 for (const Rectangle<int>* i = r.begin(), * const e = r.end(); i != e; ++i)
-                    scaledList.add (transform.transformed (*i).getSmallestIntegerContainer());
+                    scaledList.add (transform.transformed (*i));
 
                 clip = clip->clipToRectangleList (scaledList);
             }
@@ -2121,7 +2120,7 @@ public:
             }
             else if (transform.isIntegerScaling)
             {
-                clip = clip->excludeClipRectangle (transform.transformed (r).getSmallestIntegerContainer());
+                clip = clip->excludeClipRectangle (transform.transformed (r));
             }
             else
             {
@@ -2263,7 +2262,7 @@ public:
             if (transform.isOnlyTranslated)
                 fillTargetRect (transform.translated (r), replaceContents);
             else if (transform.isIntegerScaling)
-                fillTargetRect (transform.transformed (r).getSmallestIntegerContainer(), replaceContents);
+                fillTargetRect (transform.transformed (r), replaceContents);
             else
                 fillRectAsPath (r);
         }
@@ -2492,4 +2491,4 @@ private:
  #pragma warning (pop)
 #endif
 
-#endif   // __JUCE_RENDERINGHELPERS_JUCEHEADER__
+#endif   // JUCE_RENDERINGHELPERS_H_INCLUDED

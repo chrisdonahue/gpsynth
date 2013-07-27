@@ -1,30 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_GRAPHICSCONTEXT_JUCEHEADER__
-#define __JUCE_GRAPHICSCONTEXT_JUCEHEADER__
+#ifndef JUCE_GRAPHICSCONTEXT_H_INCLUDED
+#define JUCE_GRAPHICSCONTEXT_H_INCLUDED
 
 #include "../fonts/juce_Font.h"
 #include "../geometry/juce_Rectangle.h"
@@ -117,7 +116,7 @@ public:
         Note there's also a setFont (float, int) method to quickly change the size and
         style of the current font.
 
-        @see drawSingleLineText, drawMultiLineText, drawTextAsPath, drawText, drawFittedText
+        @see drawSingleLineText, drawMultiLineText, drawText, drawFittedText
     */
     void setFont (const Font& newFont);
 
@@ -145,7 +144,7 @@ public:
     */
     void drawSingleLineText (const String& text,
                              int startX, int baselineY,
-                             const Justification& justification = Justification::left) const;
+                             Justification justification = Justification::left) const;
 
     /** Draws text across multiple lines.
 
@@ -159,17 +158,6 @@ public:
                             int startX, int baselineY,
                             int maximumLineWidth) const;
 
-    /** Renders a string of text as a vector path.
-
-        This allows a string to be transformed with an arbitrary AffineTransform and
-        rendered using the current colour/brush. It's much slower than the normal text methods
-        but more accurate.
-
-        @see setFont
-    */
-    void drawTextAsPath (const String& text,
-                         const AffineTransform& transform) const;
-
     /** Draws a line of text within a specified rectangle.
 
         The text will be positioned within the rectangle based on the justification
@@ -181,7 +169,7 @@ public:
     */
     void drawText (const String& text,
                    int x, int y, int width, int height,
-                   const Justification& justificationType,
+                   Justification justificationType,
                    bool useEllipsesIfTooBig) const;
 
     /** Draws a line of text within a specified rectangle.
@@ -195,7 +183,7 @@ public:
     */
     void drawText (const String& text,
                    const Rectangle<int>& area,
-                   const Justification& justificationType,
+                   Justification justificationType,
                    bool useEllipsesIfTooBig) const;
 
     /** Tries to draw a text string inside a given space.
@@ -219,7 +207,7 @@ public:
     */
     void drawFittedText (const String& text,
                          int x, int y, int width, int height,
-                         const Justification& justificationFlags,
+                         Justification justificationFlags,
                          int maximumNumberOfLines,
                          float minimumHorizontalScale = 0.7f) const;
 
@@ -244,7 +232,7 @@ public:
     */
     void drawFittedText (const String& text,
                          const Rectangle<int>& area,
-                         const Justification& justificationFlags,
+                         Justification justificationFlags,
                          int maximumNumberOfLines,
                          float minimumHorizontalScale = 0.7f) const;
 
@@ -279,7 +267,7 @@ public:
     /** Fills a rectangle with the current colour or brush.
 
         This uses sub-pixel positioning so is slower than the fillRect method which
-        takes integer co-ordinates.
+        takes integer coordinates.
     */
     void fillRect (float x, float y, float width, float height) const;
 
@@ -486,7 +474,7 @@ public:
     /** Draws an image.
 
         This will draw the whole of an image, positioning its top-left corner at the
-        given co-ordinates, and keeping its size the same. This is the simplest image
+        given coordinates, and keeping its size the same. This is the simplest image
         drawing method - the others give more control over the scaling and clipping
         of the images.
 
@@ -571,7 +559,7 @@ public:
     */
     void drawImageWithin (const Image& imageToDraw,
                           int destX, int destY, int destWidth, int destHeight,
-                          const RectanglePlacement& placementWithinTarget,
+                          RectanglePlacement placementWithinTarget,
                           bool fillAlphaChannelWithCurrentBrush = false) const;
 
 
@@ -733,4 +721,4 @@ private:
 };
 
 
-#endif   // __JUCE_GRAPHICSCONTEXT_JUCEHEADER__
+#endif   // JUCE_GRAPHICSCONTEXT_H_INCLUDED

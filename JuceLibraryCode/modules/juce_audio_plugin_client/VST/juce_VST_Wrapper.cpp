@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -118,7 +117,7 @@ namespace juce
   extern void initialiseMac();
   extern void* attachComponentToWindowRef (Component* component, void* windowRef);
   extern void detachComponentFromWindowRef (Component* component, void* nsWindow);
-  extern void setNativeHostWindowSize (void* nsWindow, Component* editorComp, int newWidth, int newHeight, const PluginHostType& host);
+  extern void setNativeHostWindowSize (void* nsWindow, Component* editorComp, int newWidth, int newHeight);
   extern void checkWindowVisibility (void* nsWindow, Component* component);
   extern bool forwardCurrentKeyEventToHost (Component* component);
  #endif
@@ -281,7 +280,7 @@ public:
         clearSingletonInstance();
     }
 
-    void run()
+    void run() override
     {
         initialiseJuce_GUI();
         initialised = true;
@@ -1039,7 +1038,7 @@ public:
         return 0;
     }
 
-    void timerCallback()
+    void timerCallback() override
     {
         if (shouldDeleteEditor)
         {
@@ -1253,7 +1252,7 @@ public:
             {
                 // some hosts don't support the sizeWindow call, so do it manually..
                #if JUCE_MAC
-                setNativeHostWindowSize (hostWindow, editorComp, newWidth, newHeight, getHostType());
+                setNativeHostWindowSize (hostWindow, editorComp, newWidth, newHeight);
 
                #elif JUCE_LINUX
                 // (Currently, all linux hosts support sizeWindow, so this should never need to happen)
@@ -1354,9 +1353,9 @@ public:
                                  // have been transferred to another parent which takes over ownership.
         }
 
-        void paint (Graphics&) {}
+        void paint (Graphics&) override {}
 
-        void paintOverChildren (Graphics&)
+        void paintOverChildren (Graphics&) override
         {
             // this causes an async call to masterIdle() to help
             // creaky old DAWs like Nuendo repaint themselves while we're
@@ -1366,7 +1365,7 @@ public:
         }
 
        #if JUCE_MAC
-        bool keyPressed (const KeyPress&)
+        bool keyPressed (const KeyPress&) override
         {
             // If we have an unused keypress, move the key-focus to a host window
             // and re-inject the event..
@@ -1379,13 +1378,13 @@ public:
             return dynamic_cast <AudioProcessorEditor*> (getChildComponent (0));
         }
 
-        void resized()
+        void resized() override
         {
             if (Component* const editor = getChildComponent(0))
                 editor->setBounds (getLocalBounds());
         }
 
-        void childBoundsChanged (Component* child)
+        void childBoundsChanged (Component* child) override
         {
             child->setTopLeftPosition (0, 0);
 
@@ -1409,18 +1408,18 @@ public:
            #endif
         }
 
-        void handleAsyncUpdate()
+        void handleAsyncUpdate() override
         {
             wrapper.tryMasterIdle();
         }
 
        #if JUCE_WINDOWS
-        void mouseDown (const MouseEvent&)
+        void mouseDown (const MouseEvent&) override
         {
             broughtToFront();
         }
 
-        void broughtToFront()
+        void broughtToFront() override
         {
             // for hosts like nuendo, need to also pop the MDI container to the
             // front when our comp is clicked on.
@@ -1492,7 +1491,7 @@ private:
                 public:
                     MessageThreadCallback (bool& tr) : triggered (tr) {}
 
-                    void messageCallback()
+                    void messageCallback() override
                     {
                         triggered = true;
                     }

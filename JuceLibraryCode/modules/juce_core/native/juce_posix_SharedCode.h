@@ -1,24 +1,27 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the juce_core module of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission to use, copy, modify, and/or distribute this software for any purpose with
+   or without fee is hereby granted, provided that the above copyright notice and this
+   permission notice appear in all copies.
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   ------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------
+   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
+   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
+   using any other modules, be sure to check that you also comply with their license.
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   For more details, visit www.juce.com
 
   ==============================================================================
 */
@@ -174,6 +177,21 @@ File File::getCurrentWorkingDirectory()
 bool File::setAsCurrentWorkingDirectory() const
 {
     return chdir (getFullPathName().toUTF8()) == 0;
+}
+
+//==============================================================================
+// The unix siginterrupt function is deprecated - this does the same job.
+int juce_siginterrupt (int sig, int flag)
+{
+    struct ::sigaction act;
+    (void) ::sigaction (sig, nullptr, &act);
+
+    if (flag != 0)
+        act.sa_flags &= ~SA_RESTART;
+    else
+        act.sa_flags |= SA_RESTART;
+
+    return ::sigaction (sig, &act, nullptr);
 }
 
 //==============================================================================
@@ -872,7 +890,11 @@ void Thread::setCurrentThreadName (const String& name)
         [[NSThread currentThread] setName: juceStringToNS (name)];
     }
    #elif JUCE_LINUX
-    pthread_setname_np (pthread_self(), name.toRawUTF8());
+    #if (__GLIBC__ * 1000 + __GLIBC_MINOR__) >= 2012
+     pthread_setname_np (pthread_self(), name.toRawUTF8());
+    #else
+     prctl (PR_SET_NAME, name.toRawUTF8(), 0, 0, 0);
+    #endif
    #endif
 }
 
@@ -882,7 +904,7 @@ bool Thread::setThreadPriority (void* handle, int priority)
     int policy;
     priority = jlimit (0, 10, priority);
 
-    if (handle == 0)
+    if (handle == nullptr)
         handle = (void*) pthread_self();
 
     if (pthread_getschedparam ((pthread_t) handle, &policy, &param) != 0)

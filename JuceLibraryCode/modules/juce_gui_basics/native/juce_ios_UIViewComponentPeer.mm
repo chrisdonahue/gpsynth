@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -118,40 +117,41 @@ namespace Orientations
 - (void) becomeKeyWindow;
 @end
 
+//==============================================================================
+//==============================================================================
 namespace juce
 {
 
-//==============================================================================
 class UIViewComponentPeer  : public ComponentPeer,
                              public FocusChangeListener
 {
 public:
-    UIViewComponentPeer (Component& comp, int windowStyleFlags, UIView* viewToAttachTo);
+    UIViewComponentPeer (Component&, int windowStyleFlags, UIView* viewToAttachTo);
     ~UIViewComponentPeer();
 
     //==============================================================================
-    void* getNativeHandle() const;
-    void setVisible (bool shouldBeVisible);
-    void setTitle (const String& title);
-    void setBounds (const Rectangle<int>&, bool isNowFullScreen);
+    void* getNativeHandle() const override;
+    void setVisible (bool shouldBeVisible) override;
+    void setTitle (const String& title) override;
+    void setBounds (const Rectangle<int>&, bool isNowFullScreen) override;
 
-    Rectangle<int> getBounds() const;
-    Rectangle<int> getBounds (const bool global) const;
-    Point<int> localToGlobal (const Point<int>& relativePosition);
-    Point<int> globalToLocal (const Point<int>& screenPosition);
-    void setAlpha (float newAlpha);
-    void setMinimised (bool shouldBeMinimised);
-    bool isMinimised() const;
-    void setFullScreen (bool shouldBeFullScreen);
-    bool isFullScreen() const;
-    bool contains (const Point<int>& position, bool trueIfInAChildWindow) const;
-    BorderSize<int> getFrameSize() const;
-    bool setAlwaysOnTop (bool alwaysOnTop);
-    void toFront (bool makeActiveWindow);
-    void toBehind (ComponentPeer* other);
-    void setIcon (const Image& newIcon);
+    Rectangle<int> getBounds() const override;
+    Rectangle<int> getBounds (bool global) const;
+    Point<int> localToGlobal (const Point<int>& relativePosition) override;
+    Point<int> globalToLocal (const Point<int>& screenPosition) override;
+    void setAlpha (float newAlpha) override;
+    void setMinimised (bool shouldBeMinimised) override;
+    bool isMinimised() const override;
+    void setFullScreen (bool shouldBeFullScreen) override;
+    bool isFullScreen() const override;
+    bool contains (const Point<int>& position, bool trueIfInAChildWindow) const override;
+    BorderSize<int> getFrameSize() const override;
+    bool setAlwaysOnTop (bool alwaysOnTop) override;
+    void toFront (bool makeActiveWindow) override;
+    void toBehind (ComponentPeer* other) override;
+    void setIcon (const Image& newIcon) override;
 
-    virtual void drawRect (CGRect r);
+    virtual void drawRect (CGRect);
 
     virtual bool canBecomeKeyWindow();
     virtual bool windowShouldClose();
@@ -162,21 +162,21 @@ public:
     //==============================================================================
     virtual void viewFocusGain();
     virtual void viewFocusLoss();
-    bool isFocused() const;
-    void grabFocus();
-    void textInputRequired (const Point<int>& position);
+    bool isFocused() const override;
+    void grabFocus() override;
+    void textInputRequired (const Point<int>& position) override;
 
     virtual BOOL textViewReplaceCharacters (const Range<int>& range, const String& text);
-    void updateHiddenTextContent (TextInputTarget* target);
-    void globalFocusChanged (Component*);
+    void updateHiddenTextContent (TextInputTarget*);
+    void globalFocusChanged (Component*) override;
 
     void updateTransformAndScreenBounds();
 
-    void handleTouches (UIEvent* e, bool isDown, bool isUp, bool isCancel);
+    void handleTouches (UIEvent*, bool isDown, bool isUp, bool isCancel);
 
     //==============================================================================
-    void repaint (const Rectangle<int>& area);
-    void performAnyPendingRepaintsNow();
+    void repaint (const Rectangle<int>& area) override;
+    void performAnyPendingRepaintsNow() override;
 
     //==============================================================================
     UIWindow* window;
@@ -251,9 +251,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIViewComponentPeer)
 };
 
-//==============================================================================
 } // (juce namespace)
 
+//==============================================================================
+//==============================================================================
 @implementation JuceUIViewController
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -332,26 +333,6 @@ private:
     if (owner != nullptr)
         owner->drawRect (r);
 }
-
-//==============================================================================
-bool KeyPress::isKeyCurrentlyDown (const int keyCode)
-{
-    return false;
-}
-
-ModifierKeys UIViewComponentPeer::currentModifiers;
-
-ModifierKeys ModifierKeys::getCurrentModifiersRealtime() noexcept
-{
-    return UIViewComponentPeer::currentModifiers;
-}
-
-void ModifierKeys::updateCurrentModifiers() noexcept
-{
-    currentModifiers = UIViewComponentPeer::currentModifiers;
-}
-
-juce::Point<int> juce_lastMousePos;
 
 //==============================================================================
 - (void) touchesBegan: (NSSet*) touches withEvent: (UIEvent*) event
@@ -433,6 +414,25 @@ juce::Point<int> juce_lastMousePos;
 //==============================================================================
 namespace juce
 {
+
+bool KeyPress::isKeyCurrentlyDown (const int keyCode)
+{
+    return false;
+}
+
+ModifierKeys UIViewComponentPeer::currentModifiers;
+
+ModifierKeys ModifierKeys::getCurrentModifiersRealtime() noexcept
+{
+    return UIViewComponentPeer::currentModifiers;
+}
+
+void ModifierKeys::updateCurrentModifiers() noexcept
+{
+    currentModifiers = UIViewComponentPeer::currentModifiers;
+}
+
+Point<int> juce_lastMousePos;
 
 //==============================================================================
 UIViewComponentPeer::UIViewComponentPeer (Component& comp, const int windowStyleFlags, UIView* viewToAttachTo)
@@ -937,7 +937,7 @@ void Desktop::setKioskComponent (Component* kioskModeComponent, bool enableOrDis
     [[UIApplication sharedApplication] setStatusBarHidden: enableOrDisable
                                             withAnimation: UIStatusBarAnimationSlide];
 
-    displays.refresh();
+    displays->refresh();
 
     if (ComponentPeer* const peer = kioskModeComponent->getPeer())
         peer->setFullScreen (enableOrDisable);
@@ -955,7 +955,7 @@ public:
     {
     }
 
-    void messageCallback()
+    void messageCallback() override
     {
         if (ComponentPeer::isValidPeer (peer))
             peer->repaint (rect);

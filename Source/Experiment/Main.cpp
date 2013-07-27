@@ -2,7 +2,6 @@
   ==============================================================================
 
     Main.cpp
-    Created: 6 Feb 2013 11:05:21am
     Author:  cdonahue
 
   ==============================================================================
@@ -12,14 +11,14 @@
 #include "GPExperiment.h"
 
 //==============================================================================
-class GeneticProgrammingSynthesizerExperiment  : public JUCEApplication
+class GPAudioTargetMatchingExperiment  : public JUCEApplication
 {
 public:
     //==============================================================================
-    GeneticProgrammingSynthesizerExperiment() {}
+    GPAudioTargetMatchingExperiment() {}
 
     const String getApplicationName()       {
-        return String("GP Synthesis Experiment");
+        return String("GP Audio Target Matching Experiment");
     }
     const String getApplicationVersion()    {
         return String("1.0.0");
@@ -31,7 +30,7 @@ public:
     //==============================================================================
     void initialise (const String& commandLine)
     {
-        juce::Thread::setCurrentThreadName("experiment");
+        Thread::setCurrentThreadName("experiment");
 
         // This method is where you should put your application's initialisation code..
         StringArray args = getCommandLineParameterArray();
@@ -518,4 +517,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (GeneticProgrammingSynthesizerExperiment)
+START_JUCE_APPLICATION (GPAudioTargetMatchingExperiment)
