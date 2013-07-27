@@ -16,10 +16,10 @@
 */
 
 // points should always have something in it
-SplineTerminalNode::SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>& pointsOrParams)
+SplineTerminalNode::SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>* pointsOrParams)
 {
     assert(splinetype->isUnmutatable());
-    isPrimitive = (pointsOrParams.size() == 2 && numsegments->isMutatable());
+    isPrimitive = (pointsOrParams->size() == 2 && numsegments->isMutatable());
     assert(isPrimitive || numsegments->isUnmutatable());
 
     splineType = splinetype->getDValue();
@@ -31,12 +31,13 @@ SplineTerminalNode::SplineTerminalNode(GPMutatableParam* splinetype, GPMutatable
     }
     else {
         numSegments = numsegments->getDValue();
-        assert(pointsOrParams.size() == (numSegments * 2) + 1);
+        assert(pointsOrParams->size() == (numSegments * 2) + 1);
     }
 
-    for (unsigned i = 0; i < pointsOrParams.size(); i++) {
-        mutatableParams.push_back(pointsOrParams[i]);
+    for (unsigned i = 0; i < pointsOrParams->size(); i++) {
+        mutatableParams.push_back(pointsOrParams->at(i));
     }
+    delete pointsOrParams;
 
     arity = 0;
 }
@@ -53,9 +54,9 @@ SplineTerminalNode::~SplineTerminalNode() {
 
 SplineTerminalNode* SplineTerminalNode::getCopy() {
     // make copies of spline points
-    std::vector<GPMutatableParam*> paramCopies(mutatableParams.size() - 2);
+    std::vector<GPMutatableParam*>* paramCopies = new std::vector<GPMutatableParam*>(mutatableParams.size() - 2);
     for (unsigned i = 2; i < mutatableParams.size(); i++) {
-        paramCopies[i] = mutatableParams[i]->getCopy();
+        paramCopies->at(i - 2) = mutatableParams[i]->getCopy();
     }
 
     return new SplineTerminalNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies);

@@ -13,6 +13,7 @@
 
 // Common GPSynth includes
 #include "../Common/GPParams.h"
+#include "../Common/GPParser.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/GPAudioUtil.h"
 #include "../Common/JUCEFileIO.h"
@@ -30,7 +31,6 @@
 #include <stdexcept>
 #include "beagle/Exception.hpp"
 #include "beagle/GA.hpp"
-//#include "PACC/Math/Vector.hpp"
 #include "AudioComparisonEvalOp.hpp"
 #include "AudioComparisonParams.hpp"
 

@@ -14,7 +14,7 @@
 
 class SplineEnvelopeNode: public GPNode {
 public:
-    SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& pointsOrParams, GPNode* signal);
+    SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>* pointsOrParams, GPNode* signal);
     ~SplineEnvelopeNode();
 
 	// overrides

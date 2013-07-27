@@ -79,17 +79,25 @@ GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target
         // CURRENT DEFAULT EXPERIMENT
         if (params->experimentNumber == 1) {
             // SUPPLY AVAILABLE NODES
-            nodes->push_back(new AddNode(NULL, NULL));
-            nodes->push_back(new MultiplyNode(NULL, NULL));
-            //nodes->push_back(new ConstantNode(true, false, constantValue->getCopy(), NULL));
-            //nodes->push_back(new OscilNode(true, specialValues->getCopy(), oscilPartial->getCopy(), NULL, NULL));
-            //nodes->push_back(new OscilNode(false, specialValues->getCopy(), oscilPartial->getCopy(), oscilModIndex->getCopy(), NULL));
-            nodes->push_back(new NoiseNode(rng));
-            nodes->push_back(createNode("(const {c -1.0 0.0 1.0})", rng));
-            //nodes->push_back(new FilterNode(2, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
-            //nodes->push_back(new FilterNode(3, 3, params->renderBlockSize, targetSampleRate, 0, filterCenterFrequencyMultiplierMin->getCopy(), filterCenterFrequencyMultiplierMax->getCopy(), filterBandwidth->getCopy(), NULL, NULL, NULL));
+            //nodes->push_back(new NoiseNode(rng));
             //nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
             //nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
+            //currentPrimitives->push_back(createNode("(sawosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
+            //currentPrimitives->push_back(createNode("(squareosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
+            //currentPrimitives->push_back(createNode("(triangleosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
+            //currentPrimitives->push_back(createNode("(lfo* {c 0 0.0 20} (null))", &rng));
+            //currentPrimitives->push_back(createNode("(time)", &rng));
+            //currentPrimitives->push_back(createNode("(switch (null) (null) (null))", &rng));
+
+            nodes->push_back(createNode("(+ (null) (null))", rng));
+            nodes->push_back(createNode("(* (null) (null))", rng));
+            nodes->push_back(createNode("(const {c -1.0 0.0 1.0})", rng));
+            nodes->push_back(createNode("(gain {c -1.0 0.0 1.0} (null))", rng));
+            nodes->push_back(createNode("(sinosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", rng));
+            nodes->push_back(createNode("(am {d 0 0 0} {d 1 1 10} {c 0 0 1.0} {c 0 0 1.0} (null))", rng));
+            nodes->push_back(createNode("(pm {d 0 0 0} {d 1 1 10} {c 0 1.0 5.0} (null))", rng));
+            nodes->push_back(createNode("(spline {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2})", rng));
+            nodes->push_back(createNode("(spline* {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2} (null))", rng));
         }
 
         // set parameters that vary by fitness function
@@ -463,35 +471,38 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 lSystem->addPackage(new GA::PackageCMAES(lVectorSize));
 
                 // Initialize state space
+                DoubleArray::Handle initMinValueArray = new DoubleArray(lVectorSize);
+                DoubleArray::Handle initMaxValueArray = new DoubleArray(lVectorSize);
                 DoubleArray::Handle minValueArray = new DoubleArray(lVectorSize);
                 DoubleArray::Handle maxValueArray = new DoubleArray(lVectorSize);
                 DoubleArray::Handle incValueArray = new DoubleArray(lVectorSize);
 
-                // populate min float vector
-                for (unsigned i = 0; i < candidateParams->size(); i++) {
-                    minValueArray->at(i) = candidateParams->at(i)->getMin();
-                }
-        
-                // populate max float vector
-                for (unsigned i = 0; i < candidateParams->size(); i++) {
-                    maxValueArray->at(i) = candidateParams->at(i)->getMax();
-                }
-        
-                // populate inc float vector
+                // populate min/max/inc vectors
                 for (unsigned i = 0; i < candidateParams->size(); i++) {
                     GPMutatableParam* param = candidateParams->at(i);
+                    float paramMin = param->getMin();
+                    float paramMax = param->getMax();
                     if (param->isDiscrete()) {
+                        // values are to allow any number in discrete range including min/max
+                        initMinValueArray->at(i) = paramMin + 0.5f;
+                        initMaxValueArray->at(i) = paramMax + 0.5f;
+                        minValueArray->at(i) = paramMin + 0.4f;
+                        maxValueArray->at(i) = paramMax + 0.6f;
                         incValueArray->at(i) = 1.0f;
                     }
                     else {
+                        initMinValueArray->at(i) = paramMin;
+                        initMaxValueArray->at(i) = paramMax;
+                        minValueArray->at(i) = paramMin;
+                        maxValueArray->at(i) = paramMax;
                         incValueArray->at(i) = 0.01f;
                     }
                 }
-                
+                      
                 // register state space with system
                 Register::Description lDescription("Parameter state space", "Vector", "", "");
-                lSystem->getRegister().insertEntry("ga.init.minvalue", minValueArray, lDescription);
-                lSystem->getRegister().insertEntry("ga.init.maxvalue", maxValueArray, lDescription);
+                lSystem->getRegister().insertEntry("ga.init.minvalue", initMinValueArray, lDescription);
+                lSystem->getRegister().insertEntry("ga.init.maxvalue", initMaxValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.float.maxvalue", maxValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.float.inc", incValueArray, lDescription);
@@ -576,7 +587,7 @@ double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidat
 		std::cerr << std::endl << candidate->toString(5);
         renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
         double fitness = compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
-        std::cerr << " fitness: " << fitness << std::endl;
+        std::cerr << " fitness: " << fitness;
         return compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
 }
 

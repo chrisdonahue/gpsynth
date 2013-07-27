@@ -393,9 +393,9 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[2]->setType("spline_amp_range");
             params[3]->setType("spline_segment_length_range");
 
-            std::vector<GPMutatableParam*> splinepoints;
-            splinepoints.push_back(params[2]);
-            splinepoints.push_back(params[3]);
+            std::vector<GPMutatableParam*>* splinepoints = new std::vector<GPMutatableParam*>();
+            splinepoints->push_back(params[2]);
+            splinepoints->push_back(params[3]);
 
             return new SplineTerminalNode(params[0], params[1], splinepoints);
         }
@@ -411,18 +411,18 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[1]->setType("spline_num_points");
             params[1]->setUnmutatable();
 
-            std::vector<GPMutatableParam*> splinepoints;
+            std::vector<GPMutatableParam*>* splinepoints = new std::vector<GPMutatableParam*>();
             unsigned currentParam = 2;
             while (currentParam + 2 < params.size()) {
                 params[currentParam]->setType("spline_amp");
-                splinepoints.push_back(params[currentParam]);
+                splinepoints->push_back(params[currentParam]);
                 currentParam++;
                 params[currentParam]->setType("spline_segment_length");
-                splinepoints.push_back(params[currentParam]);
+                splinepoints->push_back(params[currentParam]);
                 currentParam++;
             }
             params[currentParam]->setType("spline_amp_final");
-            splinepoints.push_back(params[currentParam]);
+            splinepoints->push_back(params[currentParam]);
 
             return new SplineTerminalNode(params[0], params[1], splinepoints);
         }
@@ -441,9 +441,9 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[2]->setType("spline_amp_range");
             params[3]->setType("spline_segment_length_range");
 
-            std::vector<GPMutatableParam*> splinepoints;
-            splinepoints.push_back(params[2]);
-            splinepoints.push_back(params[3]);
+            std::vector<GPMutatableParam*>* splinepoints = new std::vector<GPMutatableParam*>();
+            splinepoints->push_back(params[2]);
+            splinepoints->push_back(params[3]);
 
             GPNode* signal;
             if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
@@ -462,18 +462,18 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
             params[1]->setType("spline_num_points");
             params[1]->setUnmutatable();
 
-            std::vector<GPMutatableParam*> splinepoints;
+            std::vector<GPMutatableParam*>* splinepoints = new std::vector<GPMutatableParam*>();
             unsigned currentParam = 2;
             while (currentParam + 2 < params.size()) {
                 params[currentParam]->setType("spline_amp");
-                splinepoints.push_back(params[currentParam]);
+                splinepoints->push_back(params[currentParam]);
                 currentParam++;
                 params[currentParam]->setType("spline_segment_length");
-                splinepoints.push_back(params[currentParam]);
+                splinepoints->push_back(params[currentParam]);
                 currentParam++;
             }
             params[currentParam]->setType("spline_amp_final");
-            splinepoints.push_back(params[currentParam]);
+            splinepoints->push_back(params[currentParam]);
 
             GPNode* signal;
             if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;

@@ -14,7 +14,7 @@
 
 class SplineTerminalNode: public GPNode {
 public:
-    SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>& pointsOrParams);
+    SplineTerminalNode(GPMutatableParam* splinetype, GPMutatableParam* numpoints, std::vector<GPMutatableParam*>* pointsOrParams);
     ~SplineTerminalNode();
 
 	// overrides

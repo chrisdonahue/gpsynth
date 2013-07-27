@@ -16,10 +16,10 @@
 */
 
 // points should always have something in it
-SplineEnvelopeNode::SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>& pointsOrParams, GPNode* signal)
+SplineEnvelopeNode::SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatableParam* numsegments, std::vector<GPMutatableParam*>* pointsOrParams, GPNode* signal)
 {
     assert(splinetype->isUnmutatable());
-    isPrimitive = (pointsOrParams.size() == 2 && numsegments->isMutatable());
+    isPrimitive = (pointsOrParams->size() == 2 && numsegments->isMutatable());
     assert(isPrimitive || numsegments->isUnmutatable());
 
     splineType = splinetype->getDValue();
@@ -31,12 +31,13 @@ SplineEnvelopeNode::SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatable
     }
     else {
         numSegments = numsegments->getDValue();
-        assert(pointsOrParams.size() == (numSegments * 2) + 1);
+        assert(pointsOrParams->size() == (numSegments * 2) + 1);
     }
 
-    for (unsigned i = 0; i < pointsOrParams.size(); i++) {
-        mutatableParams.push_back(pointsOrParams[i]);
+    for (unsigned i = 0; i < pointsOrParams->size(); i++) {
+        mutatableParams.push_back(pointsOrParams->at(i));
     }
+    delete pointsOrParams;
 
     arity = 1;
     descendants.push_back(signal);
@@ -54,9 +55,9 @@ SplineEnvelopeNode::~SplineEnvelopeNode() {
 
 SplineEnvelopeNode* SplineEnvelopeNode::getCopy() {
     // make copies of spline points
-    std::vector<GPMutatableParam*> paramCopies(mutatableParams.size() - 2);
+    std::vector<GPMutatableParam*>* paramCopies = new std::vector<GPMutatableParam*>(mutatableParams.size() - 2);
     for (unsigned i = 2; i < mutatableParams.size(); i++) {
-        paramCopies[i] = mutatableParams[i]->getCopy();
+        paramCopies->at(i - 2) = mutatableParams[i]->getCopy();
     }
 
     return new SplineEnvelopeNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), paramCopies, descendants[0] == NULL ? NULL : descendants[0]->getCopy());
