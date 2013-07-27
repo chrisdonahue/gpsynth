@@ -16,10 +16,10 @@ ifeq ($(CONFIG),Debug)
   LIBDIR := build
   OBJDIR := build/intermediate/Debug
   OUTDIR := build
-  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../Source/Dependencies/OpenBEAGLE/include
+  CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../Source/Dependencies/OpenBEAGLE/include -I ../../Source/Dependencies/PACC/include
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 #-ffast-math
   CXXFLAGS += $(CFLAGS) 
-  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -L../../Source/Dependencies/OpenBEAGLE/pacc-1.4.1-Source/pacc-cmake/lib -lpacc -L../../Source/Dependencies/OpenBEAGLE/lib -Wl,-rpath="../../Source/Dependencies/OpenBEAGLE/lib" -lopenbeagle -lopenbeagle-GA
+  LDFLAGS += -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -L../../Source/Dependencies/PACC/lib -Wl,-rpath="../../Source/Dependencies/PACC/lib" -lpacc -L../../Source/Dependencies/OpenBEAGLE/lib -Wl,-rpath="../../Source/Dependencies/OpenBEAGLE/lib" -lopenbeagle -lopenbeagle-GA
   LDDEPS :=
   RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode
   TARGET := GPAudioTargetMatchingExperiment
@@ -48,6 +48,7 @@ OBJECTS := \
   $(OBJDIR)/GPAudioUtil.o \
   $(OBJDIR)/GPExperiment.o \
   $(OBJDIR)/AudioComparisonEvalOp.o \
+  $(OBJDIR)/AudioComparisonParams.o \
   $(OBJDIR)/GPSynth.o \
   $(OBJDIR)/GPNetwork.o \
   $(OBJDIR)/ADSREnvelopeNode.o \
@@ -140,6 +141,11 @@ $(OBJDIR)/GPExperiment.o: ../../Source/Experiment/GPExperiment.cpp
 $(OBJDIR)/AudioComparisonEvalOp.o: ../../Source/Experiment/AudioComparisonEvalOp.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling AudioComparisonEvalOp.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/AudioComparisonParams.o: ../../Source/Experiment/AudioComparisonParams.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling AudioComparisonParams.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPSynth.o: ../../Source/Synth/GPSynth.cpp

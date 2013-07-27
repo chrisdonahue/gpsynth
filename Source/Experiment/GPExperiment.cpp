@@ -513,7 +513,7 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
 
                 // Initialize the evolver
                 Evolver::Handle lEvolver = new Evolver;
-                lEvolver->initialize(lSystem, "/u/cdonahue/gpsynth/Builds/Linux/audiocomparison-cmaes.conf");
+                lEvolver->initialize(lSystem, "audiocomparison-cmaes.conf");
                 
                 // Create population
                 Vivarium::Handle lVivarium = new Vivarium;

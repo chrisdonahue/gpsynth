@@ -1,16 +1,22 @@
-un pacc-1.4.1-Source.tar.gz
-cd pacc-1.4.1-Source
-mkdir pacc-cmake
-cd pacc-cmake
-cmake ../
-make
-cd ..
-mkdir PACC
-mkdir PACC/include
-cp -r src/PACC ../PACC/include
+# unzip packages
+cd gpsynth/Source/Dependencies
+cp archives/*.tar.gz ./
 
-unzip open beagle
+# make PACC
+un pacc-1.4.1-Source.tar.gz
+mv pacc-1.4.1-Source.tar.gz PACC
+cd PACC
+cmake -i
+make
+cp -r src/PACC/* include/PACC
+cd ..
+
+# make OpenBEAGLE
+un OpenBEAGLE-4.0.0-alpha2-Source.tar.gz
+mv OpenBEAGLE-4.0.0-alpha2-Source OpenBEAGLE
 cd OpenBEAGLE
-cmake -i -DPACC_DIR=../pacc-1.4.1-Source/src/PACC -DBEAGLE_NO_HPC=ON
-    BEAGLE_BUILD_EXAMPLES=OFF
-    BEAGLE_NO_HPC
+# other options include BEAGLE_BUILD_EXAMPLES=OFF
+cmake -i -DPACC_DIR=../PACC -DBEAGLE_NO_HPC=ON
+make
+# will take a while, can start compiling experiment after GA is done
+# haven't figured out how to turn GP compiling off
