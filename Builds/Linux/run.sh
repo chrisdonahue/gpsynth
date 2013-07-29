@@ -11,6 +11,7 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --target ./samples/TrumpetEb5.wav\
   --path ./\
   --seed 0\
+  --ffmagweight 1.0\
   --values 622.25\
   --expinfo\
   SHARED PARAMS\
@@ -19,7 +20,7 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --printprecision 3\
   EXPERIMENT PARAMS\
   --experiment 1\
-  --suboptimizetype 1\
+  --suboptimizetype 0\
   --fitnesstype 1\
   --generations 2\
   --threshold 0.1\
@@ -57,7 +58,7 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --badmagcomp 1.1\
   --basemagcomp 0.9\
   SYNTH EVO PARAMS\
-  --popsize 5\
+  --popsize 4\
   --nobackup\
   --backupprecision 50\
   --maxinitheight 10\
@@ -67,7 +68,7 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --numericmutation 0.0 --nmselect 1 --nmselectparam 0.05 --nmtemperature 0.9\
   --mutation 0.1 --mselect 1 --mtype 1 --mselectparam 0.25\
   --crossover 0.8 --cselect 0 --ctype 0\
-  --reproduction 0.1 --rselect 0
+  --reproduction 0.1 --rselect 0\
   > 2GenValgrind.txt
 #COMMENT
 

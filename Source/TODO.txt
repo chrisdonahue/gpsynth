@@ -112,8 +112,10 @@ TODO long run:
         fleschter munsion? :/
 
 TODO NEXT EXPERIMENTS:
-    CMAES set min/max values, run and test (turn off numerical mutation)
+    CMAES:
         read Garcia paper to see how he did his suboptimizing GA. try testing that too
+        figure out how to retrieve champion and use that for population
+        read abuot how to limit number of generations
 
     figure out why simple average fitness function seems to work the best
         maybe use naive average and blend with moving average?
