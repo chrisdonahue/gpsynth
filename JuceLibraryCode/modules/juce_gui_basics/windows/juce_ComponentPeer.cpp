@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-static uint32 lastUniqueID = 1;
+static uint32 lastUniquePeerID = 1;
 
 //==============================================================================
 ComponentPeer::ComponentPeer (Component& comp, const int flags)
@@ -30,7 +30,7 @@ ComponentPeer::ComponentPeer (Component& comp, const int flags)
       styleFlags (flags),
       constrainer (nullptr),
       lastDragAndDropCompUnderMouse (nullptr),
-      uniqueID (lastUniqueID += 2), // increment by 2 so that this can never hit 0
+      uniqueID (lastUniquePeerID += 2), // increment by 2 so that this can never hit 0
       isWindowMinimised (false)
 {
     Desktop::getInstance().peers.add (this);
@@ -399,6 +399,12 @@ Rectangle<int> ComponentPeer::globalToLocal (const Rectangle<int>& screenPositio
     return screenPosition.withPosition (globalToLocal (screenPosition.getPosition()));
 }
 
+Rectangle<int> ComponentPeer::getAreaCoveredBy (Component& subComponent) const
+{
+    return Component::ComponentHelpers::scaledScreenPosToUnscaled
+            (component.getLocalArea (&subComponent, subComponent.getLocalBounds()));
+}
+
 //==============================================================================
 namespace DragHelpers
 {
@@ -565,17 +571,6 @@ bool ComponentPeer::setDocumentEditedStatus (bool)
 
 void ComponentPeer::setRepresentedFile (const File&)
 {
-}
-
-//==============================================================================
-void ComponentPeer::clearMaskedRegion()
-{
-    maskedRegion.clear();
-}
-
-void ComponentPeer::addMaskedRegion (const Rectangle<int>& area)
-{
-    maskedRegion.add (area);
 }
 
 //==============================================================================

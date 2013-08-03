@@ -163,7 +163,14 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slid
 
 void GeneticProgrammingSynthesizerAudioProcessorEditor::buttonClicked (Button* button)
 {
-	if (button == buttons["save"]) {
+	if (button == buttons["edit"]) {
+		GPNetwork* network = getProcessor()->getCurrentNetwork();
+
+	}
+	else if (button == buttons["random"]) {
+		getProcessor()->randomizeCurrentNetwork();
+	}
+	else if (button == buttons["save"]) {
 		getProcessor()->saveCurrentNetwork();
 	}
 	else if (button == buttons["load"]) {

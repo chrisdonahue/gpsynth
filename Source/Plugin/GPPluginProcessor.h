@@ -44,6 +44,8 @@ public:
 	void setAlgorithm();
 	void fillFromGeneration();
 	void deleteGenerationState();
+	GPNetwork* getCurrentNetwork();
+	void randomizeCurrentNetwork();
 	void saveCurrentNetwork();
 	void loadReplacingCurrentNetwork();
 	void prevGeneration();

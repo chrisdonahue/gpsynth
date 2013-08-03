@@ -237,19 +237,43 @@ struct Component::ComponentHelpers
     template <typename PointOrRect>
     static PointOrRect convertFromParentSpace (const Component& comp, PointOrRect pointInParentSpace)
     {
-        if (comp.affineTransform == nullptr)
-            return pointInParentSpace - comp.getPosition();
+        if (comp.affineTransform != nullptr)
+            pointInParentSpace = pointInParentSpace.transformedBy (comp.affineTransform->inverted());
 
-        return pointInParentSpace.transformedBy (comp.affineTransform->inverted()) - comp.getPosition();
+        if (comp.isOnDesktop())
+        {
+            if (ComponentPeer* peer = comp.getPeer())
+                pointInParentSpace = unscaledScreenPosToScaled (peer->globalToLocal (scaledScreenPosToUnscaled (pointInParentSpace)));
+            else
+                jassertfalse;
+        }
+        else
+        {
+            pointInParentSpace -= comp.getPosition();
+        }
+
+        return pointInParentSpace;
     }
 
     template <typename PointOrRect>
     static PointOrRect convertToParentSpace (const Component& comp, PointOrRect pointInLocalSpace)
     {
-        if (comp.affineTransform == nullptr)
-            return pointInLocalSpace + comp.getPosition();
+        if (comp.isOnDesktop())
+        {
+            if (ComponentPeer* peer = comp.getPeer())
+                pointInLocalSpace = unscaledScreenPosToScaled (peer->localToGlobal (scaledScreenPosToUnscaled (pointInLocalSpace)));
+            else
+                jassertfalse;
+        }
+        else
+        {
+            pointInLocalSpace += comp.getPosition();
+        }
 
-        return (pointInLocalSpace + comp.getPosition()).transformedBy (*comp.affineTransform);
+        if (comp.affineTransform != nullptr)
+            pointInLocalSpace = pointInLocalSpace.transformedBy (*comp.affineTransform);
+
+        return pointInLocalSpace;
     }
 
     template <typename PointOrRect>
@@ -335,7 +359,7 @@ struct Component::ComponentHelpers
         return nothingChanged;
     }
 
-    static void subtractObscuredRegions (const Component& comp, RectangleList& result,
+    static void subtractObscuredRegions (const Component& comp, RectangleList<int>& result,
                                          Point<int> delta, const Rectangle<int>& clipRect,
                                          const Component* const compToAvoid)
     {
@@ -743,7 +767,7 @@ public:
 
 private:
     Image image;
-    RectangleList validArea;
+    RectangleList<int> validArea;
     Component& owner;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StandardCachedComponentImage)
@@ -1815,9 +1839,9 @@ void Component::internalRepaintUnchecked (const Rectangle<int>& area, const bool
 //==============================================================================
 void Component::paint (Graphics&)
 {
-    // all painting is done in the subclasses
-
-    jassert (! isOpaque()); // if your component's opaque, you've gotta paint it!
+    // if your component is marked as opaque, you must implement a paint
+    // method and ensure that its entire area is completely painted.
+    jassert (getBounds().isEmpty() || ! isOpaque());
 }
 
 void Component::paintOverChildren (Graphics&)
@@ -2114,7 +2138,7 @@ Rectangle<int> Component::getBoundsInParent() const noexcept
                                       : bounds.transformedBy (*affineTransform);
 }
 
-void Component::getVisibleArea (RectangleList& result, const bool includeSiblings) const
+void Component::getVisibleArea (RectangleList<int>& result, const bool includeSiblings) const
 {
     result.clear();
     const Rectangle<int> unclipped (ComponentHelpers::getUnclippedArea (*this));

@@ -128,7 +128,7 @@ public:
 
 
     //==============================================================================
-    virtual const Typeface::Ptr getTypefaceForFont (const Font& font);
+    virtual Typeface::Ptr getTypefaceForFont (const Font& font);
 
     /** Allows you to change the default sans-serif font.
 
@@ -148,7 +148,7 @@ public:
     // Creates a new graphics context object.
     virtual LowLevelGraphicsContext* createGraphicsContext (const Image& imageToRenderOn,
                                                             const Point<int>& origin,
-                                                            const RectangleList& initialClip);
+                                                            const RectangleList<int>& initialClip);
 
     //==============================================================================
     /** Draws the lozenge-shaped background for a standard button. */

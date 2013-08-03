@@ -1840,9 +1840,7 @@ private:
             }
            #endif
 
-            peer.clearMaskedRegion();
-
-            RectangleList originalRepaintRegion (regionsNeedingRepaint);
+            RectangleList<int>  originalRepaintRegion (regionsNeedingRepaint);
             regionsNeedingRepaint.clear();
             const Rectangle<int> totalArea (originalRepaintRegion.getBounds());
 
@@ -1864,7 +1862,7 @@ private:
 
                 startTimer (repaintTimerPeriod);
 
-                RectangleList adjustedList (originalRepaintRegion);
+                RectangleList<int> adjustedList (originalRepaintRegion);
                 adjustedList.offsetAll (-totalArea.getX(), -totalArea.getY());
 
                 if (peer.depth == 32)
@@ -1876,9 +1874,6 @@ private:
                                                                       .createGraphicsContext (image, -totalArea.getPosition(), adjustedList));
                     peer.handlePaint (*context);
                 }
-
-                if (! peer.maskedRegion.isEmpty())
-                    originalRepaintRegion.subtract (peer.maskedRegion);
 
                 for (const Rectangle<int>* i = originalRepaintRegion.begin(), * const e = originalRepaintRegion.end(); i != e; ++i)
                 {
@@ -1907,7 +1902,7 @@ private:
         LinuxComponentPeer& peer;
         Image image;
         uint32 lastTimeImageUsed;
-        RectangleList regionsNeedingRepaint;
+        RectangleList<int> regionsNeedingRepaint;
 
        #if JUCE_USE_XSHM
         bool useARGBImagesForRendering;
@@ -2920,9 +2915,9 @@ bool Process::isForegroundProcess()
     return LinuxComponentPeer::isActiveApplication;
 }
 
-void Process::makeForegroundProcess()
-{
-}
+// N/A on Linux as far as I know.
+void Process::makeForegroundProcess() {}
+void Process::hide() {}
 
 //==============================================================================
 void ModifierKeys::updateCurrentModifiers() noexcept

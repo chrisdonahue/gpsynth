@@ -1,20 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated file created by the Jucer!
-
-  Creation date:  29 May 2013 10:43:57pm
+  This is an automatically generated GUI class created by the Introjucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Jucer version: 1.12
+  Created with Introjucer version: 3.1.0
 
   ------------------------------------------------------------------------------
 
-  The Jucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-6 by Raw Material Software ltd.
+  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
+  Copyright 2004-13 by Raw Material Software Ltd.
 
   ==============================================================================
 */
@@ -30,133 +28,128 @@
 
 //==============================================================================
 GeneticProgrammingSynthesizerComponent::GeneticProgrammingSynthesizerComponent ()
-    : fitness (0),
-      algonum (0),
-      title (0),
-      algolabel (0),
-      fitlabel (0),
-      gasetlabel (0),
-      playsetlabel (0),
-      gain (0),
-      gainlabel (0),
-      save (0),
-      logo (0),
-      load (0),
-      RHSlabel (0),
-      nextgen (0),
-      prevgen (0)
 {
-    addAndMakeVisible (fitness = new Slider (L"fitness"));
+    addAndMakeVisible (fitness = new Slider ("fitness"));
     fitness->setRange (0, 1, 0.01);
     fitness->setSliderStyle (Slider::LinearHorizontal);
     fitness->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     fitness->addListener (this);
 
-    addAndMakeVisible (algonum = new Slider (L"algonum"));
+    addAndMakeVisible (algonum = new Slider ("algonum"));
     algonum->setRange (0, 9, 1);
     algonum->setSliderStyle (Slider::LinearHorizontal);
     algonum->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     algonum->addListener (this);
 
-    addAndMakeVisible (title = new Label (L"title",
-                                          L"evosynth"));
-    title->setFont (Font (45.0000f, Font::plain));
+    addAndMakeVisible (title = new Label ("title",
+                                          "evosynth"));
+    title->setFont (Font (45.00f, Font::plain));
     title->setJustificationType (Justification::centred);
     title->setEditable (false, false, false);
     title->setColour (Label::textColourId, Colour (0xff4a9a2d));
     title->setColour (TextEditor::textColourId, Colours::black);
-    title->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    title->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (algolabel = new Label (L"algolabel",
-                                              L"algorithm"));
-    algolabel->setFont (Font (12.0000f, Font::plain));
+    addAndMakeVisible (algolabel = new Label ("algolabel",
+                                              "algorithm"));
+    algolabel->setFont (Font (12.00f, Font::plain));
     algolabel->setJustificationType (Justification::centredLeft);
     algolabel->setEditable (false, false, false);
     algolabel->setColour (Label::textColourId, Colour (0xff637fe8));
     algolabel->setColour (TextEditor::textColourId, Colours::black);
-    algolabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    algolabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (fitlabel = new Label (L"fitlabel",
-                                             L"fitness"));
-    fitlabel->setFont (Font (12.0000f, Font::plain));
+    addAndMakeVisible (fitlabel = new Label ("fitlabel",
+                                             "fitness"));
+    fitlabel->setFont (Font (12.00f, Font::plain));
     fitlabel->setJustificationType (Justification::centred);
     fitlabel->setEditable (false, false, false);
     fitlabel->setColour (Label::textColourId, Colour (0xff637fe8));
     fitlabel->setColour (TextEditor::textColourId, Colours::black);
-    fitlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    fitlabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (gasetlabel = new Label (L"gasetlabel",
-                                               L"genetic algorithm settings"));
-    gasetlabel->setFont (Font (15.0000f, Font::plain));
+    addAndMakeVisible (gasetlabel = new Label ("gasetlabel",
+                                               "genetic algorithm settings"));
+    gasetlabel->setFont (Font (15.00f, Font::plain));
     gasetlabel->setJustificationType (Justification::centred);
     gasetlabel->setEditable (false, false, false);
     gasetlabel->setColour (Label::textColourId, Colours::white);
     gasetlabel->setColour (TextEditor::textColourId, Colours::black);
-    gasetlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    gasetlabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (playsetlabel = new Label (L"playsetlabel",
-                                                 L"playback settings"));
-    playsetlabel->setFont (Font (15.0000f, Font::plain));
+    addAndMakeVisible (playsetlabel = new Label ("playsetlabel",
+                                                 "playback settings"));
+    playsetlabel->setFont (Font (15.00f, Font::plain));
     playsetlabel->setJustificationType (Justification::centred);
     playsetlabel->setEditable (false, false, false);
     playsetlabel->setColour (Label::textColourId, Colours::white);
     playsetlabel->setColour (TextEditor::textColourId, Colours::black);
-    playsetlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    playsetlabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (gain = new Slider (L"gain"));
+    addAndMakeVisible (gain = new Slider ("gain"));
     gain->setRange (0, 1, 0.01);
     gain->setSliderStyle (Slider::LinearHorizontal);
     gain->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     gain->addListener (this);
 
-    addAndMakeVisible (gainlabel = new Label (L"gainlabel",
-                                              L"gain"));
-    gainlabel->setFont (Font (12.0000f, Font::plain));
+    addAndMakeVisible (gainlabel = new Label ("gainlabel",
+                                              "gain"));
+    gainlabel->setFont (Font (12.00f, Font::plain));
     gainlabel->setJustificationType (Justification::centredLeft);
     gainlabel->setEditable (false, false, false);
     gainlabel->setColour (Label::textColourId, Colour (0xff637fe8));
     gainlabel->setColour (TextEditor::textColourId, Colours::black);
-    gainlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    gainlabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (save = new TextButton (L"save"));
-    save->setButtonText (L"save algorithm");
+    addAndMakeVisible (save = new TextButton ("save"));
+    save->setButtonText ("save algorithm");
     save->addListener (this);
     save->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
     save->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
 
-    addAndMakeVisible (logo = new ImageButton (L"logo"));
+    addAndMakeVisible (logo = new ImageButton ("logo"));
     logo->setButtonText (String::empty);
 
     logo->setImages (false, true, true,
-                     ImageCache::getFromMemory (sine_png, sine_pngSize), 1.0000f, Colour (0x0),
-                     Image(), 1.0000f, Colour (0x0),
-                     Image(), 1.0000f, Colour (0x0));
-    addAndMakeVisible (load = new TextButton (L"load"));
-    load->setButtonText (L"load algorithm");
+                     ImageCache::getFromMemory (sine_png, sine_pngSize), 1.000f, Colour (0x00000000),
+                     Image(), 1.000f, Colour (0x00000000),
+                     Image(), 1.000f, Colour (0x00000000));
+    addAndMakeVisible (load = new TextButton ("load"));
+    load->setButtonText ("load algorithm");
     load->addListener (this);
     load->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
     load->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
 
-    addAndMakeVisible (RHSlabel = new Label (L"RHSlabel",
-                                             L"\xa9 2013 radio hunches software"));
-    RHSlabel->setFont (Font (10.0000f, Font::plain));
-    RHSlabel->setJustificationType (Justification::centredLeft);
+    addAndMakeVisible (RHSlabel = new Label ("RHSlabel",
+                                             CharPointer_UTF8 ("\xc2\xa9 2013 chris donahue")));
+    RHSlabel->setFont (Font (10.00f, Font::plain));
+    RHSlabel->setJustificationType (Justification::centred);
     RHSlabel->setEditable (false, false, false);
     RHSlabel->setColour (Label::textColourId, Colours::white);
     RHSlabel->setColour (TextEditor::textColourId, Colours::black);
-    RHSlabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    RHSlabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (nextgen = new TextButton (L"nextgen"));
-    nextgen->setButtonText (L"next generation >>");
+    addAndMakeVisible (nextgen = new TextButton ("nextgen"));
+    nextgen->setButtonText ("next generation >>");
     nextgen->addListener (this);
     nextgen->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
     nextgen->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
 
-    addAndMakeVisible (prevgen = new TextButton (L"prevgen"));
-    prevgen->setButtonText (L"<< prev generation");
+    addAndMakeVisible (prevgen = new TextButton ("prevgen"));
+    prevgen->setButtonText ("<< prev generation");
     prevgen->addListener (this);
     prevgen->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
     prevgen->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
+
+    addAndMakeVisible (edit = new TextButton ("edit"));
+    edit->addListener (this);
+    edit->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
+    edit->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
+
+    addAndMakeVisible (random = new TextButton ("random"));
+    random->addListener (this);
+    random->setColour (TextButton::buttonColourId, Colour (0xff7575e8));
+    random->setColour (TextButton::buttonOnColourId, Colour (0xff0606e6));
 
 
     //[UserPreSize]
@@ -177,21 +170,23 @@ GeneticProgrammingSynthesizerComponent::~GeneticProgrammingSynthesizerComponent(
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    deleteAndZero (fitness);
-    deleteAndZero (algonum);
-    deleteAndZero (title);
-    deleteAndZero (algolabel);
-    deleteAndZero (fitlabel);
-    deleteAndZero (gasetlabel);
-    deleteAndZero (playsetlabel);
-    deleteAndZero (gain);
-    deleteAndZero (gainlabel);
-    deleteAndZero (save);
-    deleteAndZero (logo);
-    deleteAndZero (load);
-    deleteAndZero (RHSlabel);
-    deleteAndZero (nextgen);
-    deleteAndZero (prevgen);
+    fitness = nullptr;
+    algonum = nullptr;
+    title = nullptr;
+    algolabel = nullptr;
+    fitlabel = nullptr;
+    gasetlabel = nullptr;
+    playsetlabel = nullptr;
+    gain = nullptr;
+    gainlabel = nullptr;
+    save = nullptr;
+    logo = nullptr;
+    load = nullptr;
+    RHSlabel = nullptr;
+    nextgen = nullptr;
+    prevgen = nullptr;
+    edit = nullptr;
+    random = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -213,7 +208,7 @@ void GeneticProgrammingSynthesizerComponent::paint (Graphics& g)
 void GeneticProgrammingSynthesizerComponent::resized()
 {
     fitness->setBounds (80, 170, 300, 24);
-    algonum->setBounds (80, 140, 300, 24);
+    algonum->setBounds (80, 140, 160, 24);
     title->setBounds (112, 50, 176, 46);
     algolabel->setBounds (6, 140, 68, 24);
     fitlabel->setBounds (10, 168, 64, 24);
@@ -224,9 +219,11 @@ void GeneticProgrammingSynthesizerComponent::resized()
     save->setBounds (25, 300, 150, 24);
     logo->setBounds (0, 5, 400, 40);
     load->setBounds (25, 335, 150, 24);
-    RHSlabel->setBounds (258, 378, 146, 25);
+    RHSlabel->setBounds (270, 370, 120, 25);
     nextgen->setBounds (225, 300, 150, 24);
     prevgen->setBounds (225, 335, 150, 24);
+    edit->setBounds (240, 140, 50, 24);
+    random->setBounds (300, 140, 70, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -285,6 +282,16 @@ void GeneticProgrammingSynthesizerComponent::buttonClicked (Button* buttonThatWa
         //[UserButtonCode_prevgen] -- add your button handler code here..
         //[/UserButtonCode_prevgen]
     }
+    else if (buttonThatWasClicked == edit)
+    {
+        //[UserButtonCode_edit] -- add your button handler code here..
+        //[/UserButtonCode_edit]
+    }
+    else if (buttonThatWasClicked == random)
+    {
+        //[UserButtonCode_random] -- add your button handler code here..
+        //[/UserButtonCode_random]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -308,6 +315,8 @@ void GeneticProgrammingSynthesizerComponent::getSliders(std::map<String, Slider*
 }
 
 void GeneticProgrammingSynthesizerComponent::getButtons(std::map<String, Button*>& buttons) {
+	buttons["edit"] = edit;
+	buttons["random"] = random;
 	buttons["save"] = save;
 	buttons["load"] = load;
 	buttons["prevgen"] = prevgen;
@@ -318,16 +327,17 @@ void GeneticProgrammingSynthesizerComponent::getButtons(std::map<String, Button*
 
 //==============================================================================
 #if 0
-/*  -- Jucer information section --
+/*  -- Introjucer information section --
 
-    This is where the Jucer puts all of its metadata, so don't change anything in here!
+    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GeneticProgrammingSynthesizerComponent"
                  componentName="" parentClasses="public Component" constructorParams=""
-                 variableInitialisers="" snapPixels="2" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330000013" fixedSize="0" initialWidth="400"
+                 variableInitialisers="" snapPixels="10" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330000013" fixedSize="1" initialWidth="400"
                  initialHeight="400">
   <BACKGROUND backgroundColour="ff000000"/>
   <SLIDER name="fitness" id="16a1b0db54c88216" memberName="fitness" virtualName=""
@@ -335,7 +345,7 @@ BEGIN_JUCER_METADATA
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
   <SLIDER name="algonum" id="58d24870e11eeb51" memberName="algonum" virtualName=""
-          explicitFocusOrder="0" pos="80 140 300 24" min="0" max="9" int="1"
+          explicitFocusOrder="0" pos="80 140 160 24" min="0" max="9" int="1"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="40" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="title" id="64fb69a603b235c5" memberName="title" virtualName=""
@@ -386,10 +396,10 @@ BEGIN_JUCER_METADATA
               bgColOn="ff0606e6" buttonText="load algorithm" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="RHSlabel" id="c93e434e2bed1556" memberName="RHSlabel" virtualName=""
-         explicitFocusOrder="0" pos="258 378 146 25" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="&#169; 2013 radio hunches software"
+         explicitFocusOrder="0" pos="270 370 120 25" textCol="ffffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="&#169; 2013 chris donahue"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="10" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="10" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="nextgen" id="b9b03db880bd4c49" memberName="nextgen" virtualName=""
               explicitFocusOrder="0" pos="225 300 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="next generation &gt;&gt;" connectedEdges="0"
@@ -398,6 +408,14 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="225 335 150 24" bgColOff="ff7575e8"
               bgColOn="ff0606e6" buttonText="&lt;&lt; prev generation" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="edit" id="904d34af933ba0e1" memberName="edit" virtualName=""
+              explicitFocusOrder="0" pos="240 140 50 24" bgColOff="ff7575e8"
+              bgColOn="ff0606e6" buttonText="edit" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
+  <TEXTBUTTON name="random" id="bb3211ca95fe4fb6" memberName="random" virtualName=""
+              explicitFocusOrder="0" pos="300 140 70 24" bgColOff="ff7575e8"
+              bgColOn="ff0606e6" buttonText="random" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -407,7 +425,7 @@ END_JUCER_METADATA
 //==============================================================================
 // Binary resources - be careful not to edit any of these sections!
 
-// JUCER_RESOURCE: sine_png, 11683, "C:/Dropbox/UT/MUS329J/Assignments/Final Project/Cabbage/sine.png"
+// JUCER_RESOURCE: sine_png, 11683, "../../Builds/VisualStudio2010/sine.png"
 static const unsigned char resource_GeneticProgrammingSynthesizerComponent_sine_png[] = { 137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,2,88,0,0,0,50,8,6,0,0,0,128,150,165,201,0,0,0,44,116,69,88,116,
 67,114,101,97,116,105,111,110,32,84,105,109,101,0,87,101,100,32,49,50,32,68,101,99,32,50,48,49,50,32,50,48,58,52,54,58,52,51,32,45,48,54,48,48,94,56,143,144,0,0,0,7,116,73,77,69,7,220,12,13,2,58,31,53,
 151,68,202,0,0,0,9,112,72,89,115,0,0,11,18,0,0,11,18,1,210,221,126,252,0,0,0,4,103,65,77,65,0,0,177,143,11,252,97,5,0,0,44,250,73,68,65,84,120,218,237,93,7,156,21,213,245,62,179,13,65,64,236,6,29,99,44,
@@ -619,7 +637,6 @@ static const unsigned char resource_GeneticProgrammingSynthesizerComponent_sine_
 
 const char* GeneticProgrammingSynthesizerComponent::sine_png = (const char*) resource_GeneticProgrammingSynthesizerComponent_sine_png;
 const int GeneticProgrammingSynthesizerComponent::sine_pngSize = 11683;
-
 
 
 //[EndFile] You can add extra defines here...
