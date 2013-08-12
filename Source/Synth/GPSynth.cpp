@@ -212,6 +212,31 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 	std::sort(networks.begin(), networks.end(), compareNetworksByID);
 }
 
+int GPSynth::assignFitness(GPNetwork* net, double fitness) {
+    // assign network fitness and move it to evaluated
+    net->fitness = fitness;
+    unevaluated.erase(net);
+    evaluated.insert(net);
+    rawFitnesses[net->ID % populationSize] = fitness;
+
+    // print if verbose
+    if (params->verbose) {
+        std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
+    }
+
+    // calculate num remaining and print summary if generation is done
+    int numStillNeedingEvaluation = populationSize - evaluated.size();
+    if (numStillNeedingEvaluation == 0) {
+        endGeneration();
+        printGenerationSummary();
+    }
+    return numStillNeedingEvaluation;
+}
+
+GPNetwork* GPSynth::growNewIndividual(unsigned maxHeight) {
+	return grow(maxHeight);
+}
+
 bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 	// check if old is already evaluated
 	if (evaluated.find(old) != evaluated.end()) {
@@ -262,27 +287,6 @@ bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 
 	// replacement successful
 	return true;
-}
-
-int GPSynth::assignFitness(GPNetwork* net, double fitness) {
-    // assign network fitness and move it to evaluated
-    net->fitness = fitness;
-    unevaluated.erase(net);
-    evaluated.insert(net);
-    rawFitnesses[net->ID % populationSize] = fitness;
-
-    // print if verbose
-    if (params->verbose) {
-        std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
-    }
-
-    // calculate num remaining and print summary if generation is done
-    int numStillNeedingEvaluation = populationSize - evaluated.size();
-    if (numStillNeedingEvaluation == 0) {
-        endGeneration();
-        printGenerationSummary();
-    }
-    return numStillNeedingEvaluation;
 }
 
 int GPSynth::prevGeneration() {

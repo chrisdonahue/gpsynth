@@ -15,6 +15,7 @@ GeneticProgrammingSynthesizerAudioProcessorEditor::GeneticProgrammingSynthesizer
     : AudioProcessorEditor (ownerFilter),
 	  mainEditor(),
       //midiKeyboard (ownerFilter->keyboardState, MidiKeyboardComponent::horizontalKeyboard),
+	  networkEditor(nullptr),
 	  sliders(), buttons()
 {
 	// add main component
@@ -135,6 +136,10 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::timerCallback()
 // This is our Slider::Listener callback, when the user drags a slider.
 void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
+	if (networkEditor != nullptr) {
+		return;
+	}
+
 	// verified sliders are working here
     if (slider == sliders["algorithm"])
     {
@@ -163,9 +168,21 @@ void GeneticProgrammingSynthesizerAudioProcessorEditor::sliderValueChanged (Slid
 
 void GeneticProgrammingSynthesizerAudioProcessorEditor::buttonClicked (Button* button)
 {
+	if (networkEditor != nullptr) {
+		return;
+	}
+
 	if (button == buttons["edit"]) {
 		GPNetwork* network = getProcessor()->getCurrentNetwork();
-
+		GPNetworkDisplayComponent* networkComponent = new GPNetworkDisplayComponent();
+		DocumentWindow* networkWindow = new DocumentWindow(
+					"Edit Network",
+					Colours::black,
+					DocumentWindow::allButtons,
+					true);
+		networkWindow->setContentComponent(networkComponent, true, true);
+		networkWindow->setVisible(true);
+		delete networkWindow;
 	}
 	else if (button == buttons["random"]) {
 		getProcessor()->randomizeCurrentNetwork();

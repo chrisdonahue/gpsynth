@@ -14,6 +14,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "GPPluginProcessor.h"
 #include "GPPluginEditorComponent.h"
+#include "GPNetworkDisplayComponent.h"
 #include <map>
 
 class GeneticProgrammingSynthesizerComponent;
@@ -55,6 +56,7 @@ private:
     }
 
 	// CUSTOM
+	GPNetworkDisplayComponent* networkEditor;
 	std::map<String, Slider*> sliders;
 	std::map<String, Button*> buttons;
 

@@ -663,7 +663,19 @@ GPNetwork* GeneticProgrammingSynthesizerAudioProcessor::getCurrentNetwork() {
 	return NULL;
 }
 void GeneticProgrammingSynthesizerAudioProcessor::randomizeCurrentNetwork() {
-	return;
+	GPNetwork* nu = gpsynth->growNewIndividual(params->maxInitialHeight);
+	if (gpsynth->replaceIndividual(currentAlgorithm, nu)) {
+		currentGeneration[algorithm] = nu;
+		fitnesses[algorithm] = 0.0f;
+		for (unsigned j = 0; j < numSynthVoicesPerAlgorithm; j++) {
+			delete currentGenerationCopies[algorithm][j];
+			GPNetwork* copy = nu->getCopy("clone");
+			copy->ID = j;
+			copy->traceNetwork();
+			currentGenerationCopies[algorithm][j] = copy;
+		}
+		setAlgorithm();
+	}
 }
 
 void GeneticProgrammingSynthesizerAudioProcessor::saveCurrentNetwork() {

@@ -29,8 +29,9 @@ public:
     // EVOLUTION CONTROL
     GPNetwork* getIndividual();
     void getIndividuals(std::vector<GPNetwork*>& networks);
-	bool replaceIndividual(GPNetwork* old, GPNetwork* nu);
     int assignFitness(GPNetwork* net, double fitness);
+	GPNetwork* growNewIndividual(unsigned maxHeight);
+	bool replaceIndividual(GPNetwork* old, GPNetwork* nu);
     int prevGeneration();
     void endGeneration();
     void printGenerationDelim();

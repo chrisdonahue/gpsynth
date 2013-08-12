@@ -51,6 +51,7 @@ GPNetworkDisplayComponent::GPNetworkDisplayComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
+	slidersComponent = new GPNetworkSlidersComponent();
     //[/Constructor]
 }
 
@@ -64,6 +65,7 @@ GPNetworkDisplayComponent::~GPNetworkDisplayComponent()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+	delete slidersComponent;
     //[/Destructor]
 }
 
@@ -90,6 +92,9 @@ void GPNetworkDisplayComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void GPNetworkDisplayComponent::setNetwork(GPNetwork* network) {
+	slidersComponent->setNetwork(network);
+}
 //[/MiscUserCode]
 
 
