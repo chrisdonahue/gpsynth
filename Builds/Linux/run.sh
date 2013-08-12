@@ -11,7 +11,6 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --target ./samples/TrumpetEb5.wav\
   --path ./\
   --seed 0\
-  --ffmagweight 1.0\
   --values 622.25\
   --expinfo\
   SHARED PARAMS\
@@ -20,9 +19,9 @@ valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt"
   --printprecision 3\
   EXPERIMENT PARAMS\
   --experiment 1\
-  --suboptimizetype 0\
+  --suboptimizetype 1\
   --fitnesstype 1\
-  --generations 2\
+  --generations 1\
   --threshold 0.1\
   --erc\
   AUXILIARY EXPERIMENT PARAMS\
