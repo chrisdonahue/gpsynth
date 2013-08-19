@@ -1,35 +1,34 @@
-#ifndef GPPARAMS_H
-#define GPPARAMS_H
+#ifndef GPSYNTHPARAMS_H
+#define GPSYNTHPARAMS_H
 
-#include "GPRandom.h"
-
-struct GPParams {
+struct GPSynthParams {
     // synth evolution parameters
-    unsigned populationSize;
-    bool backupAllNetworks;
-    unsigned backupPrecision;
-    unsigned maxInitialHeight;
-    unsigned maxHeight;
+    unsigned population_size;
+    bool backup_all_networks;
+    unsigned max_initial_height;
+    unsigned max_height;
+    bool erc;
 
     // synth genetic parameters
-    double proportionOfPopulationForGreedySelection;
     // numeric mutation
-    unsigned numericMutationSelectionType;
-    double proportionOfPopulationFromNumericMutation;
-    double percentileOfPopulationToSelectFromForNumericMutation;
-    double numericMutationTemperatureConstant;
+    double nm_proportion;
+    double nm_temperature;
+    unsigned nm_selection_type;
+    double nm_selection_percentile;
     // mutation
-    unsigned mutationSelectionType;
-    unsigned mutationType;
-    double proportionOfPopulationFromMutation;
-    double percentileOfPopulationToSelectFromForMutation;
+    double mu_proportion;
+    unsigned mu_type;
+    unsigned mu_selection_type;
+    double mu_selection_percentile;
     // crossover
-    unsigned crossoverSelectionType;
-    unsigned crossoverType;
-    double proportionOfPopulationFromCrossover;
+    double x_proportion;
+    unsigned x_type;
+    unsigned x_selection_type;
+    double x_selection_percentile;
     // reproduction
-    unsigned reproductionSelectionType;
-    double proportionOfPopulationFromReproduction;
+    double re_proportion;
+    unsigned re_selection_type;
+    double re_selection_percentile;
 };
 
 #endif

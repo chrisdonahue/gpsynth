@@ -12,7 +12,7 @@
 #define GPEXPERIMENT_H
 
 // Common GPSynth includes
-#include "../Common/GPParams.h"
+#include "../Common/GPMatchingExperimentParams.h"
 #include "../Common/GPParser.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/GPAudioUtil.h"

@@ -18,6 +18,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
+#include "../Common/GPSynthParams.h"
 #include "GPNetwork.h"
 
 class GPSynth {
