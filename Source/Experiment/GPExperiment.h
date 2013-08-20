@@ -42,7 +42,7 @@
 class GPExperiment {
 public:
     // CONSTUCTION
-    GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, unsigned numconstants, float* constants, bool* rq);
+    GPExperiment(bool sanity, GPSynth* synth, GPMatchingExperimentParams* params, unsigned seed, std::string target, std::string output_file_dir, std::vector<float>& constants);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
@@ -51,13 +51,13 @@ public:
 
 private:
     // EXPERIMENT PARAMETERS
-    GPParams* params;
+    GPMatchingExperimentParams* params;
     unsigned seed;
     String targetPath;
     String savePath;
     float fitnessThreshold;
     int numGenerations;
-    bool lowerFitnessIsBetter;
+    bool sanity;
 
     // TARGET DATA CONTAINERS
     // metadata

@@ -61,7 +61,8 @@ unsigned GPAudioUtil::calculateFftBufferSize(unsigned numFrames, unsigned n, uns
     return numFftCalls * ((n/2) + 1);
 }
 
-void GPAudioUtil::FftReal(kiss_fftr_cfg cfg, unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_scalar* in, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase) {
+void GPAudioUtil::FftReal(kiss_fftr_cfg cfg, unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_scalar* in, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase) {
+    float dBref = DBREF;
     unsigned fftOutputSize = (n/2 + 1);
     unsigned shift = n - overlap;
     int64 numCompleted = 0;
@@ -142,7 +143,7 @@ double GPAudioUtil::compareAmplitudesWeighted(unsigned numSamples, const float* 
 }
 
 double GPAudioUtil::compareSpectraWeighted(bool dBComparison, unsigned fftSize, unsigned overlap, unsigned numFrames, unsigned fftOutputBufferSize, kiss_fftr_cfg fftConfig, const float* candidateFrames, kiss_fft_scalar* candidateAmplitudeBuffer, kiss_fft_cpx* candidateSpectraBuffer, double* candidateMagnitudeBuffer, double* candidatePhaseBuffer, const float* window, double* targetSpectrumMagnitudes, double* targetSpectrumPhases, double* binUndershootingPenalty, double* binOvershootingPenalty, double* fftFrameWeight, double penalizeBadPhase, double magnitudeWeight, double phaseWeight) {
-    FftReal(fftConfig, numFrames, candidateFrames, fftSize, overlap, window, candidateAmplitudeBuffer, candidateSpectraBuffer, dBComparison, DBREF, candidateMagnitudeBuffer, candidatePhaseBuffer);
+    FftReal(fftConfig, numFrames, candidateFrames, fftSize, overlap, window, candidateAmplitudeBuffer, candidateSpectraBuffer, dBComparison, candidateMagnitudeBuffer, candidatePhaseBuffer);
 
     double magnitudeError = 0;
     double phaseError = 0;

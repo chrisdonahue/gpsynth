@@ -15,7 +15,6 @@ struct GPMatchingExperimentParams {
     unsigned aux_render_block_size;
 
     // experiment parameters
-    unsigned exp_number;
     unsigned exp_suboptimize_type;
     unsigned exp_generations;
     double exp_threshold;
@@ -34,9 +33,9 @@ struct GPMatchingExperimentParams {
     bool ff_weight_frames;
     double ff_weight_frames_exponent;
     double ff_phase_comparison_exponent;
+    double ff_mag_base_comparison;
     double ff_mag_good_comparison;
     double ff_mag_bad_comparison;
-    double ff_mag_base_comparison;
 };
 
 #endif

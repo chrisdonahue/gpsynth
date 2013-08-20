@@ -15,26 +15,48 @@ int main( int argc, const char* argv[] )
 {
     namespace po = boost::program_options;
 
-    // temp fields
-    std::string target;
-    std::string output_file_dir;
+    // command line container variables
+    std::string me_cfg_file_path;
+    std::string syn_cfg_file_path;
+    std::string target_file_path;
+    std::string output_dir_path;
     unsigned seed;
     std::vector<float> constants;
-    bool print_experiment_info;
 
-    // param structs
-    GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
-
-    po::options_description desc("Allowed options");
-    desc.add_options()
+    // parse command line
+    po::options_description cl_desc("Allowed options");
+    cl_desc.add_options()
         ("help", "display help message")
-        
-        ("output_dir", po::value<std::string>(&output_file_dir)->default_value("./"), "output file directory")
-        ("exp_info", po::value<bool>(&print_experiment_info)->default_value(false), "print info about experiment environment")
-        ("target", po::value<std::string>(&target), "target wav file")
-        ("constants", po::value<std::vector<float> >(&constants), "special constant values that synthesis algorithms can use")
+        ("sys_info", "print info about machine")
+        ("sanity", "run a sanity test of GP library")
+        ("me_cfg", po::value<std::string>(&me_cfg_file_path), "target wav file")
+        ("syn_cfg", po::value<std::string>(&syn_cfg_file_path), "target wav file")
+        ("target", po::value<std::string>(&target_file_path), "target wav file")
+        ("output_dir", po::value<std::string>(&output_dir_path)->default_value("./"), "output file directory")
         ("seed", po::value<unsigned>(&seed)->default_value(time(NULL)), "experiment seed number")
+        ("constants", po::value<std::vector<float> >(&constants), "special constant values that synthesis algorithms can use")
+    ;
+    po::variables_map cl_vm;
+    po::store(po::parse_command_line(argc, argv, cl_desc), cl_vm);
+    po::notify(cl_vm);
 
+    // execute command
+    if (cl_vm.count("help")) {
+        std::cout << cl_desc << std::endl;
+        return 1;
+    }
+    if (cl_vm.count("sanity")) {
+        std::cout << "loller" << std::endl;
+    }
+    if (cl_vm.count("sys_info")) {
+        std::cout << "lol" << std::endl;
+    }
+
+    // declare matching experiments desc
+    GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
+    std::string window_type;
+    po::options_description me_desc("");
+    me_desc.add_options()
         ("log_save_precision", po::value<unsigned>(&(me_params->log_save_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
         ("log_print_precision", po::value<unsigned>(&(me_params->log_print_precision))->default_value(3), "precision for text-logging synthesis algorithms")
         ("log_save_gen_champ_audio", po::value<bool>(&(me_params->log_save_gen_champ_audio))->default_value(false), "save rendered audio of the champion from each generation")
@@ -45,87 +67,42 @@ int main( int argc, const char* argv[] )
         ("aux_wav_file_buffer_size", po::value<unsigned>(&(me_params->aux_wav_file_buffer_size))->default_value(512), "buffer size for wav file IO")
         ("aux_render_block_size", po::value<unsigned>(&(me_params->aux_render_block_size))->default_value(512), "chunk size for rendering synthesis algorithms")
  
-        ("exp_number", po::value<unsigned>(&(me_params->exp_number))->default_value(1), "which experiment to run")
-        ("exp_suboptimize_type", po::value<unsigned>(), "which type of suboptimization to perform")
-        ("exp_generations", po::value<unsigned>(), "maximum number of generations to evaluate")
-        ("exp_threshold", po::value<float>(), "fitness to reach to terminate evolution")
+        ("exp_suboptimize_type", po::value<unsigned>(&(me_params->exp_suboptimize_type))->default_value(0), "which type of suboptimization to perform")
+        ("exp_generations", po::value<unsigned>(&(me_params->exp_generations))->default_value(10), "maximum number of generations to evaluate")
+        ("exp_threshold", po::value<double>(&(me_params->exp_threshold))->default_value(0.0f), "fitness to reach to terminate evolution")
 
-        ("ff_type", po::value<unsigned>(), "which fitness function to use")
-        ("ff_spectrum_mag_weight", po::value<float>(), "weight multiplier for spectrum magnitudes in fitness function")
-        ("ff_spectrum_phase_weight", po::value<float>(), "weight multiplier for spectrum phases in fitness function")
+        ("ff_type", po::value<unsigned>(&(me_params->ff_type))->default_value(1), "which fitness function to use")
+        ("ff_spectrum_mag_weight", po::value<double>(&(me_params->ff_spectrum_mag_weight))->default_value(1.0f), "weight multiplier for spectrum magnitudes in fitness function")
+        ("ff_spectrum_phase_weight", po::value<double>(&(me_params->ff_spectrum_phase_weight))->default_value(1.0f), "weight multiplier for spectrum phases in fitness function")
         
-        ("ff_fft_window", po::value<std::string>(), "fft window type")
-        ("ff_fft_size", po::value<unsigned>(), "fft size")
-        ("ff_fft_overlap", po::value<unsigned>(), "fft overlap")
+        ("ff_fft_window", po::value<std::string>(&window_type)->default_value("rect"), "fft window type")
+        ("ff_fft_size", po::value<unsigned>(&(me_params->ff_fft_size))->default_value(1024), "fft size")
+        ("ff_fft_overlap", po::value<unsigned>(&(me_params->ff_fft_overlap))->default_value(0), "fft overlap")
 
-        ("ff_moving_average_type", po::value<unsigned>(), "type of moving average to use for fitness function comparison")
-        ("ff_moving_average_past_radius", po::value<unsigned>(), "# of feedback samples for moving average filter")
-        ("ff_moving_average_future_radius", po::value<unsigned>(), "# of feedforward samples for moving average filter")
-        ("ff_moving_average_exponential_alpha", po::value<double>(), "importance of successive samples in the moving average")
-        ("ff_weight_frames", po::value<bool>(), "weight importance of target frames in comparison")
-        ("ff_weight_frames_exponent", po::value<double>(), "exponent for target frames weighting")
-
-        ("ff_phase_comparison_exponent", po::value<double>(), "exponent for penalizing bad phase")
-        ("ff_mag_good_comparison", po::value<double>(), "penalty bonus for comparing bins which are on the correct side of the moving average")
-        ("ff_mag_bad_comparison", po::value<double>(), "penalty bonus for comparing bins which are on the incorrect side of the moving average")
-        ("ff_mag_base_comparison", po::value<double>(), "penalty for comparing magnitudes of bins in each frame")
+        ("ff_moving_average_type", po::value<unsigned>(&(me_params->ff_moving_average_type))->default_value(0), "type of moving average to use for fitness function comparison")
+        ("ff_moving_average_past_radius", po::value<unsigned>(&(me_params->ff_moving_average_past_radius))->default_value(40), "# of feedback samples for moving average filter")
+        ("ff_moving_average_future_radius", po::value<unsigned>(&(me_params->ff_moving_average_future_radius))->default_value(40), "# of feedforward samples for moving average filter")
+        ("ff_moving_average_exponential_alpha", po::value<double>(&(me_params->ff_moving_average_exponential_alpha))->default_value(0.95), "importance of successive samples in the moving average")
+        ("ff_weight_frames", po::value<bool>(&(me_params->ff_weight_frames))->default_value(false), "weight importance of target frames in comparison")
+        ("ff_weight_frames_exponent", po::value<double>(&(me_params->ff_weight_frames_exponent))->default_value(1.0f), "exponent for target frames weighting")
+        ("ff_phase_comparison_exponent", po::value<double>(&(me_params->ff_phase_comparison_exponent))->default_value(1.0f), "exponent for penalizing bad phase")
+        ("ff_mag_base_comparison", po::value<double>(&(me_params->ff_mag_base_comparison))->default_value(1.0f), "penalty for comparing magnitudes of bins in each frame")
+        ("ff_mag_good_comparison", po::value<double>(&(me_params->ff_mag_good_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the correct side of the moving average")
+        ("ff_mag_bad_comparison", po::value<double>(&(me_params->ff_mag_bad_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the incorrect side of the moving average")
     ;
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+    // parse config file
+    std::ifstream me_cfg_file;
+    me_cfg_file.open(me_cfg_file_path.c_str());
+    po::variables_map me_vm;
+    po::store(po::parse_config_file(me_cfg_file, me_desc, true), me_vm);
+    po::notify(me_vm);
+    me_cfg_file.close();
 
-    if (vm.count("help")) {
-        std::cout << desc << std::endl;
-        return 1;
+    if (me_vm.count("ff_fft_window")) {
+        strncpy(me_params->ff_fft_window, window_type.c_str(), 5);
     }
-
 }
-
-void printImportantExperimentInfo() {
-    // PRINT COMP INFORMATION TO ERROR LOG
-    time_t now = time(0);
-    struct tm tstruct;
-    char buff[200];
-    tstruct = *localtime(&now);
-    strftime(buff, sizeof(buff), "Date run: %m.%d.%Y\nTime run: %H.%M.%S\n", &tstruct);
-
-    // PRINT TIME/DATE
-    std::cerr << buff;
-
-    // PRINT GITHUB COMMIT ID
-    FILE *gitid = popen("git rev-parse HEAD", "r");
-    char gitbuffer[200];
-    while (fgets(gitbuffer, sizeof(gitbuffer) - 1, gitid) != NULL) {
-        std::cerr << "Git commit ID: " << gitbuffer;
-    }
-    pclose(gitid);
-
-    // PRINT HOST INFO
-    FILE *hostname = popen("hostname", "r");
-    char hostbuffer[200];
-    while (fgets(hostbuffer, sizeof(hostbuffer) - 1, hostname) != NULL) {
-        std::cerr << "Host name: " << hostbuffer;
-    }
-    pclose(hostname);
-
-    // PRINT CPU INFO
-    FILE *lscpu = popen("lscpu", "r");
-    char lscpubuffer[1024];
-    while (fgets(lscpubuffer, sizeof(lscpubuffer) - 1, lscpu) != NULL) {
-        std::cerr << lscpubuffer;
-    }
-    pclose(lscpu);
-
-    // PRINT MEMORY INFO
-    FILE *meminfo = popen("grep \"Mem\" /proc/meminfo", "r");
-    char meminfobuffer[200];
-    while (fgets(meminfobuffer, sizeof(meminfobuffer) - 1, meminfo) != NULL) {
-        std::cerr << meminfobuffer;
-    }
-    pclose(meminfo);
-}
-
 
     //==============================================================================
 /*

@@ -16,6 +16,51 @@
     =========
 */
 
+void printImportantExperimentInfo() {
+    // PRINT COMP INFORMATION TO ERROR LOG
+    time_t now = time(0);
+    struct tm tstruct;
+    char buff[200];
+    tstruct = *localtime(&now);
+    strftime(buff, sizeof(buff), "Date run: %m.%d.%Y\nTime run: %H.%M.%S\n", &tstruct);
+
+    // PRINT TIME/DATE
+    std::cerr << buff;
+
+    // PRINT GITHUB COMMIT ID
+    FILE *gitid = popen("git rev-parse HEAD", "r");
+    char gitbuffer[200];
+    while (fgets(gitbuffer, sizeof(gitbuffer) - 1, gitid) != NULL) {
+        std::cerr << "Git commit ID: " << gitbuffer;
+    }
+    pclose(gitid);
+
+    // PRINT HOST INFO
+    FILE *hostname = popen("hostname", "r");
+    char hostbuffer[200];
+    while (fgets(hostbuffer, sizeof(hostbuffer) - 1, hostname) != NULL) {
+        std::cerr << "Host name: " << hostbuffer;
+    }
+    pclose(hostname);
+
+    // PRINT CPU INFO
+    FILE *lscpu = popen("lscpu", "r");
+    char lscpubuffer[1024];
+    while (fgets(lscpubuffer, sizeof(lscpubuffer) - 1, lscpu) != NULL) {
+        std::cerr << lscpubuffer;
+    }
+    pclose(lscpu);
+
+    // PRINT MEMORY INFO
+    FILE *meminfo = popen("grep \"Mem\" /proc/meminfo", "r");
+    char meminfobuffer[200];
+    while (fgets(meminfobuffer, sizeof(meminfobuffer) - 1, meminfo) != NULL) {
+        std::cerr << meminfobuffer;
+    }
+    pclose(meminfo);
+}
+
+
 // http://stackoverflow.com/a/236803
 std::vector<std::string> &split(const std::string &s, std::vector<std::string> &elems, const char* delims) {
     std::size_t prev = 0, pos;

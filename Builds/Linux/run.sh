@@ -2,8 +2,18 @@
 
 set -e
 
+# NEW CONFIG FILES
+./build/GPAudioTargetMatchingExperiment\
+    --sys_info \
+    --me_cfg ./cfg/me_default.cfg \
+    --syn_cfg ./cfg/syn_default.cfg \
+    --target ./samples/TrumpetEb5.wav \
+    --output_dir ./output \
+    --seed 0 \
+    --constants 622.25
+
 # LOCAL TRUMPET TEST
-#<<COMMENT
+<<COMMENT
 #gdb --args \
 #valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
@@ -69,7 +79,7 @@ set -e
   --crossover 0.8 --cselect 0 --ctype 0\
   --reproduction 0.1 --rselect 0
 #  > 2GenValgrind.txt
-#COMMENT
+COMMENT
 
 # SANITY TEST
 <<COMMENT

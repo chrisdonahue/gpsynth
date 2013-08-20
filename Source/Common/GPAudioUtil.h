@@ -24,7 +24,7 @@ namespace GPAudioUtil {
 
 	// FFT
 	extern unsigned calculateFftBufferSize(unsigned numFrames, unsigned n, unsigned o);
-    extern void FftReal(kiss_fftr_cfg cfg, unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_scalar* in, kiss_fft_cpx* out, bool dB, float dBref, double* magnitude, double* phase);
+    extern void FftReal(kiss_fftr_cfg cfg, unsigned numFrames, const float* input, unsigned n, unsigned overlap, const float* window, kiss_fft_scalar* in, kiss_fft_cpx* out, bool dB, double* magnitude, double* phase);
 
 	// COMPARISON
 	extern double compareAmplitudes(unsigned numSamples, const float* samplesOne, const float* samplesTwo);

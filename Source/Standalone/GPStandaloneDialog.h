@@ -1,7 +1,7 @@
 #ifndef __JUCE_STANDALONEFILTERWINDOW_JUCEHEADER__
 #define __JUCE_STANDALONEFILTERWINDOW_JUCEHEADER__
 
-#include "../Common/GPParams.h"
+#include "../Common/GPMatchingExperimentParams.h"
 #include "../Plugin/GPPluginProcessor.h"
 #include "../../JuceLibraryCode/JuceHeader.h"
 
