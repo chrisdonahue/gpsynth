@@ -3,14 +3,16 @@
 set -e
 
 # NEW CONFIG FILES
+#<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
     --sys_info \
     --me_cfg ./cfg/me_default.cfg \
-    --syn_cfg ./cfg/syn_default.cfg \
+    --synth_cfg ./cfg/synth_default.cfg \
     --target ./samples/TrumpetEb5.wav \
     --output_dir ./output \
     --seed 0 \
     --constants 622.25
+#COMMENT
 
 # LOCAL TRUMPET TEST
 <<COMMENT

@@ -24,7 +24,7 @@
 class GPSynth {
 public:
     // CONSTRUCTION
-    GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes);
+    GPSynth(GPSynthParams* p, GPRandom* r, std::vector<GPNode*>* nodes);
     ~GPSynth();
 
     // EVOLUTION CONTROL
@@ -66,7 +66,7 @@ private:
     void numericallyMutate(GPNetwork* one);
 
     // PRIVATE EVOLUTION STATE
-    GPParams* params;
+    GPSynthParams* params;
     GPRandom* rng;
     unsigned populationSize;
     int nextNetworkID;

@@ -4,10 +4,15 @@
 struct GPSynthParams {
     // synth evolution parameters
     unsigned population_size;
-    bool backup_all_networks;
     unsigned max_initial_height;
     unsigned max_height;
     bool erc;
+    bool backup_all_networks;
+    unsigned backup_precision;
+
+    // fitness landscape parameters
+    double best_possible_fitness;
+    bool lower_fitness_is_better;
 
     // synth genetic parameters
     // numeric mutation
