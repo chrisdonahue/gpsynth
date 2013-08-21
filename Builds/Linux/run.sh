@@ -8,6 +8,7 @@ set -e
     --sys_info \
     --me_cfg ./cfg/me_default.cfg \
     --synth_cfg ./cfg/synth_default.cfg \
+    --primitives ./cfg/primitives_default.cfg \
     --target ./samples/TrumpetEb5.wav \
     --output_dir ./output \
     --seed 0 \

@@ -64,15 +64,6 @@ GPExperiment::GPExperiment(bool sanity, GPSynth* synth, GPMatchingExperimentPara
             //currentPrimitives->push_back(createNode("(time)", &rng));
             //currentPrimitives->push_back(createNode("(switch (null) (null) (null))", &rng));
 
-            nodes->push_back(createNode("(+ (null) (null))", rng));
-            nodes->push_back(createNode("(* (null) (null))", rng));
-            nodes->push_back(createNode("(const {c -1.0 0.0 1.0})", rng));
-            nodes->push_back(createNode("(gain {c -1.0 0.0 1.0} (null))", rng));
-            nodes->push_back(createNode("(sinosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", rng));
-            nodes->push_back(createNode("(am {d 0 0 0} {d 1 1 10} {c 0 0 1.0} {c 0 0 1.0} (null))", rng));
-            nodes->push_back(createNode("(pm {d 0 0 0} {d 1 1 10} {c 0 1.0 5.0} (null))", rng));
-            nodes->push_back(createNode("(spline {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2})", rng));
-            nodes->push_back(createNode("(spline* {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2} (null))", rng));
         }
         */
     }
