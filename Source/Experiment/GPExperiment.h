@@ -1,26 +1,15 @@
-/*
-  ==============================================================================
-
-    GPExperiment.h
-    Created: 6 Feb 2013 11:05:21am
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
 // Common GPSynth includes
+#include "../Common/GPLogger.h"
 #include "../Common/GPMatchingExperimentParams.h"
-#include "../Common/GPParser.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/GPAudioUtil.h"
 #include "../Common/JUCEFileIO.h"
 
 // GPSynth includes
 #include "../Synth/GPNode.h"
-#include "../Synth/GPPrimitives.h"
 #include "../Synth/GPSynth.h"
 
 // JUCE include
@@ -37,12 +26,12 @@
 // other includes
 #include "../Dependencies/kissfft/kiss_fftr.h"
 #include <limits>
-#include <fstream>
 
 class GPExperiment {
 public:
-    // CONSTUCTION
-    GPExperiment(bool sanity, GPSynth* synth, GPMatchingExperimentParams* params, unsigned seed, std::string target, std::string output_file_dir, std::vector<float>& constants);
+    // CONSTRUCTION
+    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
+    GPExperiment(GPRandom* rng);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
@@ -50,14 +39,17 @@ public:
     double beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer);
 
 private:
+    bool is_sanity_test;
+
     // EXPERIMENT PARAMETERS
+    GPLogger* logger;
+    GPSynth* synth;
     GPMatchingExperimentParams* params;
     unsigned seed;
     String targetPath;
     String savePath;
     float fitnessThreshold;
     int numGenerations;
-    bool sanity;
 
     // TARGET DATA CONTAINERS
     // metadata
@@ -96,10 +88,6 @@ private:
     // EXPERIMENT STATE
     double minFitnessAchieved;
     int numEvaluatedGenerations;
-    bool* requestedQuit;
-
-    // SYNTH
-    GPSynth* synth;
 
     // FILL EVALUATION BUFFERS
     void fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues);

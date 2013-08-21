@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    GPSynth.h
-    Created: 6 Feb 2013 7:19:38pm
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef GPSYNTH_H
 #define GPSYNTH_H
 
@@ -24,7 +14,7 @@
 class GPSynth {
 public:
     // CONSTRUCTION
-    GPSynth(GPSynthParams* p, GPRandom* r, std::vector<GPNode*>* nodes);
+    GPSynth(GPLogger* logger, GPSynthParams* params, GPRandom* rng, std::vector<GPNode*>* primitives);
     ~GPSynth();
 
     // EVOLUTION CONTROL
@@ -82,7 +72,7 @@ private:
     std::vector<double*> continuousConvergenceVaryingTemperatures;
 
     // AVAILABLE CONTAINERS
-    std::vector<GPNode*>* availableNodes;
+    std::vector<GPNode*>* availablePrimitives;
     std::vector<GPNode*>* availableFunctions;
     std::vector<GPNode*>* availableTerminals;
 

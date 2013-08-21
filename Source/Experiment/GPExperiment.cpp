@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    GPExperiment.cpp
-    Created: 6 Feb 2013 11:05:21am
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "GPExperiment.h"
 
 /*
@@ -16,61 +6,39 @@
     ============
 */
 
-GPExperiment::GPExperiment(bool sanity, GPSynth* synth, GPMatchingExperimentParams* params, unsigned seed, std::string target, std::string output_file_dir, std::vector<float>& constants) :
-    sanity(sanity),
+GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
+    is_sanity_test(false),
+    logger(logger),
+    params(params), seed(logger->get_seed()),
     synth(synth),
-    params(params), seed(seed), targetPath(target), savePath(output_file_dir),
+    targetPath(target_file_path), savePath(output_dir_path),
     numConstantValues(constants.size()), constantValues(constants.data())
 {
-    // AUDIO SANITY TEST
-    if (sanity) {
-        GPRandom* rng = new GPRandom(seed);
-        sanityTest(rng);
-        delete rng;
-    }
+    // TARGET DATA CONTAINERS
+    getWavFileInfo(target_file_path, &numTargetFrames, &targetSampleRate);
+    targetNyquist = targetSampleRate / 2;
+    targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
+    loadWavFile(target_file_path, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
+    if (params->log_save_target_copy)
+        saveWavFile(savePath + String("target_copy.wav"), String(""), String("target"), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
 
-    // EXPERIMENT
-    else {
-        // TARGET DATA CONTAINERS
-        getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
-        targetNyquist = targetSampleRate / 2;
-        targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-        loadWavFile(target, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
-        if (params->log_save_target_copy)
-            saveWavFile(savePath + String("target_copy.wav"), String(""), String("target"), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
+    fillEvaluationBuffers(numConstantValues, constantValues, 0, NULL);
 
-        fillEvaluationBuffers(numConstantValues, constantValues, 0, NULL);
+    // EXPERIMENT STATE
+    numGenerations = params->exp_generations;
+    fitnessThreshold = params->exp_threshold;
+    minFitnessAchieved = INFINITY;
+    numEvaluatedGenerations = 0;
+}
 
-        // EXPERIMENT STATE
-        numGenerations = params->exp_generations;
-        fitnessThreshold = params->exp_threshold;
-        minFitnessAchieved = INFINITY;
-        numEvaluatedGenerations = 0;
-
-        // AVAILABLE SYNTH NODES
-        //std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-
-        // CURRENT DEFAULT EXPERIMENT
-        /*
-        if (params->experimentNumber == 1) {
-            // SUPPLY AVAILABLE NODES
-            //nodes->push_back(new NoiseNode(rng));
-            //nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-            //nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-            //currentPrimitives->push_back(createNode("(sawosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
-            //currentPrimitives->push_back(createNode("(squareosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
-            //currentPrimitives->push_back(createNode("(triangleosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
-            //currentPrimitives->push_back(createNode("(lfo* {c 0 0.0 20} (null))", &rng));
-            //currentPrimitives->push_back(createNode("(time)", &rng));
-            //currentPrimitives->push_back(createNode("(switch (null) (null) (null))", &rng));
-
-        }
-        */
-    }
+GPExperiment::GPExperiment(GPRandom* rng) :
+    is_sanity_test(true)
+{
+    sanityTest(rng);
 }
 
 GPExperiment::~GPExperiment() {
-    if (!sanity) {
+    if (!is_sanity_test) {
         free(targetFrames);
         //free(targetEnvelope);
         free(targetSampleTimes);
@@ -98,8 +66,7 @@ GPExperiment::~GPExperiment() {
 */
 
 GPNetwork* GPExperiment::evolve() {
-    // if we're sanity testing
-    if (sanity) {
+    if (is_sanity_test) {
         return NULL;
     }
 

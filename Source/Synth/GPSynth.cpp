@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    GPSynth.cpp
-    Created: 6 Feb 2013 7:19:38pm
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "GPSynth.h"
 
 /*
@@ -16,8 +6,9 @@
    ============
 */
 
-GPSynth::GPSynth(GPSynthParams* params, GPRandom* rng, std::vector<GPNode*>* nodes) :
-    params(params), rng(rng), availableNodes(nodes),
+GPSynth::GPSynth(GPLogger* logger, GPSynthParams* params, GPRandom* rng, std::vector<GPNode*>* primitives) :
+    logger(logger),
+    params(params), rng(rng), availablePrimitives(primitives),
     allNetworks(), unevaluated(), evaluated(), currentGeneration(),
     rawFitnesses(), normalizedFitnesses(), rank()
 {
@@ -36,12 +27,12 @@ GPSynth::GPSynth(GPSynthParams* params, GPRandom* rng, std::vector<GPNode*>* nod
     // categorize primitives
     availableFunctions = new std::vector<GPNode*>();
     availableTerminals = new std::vector<GPNode*>();
-    for (unsigned i = 0; i < availableNodes->size(); i++) {
-        if (availableNodes->at(i)->arity == 0) {
-            availableTerminals->push_back(nodes->at(i));
+    for (unsigned i = 0; i < availablePrimitives->size(); i++) {
+        if (availablePrimitives->at(i)->arity == 0) {
+            availableTerminals->push_back(availablePrimitives->at(i));
         }
         else {
-            availableFunctions->push_back(nodes->at(i));
+            availableFunctions->push_back(availablePrimitives->at(i));
         }
     }
     assert(availableFunctions->size() > 0 && availableTerminals->size() > 0);
@@ -62,11 +53,11 @@ GPSynth::~GPSynth() {
     for (unsigned i = 0; i < allNetworks.size(); i++) {
         delete allNetworks[i];
     }
-    for (unsigned i = 0; i < availableNodes->size(); i++) {
-        delete availableNodes->at(i);
+    for (unsigned i = 0; i < availablePrimitives->size(); i++) {
+        delete availablePrimitives->at(i);
     }
 	// TODO: maybe delete this elsewhere and pass by reference or something
-    delete availableNodes;
+    delete availablePrimitives;
     delete availableFunctions;
     delete availableTerminals;
     delete generationChamp;
@@ -102,7 +93,7 @@ GPNode* GPSynth::growRecursive(unsigned cd, unsigned m) {
             ret = availableFunctions->at(rng->random(availableFunctions->size()))->getCopy();
         }
         else {
-            ret = availableNodes->at(rng->random(availableNodes->size()))->getCopy();
+            ret = availablePrimitives->at(rng->random(availablePrimitives->size()))->getCopy();
         }
         if (ret->arity == 0) {
             return ret;

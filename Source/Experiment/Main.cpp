@@ -2,6 +2,7 @@
 #include "boost/program_options.hpp"
 #include "../Common/GPLogger.h"
 #include "../Common/GPRandom.h"
+#include "../Common/GPParser.h"
 #include "../Synth/GPSynth.h"
 #include "GPExperiment.h"
 

@@ -13,6 +13,8 @@ public:
     GPLogger(GPLoggerParams* params, unsigned seed, std::string output_dir_path);
     ~GPLogger();
 
+    unsigned get_seed();
+
     void log(std::string str);
     void log_verbose(std::string str);
     void debug(std::string str);

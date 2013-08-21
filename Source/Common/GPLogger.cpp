@@ -22,6 +22,10 @@ GPLogger::GPLogger(GPLoggerParams* params, unsigned seed, std::string output_dir
     }
 }
 
+unsigned GPLogger::get_seed() {
+    return seed;
+}
+
 void GPLogger::log(std::string str) {
     if (params->log_to_file)
         log_stream << str << std::endl;
