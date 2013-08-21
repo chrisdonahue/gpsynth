@@ -86,8 +86,6 @@ Thoughts:
     consider separating min/max into ampmin/ampmax and calcmin/calcmax in order to facilitate ranging constants vs the amplitude they actually apply
 
 TODO long run:
-	split GPParams into GPMatchingExperimentParams, GPSynthParams and perhaps GPNodeParams
-
     Parser:
         createNode surrounds createNode parse into try except block. first error throws. prevents a whole lot of stuff from propogating
         add namespace to JUCEFileIO and GPParser

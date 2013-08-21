@@ -11,7 +11,7 @@ set -e
     --primitives ./cfg/primitives_default.cfg \
     --me_cfg ./cfg/me_default.cfg \
     --target ./samples/TrumpetEb5.wav \
-    --output_dir ./output \
+    --output_dir ./output/ \
     --seed 0 \
     --constants 622.25
 #COMMENT

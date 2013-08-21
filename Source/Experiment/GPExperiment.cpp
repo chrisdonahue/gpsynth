@@ -105,7 +105,7 @@ GPNetwork* GPExperiment::evolve() {
                 // save generation champions
                 char buffer[100];
                 snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
-                saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->log_save_precision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+                saveWavFile(savePath + String(buffer), String(logger->net_to_string_save(generationChamp).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
             }
 
             // increment number of evaluted generations
@@ -145,11 +145,11 @@ GPNetwork* GPExperiment::evolve() {
         renderIndividualByBlockPerformance(champ, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
         assert(champ->fitness == minFitnessAchieved);
-        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->log_print_precision) << std::endl;
+        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << logger->net_to_string_print(champ) << std::endl;
         char buffer[100];
         snprintf(buffer, 100, "%d.champion.wav", seed);
         if (params->log_save_overall_champ_audio)
-            saveWavFile(savePath + String(buffer), String(champ->toString(params->log_save_precision).c_str()), String(champ->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+            saveWavFile(savePath + String(buffer), String(logger->net_to_string_save(champ)), String(champ->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
     }
     free(champBuffer);
     return champ;

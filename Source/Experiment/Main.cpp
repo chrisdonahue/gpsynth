@@ -136,7 +136,7 @@ int main( int argc, const char* argv[] )
     primitives_file.close();
 
     // create synth
-    GPSynth* synth = new GPSynth(synth_params, rng, primitives);
+    GPSynth* synth = new GPSynth(logger, synth_params, rng, primitives);
 
     // check if this is a sanity test
     bool sanity = false;
@@ -194,10 +194,15 @@ int main( int argc, const char* argv[] )
     }
 
     // create experiment
-    GPExperiment* experiment = new GPExperiment(sanity, synth, me_params, seed, target_file_path, output_dir_path, constants);
+    if (sanity) {
+        new GPExperiment(rng);
+    }
+    else {
+        GPExperiment* experiment = new GPExperiment(logger, me_params, synth, target_file_path, output_dir_path, constants);
 
-    // run experiment
-    GPNetwork* champion = experiment->evolve();
+        // run experiment
+        GPNetwork* champion = experiment->evolve();
+    }
 
     return 1;
 }

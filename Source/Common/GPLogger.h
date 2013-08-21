@@ -5,8 +5,22 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include "GPLoggerParams.h"
 #include "../Synth/GPNetwork.h"
+
+struct GPLoggerParams {
+    unsigned save_precision;
+    unsigned print_precision;
+
+    bool log_to_file;
+    bool log_to_cout;
+    bool log_to_cerr;
+    bool log_verbose_to_file;
+    bool log_verbose_to_cout;
+    bool log_verbose_to_cerr;
+    bool debug_to_file;
+    bool debug_to_cout;
+    bool debug_to_cerr;
+};
 
 class GPLogger {
 public:
