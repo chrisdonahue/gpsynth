@@ -1,14 +1,6 @@
-/*
-  ==============================================================================
-
-    Main.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "boost/program_options.hpp"
+#include "../Common/GPLogger.h"
 #include "../Common/GPRandom.h"
 #include "../Synth/GPSynth.h"
 #include "GPExperiment.h"
@@ -18,6 +10,7 @@ int main( int argc, const char* argv[] )
     namespace po = boost::program_options;
 
     // command line container variables
+    std::string logger_cfg_file_path;
     std::string me_cfg_file_path;
     std::string synth_cfg_file_path;
     std::string primitives_file_path;
@@ -32,9 +25,10 @@ int main( int argc, const char* argv[] )
         ("help", "display help message")
         ("sys_info", "print info about machine")
         ("sanity", "run a sanity test of GP library")
-        ("me_cfg", po::value<std::string>(&me_cfg_file_path), "matching experiment config file")
+        ("logger_cfg", po::value<std::string>(&logger_cfg_file_path), "logger config file")
         ("synth_cfg", po::value<std::string>(&synth_cfg_file_path), "synth config file")
         ("primitives", po::value<std::string>(&primitives_file_path), "list of primitives available to experiment")
+        ("me_cfg", po::value<std::string>(&me_cfg_file_path), "matching experiment config file")
         ("target", po::value<std::string>(&target_file_path), "target wav file")
         ("output_dir", po::value<std::string>(&output_dir_path)->default_value("./"), "output file directory")
         ("seed", po::value<unsigned>(&seed)->default_value(time(NULL)), "experiment seed number")
@@ -44,68 +38,44 @@ int main( int argc, const char* argv[] )
     po::store(po::parse_command_line(argc, argv, cl_desc), cl_vm);
     po::notify(cl_vm);
 
-    // execute command
+    // print help
     if (cl_vm.count("help")) {
         std::cout << cl_desc << std::endl;
         return 1;
     }
-    bool sanity = false;
-    if (cl_vm.count("sanity")) {
-        sanity = true;
-    }
-    if (cl_vm.count("sys_info")) {
-        std::cout << "lol" << std::endl;
-    }
 
-    // declare matching experiments desc
-    GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
-    std::string window_type;
-    po::options_description me_desc("");
-    me_desc.add_options()
-        ("log_save_precision", po::value<unsigned>(&(me_params->log_save_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
-        ("log_print_precision", po::value<unsigned>(&(me_params->log_print_precision))->default_value(3), "precision for text-logging synthesis algorithms")
-        ("log_save_gen_champ_audio", po::value<bool>(&(me_params->log_save_gen_champ_audio))->default_value(false), "save rendered audio of the champion from each generation")
-        ("log_save_overall_champ_audio", po::value<bool>(&(me_params->log_save_overall_champ_audio))->default_value(false), "save rendered audio of the champion from the entire run")
-        ("log_save_target_spectrum", po::value<bool>(&(me_params->log_save_target_spectrum))->default_value(false), "save spectrum of target wav file")
-        ("log_save_target_copy", po::value<bool>(&(me_params->log_save_target_copy))->default_value(false), "save copy of target wav file")
+    // declare logger desc
+    GPLoggerParams* logger_params = (GPLoggerParams*) malloc(sizeof(GPLoggerParams));
+    po::options_description logger_desc("");
+    logger_desc.add_options()
+        ("save_precision", po::value<unsigned>(&(logger_params->save_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
+        ("print_precision", po::value<unsigned>(&(logger_params->print_precision))->default_value(3), "precision for text-logging synthesis algorithms")
 
-        ("aux_wav_file_buffer_size", po::value<unsigned>(&(me_params->aux_wav_file_buffer_size))->default_value(512), "buffer size for wav file IO")
-        ("aux_render_block_size", po::value<unsigned>(&(me_params->aux_render_block_size))->default_value(512), "chunk size for rendering synthesis algorithms")
- 
-        ("exp_suboptimize_type", po::value<unsigned>(&(me_params->exp_suboptimize_type))->default_value(0), "which type of suboptimization to perform")
-        ("exp_generations", po::value<unsigned>(&(me_params->exp_generations))->default_value(10), "maximum number of generations to evaluate")
-        ("exp_threshold", po::value<double>(&(me_params->exp_threshold))->default_value(0.0f), "fitness to reach to terminate evolution")
-
-        ("ff_type", po::value<unsigned>(&(me_params->ff_type))->default_value(1), "which fitness function to use")
-        ("ff_spectrum_mag_weight", po::value<double>(&(me_params->ff_spectrum_mag_weight))->default_value(1.0f), "weight multiplier for spectrum magnitudes in fitness function")
-        ("ff_spectrum_phase_weight", po::value<double>(&(me_params->ff_spectrum_phase_weight))->default_value(1.0f), "weight multiplier for spectrum phases in fitness function")
-        
-        ("ff_fft_window", po::value<std::string>(&window_type)->default_value("rect"), "fft window type")
-        ("ff_fft_size", po::value<unsigned>(&(me_params->ff_fft_size))->default_value(1024), "fft size")
-        ("ff_fft_overlap", po::value<unsigned>(&(me_params->ff_fft_overlap))->default_value(0), "fft overlap")
-
-        ("ff_moving_average_type", po::value<unsigned>(&(me_params->ff_moving_average_type))->default_value(0), "type of moving average to use for fitness function comparison")
-        ("ff_moving_average_past_radius", po::value<unsigned>(&(me_params->ff_moving_average_past_radius))->default_value(40), "# of feedback samples for moving average filter")
-        ("ff_moving_average_future_radius", po::value<unsigned>(&(me_params->ff_moving_average_future_radius))->default_value(40), "# of feedforward samples for moving average filter")
-        ("ff_moving_average_exponential_alpha", po::value<double>(&(me_params->ff_moving_average_exponential_alpha))->default_value(0.95), "importance of successive samples in the moving average")
-        ("ff_weight_frames", po::value<bool>(&(me_params->ff_weight_frames))->default_value(false), "weight importance of target frames in comparison")
-        ("ff_weight_frames_exponent", po::value<double>(&(me_params->ff_weight_frames_exponent))->default_value(1.0f), "exponent for target frames weighting")
-        ("ff_phase_comparison_exponent", po::value<double>(&(me_params->ff_phase_comparison_exponent))->default_value(1.0f), "exponent for penalizing bad phase")
-        ("ff_mag_base_comparison", po::value<double>(&(me_params->ff_mag_base_comparison))->default_value(1.0f), "penalty for comparing magnitudes of bins in each frame")
-        ("ff_mag_good_comparison", po::value<double>(&(me_params->ff_mag_good_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the correct side of the moving average")
-        ("ff_mag_bad_comparison", po::value<double>(&(me_params->ff_mag_bad_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the incorrect side of the moving average")
+        ("log_to_file", po::value<bool>(&(logger_params->log_to_file))->default_value(false), "")
+        ("log_to_cout", po::value<bool>(&(logger_params->log_to_cout))->default_value(true), "")
+        ("log_to_cerr", po::value<bool>(&(logger_params->log_to_cerr))->default_value(false), "")
+        ("log_verbose_to_file", po::value<bool>(&(logger_params->log_verbose_to_file))->default_value(false), "")
+        ("log_verbose_to_cout", po::value<bool>(&(logger_params->log_verbose_to_cout))->default_value(false), "")
+        ("log_verbose_to_cerr", po::value<bool>(&(logger_params->log_verbose_to_cerr))->default_value(false), "")
+        ("debug_to_file", po::value<bool>(&(logger_params->debug_to_file))->default_value(false), "")
+        ("debug_to_cout", po::value<bool>(&(logger_params->debug_to_cout))->default_value(false), "")
+        ("debug_to_cerr", po::value<bool>(&(logger_params->debug_to_cerr))->default_value(true), "")
     ;
 
-    // parse me config file
-    std::ifstream me_cfg_file;
-    me_cfg_file.open(me_cfg_file_path.c_str());
-    po::variables_map me_vm;
-    po::store(po::parse_config_file(me_cfg_file, me_desc, true), me_vm);
-    po::notify(me_vm);
-    me_cfg_file.close();
+    // parse logger config file
+    std::ifstream logger_cfg_file;
+    logger_cfg_file.open(logger_cfg_file_path.c_str());
+    po::variables_map logger_vm;
+    po::store(po::parse_config_file(logger_cfg_file, logger_desc, true), logger_vm);
+    po::notify(logger_vm);
+    logger_cfg_file.close();
 
-    if (me_vm.count("ff_fft_window")) {
-        strncpy(me_params->ff_fft_window, window_type.c_str(), 5);
+    // create logger
+    GPLogger* logger = new GPLogger(logger_params, seed, output_dir_path);
+
+    // print system info if requested
+    if (cl_vm.count("sys_info")) {
+        logger->log(logger->get_system_info());
     }
 
     // declare synth desc
@@ -167,6 +137,61 @@ int main( int argc, const char* argv[] )
     // create synth
     GPSynth* synth = new GPSynth(synth_params, rng, primitives);
 
+    // check if this is a sanity test
+    bool sanity = false;
+    if (cl_vm.count("sanity")) {
+        sanity = true;
+    }
+
+    // declare matching experiments desc
+    GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
+    std::string window_type;
+    po::options_description me_desc("");
+    me_desc.add_options()
+        ("log_save_gen_champ_audio", po::value<bool>(&(me_params->log_save_gen_champ_audio))->default_value(false), "save rendered audio of the champion from each generation")
+        ("log_save_overall_champ_audio", po::value<bool>(&(me_params->log_save_overall_champ_audio))->default_value(false), "save rendered audio of the champion from the entire run")
+        ("log_save_target_spectrum", po::value<bool>(&(me_params->log_save_target_spectrum))->default_value(false), "save spectrum of target wav file")
+        ("log_save_target_copy", po::value<bool>(&(me_params->log_save_target_copy))->default_value(false), "save copy of target wav file")
+
+        ("aux_wav_file_buffer_size", po::value<unsigned>(&(me_params->aux_wav_file_buffer_size))->default_value(512), "buffer size for wav file IO")
+        ("aux_render_block_size", po::value<unsigned>(&(me_params->aux_render_block_size))->default_value(512), "chunk size for rendering synthesis algorithms")
+ 
+        ("exp_suboptimize_type", po::value<unsigned>(&(me_params->exp_suboptimize_type))->default_value(0), "which type of suboptimization to perform")
+        ("exp_generations", po::value<unsigned>(&(me_params->exp_generations))->default_value(10), "maximum number of generations to evaluate")
+        ("exp_threshold", po::value<double>(&(me_params->exp_threshold))->default_value(0.0f), "fitness to reach to terminate evolution")
+
+        ("ff_type", po::value<unsigned>(&(me_params->ff_type))->default_value(1), "which fitness function to use")
+        ("ff_spectrum_mag_weight", po::value<double>(&(me_params->ff_spectrum_mag_weight))->default_value(1.0f), "weight multiplier for spectrum magnitudes in fitness function")
+        ("ff_spectrum_phase_weight", po::value<double>(&(me_params->ff_spectrum_phase_weight))->default_value(1.0f), "weight multiplier for spectrum phases in fitness function")
+        
+        ("ff_fft_window", po::value<std::string>(&window_type)->default_value("rect"), "fft window type")
+        ("ff_fft_size", po::value<unsigned>(&(me_params->ff_fft_size))->default_value(1024), "fft size")
+        ("ff_fft_overlap", po::value<unsigned>(&(me_params->ff_fft_overlap))->default_value(0), "fft overlap")
+
+        ("ff_moving_average_type", po::value<unsigned>(&(me_params->ff_moving_average_type))->default_value(0), "type of moving average to use for fitness function comparison")
+        ("ff_moving_average_past_radius", po::value<unsigned>(&(me_params->ff_moving_average_past_radius))->default_value(40), "# of feedback samples for moving average filter")
+        ("ff_moving_average_future_radius", po::value<unsigned>(&(me_params->ff_moving_average_future_radius))->default_value(40), "# of feedforward samples for moving average filter")
+        ("ff_moving_average_exponential_alpha", po::value<double>(&(me_params->ff_moving_average_exponential_alpha))->default_value(0.95), "importance of successive samples in the moving average")
+        ("ff_weight_frames", po::value<bool>(&(me_params->ff_weight_frames))->default_value(false), "weight importance of target frames in comparison")
+        ("ff_weight_frames_exponent", po::value<double>(&(me_params->ff_weight_frames_exponent))->default_value(1.0f), "exponent for target frames weighting")
+        ("ff_phase_comparison_exponent", po::value<double>(&(me_params->ff_phase_comparison_exponent))->default_value(1.0f), "exponent for penalizing bad phase")
+        ("ff_mag_base_comparison", po::value<double>(&(me_params->ff_mag_base_comparison))->default_value(1.0f), "penalty for comparing magnitudes of bins in each frame")
+        ("ff_mag_good_comparison", po::value<double>(&(me_params->ff_mag_good_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the correct side of the moving average")
+        ("ff_mag_bad_comparison", po::value<double>(&(me_params->ff_mag_bad_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the incorrect side of the moving average")
+    ;
+
+    // parse me config file
+    std::ifstream me_cfg_file;
+    me_cfg_file.open(me_cfg_file_path.c_str());
+    po::variables_map me_vm;
+    po::store(po::parse_config_file(me_cfg_file, me_desc, true), me_vm);
+    po::notify(me_vm);
+    me_cfg_file.close();
+
+    if (me_vm.count("ff_fft_window")) {
+        strncpy(me_params->ff_fft_window, window_type.c_str(), 5);
+    }
+
     // create experiment
     GPExperiment* experiment = new GPExperiment(sanity, synth, me_params, seed, target_file_path, output_dir_path, constants);
 
@@ -175,4 +200,3 @@ int main( int argc, const char* argv[] )
 
     return 1;
 }
-

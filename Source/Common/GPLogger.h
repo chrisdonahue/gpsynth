@@ -1,31 +1,33 @@
-#ifndef GPPARSER_H
-#define GPPARSER_H
+#ifndef GPLOGGER_H
+#define GPLOGGER_H
 
 #include <string>
 #include <sstream>
-#include <vector>
-#include "GPMutatableParam.h"
-#include "../Synth/GPNode.h"
-#include "../Synth/GPPrimitives.h"
+#include <iostream>
+#include <fstream>
+#include "GPLoggerParams.h"
+#include "../Synth/GPNetwork.h"
 
-// TOKENIZER
-extern std::vector<std::string> &split(const std::string &s, std::vector<std::string> &elems, const char* delims);
-extern std::vector<std::string> split(const std::string &s, const char* delims);
+class GPLogger {
+public:
+    GPLogger(GPLoggerParams* params, unsigned seed, std::string output_dir_path);
+    ~GPLogger();
 
-// S-EXPRESSION PARSING
-// macro to "consume" a token when we observe it
-#define consume (*currentIndex)++
-#define tokenizerFunctionArgs std::vector<std::string> tokens, unsigned* currentIndex
-#define tokenizerArgs tokens, currentIndex
-#define subtreeFunctionArgs GPRandom* rng, std::string& error
-#define subtreeArgs rng, error
-extern std::vector<GPMutatableParam*> parseMutatableParams(tokenizerFunctionArgs);
-extern GPMutatableParam* createMutatableParam(tokenizerFunctionArgs, std::string type, bool ismutatable);
-extern bool parseChild(tokenizerFunctionArgs, subtreeFunctionArgs, GPNode** child);
-extern GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs);
+    void log(std::string str);
+    void log_verbose(std::string str);
+    void debug(std::string str);
 
-// EASY ACCESS
-extern GPNode* createNode(std::string nodestring, GPRandom* rng);
-extern GPMutatableParam* createMutatableParam(std::string paramstring, std::string type, bool ismutatable);
+    std::string net_to_string_print(GPNetwork* net);
+    std::string net_to_string_save(GPNetwork* net);
+
+    std::string get_system_info();
+
+private:
+    GPLoggerParams* params;
+    unsigned seed;
+    std::ofstream log_stream;
+    std::ofstream log_verbose_stream;
+    std::ofstream debug_stream;
+};
 
 #endif

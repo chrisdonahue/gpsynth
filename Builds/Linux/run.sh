@@ -6,9 +6,10 @@ set -e
 #<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
     --sys_info \
-    --me_cfg ./cfg/me_default.cfg \
+    --logger_cfg ./cfg/logger_default.cfg \
     --synth_cfg ./cfg/synth_default.cfg \
     --primitives ./cfg/primitives_default.cfg \
+    --me_cfg ./cfg/me_default.cfg \
     --target ./samples/TrumpetEb5.wav \
     --output_dir ./output \
     --seed 0 \

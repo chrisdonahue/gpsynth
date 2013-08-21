@@ -3,8 +3,6 @@
 
 struct GPMatchingExperimentParams {
     // logging parameters
-    unsigned log_save_precision;
-    unsigned log_print_precision;
     bool log_save_gen_champ_audio;
     bool log_save_overall_champ_audio;
     bool log_save_target_spectrum;
