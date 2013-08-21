@@ -45,6 +45,9 @@ int main( int argc, const char* argv[] )
         return 1;
     }
 
+    // create random instance
+    GPRandom* rng = new GPRandom(seed);
+
     // declare logger desc
     GPLoggerParams* logger_params = (GPLoggerParams*) malloc(sizeof(GPLoggerParams));
     po::options_description logger_desc("");
@@ -77,6 +80,12 @@ int main( int argc, const char* argv[] )
     // print system info if requested
     if (cl_vm.count("sys_info")) {
         logger->log(logger->get_system_info());
+    }
+
+    // check if this is a sanity test
+    if (cl_vm.count("sanity")) {
+        GPExperiment* sanity_test = new GPExperiment(logger);
+        return sanity_test->sanityTest(rng);
     }
 
     // declare synth desc
@@ -122,8 +131,6 @@ int main( int argc, const char* argv[] )
     po::notify(synth_vm);
     synth_cfg_file.close();
 
-    // create random instance
-    GPRandom* rng = new GPRandom(seed);
 
     // parse primitives file
     std::ifstream primitives_file;
@@ -137,12 +144,6 @@ int main( int argc, const char* argv[] )
 
     // create synth
     GPSynth* synth = new GPSynth(logger, synth_params, rng, primitives);
-
-    // check if this is a sanity test
-    bool sanity = false;
-    if (cl_vm.count("sanity")) {
-        sanity = true;
-    }
 
     // declare matching experiments desc
     GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
@@ -194,15 +195,10 @@ int main( int argc, const char* argv[] )
     }
 
     // create experiment
-    if (sanity) {
-        new GPExperiment(rng);
-    }
-    else {
-        GPExperiment* experiment = new GPExperiment(logger, me_params, synth, target_file_path, output_dir_path, constants);
+    GPExperiment* experiment = new GPExperiment(logger, me_params, synth, target_file_path, output_dir_path, constants);
 
-        // run experiment
-        GPNetwork* champion = experiment->evolve();
-    }
+    // run experiment
+    GPNetwork* champion = experiment->evolve();
 
     return 1;
 }

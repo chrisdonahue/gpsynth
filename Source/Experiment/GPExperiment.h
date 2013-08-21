@@ -65,12 +65,15 @@ class GPExperiment {
 public:
     // CONSTRUCTION
     GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
-    GPExperiment(GPRandom* rng);
+    GPExperiment(GPLogger* logger);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
     GPNetwork* evolve();
     double beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer);
+
+    // SANITY TEST CODE
+    int sanityTest(GPRandom* rng);
 
 private:
     bool is_sanity_test;
@@ -141,9 +144,6 @@ private:
     void fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer);
     String floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z);
     String doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z);
-
-    // SANITY TEST CODE
-    void sanityTest(GPRandom* rng);
 };
 
 #endif

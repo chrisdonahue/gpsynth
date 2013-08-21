@@ -31,11 +31,10 @@ GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params,
     numEvaluatedGenerations = 0;
 }
 
-GPExperiment::GPExperiment(GPRandom* rng) :
-    is_sanity_test(true)
-{
-    sanityTest(rng);
-}
+GPExperiment::GPExperiment(GPLogger* logger) :
+    is_sanity_test(true),
+    logger(logger)
+{}
 
 GPExperiment::~GPExperiment() {
     if (!is_sanity_test) {
@@ -123,11 +122,11 @@ GPNetwork* GPExperiment::evolve() {
     free(candidateData);
 
     // print evolution summary
-    std::cerr << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
+    logger->log("-------------------------------- SUMMARY ---------------------------------");
 
     // print a message if we met the threshold
     if (minFitnessAchieved <= fitnessThreshold) {
-        std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
+        logger->log("Evolution found a synthesis algorithm at or below the specified fitness threshold");
     }
 
     // print the number of generations evolution ran for
@@ -437,14 +436,14 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 lEvolver->evolve(lVivarium, lSystem);
             }
             catch(Beagle::Exception& inException) {
-                std::cerr << "Beagle exception caught:" << std::endl << std::flush;
-                std::cerr << inException.what() << std::endl << std::flush;
-                inException.terminate(std::cerr);
+                logger->debug("Beagle exception caught:");
+                logger->debug(inException.what());
+                //inException.terminate(std::cerr);
                 return -1;
             }
             catch (std::exception& inException) {
-                std::cerr << "Standard exception caught:" << std::endl << std::flush;
-                std::cerr << inException.what() << std::endl << std::flush;
+                logger->debug("Standard exception caught:");
+                logger->debug(inException.what());
                 return -1;
             }
         }
@@ -488,10 +487,10 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 }
 
 double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
-		std::cerr << std::endl << candidate->toString(5);
+		logger->debug(candidate->toString(5));
         renderIndividualByBlockPerformance(candidate, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
         double fitness = compareToTarget(params->ff_type, candidateFramesBuffer);
-        std::cerr << " fitness: " << fitness;
+        //std::cerr << " fitness: " << fitness;
         return compareToTarget(params->ff_type, candidateFramesBuffer);
 }
 
@@ -781,7 +780,7 @@ String GPExperiment::doubleBuffersToGraphText(String options, String xlab, Strin
     ===========
 */
 
-void GPExperiment::sanityTest(GPRandom* rng) {
+int GPExperiment::sanityTest(GPRandom* rng) {
     // TODO: timers for all tests
 
     // test random
@@ -1073,4 +1072,6 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     free(testBuffer);
     free(comparisonBuffer);
     free(silenceBuffer);
+    
+    return 1;
 }

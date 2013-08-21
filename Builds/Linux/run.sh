@@ -6,6 +6,7 @@ set -e
 #<<COMMENT
 ./build/GPAudioTargetMatchingExperiment\
     --sys_info \
+    --sanity \
     --logger_cfg ./cfg/logger_default.cfg \
     --synth_cfg ./cfg/synth_default.cfg \
     --primitives ./cfg/primitives_default.cfg \
