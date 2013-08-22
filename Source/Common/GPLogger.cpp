@@ -1,64 +1,55 @@
 #include "GPLogger.h"
 
+/*
+    GPLog
+*/
+
+GPLog::GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward) :
+    params(params), forward(forward)
+{
+    if (params->log_to_file) {
+        log_stream.open(output_file_path.c_str());
+    }
+}
+
+std::ostream& GPLog::operator<<(std::ostream& os) {
+    if (params->to_file)
+        log_file_oseam << os << std::endl;
+
+    if (params->to_cout)
+        std::cout << os << std::endl;
+
+    if (params->to_cerr)
+        std::cerr << os << std::endl;
+
+    if (forward)
+        forward << os;
+
+    return os;
+}
+
+/*
+    GPLogger
+*/
+
 GPLogger::GPLogger(GPLoggerParams* params, unsigned seed, std::string output_dir_path) :
     params(params), seed(seed)
 {
     std::stringstream seed_stream;
     seed_stream << seed;
+    std::string seed_string = seed_stream.str();
 
-    if (params->log_to_file) {
-        std::string file_path = output_dir_path + seed_stream.str() + ".log";
-        log_stream.open(file_path.c_str());
-    }
+    log(params->log_params, output_dir_path + seed_string + ".log", NULL);
+    verbose(params->verbose_params, output_dir_path + seed_string + ".log.verbose", log);
+    debug(params->debug_params, output_dir_path + seed_string + ".debug", NULL);
+    error(params->error_params, output_dir_path + seed_string + ".error", NULL);
+}
 
-    if (params->log_verbose_to_file) {
-        std::string file_path = output_dir_path + seed_stream.str() + ".log.verbose";
-        log_verbose_stream.open(file_path.c_str());
-    }
-
-    if (params->debug_to_file) {
-        std::string file_path = output_dir_path + seed_stream.str() + ".debug";
-        debug_stream.open(file_path.c_str());
-    }
+GPLogger::~GPLogger() {
 }
 
 unsigned GPLogger::get_seed() {
     return seed;
-}
-
-void GPLogger::log(std::string str) {
-    if (params->log_to_file)
-        log_stream << str << std::endl;
-
-    if (params->log_to_cout)
-        std::cout << str << std::endl;
-
-    if (params->log_to_cerr)
-        std::cerr << str << std::endl;
-
-    log_verbose(str);
-}
-
-void GPLogger::log_verbose(std::string str) {
-    if (params->log_verbose_to_file)
-        log_verbose_stream << str << std::endl;
-
-    if (params->log_verbose_to_cout)
-        std::cout << str << std::endl;
-
-    if (params->log_verbose_to_cerr)
-        std::cerr << str << std::endl;
-}
-
-void GPLogger::debug(std::string str) {
-    if (params->debug_to_file)
-        debug_stream << str << std::endl;
-
-    if (params->debug_to_cout)
-        std::cout << str << std::endl;
-
-    if (params->debug_to_cerr)
-        std::cerr << str << std::endl;
 }
 
 std::string GPLogger::net_to_string_print(GPNetwork* net) {

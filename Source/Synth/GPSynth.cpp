@@ -41,7 +41,6 @@ GPSynth::GPSynth(GPLogger* logger, GPSynthParams* params, GPRandom* rng, std::ve
     clearGenerationState();
 
     // create initial population
-    std::cerr << "Initializing population of size " << populationSize << " with best possible fitness of " << params->best_possible_fitness << std::endl;
     initPopulation();
 
     // declare the start of generation 0
@@ -110,6 +109,8 @@ GPNetwork* GPSynth::grow(unsigned m) {
 }
 
 void GPSynth::initPopulation() {
+    logger->log << "Initializing population of size " << populationSize << " with best possible fitness of " << params->best_possible_fitness << std::endl;
+
 	// if maxInitialHeight is 0 we just want a single terminal
     GPNetwork* newnet;
     unsigned maxInitialHeight = params->max_initial_height;
@@ -175,8 +176,7 @@ GPNetwork* GPSynth::getIndividual() {
 
     // logic to deal with reproduced algorithms for efficiency
     GPNetwork* ret = *(unevaluated.begin());
-    // TODO: change to logger
-    std::cout << "Testing algorithm " << ret->ID << " made by " << ret->origin << " with height " << ret->height << " and structure " << ret->toString(3) << std::endl;
+    logger->verbose << "Testing algorithm " << ret->ID << " made by " << ret->origin << " with height " << ret->height << " and structure " << logger->net_to_string_print(ret) << std::endl;
     return ret;
 }
 
@@ -188,7 +188,7 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 
 	// if too many networks were asked for print and return
     if (unevaluated.size() < networks.size()) {
-        std::cout << "Requested multiple individuals out of population that did not have enough remaining" << std::endl;
+        logger->error("Requested multiple individuals out of population that did not have enough remaining");
         return;
     }
 
@@ -206,21 +206,21 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 	// check if old is already evaluated
 	if (evaluated.find(old) != evaluated.end()) {
-		std::cerr << "Tried replacing population individual that had already been evaluated" << std::endl;
+        logger->error("Tried replacing population individual that had already been evaluated");
 		return false;
 	}
 
 	// check if old is still in population
 	unsigned oldGenerationID = old->ID % populationSize;
 	if (currentGeneration[oldGenerationID] != old) {
-		std::cerr << "Tried replacing individual that is not in the current generation" << std::endl;
+		logger->error("Tried replacing individual that is not in the current generation");
 		return false;
 	}
 
 	// check to make sure nu is the right height
 	nu->traceNetwork();
 	if (nu->height > params->max_height) {
-		std::cerr << "Tried replacing individual that is too tall for the population" << std::endl;
+		logger->error("Tried replacing individual that is too tall for the population");
 		return false;
 	}
 
@@ -234,8 +234,8 @@ bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 	unevaluated.erase(old);
 	evaluated.erase(old);
     if (nu->fitness != -1) {
-        // TODO: change to log
-        std::cout << "Replacement individual " << nu->ID << " made by " << nu->origin << " with height " << nu->height << " and structure " << nu->toString(3) << " was already evaluated and replaced algorithm " << old->ID << " ." << std::endl;
+        logger->log << "Replacement individual " << nu->ID << " made by " << nu->origin << " with height " << nu->height << " and structure " << logger->net_to_string_print(nu) << " was already evaluated and replaced algorithm " << old->ID << " ." << std::endl;
+        
         assignFitness(nu, nu->fitness);
     }
     else {
@@ -264,7 +264,7 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
     rawFitnesses[net->ID % populationSize] = fitness;
 
     // print if verbose
-    std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
+    logger->verbose << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
 
     // calculate num remaining and print summary if generation is done
     int numStillNeedingEvaluation = populationSize - evaluated.size();
@@ -278,13 +278,13 @@ int GPSynth::assignFitness(GPNetwork* net, double fitness) {
 int GPSynth::prevGeneration() {
 	// check to see we're not at generation 1
     if (currentGenerationNumber == 0) {
-        std::cerr << "Attempted to revert to a previous generation during generation 0" << std::endl;
+        logger->error << "Attempted to revert to a previous generation during generation 0";
         return currentGenerationNumber;
     }
 
 	// check to see if we are backing up
 	if (!params->backup_all_networks) {
-        std::cerr << "Attempted to revert to a previous generation but no networks backed up" << std::endl;
+        logger->error << "Attempted to revert to a previous generation but no networks backed up";
         return currentGenerationNumber;
 	}
 
@@ -321,7 +321,7 @@ int GPSynth::prevGeneration() {
 }
 
 void GPSynth::printGenerationDelim() {
-    std::cout << "------------------------- START OF GENERATION " << currentGenerationNumber << " -------------------------" << std::endl;
+    logger->log << "------------------------- START OF GENERATION " << currentGenerationNumber << " -------------------------" << std::endl;
 }
 
 void GPSynth::endGeneration() {
@@ -338,7 +338,7 @@ void GPSynth::endGeneration() {
 
         // report if fitness negative
         if (fitness < 0) {
-            std::cerr << "Negative fitness value detected when summarizing generation" << std::endl;
+            logger->error << "Negative fitness value detected when summarizing generation";
         }
 
         // determine if we have a new generation champion
@@ -378,8 +378,11 @@ void GPSynth::endGeneration() {
 
 void GPSynth::printGenerationSummary() {
     // print generation summary
-    // TODO: change to logger
-    std::cerr << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << generationChamp->ID << " made by " << generationChamp->origin << " with height " << generationChamp->height << " and structure " << generationChamp->toString(3) << std::endl;
+    logger->log << "Generation " << currentGenerationNumber << " had average fitness " << generationAverageFitness << " and best fitness " << generationBestFitness << " attained by algorithm " << generationChamp->ID << " made by " << generationChamp->origin << " with height " << generationChamp->height << " and structure " << logger->net_to_string_print(generationChamp) << std::endl;
+}
+
+void GPSynth::printEvolutionSummary() {
+    //TODO
 }
 
 int GPSynth::nextGeneration() {
@@ -574,8 +577,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
       allNetworks.push_back(new std::string(net->toString(params->backup_precision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
     if (net->fitness != -1) {
-        // TODO: change this to logger
-        std::cout << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << net->toString(3) << " which was algorithm " << oldID << " from the previous generation." << std::endl;
+        logger->verbose << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << logger->net_to_string_print(net) << " which was algorithm " << oldID << " from the previous generation." << std::endl;
         assignFitness(net, net->fitness);
     }
     else {
@@ -709,6 +711,9 @@ void GPSynth::mutate(unsigned mutationType, GPNetwork* one) {
         // replace and delete old
         one->replaceSubtree(forReplacement, replacement);
         delete forReplacement;
+    }
+    else if (mutationType == 1) {
+        
     }
 }
 

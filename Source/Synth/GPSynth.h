@@ -62,6 +62,7 @@ public:
     void endGeneration();
     void printGenerationDelim();
     void printGenerationSummary();
+    void printEvolutionSummary();
 
     // PUBLIC EVOLUTION STATE
     int currentGenerationNumber;
