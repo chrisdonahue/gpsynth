@@ -188,7 +188,7 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 
 	// if too many networks were asked for print and return
     if (unevaluated.size() < networks.size()) {
-        logger->error("Requested multiple individuals out of population that did not have enough remaining");
+        logger->error << "Requested multiple individuals out of population that did not have enough remaining";
         return;
     }
 
@@ -206,21 +206,21 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 	// check if old is already evaluated
 	if (evaluated.find(old) != evaluated.end()) {
-        logger->error("Tried replacing population individual that had already been evaluated");
+        logger->error << "Tried replacing population individual that had already been evaluated";
 		return false;
 	}
 
 	// check if old is still in population
 	unsigned oldGenerationID = old->ID % populationSize;
 	if (currentGeneration[oldGenerationID] != old) {
-		logger->error("Tried replacing individual that is not in the current generation");
+		logger->error << "Tried replacing individual that is not in the current generation" << std::flush;
 		return false;
 	}
 
 	// check to make sure nu is the right height
 	nu->traceNetwork();
 	if (nu->height > params->max_height) {
-		logger->error("Tried replacing individual that is too tall for the population");
+		logger->error << "Tried replacing individual that is too tall for the population" << std::flush;
 		return false;
 	}
 

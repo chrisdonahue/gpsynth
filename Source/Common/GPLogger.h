@@ -6,26 +6,40 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <iosfwd>
+#include <cstdlib>
+#include <vector>
 #include "../Synth/GPNetwork.h"
 
 struct GPLogParams {
     bool to_file;
     bool to_cout;
     bool to_cerr;
-}
+};
 
 // log stream
 class GPLog : public std::streambuf {
     public:
-        GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward);
-        ~GPLogger();
+        explicit GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward, std::size_t buff_sz = 256);
+        ~GPLog();
 
-        std::ostream& operator<<(std::ostream& os);
+    protected:
+        bool forward_and_flush();
 
     private:
+        int_type overflow(int_type ch);
+        int sync();
+
+        // copy ctor and assignment not implemented;
+        // copying not allowed
+        GPLog(const GPLog &);
+        GPLog &operator= (const GPLog &);
+
         GPLog* forward;
         GPLogParams* params;
         std::ofstream log_file_stream;
+        std::stringstream sink_;
+        std::vector<char> buffer_;
 };
 
 // params for log stream
@@ -34,29 +48,35 @@ struct GPLoggerParams {
     unsigned print_precision;
 
     GPLogParams* log_params;
-    GPLogParams* log_verbose_params;
+    GPLogParams* verbose_params;
     GPLogParams* debug_params;
     GPLogParams* error_params;
 };
 
 class GPLogger {
-    GPLogger(GPLoggerParams* params, unsigned seed, std::string output_dir_path);
+    GPLogger(GPLoggerParams* params, std::string seed_string, std::string output_dir_path);
     ~GPLogger();
 
     public:    
-        unsigned get_seed();
+        std::string get_seed_string();
         std::string get_system_info();
 
         std::string net_to_string_print(GPNetwork* net);
         std::string net_to_string_save(GPNetwork* net);
 
-        GPLog& log;
-        GPLog& verbose;
-        GPLog& debug;
-        GPLog& error;
+        GPLog log_buff;
+        GPLog verbose_buff;
+        GPLog debug_buff;
+        GPLog error_buff;
+
+        std::ostream log;
+        std::ostream verbose;
+        std::ostream debug;
+        std::ostream error;
 
     private:
         GPLoggerParams* params;
+        std::string seed_string;
 };
 
 #endif

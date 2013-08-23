@@ -1,17 +1,28 @@
 #include "GPLogger.h"
 
+#include <cctype>
+#include <ostream>
+#include <functional>
+#include <cassert>
+
 /*
     GPLog
 */
 
-GPLog::GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward) :
-    params(params), forward(forward)
+GPLog::GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward, std::size_t buff_sz) :
+    params(params), forward(forward),
+    sink_(), buffer_(buff_sz + 1)
 {
-    if (params->log_to_file) {
-        log_stream.open(output_file_path.c_str());
+    if (params->to_file) {
+        log_file_stream.open(output_file_path.c_str());
     }
+
+    sink_.clear();
+    char *base = &buffer_.front();
+    setp(base, base + buffer_.size() - 1);
 }
 
+/*
 std::ostream& GPLog::operator<<(std::ostream& os) {
     if (params->to_file)
         log_file_oseam << os << std::endl;
@@ -27,29 +38,72 @@ std::ostream& GPLog::operator<<(std::ostream& os) {
 
     return os;
 }
+*/
+
+int_type GPLog::overflow(int_type ch)
+{
+    if (sink_ && ch != eof())
+    {
+        assert(std::less_equal<char *>()(pptr(), epptr()));
+        *pptr() = char(ch);
+        pbump(1);
+        if (forward_and_flush())
+            returr ch;
+    }
+
+    return eof();
+}
+
+int GPLog::sync()
+{
+    return forward_and_flush() ? 0 : -1;
+}
+
+bool GPLog::forward_and_flush()
+{
+    for (char *p = pbase(), *e = pptr(); p != e; ++p)
+    {
+		/*
+        if (*p == '.')
+            cap_next_ = true;
+        else if (std::isalpha(*p))
+        {
+            if (cap_next_)
+                *p = char(std::toupper(*p));
+
+            cap_next_ = false;
+        }
+		*/
+		std::cerr << *p;
+    }
+    std::ptrdiff_t n = pptr() - pbase();
+    pbump(-n);
+
+    return sink_.write(pbase(), n);
+}
 
 /*
     GPLogger
 */
 
-GPLogger::GPLogger(GPLoggerParams* params, unsigned seed, std::string output_dir_path) :
-    params(params), seed(seed)
+GPLogger::GPLogger(GPLoggerParams* params, std::string seed_string, std::string output_dir_path) :
+    params(params), seed_string(seed_string),
+    log_buff(params->log_params, output_dir_path + seed_string + ".log", NULL),
+    verbose_buff(params->verbose_params, output_dir_path + seed_string + ".log.verbose", NULL),
+    debug_buff(params->debug_params, output_dir_path + seed_string + ".debug", NULL),
+    error_buff(params->error_params, output_dir_path + seed_string + ".error", NULL),
+    log(&log_buff),
+    verbose(&verbose_buff),
+    debug(&debug_buff),
+    error(&error_buff)
 {
-    std::stringstream seed_stream;
-    seed_stream << seed;
-    std::string seed_string = seed_stream.str();
-
-    log(params->log_params, output_dir_path + seed_string + ".log", NULL);
-    verbose(params->verbose_params, output_dir_path + seed_string + ".log.verbose", log);
-    debug(params->debug_params, output_dir_path + seed_string + ".debug", NULL);
-    error(params->error_params, output_dir_path + seed_string + ".error", NULL);
 }
 
 GPLogger::~GPLogger() {
 }
 
-unsigned GPLogger::get_seed() {
-    return seed;
+std::string GPLogger::get_seed_string() {
+    return seed_string;
 }
 
 std::string GPLogger::net_to_string_print(GPNetwork* net) {
