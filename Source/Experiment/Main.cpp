@@ -55,15 +55,18 @@ int main( int argc, const char* argv[] )
         ("save_precision", po::value<unsigned>(&(logger_params->save_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
         ("print_precision", po::value<unsigned>(&(logger_params->print_precision))->default_value(3), "precision for text-logging synthesis algorithms")
 
-        ("log_to_file", po::value<bool>(&(logger_params->log_to_file))->default_value(false), "")
-        ("log_to_cout", po::value<bool>(&(logger_params->log_to_cout))->default_value(true), "")
-        ("log_to_cerr", po::value<bool>(&(logger_params->log_to_cerr))->default_value(false), "")
-        ("log_verbose_to_file", po::value<bool>(&(logger_params->log_verbose_to_file))->default_value(false), "")
-        ("log_verbose_to_cout", po::value<bool>(&(logger_params->log_verbose_to_cout))->default_value(false), "")
-        ("log_verbose_to_cerr", po::value<bool>(&(logger_params->log_verbose_to_cerr))->default_value(false), "")
-        ("debug_to_file", po::value<bool>(&(logger_params->debug_to_file))->default_value(false), "")
-        ("debug_to_cout", po::value<bool>(&(logger_params->debug_to_cout))->default_value(false), "")
-        ("debug_to_cerr", po::value<bool>(&(logger_params->debug_to_cerr))->default_value(true), "")
+        ("log_to_file", po::value<bool>(&(logger_params->log_params->to_file))->default_value(false), "")
+        ("log_to_cout", po::value<bool>(&(logger_params->log_params->to_cout))->default_value(false), "")
+        ("log_to_cerr", po::value<bool>(&(logger_params->log_params->to_cerr))->default_value(false), "")
+        ("verbose_to_file", po::value<bool>(&(logger_params->verbose_params->to_file))->default_value(false), "")
+        ("verbose_to_cout", po::value<bool>(&(logger_params->verbose_params->to_cout))->default_value(false), "")
+        ("verbose_to_cerr", po::value<bool>(&(logger_params->verbose_params->to_cerr))->default_value(false), "")
+        ("debug_to_file", po::value<bool>(&(logger_params->debug_params->to_file))->default_value(false), "")
+        ("debug_to_cout", po::value<bool>(&(logger_params->debug_params->to_cout))->default_value(false), "")
+        ("debug_to_cerr", po::value<bool>(&(logger_params->debug_params->to_cerr))->default_value(false), "")
+        ("error_to_file", po::value<bool>(&(logger_params->error_params->to_file))->default_value(false), "")
+        ("error_to_cout", po::value<bool>(&(logger_params->error_params->to_cout))->default_value(false), "")
+        ("error_to_cerr", po::value<bool>(&(logger_params->error_params->to_cerr))->default_value(false), "")
     ;
 
     // parse logger config file
@@ -75,11 +78,13 @@ int main( int argc, const char* argv[] )
     logger_cfg_file.close();
 
     // create logger
-    GPLogger* logger = new GPLogger(logger_params, seed, output_dir_path);
+    std::stringstream ss;
+    ss << seed;
+    GPLogger* logger = new GPLogger(logger_params, ss.str(), output_dir_path);
 
     // print system info if requested
     if (cl_vm.count("sys_info")) {
-        logger->log(logger->get_system_info());
+        logger->log << logger->get_system_info() << std::flush;
     }
 
     // check if this is a sanity test

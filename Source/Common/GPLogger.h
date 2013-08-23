@@ -54,10 +54,10 @@ struct GPLoggerParams {
 };
 
 class GPLogger {
-    GPLogger(GPLoggerParams* params, std::string seed_string, std::string output_dir_path);
-    ~GPLogger();
-
     public:    
+        GPLogger(GPLoggerParams* params, std::string seed_string, std::string output_dir_path);
+        ~GPLogger();
+
         std::string get_seed_string();
         std::string get_system_info();
 
