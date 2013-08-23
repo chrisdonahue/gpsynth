@@ -1,8 +1,5 @@
 #include "GPLogger.h"
 
-#include <cctype>
-#include <ostream>
-#include <functional>
 #include <cassert>
 
 /*
@@ -22,36 +19,21 @@ GPLog::GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward, 
     setp(base, base + buffer_.size() - 1);
 }
 
-/*
-std::ostream& GPLog::operator<<(std::ostream& os) {
-    if (params->to_file)
-        log_file_oseam << os << std::endl;
+GPLog::~GPLog()
+{}
 
-    if (params->to_cout)
-        std::cout << os << std::endl;
-
-    if (params->to_cerr)
-        std::cerr << os << std::endl;
-
-    if (forward)
-        forward << os;
-
-    return os;
-}
-*/
-
-int_type GPLog::overflow(int_type ch)
+GPLog::int_type GPLog::overflow(int_type ch)
 {
-    if (sink_ && ch != eof())
+    if (sink_ && ch != EOF)
     {
         assert(std::less_equal<char *>()(pptr(), epptr()));
         *pptr() = char(ch);
         pbump(1);
         if (forward_and_flush())
-            returr ch;
+            return ch;
     }
 
-    return eof();
+    return EOF;
 }
 
 int GPLog::sync()
@@ -73,6 +55,17 @@ bool GPLog::forward_and_flush()
 
             cap_next_ = false;
         }
+        if (params->to_file)
+            log_file_oseam << os << std::endl;
+
+        if (params->to_cout)
+            std::cout << os << std::endl;
+
+        if (params->to_cerr)
+            std::cerr << os << std::endl;
+
+        if (forward)
+            forward << os;
 		*/
 		std::cerr << *p;
     }

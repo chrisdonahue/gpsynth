@@ -9,6 +9,7 @@
 #include <iosfwd>
 #include <cstdlib>
 #include <vector>
+#include <stdio.h>
 #include "../Synth/GPNetwork.h"
 
 struct GPLogParams {
@@ -27,7 +28,7 @@ class GPLog : public std::streambuf {
         bool forward_and_flush();
 
     private:
-        int_type overflow(int_type ch);
+        GPLog::int_type overflow(int_type ch);
         int sync();
 
         // copy ctor and assignment not implemented;
