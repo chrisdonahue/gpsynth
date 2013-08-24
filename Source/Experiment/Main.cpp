@@ -50,6 +50,10 @@ int main( int argc, const char* argv[] )
 
     // declare logger desc
     GPLoggerParams* logger_params = (GPLoggerParams*) malloc(sizeof(GPLoggerParams));
+    logger_params->log_params = (GPLogParams*) malloc(sizeof(GPLogParams));
+    logger_params->verbose_params = (GPLogParams*) malloc(sizeof(GPLogParams));
+    logger_params->debug_params = (GPLogParams*) malloc(sizeof(GPLogParams));
+    logger_params->error_params = (GPLogParams*) malloc(sizeof(GPLogParams));
     po::options_description logger_desc("");
     logger_desc.add_options()
         ("save_precision", po::value<unsigned>(&(logger_params->save_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
@@ -90,7 +94,15 @@ int main( int argc, const char* argv[] )
     // check if this is a sanity test
     if (cl_vm.count("sanity")) {
         GPExperiment* sanity_test = new GPExperiment(logger);
-        return sanity_test->sanityTest(rng);
+        int ret = sanity_test->sanityTest(rng);
+        free(logger_params->log_params);
+        free(logger_params->verbose_params);
+        free(logger_params->debug_params);
+        free(logger_params->error_params);
+        free(logger_params);
+        delete logger;
+        delete rng;
+        return ret;
     }
 
     // declare synth desc
@@ -135,7 +147,6 @@ int main( int argc, const char* argv[] )
     po::store(po::parse_config_file(synth_cfg_file, synth_desc, true), synth_vm);
     po::notify(synth_vm);
     synth_cfg_file.close();
-
 
     // parse primitives file
     std::ifstream primitives_file;
@@ -204,6 +215,24 @@ int main( int argc, const char* argv[] )
 
     // run experiment
     GPNetwork* champion = experiment->evolve();
+
+    // delete rng
+    delete rng;
+
+    // delete logger
+    free(logger_params->log_params);
+    free(logger_params->verbose_params);
+    free(logger_params->debug_params);
+    free(logger_params->error_params);
+    free(logger_params);
+
+    // delete synth
+    free(synth_params);
+    delete synth;
+
+    // delete experiment
+    free(me_params);
+    delete experiment;
 
     return 1;
 }

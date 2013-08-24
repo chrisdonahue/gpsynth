@@ -6,8 +6,8 @@
     GPLog
 */
 
-GPLog::GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward, std::size_t buff_sz) :
-    params(params), forward(forward),
+GPLog::GPLog(GPLogParams* params, std::string output_file_path, std::size_t buff_sz) :
+    params(params), do_forward(false),
     sink_(), buffer_(buff_sz + 1)
 {
     if (params->to_file) {
@@ -21,6 +21,11 @@ GPLog::GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward, 
 
 GPLog::~GPLog()
 {}
+
+void GPLog::set_forward(std::ostream* f) {
+    do_forward = true;
+    forward = f;
+}
 
 GPLog::int_type GPLog::overflow(int_type ch)
 {
@@ -43,32 +48,23 @@ int GPLog::sync()
 
 bool GPLog::forward_and_flush()
 {
-    for (char *p = pbase(), *e = pptr(); p != e; ++p)
-    {
-		/*
-        if (*p == '.')
-            cap_next_ = true;
-        else if (std::isalpha(*p))
-        {
-            if (cap_next_)
-                *p = char(std::toupper(*p));
+    char* p = pbase();
+    *(pptr()) = '\0';
 
-            cap_next_ = false;
-        }
-        if (params->to_file)
-            log_file_oseam << os << std::endl;
+    std::cerr << "PBASE:" << std::endl << p << std::endl;
 
-        if (params->to_cout)
-            std::cout << os << std::endl;
+    if (params->to_file)
+        log_file_stream << p << std::endl;
 
-        if (params->to_cerr)
-            std::cerr << os << std::endl;
+    if (params->to_cout)
+        std::cout << p << std::endl;
 
-        if (forward)
-            forward << os;
-		*/
-		std::cerr << *p;
-    }
+    if (params->to_cerr)
+        std::cerr << p << std::endl;
+
+    if (do_forward)
+        (*forward) << p << std::flush;
+
     std::ptrdiff_t n = pptr() - pbase();
     pbump(-n);
 
@@ -81,15 +77,16 @@ bool GPLog::forward_and_flush()
 
 GPLogger::GPLogger(GPLoggerParams* params, std::string seed_string, std::string output_dir_path) :
     params(params), seed_string(seed_string),
-    log_buff(params->log_params, output_dir_path + seed_string + ".log", NULL),
-    verbose_buff(params->verbose_params, output_dir_path + seed_string + ".log.verbose", NULL),
-    debug_buff(params->debug_params, output_dir_path + seed_string + ".debug", NULL),
-    error_buff(params->error_params, output_dir_path + seed_string + ".error", NULL),
+    log_buff(params->log_params, output_dir_path + seed_string + ".log"),
+    verbose_buff(params->verbose_params, output_dir_path + seed_string + ".log.verbose"),
+    debug_buff(params->debug_params, output_dir_path + seed_string + ".debug"),
+    error_buff(params->error_params, output_dir_path + seed_string + ".error"),
     log(&log_buff),
     verbose(&verbose_buff),
     debug(&debug_buff),
     error(&error_buff)
 {
+    //verbose_buff.set_forward(&log);
 }
 
 GPLogger::~GPLogger() {

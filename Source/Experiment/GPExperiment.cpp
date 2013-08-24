@@ -9,7 +9,7 @@
 GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
     is_sanity_test(false),
     logger(logger),
-    params(params), seed(logger->get_seed()),
+    params(params), seed_string(logger->get_seed_string()),
     synth(synth),
     targetPath(target_file_path), savePath(output_dir_path),
     numConstantValues(constants.size()), constantValues(constants.data())
@@ -102,9 +102,9 @@ GPNetwork* GPExperiment::evolve() {
                 generationChamp->doneRendering();
 
                 // save generation champions
-                char buffer[100];
-                snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
-                saveWavFile(savePath + String(buffer), String(logger->net_to_string_save(generationChamp).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+                std::stringstream ss;
+                ss << seed_string << ".gen." << numEvaluatedGenerations << ".best.wav";
+                saveWavFile(savePath + String(ss.str()), String(logger->net_to_string_save(generationChamp).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
             }
 
             // increment number of evaluted generations
@@ -122,11 +122,11 @@ GPNetwork* GPExperiment::evolve() {
     free(candidateData);
 
     // print evolution summary
-    logger->log("-------------------------------- SUMMARY ---------------------------------");
+    logger->log << "-------------------------------- SUMMARY ---------------------------------" << std::flush;
 
     // print a message if we met the threshold
     if (minFitnessAchieved <= fitnessThreshold) {
-        logger->log("Evolution found a synthesis algorithm at or below the specified fitness threshold");
+        logger->log << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::flush;
     }
 
     // print the number of generations evolution ran for
@@ -135,7 +135,7 @@ GPNetwork* GPExperiment::evolve() {
         std::cerr << "Evolution ran for " << numEvaluatedGenerations + (params->populationSize - numUnevaluatedThisGeneration)/float(params->populationSize) << " generations" << std::endl;
     else
     */
-    std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
+    logger->log << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::flush;
 
     // render the champion
     GPNetwork* champ = synth == NULL ? NULL : synth->champ;
@@ -144,11 +144,11 @@ GPNetwork* GPExperiment::evolve() {
         renderIndividualByBlockPerformance(champ, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
         assert(champ->fitness == minFitnessAchieved);
-        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << logger->net_to_string_print(champ) << std::endl;
-        char buffer[100];
-        snprintf(buffer, 100, "%d.champion.wav", seed);
+        logger->log << "The best synthesis algorithm found was number " << champ->ID << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << logger->net_to_string_print(champ) << std::flush;
+        std::stringstream ss;
+        ss << seed_string << ".champion.wav";
         if (params->log_save_overall_champ_audio)
-            saveWavFile(savePath + String(buffer), String(logger->net_to_string_save(champ)), String(champ->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+            saveWavFile(savePath + String(ss.str()), String(logger->net_to_string_save(champ)), String(champ->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
     }
     free(champBuffer);
     return champ;
@@ -436,14 +436,14 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                 lEvolver->evolve(lVivarium, lSystem);
             }
             catch(Beagle::Exception& inException) {
-                logger->debug("Beagle exception caught:");
-                logger->debug(inException.what());
+                //logger->debug("Beagle exception caught:");
+                //logger->debug(inException.what());
                 //inException.terminate(std::cerr);
                 return -1;
             }
             catch (std::exception& inException) {
-                logger->debug("Standard exception caught:");
-                logger->debug(inException.what());
+                //logger->debug("Standard exception caught:");
+                //logger->debug(inException.what());
                 return -1;
             }
         }
@@ -487,7 +487,7 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 }
 
 double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
-		logger->debug(candidate->toString(5));
+		//logger->debug(candidate->toString(5));
         renderIndividualByBlockPerformance(candidate, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
         double fitness = compareToTarget(params->ff_type, candidateFramesBuffer);
         //std::cerr << " fitness: " << fitness;

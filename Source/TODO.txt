@@ -110,8 +110,6 @@ TODO long run:
         fleschter munsion? :/
 
 TODO NEXT EXPERIMENTS:
-    logger stuff for synth and experiment
-
     meet with stone:
         BEAGLE experts? CMAES experts?
         resources for parameter estimation?

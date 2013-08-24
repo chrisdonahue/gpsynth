@@ -21,8 +21,10 @@ struct GPLogParams {
 // log stream
 class GPLog : public std::streambuf {
     public:
-        explicit GPLog(GPLogParams* params, std::string output_file_path, GPLog* forward, std::size_t buff_sz = 256);
+        explicit GPLog(GPLogParams* params, std::string output_file_path, std::size_t buff_sz = 2048);
         ~GPLog();
+
+        void set_forward(std::ostream* f);
 
     protected:
         bool forward_and_flush();
@@ -36,8 +38,9 @@ class GPLog : public std::streambuf {
         GPLog(const GPLog &);
         GPLog &operator= (const GPLog &);
 
-        GPLog* forward;
         GPLogParams* params;
+        bool do_forward;
+        std::ostream* forward;
         std::ofstream log_file_stream;
         std::stringstream sink_;
         std::vector<char> buffer_;

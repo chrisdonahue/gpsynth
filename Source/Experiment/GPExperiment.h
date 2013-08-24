@@ -82,7 +82,7 @@ private:
     GPLogger* logger;
     GPSynth* synth;
     GPMatchingExperimentParams* params;
-    unsigned seed;
+    std::string seed_string;
     String targetPath;
     String savePath;
     float fitnessThreshold;
