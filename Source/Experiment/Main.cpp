@@ -63,8 +63,7 @@ int main( int argc, const char* argv[] )
         ("log_to_cout", po::value<bool>(&(logger_params->log_params->to_cout))->default_value(false), "")
         ("log_to_cerr", po::value<bool>(&(logger_params->log_params->to_cerr))->default_value(false), "")
         ("verbose_to_file", po::value<bool>(&(logger_params->verbose_params->to_file))->default_value(false), "")
-        ("verbose_to_cout", po::value<bool>(&(logger_params->verbose_params->to_cout))->default_value(false), "")
-        ("verbose_to_cerr", po::value<bool>(&(logger_params->verbose_params->to_cerr))->default_value(false), "")
+        ("verbose_to_log", po::value<bool>(&(logger_params->verbose_to_log))->default_value(false), "")
         ("debug_to_file", po::value<bool>(&(logger_params->debug_params->to_file))->default_value(false), "")
         ("debug_to_cout", po::value<bool>(&(logger_params->debug_params->to_cout))->default_value(false), "")
         ("debug_to_cerr", po::value<bool>(&(logger_params->debug_params->to_cerr))->default_value(false), "")
@@ -84,6 +83,8 @@ int main( int argc, const char* argv[] )
     // create logger
     std::stringstream ss;
     ss << seed;
+    logger_params->verbose_params->to_cout = false;
+    logger_params->verbose_params->to_cerr = false;
     GPLogger* logger = new GPLogger(logger_params, ss.str(), output_dir_path);
 
     // print system info if requested

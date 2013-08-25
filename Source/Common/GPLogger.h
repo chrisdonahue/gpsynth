@@ -51,6 +51,7 @@ struct GPLoggerParams {
     unsigned save_precision;
     unsigned print_precision;
 
+    bool verbose_to_log;
     GPLogParams* log_params;
     GPLogParams* verbose_params;
     GPLogParams* debug_params;

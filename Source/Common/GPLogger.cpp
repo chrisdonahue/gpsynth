@@ -51,8 +51,6 @@ bool GPLog::forward_and_flush()
     char* p = pbase();
     *(pptr()) = '\0';
 
-    std::cerr << "PBASE:" << std::endl << p << std::endl;
-
     if (params->to_file)
         log_file_stream << p << std::endl;
 
@@ -86,7 +84,8 @@ GPLogger::GPLogger(GPLoggerParams* params, std::string seed_string, std::string 
     debug(&debug_buff),
     error(&error_buff)
 {
-    //verbose_buff.set_forward(&log);
+    if (params->verbose_to_log);
+        verbose_buff.set_forward(&log);
 }
 
 GPLogger::~GPLogger() {
