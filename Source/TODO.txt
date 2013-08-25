@@ -120,8 +120,6 @@ TODO NEXT EXPERIMENTS:
         read about how to limit number of generations
         start init values at current value to suboptimize future generatinos
     
-    add genetic operator with percentage: random new individual
-    or crossover with random new individual
     redo logging stuff:
         each generation produces generation file:
             <seed>.<gen#>.gen

@@ -395,12 +395,13 @@ int GPSynth::nextGeneration() {
 
     // CALCULATE NUMBER OF INDIVIDUALS BY EACH MUTATION TYPE
     double proportionSum = 0;
-    proportionSum += params->nm_proportion + params->mu_proportion + params->x_proportion + params->re_proportion;
+    proportionSum += params->nm_proportion + params->mu_proportion + params->x_proportion + params->re_proportion + params->new_proportion;
 
     unsigned numToNumericMutate = (unsigned) ((params->nm_proportion) * populationSize);
     unsigned numToMutate = (unsigned) ((params->mu_proportion/proportionSum) * populationSize);
     unsigned numToCrossover = (unsigned) ((params->x_proportion/proportionSum) * populationSize);
     unsigned numToReproduce = (unsigned) ((params->re_proportion/proportionSum) * populationSize);
+    unsigned numToCreate = (unsigned) ((params->new_proportion/proportionSum) * populationSize);
 
     assert(numToNumericMutate + numToMutate + numToCrossover + numToReproduce <= populationSize);
     numToCrossover += populationSize - (numToNumericMutate + numToMutate + numToCrossover + numToReproduce);
@@ -491,6 +492,14 @@ int GPSynth::nextGeneration() {
         one->fitness = oldFitness;
         nextGeneration->push_back(one);
     }
+
+    // CREATE
+    for (unsigned i = 0; i < numToCreate; i++) {
+        GPNetwork* one = newIndividual(params->new_type);
+        one->traceNetwork();
+        nextGeneration->push_back(one);
+    }
+
 
     // DELETE STATE FROM LAST GENERATIOn
     clearGenerationState();
@@ -712,7 +721,10 @@ void GPSynth::mutate(unsigned mutationType, GPNetwork* one) {
         delete forReplacement;
     }
     else if (mutationType == 1) {
-        
+        // grow new node
+        GPNetwork* two = grow(params->max_initial_height);
+        crossover(params->x_type, one, two);
+        delete two;
     }
 }
 
@@ -748,6 +760,22 @@ void GPSynth::numericallyMutate(GPNetwork* one) {
         }
     }
     //std::cout << "AFTER NUMERIC MUTATION " << one->toString(3) << std::endl;
+}
+
+GPNetwork* GPSynth::newIndividual(unsigned new_type) {
+    if (new_type == 0) {
+        return grow(params->max_initial_height);
+    }
+    else if (new_type == 1) {
+        return grow(params->max_height);
+    }
+    else if (new_type == 2) {
+        return full(params->max_initial_height);
+    }
+    else if (new_type == 3) {
+        return full(params->max_height);
+    }
+    return NULL;
 }
 
 /*

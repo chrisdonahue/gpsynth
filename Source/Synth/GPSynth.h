@@ -45,6 +45,9 @@ struct GPSynthParams {
     double re_proportion;
     unsigned re_selection_type;
     double re_selection_percentile;
+    // random new individual
+    double new_proportion;
+    unsigned new_type;
 };
 
 class GPSynth {
@@ -91,6 +94,7 @@ private:
     GPNetwork* crossover(unsigned crossoverType, GPNetwork* one, GPNetwork* two);
     void mutate(unsigned mutationType, GPNetwork* one);
     void numericallyMutate(GPNetwork* one);
+    GPNetwork* newIndividual(unsigned new_type);
 
     // PRIVATE EVOLUTION STATE
     GPLogger* logger;
