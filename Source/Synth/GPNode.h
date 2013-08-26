@@ -162,7 +162,6 @@ public:
         return ss.str();
     }
 
-protected:
     void toString(std::stringstream& ss) {
         ss << "(" << symbol;
         for (unsigned i = 0; i < mutatableParams.size(); i++) {
@@ -176,6 +175,7 @@ protected:
         ss << ")";
     }
 
+protected:
     std::string symbol;
 };
 

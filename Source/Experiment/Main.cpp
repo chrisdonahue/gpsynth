@@ -159,7 +159,6 @@ int main( int argc, const char* argv[] )
     std::string primitive;
     std::vector<GPNode*>* primitives = new std::vector<GPNode*>();
     while (std::getline(primitives_file, primitive)) {
-        logger->debug << "Got here: " << primitive << std::flush;
         primitives->push_back(createNode(primitive, rng));
     }
     primitives_file.close();
