@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SplineEnvelopeNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef SPLINEENVELOPENODE_H
 #define SPLINEENVELOPENODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     SplineEnvelopeNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
     void ephemeralRandom(GPRandom* rng);

@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    WaveTableNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef WAVETABLENODE_H
 #define WAVETABLENODE_H
 
@@ -20,7 +11,6 @@ public:
     void doneRendering();
     void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 	void updateMutatedParams();
-    void toString(std::stringstream& ss);
 
 	// WaveTable helpers
 	void fft(int N, double* ar, double* ai);
@@ -34,7 +24,6 @@ public:
     virtual void defineHarmonics(int len, int numHarmonics, double* ar, double* ai) = 0;
 
     // member variables
-    std::string symbol;
     int variableNum;
     float sampleRate;
     float partial;

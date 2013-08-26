@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    NoiseNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef NOISENODE_H
 #define NOISENODE_H
 
@@ -21,7 +12,6 @@ public:
 	// overrides
     NoiseNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
 	// class specific
 	void whitenoise(float* _fpDstBuffer, unsigned int _uiBufferSize, float _fLevel );

@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    ADSREnvelopeNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "ADSREnvelopeNode.h"
 
 /*
@@ -32,6 +23,8 @@ ADSREnvelopeNode::ADSREnvelopeNode(GPMutatableParam* del, GPMutatableParam* atk,
 
     arity = 1;
     descendants.push_back(signal);
+
+    symbol = "adsr*";
 }
 
 ADSREnvelopeNode::~ADSREnvelopeNode() {
@@ -115,17 +108,6 @@ void ADSREnvelopeNode::updateMutatedParams() {
     intervalMultiply(&minimum, &maximum, minAttackHeight, maxAttackHeight, descendants[0]->minimum, descendants[0]->maximum);
     
     fillFromParams();
-}
-
-void ADSREnvelopeNode::toString(std::stringstream& ss) {
-    ss << "(adsr*";
-    for (unsigned i = 0; i < mutatableParams.size(); i++) {
-      ss << " ";
-      mutatableParams[i]->toString(ss);
-    }
-    ss << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
 }
 
 /*

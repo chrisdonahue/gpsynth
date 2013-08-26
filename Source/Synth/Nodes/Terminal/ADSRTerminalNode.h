@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    ADSRTerminalNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef ADSRTERMINALNODE_H
 #define ADSRTERMINALNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     ADSRTerminalNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);

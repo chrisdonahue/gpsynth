@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SplineTerminalNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef SPLINETERMINALNODE_H
 #define SPLINETERMINALNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     SplineTerminalNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
     void ephemeralRandom(GPRandom* rng);

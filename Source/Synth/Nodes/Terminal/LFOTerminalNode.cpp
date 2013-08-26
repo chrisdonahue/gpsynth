@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    LFOTerminalNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "LFOTerminalNode.h"
 
 /*
@@ -21,7 +12,9 @@ LFOTerminalNode::LFOTerminalNode(GPMutatableParam* rate)
 
     arity = 0;
     minimum = -1;
-    maximum = 1;   
+    maximum = 1;
+    
+    symbol = "lfo";
 }
 
 LFOTerminalNode::~LFOTerminalNode() {
@@ -52,10 +45,4 @@ void LFOTerminalNode::updateMutatedParams() {
     w = 2.0 * M_PI * rate;
 	
     // minimum/maximum constant and declared in constructor
-}
-
-void LFOTerminalNode::toString(std::stringstream& ss) {
-    ss << "(lfo ";
-    mutatableParams[0]->toString(ss);
-    ss << ")";
 }

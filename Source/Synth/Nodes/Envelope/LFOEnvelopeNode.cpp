@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    LFOEnvelopeNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "LFOEnvelopeNode.h"
 
 /*
@@ -21,6 +12,8 @@ LFOEnvelopeNode::LFOEnvelopeNode(GPMutatableParam* rate, GPNode* mod)
 
     descendants.push_back(mod);
     arity = 1;
+
+    symbol = "lfo*";
 }
 
 LFOEnvelopeNode::~LFOEnvelopeNode() {
@@ -53,12 +46,4 @@ void LFOEnvelopeNode::updateMutatedParams() {
 	
     // minimum/maximum calculation
     intervalMultiply(&minimum, &maximum, -1.0f, 1.0f, descendants[0]->minimum, descendants[0]->maximum);
-}
-
-void LFOEnvelopeNode::toString(std::stringstream& ss) {
-    ss << "(lfo* "; 
-    mutatableParams[0]->toString(ss);
-    ss << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
 }

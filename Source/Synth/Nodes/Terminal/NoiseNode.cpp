@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    NoiseNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "NoiseNode.h"
 
 /*
@@ -22,6 +13,8 @@ NoiseNode::NoiseNode(GPRandom* r) {
     
     minimum = -1;
     maximum = 1;
+
+    symbol = "whitenoise";
 }
 
 NoiseNode::~NoiseNode() {
@@ -50,10 +43,6 @@ void NoiseNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned num
     }
 
     whitenoise(buffer, numSamples, 1.0);
-}
-
-void NoiseNode::toString(std::stringstream& ss) {
-    ss << "(whitenoise)";
 }
 
 /*

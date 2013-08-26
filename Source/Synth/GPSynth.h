@@ -66,6 +66,7 @@ public:
     void printGenerationDelim();
     void printGenerationSummary();
     void printEvolutionSummary();
+    void getCurrentGeneration(std::vector<GPNetwork*>& networks);
 
     // PUBLIC EVOLUTION STATE
     int currentGenerationNumber;
@@ -119,7 +120,7 @@ private:
     std::vector<GPNode*>* availableTerminals;
 
     // NETWORK CONTAINERS
-    std::vector<std::string*> allNetworks;
+    std::vector<std::string> allNetworks;
     std::set<GPNetwork*> unevaluated;
     std::set<GPNetwork*> evaluated;
     std::map<int, GPNetwork*> currentGeneration;

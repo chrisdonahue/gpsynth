@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SplineEnvelopeNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "SplineEnvelopeNode.h"
 
 /*
@@ -41,6 +32,8 @@ SplineEnvelopeNode::SplineEnvelopeNode(GPMutatableParam* splinetype, GPMutatable
 
     arity = 1;
     descendants.push_back(signal);
+
+    symbol = "spline*";
 }
 
 SplineEnvelopeNode::~SplineEnvelopeNode() {
@@ -150,17 +143,6 @@ void SplineEnvelopeNode::updateMutatedParams() {
     intervalMultiply(&minimum, &maximum, minSplineHeight, maxSplineHeight, descendants[0]->minimum, descendants[0]->maximum);
     
     fillFromParams();
-}
-
-void SplineEnvelopeNode::toString(std::stringstream& ss) {
-    ss << "(spline*";
-    for (unsigned i = 0; i < mutatableParams.size(); i++) {
-        ss << " ";
-        mutatableParams[i]->toString(ss);
-    }
-    ss << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
 }
 
 /*

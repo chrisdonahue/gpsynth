@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    WaveTableNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "WaveTableNode.h"
 
 /*
@@ -52,15 +43,6 @@ void WaveTableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned
 
 void WaveTableNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
-}
-
-void WaveTableNode::toString(std::stringstream& ss) {
-    ss << "(" << symbol;
-    for (unsigned i = 0; i < mutatableParams.size(); i++) {
-        ss << " ";
-        mutatableParams[i]->toString(ss);
-    }
-    ss << ")";
 }
 
 /*

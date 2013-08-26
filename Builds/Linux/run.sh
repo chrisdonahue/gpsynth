@@ -5,12 +5,14 @@ set -e
 # NEW CONFIG FILES
 #<<COMMENT
 #gdb --args \
+#valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
     --sys_info \
     --logger_cfg ./cfg/logger_default.cfg \
     --synth_cfg ./cfg/synth_default.cfg \
     --primitives ./cfg/primitives_default.cfg \
     --me_cfg ./cfg/me_default.cfg \
+    --beagle_cfg ./cfg/beagle_default.cfg \
     --target ./samples/TrumpetEb5.wav \
     --output_dir ./output/ \
     --seed 0 \
@@ -20,7 +22,6 @@ set -e
 # LOCAL TRUMPET TEST
 <<COMMENT
 #gdb --args \
-#valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
   TEMP FIELDS\
   --target ./samples/TrumpetEb5.wav\

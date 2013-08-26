@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    LFOTerminalNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef LFOTERMINALNODE_H
 #define LFOTERMINALNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     LFOTerminalNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

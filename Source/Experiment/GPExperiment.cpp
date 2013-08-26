@@ -6,12 +6,13 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
+GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
     is_sanity_test(false),
     logger(logger),
-    params(params), seed_string(logger->get_seed_string()),
+    params(params), beagle_cfg_file_path(beagle_cfg_file_path),
+    seed_string(logger->get_seed_string()),
     synth(synth),
-    targetPath(target_file_path), savePath(output_dir_path),
+    target_file_path(target_file_path), output_dir_path(output_dir_path),
     numConstantValues(constants.size()), constantValues(constants.data())
 {
     // TARGET DATA CONTAINERS
@@ -20,7 +21,7 @@ GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params,
     targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
     loadWavFile(target_file_path, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
     if (params->log_save_target_copy)
-        saveWavFile(savePath + String("target_copy.wav"), String(""), String("target"), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
+        saveWavFile(String(output_dir_path) + String("target_copy.wav"), String(""), String("target"), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, targetFrames);
 
     fillEvaluationBuffers(numConstantValues, constantValues, 0, NULL);
 
@@ -103,8 +104,21 @@ GPNetwork* GPExperiment::evolve() {
 
                 // save generation champions
                 std::stringstream ss;
-                ss << seed_string << ".gen." << numEvaluatedGenerations << ".best.wav";
-                saveWavFile(savePath + String(ss.str()), String(logger->net_to_string_save(generationChamp).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+                ss << output_dir_path << seed_string << ".gen." << numEvaluatedGenerations << ".best.wav";
+                saveWavFile(String(ss.str()), String(logger->net_to_string_save(generationChamp).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+            }
+
+            if (params->log_save_gen_summary_file) {
+                std::stringstream ss;
+                ss << output_dir_path << seed_string << ".gen." << numEvaluatedGenerations << ".summary";
+                std::vector<GPNetwork*> currentGeneration(0);
+                synth->getCurrentGeneration(currentGeneration);
+                std::stringstream ss2;
+                for (std::vector<GPNetwork*>::iterator i = currentGeneration.begin(); i != currentGeneration.end(); i++) {
+                    GPNetwork* net = (*i);
+                    ss2 << "(" << net->ID << ", " << net->fitness << ", " << net->origin << "): " << logger->net_to_string_save(net) << std::endl << std::endl;
+                }
+                saveTextFile(String(ss.str()), String(ss2.str())); 
             }
 
             // increment number of evaluted generations
@@ -121,21 +135,7 @@ GPNetwork* GPExperiment::evolve() {
 
     free(candidateData);
 
-    // print evolution summary
-    logger->log << "-------------------------------- SUMMARY ---------------------------------" << std::flush;
-
-    // print a message if we met the threshold
-    if (minFitnessAchieved <= fitnessThreshold) {
-        logger->log << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::flush;
-    }
-
-    // print the number of generations evolution ran for
-    /* TODO: move this to synth
-    if (numUnevaluatedThisGeneration != 0)
-        std::cerr << "Evolution ran for " << numEvaluatedGenerations + (params->populationSize - numUnevaluatedThisGeneration)/float(params->populationSize) << " generations" << std::endl;
-    else
-    */
-    logger->log << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::flush;
+    synth->printEvolutionSummary();
 
     // render the champion
     GPNetwork* champ = synth == NULL ? NULL : synth->champ;
@@ -144,11 +144,10 @@ GPNetwork* GPExperiment::evolve() {
         renderIndividualByBlockPerformance(champ, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
         assert(champ->fitness == minFitnessAchieved);
-        logger->log << "The best synthesis algorithm found was number " << champ->ID << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << logger->net_to_string_print(champ) << std::flush;
         std::stringstream ss;
-        ss << seed_string << ".champion.wav";
+        ss << output_dir_path << seed_string << ".champion.wav";
         if (params->log_save_overall_champ_audio)
-            saveWavFile(savePath + String(ss.str()), String(logger->net_to_string_save(champ)), String(champ->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
+            saveWavFile(String(ss.str()), String(logger->net_to_string_save(champ)), String(champ->origin.c_str()), targetSampleRate, params->aux_wav_file_buffer_size, numTargetFrames, champBuffer);
     }
     free(champBuffer);
     return champ;
@@ -305,18 +304,17 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
 
             // save spectrum files if requested
             if (params->log_save_target_spectrum) {
-                char buffer[200];
-                snprintf(buffer, 200, "targetInfo/%d.", i);
-                String tag(buffer);
+                std::stringstream ss;
+                ss << output_dir_path << "target_info/" << i << ".";
                 double time = i * (n - overlap);
                 time = double(time)/targetSampleRate;
                 for (unsigned j = 0; j < numBins - 1; j++) {
                     timeAxis[j] = time;
                 }
-                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetMagnitude + dataOffset));
-                saveTextFile(savePath + tag + String("movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
-                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binUndershootingPenalty + dataOffset));
-                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binOvershootingPenalty + dataOffset));
+                saveTextFile(String(ss.str() + "magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetMagnitude + dataOffset));
+                saveTextFile(String(ss.str() + "mac.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
+                saveTextFile(String(ss.str() + "undershoot.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binUndershootingPenalty + dataOffset));
+                saveTextFile(String(ss.str() + "overshoot.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binOvershootingPenalty + dataOffset));
             }
         }
         // free temp buffers
@@ -427,7 +425,7 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
 
                 // Initialize the evolver
                 Evolver::Handle lEvolver = new Evolver;
-                lEvolver->initialize(lSystem, "audiocomparison-cmaes.conf");
+                lEvolver->initialize(lSystem, beagle_cfg_file_path);
                 
                 // Create population
                 Vivarium::Handle lVivarium = new Vivarium;

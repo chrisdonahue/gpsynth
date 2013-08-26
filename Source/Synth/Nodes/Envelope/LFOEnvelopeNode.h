@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    LFOEnvelopeNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef LFOENVELOPENODE_H
 #define LFOENVELOPENODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     LFOEnvelopeNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

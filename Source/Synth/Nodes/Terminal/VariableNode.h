@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    VariableNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef VARIABLENODE_H
 #define VARIABLENODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     VariableNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

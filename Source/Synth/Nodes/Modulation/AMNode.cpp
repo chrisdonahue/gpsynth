@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    AMNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "AMNode.h"
 
 /*
@@ -26,6 +17,8 @@ AMNode::AMNode(GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* o, G
 
     descendants.push_back(mod);
     arity = 1;
+
+    symbol = "am";
 }
 
 AMNode::~AMNode() {
@@ -62,18 +55,4 @@ void AMNode::updateMutatedParams() {
     // minimum/maximum constant and declared in constructor
     intervalMultiply(&minimum, &maximum, descendants[0]->minimum, descendants[0]->maximum, alpha, alpha);
     intervalAdd(&minimum, &maximum, minimum, maximum, offset, offset);
-}
-
-void AMNode::toString(std::stringstream& ss) {
-    ss << "(am "; 
-    mutatableParams[0]->toString(ss);
-    ss << " ";
-    mutatableParams[1]->toString(ss);
-    ss << " ";
-    mutatableParams[2]->toString(ss);
-    ss << " ";
-    mutatableParams[3]->toString(ss);
-    ss << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
 }

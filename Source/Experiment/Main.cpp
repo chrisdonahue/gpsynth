@@ -12,9 +12,10 @@ int main( int argc, const char* argv[] )
 
     // command line container variables
     std::string logger_cfg_file_path;
-    std::string me_cfg_file_path;
     std::string synth_cfg_file_path;
     std::string primitives_file_path;
+    std::string me_cfg_file_path;
+    std::string beagle_cfg_file_path;
     std::string target_file_path;
     std::string output_dir_path;
     unsigned seed;
@@ -30,6 +31,7 @@ int main( int argc, const char* argv[] )
         ("synth_cfg", po::value<std::string>(&synth_cfg_file_path), "synth config file")
         ("primitives", po::value<std::string>(&primitives_file_path), "list of primitives available to experiment")
         ("me_cfg", po::value<std::string>(&me_cfg_file_path), "matching experiment config file")
+        ("beagle_cfg", po::value<std::string>(&beagle_cfg_file_path), "beagle suboptimization config file")
         ("target", po::value<std::string>(&target_file_path), "target wav file")
         ("output_dir", po::value<std::string>(&output_dir_path)->default_value("./"), "output file directory")
         ("seed", po::value<unsigned>(&seed)->default_value(time(NULL)), "experiment seed number")
@@ -110,13 +112,12 @@ int main( int argc, const char* argv[] )
     GPSynthParams* synth_params = (GPSynthParams*) malloc(sizeof(GPSynthParams));
     po::options_description synth_desc("");
     synth_desc.add_options()
-        ("backup_all_networks", po::value<bool>(&(synth_params->backup_all_networks))->default_value(true), "save rendered audio of the champion from each generation")
-        ("backup_precision", po::value<unsigned>(&(synth_params->backup_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
-
         ("population_size", po::value<unsigned>(&(synth_params->population_size))->default_value(10), "precision for saving/backing up synthesis algorithms")
         ("max_initial_height", po::value<unsigned>(&(synth_params->max_initial_height))->default_value(5), "precision for saving/backing up synthesis algorithms")
         ("max_height", po::value<unsigned>(&(synth_params->max_height))->default_value(10), "precision for saving/backing up synthesis algorithms")
         ("erc", po::value<bool>(&(synth_params->erc))->default_value(true), "save rendered audio of the champion from each generation")
+        ("backup_all_networks", po::value<bool>(&(synth_params->backup_all_networks))->default_value(true), "save rendered audio of the champion from each generation")
+        ("backup_precision", po::value<unsigned>(&(synth_params->backup_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
 
         ("best_possible_fitness", po::value<double>(&(synth_params->best_possible_fitness))->default_value(0.0f), "fitness to reach to terminate evolution")
         ("lower_fitness_is_better", po::value<bool>(&(synth_params->lower_fitness_is_better))->default_value(true), "save rendered audio of the champion from each generation")
@@ -139,6 +140,9 @@ int main( int argc, const char* argv[] )
         ("re_proportion", po::value<double>(&(synth_params->re_proportion))->default_value(1.0f), "fitness to reach to terminate evolution")
         ("re_selection_type", po::value<unsigned>(&(synth_params->re_selection_type))->default_value(0), "which fitness function to use")
         ("re_selection_percentile", po::value<double>(&(synth_params->re_selection_percentile))->default_value(0.0f), "fitness to reach to terminate evolution")
+
+        ("new_proportion", po::value<double>(&(synth_params->new_proportion))->default_value(1.0f), "fitness to reach to terminate evolution")
+        ("new_type", po::value<unsigned>(&(synth_params->new_type))->default_value(0), "which fitness function to use")
     ;
 
     // parse synth config file
@@ -155,6 +159,7 @@ int main( int argc, const char* argv[] )
     std::string primitive;
     std::vector<GPNode*>* primitives = new std::vector<GPNode*>();
     while (std::getline(primitives_file, primitive)) {
+        logger->debug << "Got here: " << primitive << std::flush;
         primitives->push_back(createNode(primitive, rng));
     }
     primitives_file.close();
@@ -167,6 +172,7 @@ int main( int argc, const char* argv[] )
     std::string window_type;
     po::options_description me_desc("");
     me_desc.add_options()
+        ("log_save_gen_summary_file", po::value<bool>(&(me_params->log_save_gen_summary_file))->default_value(false), "save rendered audio of the champion from each generation")
         ("log_save_gen_champ_audio", po::value<bool>(&(me_params->log_save_gen_champ_audio))->default_value(false), "save rendered audio of the champion from each generation")
         ("log_save_overall_champ_audio", po::value<bool>(&(me_params->log_save_overall_champ_audio))->default_value(false), "save rendered audio of the champion from the entire run")
         ("log_save_target_spectrum", po::value<bool>(&(me_params->log_save_target_spectrum))->default_value(false), "save spectrum of target wav file")
@@ -212,7 +218,7 @@ int main( int argc, const char* argv[] )
     }
 
     // create experiment
-    GPExperiment* experiment = new GPExperiment(logger, me_params, synth, target_file_path, output_dir_path, constants);
+    GPExperiment* experiment = new GPExperiment(logger, me_params, beagle_cfg_file_path, synth, target_file_path, output_dir_path, constants);
 
     // run experiment
     GPNetwork* champion = experiment->evolve();

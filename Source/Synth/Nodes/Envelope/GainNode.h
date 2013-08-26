@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    GainNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef GAINNODE_H
 #define GAINNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     GainNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void setRenderInfo(float sr, unsigned blockSize, unsigned maxNumFrames, float maxTime);

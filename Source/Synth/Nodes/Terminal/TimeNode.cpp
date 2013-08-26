@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    TimeNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "TimeNode.h"
 
 /*
@@ -17,6 +8,8 @@
 
 TimeNode::TimeNode() {
     arity = 0;
+
+    symbol = "time";
 }
 
 TimeNode::~TimeNode() {
@@ -51,8 +44,4 @@ void TimeNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numS
     for (unsigned i = 0; i < numSamples; i++) {
         buffer[i] = sampleTimes[i];
     }
-}
-
-void TimeNode::toString(std::stringstream& ss) {
-    ss << "(time)";
 }

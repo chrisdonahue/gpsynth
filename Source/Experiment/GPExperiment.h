@@ -28,6 +28,7 @@
 
 struct GPMatchingExperimentParams {
     // logging parameters
+    bool log_save_gen_summary_file;
     bool log_save_gen_champ_audio;
     bool log_save_overall_champ_audio;
     bool log_save_target_spectrum;
@@ -64,7 +65,7 @@ struct GPMatchingExperimentParams {
 class GPExperiment {
 public:
     // CONSTRUCTION
-    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
+    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
     GPExperiment(GPLogger* logger);
     ~GPExperiment();
 
@@ -82,9 +83,10 @@ private:
     GPLogger* logger;
     GPSynth* synth;
     GPMatchingExperimentParams* params;
+    std::string beagle_cfg_file_path;
+    std::string target_file_path;
+    std::string output_dir_path;
     std::string seed_string;
-    String targetPath;
-    String savePath;
     float fitnessThreshold;
     int numGenerations;
 

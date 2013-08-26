@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    AMNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef AMNODE_H
 #define AMNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     AMNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

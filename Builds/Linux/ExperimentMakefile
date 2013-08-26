@@ -88,6 +88,7 @@ OBJECTS := \
   $(OBJDIR)/GPAudioUtil_7e11c3f4.o \
   $(OBJDIR)/GPParser_5ec64c6d.o \
   $(OBJDIR)/GPRandom_9f210311.o \
+  $(OBJDIR)/GPLogger.o \
   $(OBJDIR)/JUCEFileIO_f48abf74.o \
   $(OBJDIR)/BinaryData_ce4232d4.o \
   $(OBJDIR)/juce_audio_basics_2442e4ea.o \
@@ -311,6 +312,11 @@ $(OBJDIR)/GPParser_5ec64c6d.o: ../../Source/Common/GPParser.cpp
 $(OBJDIR)/GPRandom_9f210311.o: ../../Source/Common/GPRandom.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling GPRandom.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPLogger.o: ../../Source/Common/GPLogger.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPLogger.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/JUCEFileIO_f48abf74.o: ../../Source/Common/JUCEFileIO.cpp
