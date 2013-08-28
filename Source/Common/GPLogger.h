@@ -48,14 +48,14 @@ class GPLog : public std::streambuf {
 
 // params for log stream
 struct GPLoggerParams {
-    unsigned save_precision;
-    unsigned print_precision;
-
-    bool verbose_to_log;
     GPLogParams* log_params;
     GPLogParams* verbose_params;
     GPLogParams* debug_params;
     GPLogParams* error_params;
+    unsigned log_precision;
+    unsigned save_net_precision;
+    unsigned print_net_precision;
+    bool verbose_to_log;
 };
 
 class GPLogger {

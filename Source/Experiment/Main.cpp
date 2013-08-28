@@ -58,9 +58,6 @@ int main( int argc, const char* argv[] )
     logger_params->error_params = (GPLogParams*) malloc(sizeof(GPLogParams));
     po::options_description logger_desc("");
     logger_desc.add_options()
-        ("save_precision", po::value<unsigned>(&(logger_params->save_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
-        ("print_precision", po::value<unsigned>(&(logger_params->print_precision))->default_value(3), "precision for text-logging synthesis algorithms")
-
         ("log_to_file", po::value<bool>(&(logger_params->log_params->to_file))->default_value(false), "")
         ("log_to_cout", po::value<bool>(&(logger_params->log_params->to_cout))->default_value(false), "")
         ("log_to_cerr", po::value<bool>(&(logger_params->log_params->to_cerr))->default_value(false), "")
@@ -72,6 +69,10 @@ int main( int argc, const char* argv[] )
         ("error_to_file", po::value<bool>(&(logger_params->error_params->to_file))->default_value(false), "")
         ("error_to_cout", po::value<bool>(&(logger_params->error_params->to_cout))->default_value(false), "")
         ("error_to_cerr", po::value<bool>(&(logger_params->error_params->to_cerr))->default_value(false), "")
+
+        ("log_precision", po::value<unsigned>(&(logger_params->log_precision))->default_value(20), "precision for printing floats in the log")
+        ("save_net_precision", po::value<unsigned>(&(logger_params->save_net_precision))->default_value(20), "precision for saving/backing up synthesis algorithms")
+        ("print_net_precision", po::value<unsigned>(&(logger_params->print_net_precision))->default_value(3), "precision for text-logging synthesis algorithms")
     ;
 
     // parse logger config file
