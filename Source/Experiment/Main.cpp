@@ -47,6 +47,15 @@ int main( int argc, const char* argv[] )
         return 1;
     }
 
+    // create output directory
+    juce::File output_dir(output_dir_path);
+    if (!output_dir.isDirectory()) {
+        if (!output_dir.createDirectory().wasOk()) {
+            std::cout << "Could not create or open the output directory path" << std::endl;
+            return 1;
+        }
+    }
+
     // create random instance
     GPRandom* rng = new GPRandom(seed);
 
@@ -232,6 +241,7 @@ int main( int argc, const char* argv[] )
     free(logger_params->debug_params);
     free(logger_params->error_params);
     free(logger_params);
+    delete logger;
 
     // delete synth
     free(synth_params);

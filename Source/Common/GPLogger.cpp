@@ -12,6 +12,9 @@ GPLog::GPLog(GPLogParams* params, std::string output_file_path, std::size_t buff
 {
     if (params->to_file) {
         log_file_stream.open(output_file_path.c_str());
+        if (!log_file_stream.is_open()) {
+            std::cerr << "Could not log file: " << output_file_path << std::endl;
+        }
     }
 
     sink_.clear();
@@ -20,7 +23,9 @@ GPLog::GPLog(GPLogParams* params, std::string output_file_path, std::size_t buff
 }
 
 GPLog::~GPLog()
-{}
+{
+    log_file_stream.close();
+}
 
 void GPLog::set_forward(std::ostream* f) {
     do_forward = true;

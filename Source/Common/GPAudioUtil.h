@@ -17,6 +17,13 @@
 #include "../Dependencies/kissfft/kiss_fftr.h"
 
 namespace GPAudioUtil {
+    //extern double compareSpectraWeighted(bool dBComparison, unsigned fftSize, unsigned overlap, unsigned numFrames, unsigned fftOutputBufferSize, kiss_fftr_cfg fftConfig, const float* candidateFrames, kiss_fft_scalar* candidateAmplitudeBuffer, kiss_fft_cpx* candidateSpectraBuffer, double* candidateMagnitudeBuffer, double* candidatePhaseBuffer, const float* window, double* targetSpectrumMagnitudes, double* targetSpectrumPhases, double* binUndershootingPenalty, double* binOvershootingPenalty, double* fftFrameWeight, double penalizeBadPhase, double magnitudeWeight, double phaseWeight);
+    struct GPAudioComparisonContainer {
+        unsigned num_frames;
+        unsigned fft_output_buffer_size;
+        // TODO:
+    };
+
 	// WINDOWING FUNCTIONS
 	extern void window(const char* type, unsigned n, float* windowBuffer);
 	extern void applyWindow(unsigned n, kiss_fft_scalar* buffer, const float* window);

@@ -422,7 +422,8 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                       
                 // register state space with system
                 Register::Description lDescription("Parameter state space", "Vector", "", "");
-                lSystem->getRegister().insertEntry("ec.rand.seed", new ULong(seed), lDescription);
+                unsigned seed_beagle = seed + 1;
+                lSystem->getRegister().insertEntry("ec.rand.seed", new ULong(seed_beagle), lDescription);
                 lSystem->getRegister().insertEntry("ga.init.minvalue", initMinValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.init.maxvalue", initMaxValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
