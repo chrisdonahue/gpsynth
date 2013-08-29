@@ -365,6 +365,7 @@ void GPSynth::endGeneration() {
 		champ->ID = best->ID;
 		champ->fitness = generationBestFitness;
 		champ->traceNetwork();
+        overallBestFitness = generationBestFitness;
 	}
     
     currentGenerationAlive = false;

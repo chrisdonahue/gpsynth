@@ -89,6 +89,8 @@ GPLogger::GPLogger(GPLoggerParams* params, std::string seed_string, std::string 
 
     log.precision(params->log_precision);
     verbose.precision(params->log_precision);
+    debug.precision(params->log_precision);
+    error.precision(params->log_precision);
 }
 
 GPLogger::~GPLogger() {
@@ -104,6 +106,10 @@ std::string GPLogger::net_to_string_print(GPNetwork* net) {
 
 std::string GPLogger::net_to_string_save(GPNetwork* net) {
     return net->toString(params->save_net_precision);
+}
+
+std::string GPLogger::param_to_string_print(GPMutatableParam* param) {
+    return param->toString(params->print_net_precision);
 }
 
 std::string GPLogger::get_system_info() {

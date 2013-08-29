@@ -218,7 +218,7 @@ int main( int argc, const char* argv[] )
     }
 
     // create experiment
-    GPExperiment* experiment = new GPExperiment(logger, me_params, beagle_cfg_file_path, synth, target_file_path, output_dir_path, constants);
+    GPExperiment* experiment = new GPExperiment(logger, me_params, seed, beagle_cfg_file_path, synth, target_file_path, output_dir_path, constants);
 
     // run experiment
     GPNetwork* champion = experiment->evolve();

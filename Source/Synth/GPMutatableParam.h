@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <string>
 #include <sstream>
-#include "GPRandom.h"
+#include "../Common/GPRandom.h"
 
 class GPMutatableParam {
 public:

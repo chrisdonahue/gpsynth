@@ -6,13 +6,14 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
+GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
     is_sanity_test(false),
     logger(logger),
     params(params), beagle_cfg_file_path(beagle_cfg_file_path),
-    seed_string(logger->get_seed_string()),
+    seed(seed), seed_string(logger->get_seed_string()),
     synth(synth),
     target_file_path(target_file_path), output_dir_path(output_dir_path),
+    suboptimize_network(NULL), suboptimize_best_params(0), suboptimize_min_fitness(0),
     numConstantValues(constants.size()), constantValues(constants.data())
 {
     // TARGET DATA CONTAINERS
@@ -90,6 +91,7 @@ GPNetwork* GPExperiment::evolve() {
         numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
+            logger->debug << "NEW EXPERIMENT MIN FITNESS ACHIEVED: " << fitness << ", CANDIDATE FITNESS: " << candidate->fitness << std::flush;
         }
         numEvaluatedThisGeneration++;
 
@@ -143,7 +145,10 @@ GPNetwork* GPExperiment::evolve() {
         champ->prepareToRender(targetSampleRate, params->aux_render_block_size, numTargetFrames, targetLengthSeconds);
         renderIndividualByBlockPerformance(champ, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
         champ->doneRendering();
-        assert(champ->fitness == minFitnessAchieved);
+        if (champ->fitness != minFitnessAchieved) {
+            logger->error << "Champ fitness: " << champ->fitness << " is not equal to experiment min fitness achieved: " << minFitnessAchieved << std::flush;
+            assert(champ->fitness == minFitnessAchieved);
+        }
         std::stringstream ss;
         ss << output_dir_path << seed_string << ".champion.wav";
         if (params->log_save_overall_champ_audio)
@@ -361,6 +366,21 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
         
         if (candidateParams->size() != 0) {
             try {
+                // test initial conditions
+                suboptimize_network = candidate;
+                renderIndividualByBlockPerformance(suboptimize_network, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
+                suboptimize_min_fitness = compareToTarget(params->ff_type, buffer);
+
+                // backup initial params
+                logger->debug << "BEFORE(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
+                std::vector<GPMutatableParam*>* candidate_params = suboptimize_network->getAllMutatableParams();
+                unsigned num_params = candidate_params->size();
+                suboptimize_best_params.resize(num_params);
+                for (unsigned i = 0; i < num_params; i++) {
+                    GPMutatableParam* param = candidate_params->at(i);
+                    suboptimize_best_params[i] = param->getCopy();
+                }
+
                 using namespace Beagle;
 
                 // Build system
@@ -402,6 +422,7 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                       
                 // register state space with system
                 Register::Description lDescription("Parameter state space", "Vector", "", "");
+                lSystem->getRegister().insertEntry("ec.rand.seed", new ULong(seed), lDescription);
                 lSystem->getRegister().insertEntry("ga.init.minvalue", initMinValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.init.maxvalue", initMaxValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
@@ -432,26 +453,57 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
 
                 // Launch evolution
                 lEvolver->evolve(lVivarium, lSystem);
+
+                // Lamarckian!
+                for (unsigned i = 0; i < num_params; i++) {
+                    GPMutatableParam* param = suboptimize_best_params[i];
+                    GPMutatableParam* stored_param = candidate_params->at(i);
+                    if (param->isDiscrete()) {
+                        stored_param->setDValue(param->getDValue());
+                    }
+                    else {
+                        stored_param->setCValue(param->getCValue());
+                    }
+                }
+                logger->debug << "AFTER(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
             }
             catch(Beagle::Exception& inException) {
-                //logger->debug("Beagle exception caught:");
-                //logger->debug(inException.what());
-                //inException.terminate(std::cerr);
+                logger->error << "Beagle exception caught:" << std::flush;
+                logger->error << inException.what() << std::flush;
+                inException.terminate(logger->error);
                 return -1;
             }
             catch (std::exception& inException) {
-                //logger->debug("Standard exception caught:");
-                //logger->debug(inException.what());
+                logger->error << "Standard exception caught:" << std::flush;
+                logger->error << inException.what() << std::flush;
                 return -1;
             }
         }
-
-        renderIndividualByBlockPerformance(candidate, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
-        double fitness = compareToTarget(params->ff_type, buffer);
         candidate->doneRendering();
-        return fitness;
+        return suboptimize_min_fitness;
     }
     return -1;
+}
+
+double GPExperiment::beagleComparisonCallback(unsigned type, float* candidateFramesBuffer) {
+        renderIndividualByBlockPerformance(suboptimize_network, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
+        double fitness = compareToTarget(params->ff_type, candidateFramesBuffer);
+        if (fitness < suboptimize_min_fitness) {
+            suboptimize_min_fitness = fitness;
+            std::vector<GPMutatableParam*>* network_params = suboptimize_network->getAllMutatableParams();
+            for (unsigned i = 0; i < suboptimize_best_params.size(); i++) {
+                GPMutatableParam* param = network_params->at(i);
+                GPMutatableParam* stored_param = suboptimize_best_params[i];
+                if (param->isDiscrete()) {
+                    stored_param->setDValue(param->getDValue());
+                }
+                else {
+                    stored_param->setCValue(param->getCValue());
+                }
+            }
+            logger->debug << "NEW(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
+        }
+        return compareToTarget(params->ff_type, candidateFramesBuffer);
 }
 
 // TODO: change numconstantvariables to numconstantvalues
@@ -482,14 +534,6 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 	}
 	
 	return ret;
-}
-
-double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
-		//logger->debug(candidate->toString(5));
-        renderIndividualByBlockPerformance(candidate, params->aux_render_block_size, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
-        double fitness = compareToTarget(params->ff_type, candidateFramesBuffer);
-        //std::cerr << " fitness: " << fitness;
-        return compareToTarget(params->ff_type, candidateFramesBuffer);
 }
 
 /*

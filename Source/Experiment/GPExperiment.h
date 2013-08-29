@@ -65,13 +65,13 @@ struct GPMatchingExperimentParams {
 class GPExperiment {
 public:
     // CONSTRUCTION
-    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
+    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
     GPExperiment(GPLogger* logger);
     ~GPExperiment();
 
     // EVOLUTION CONTROL
     GPNetwork* evolve();
-    double beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer);
+    double beagleComparisonCallback(unsigned type, float* candidateFramesBuffer);
 
     // SANITY TEST CODE
     int sanityTest(GPRandom* rng);
@@ -83,12 +83,18 @@ private:
     GPLogger* logger;
     GPSynth* synth;
     GPMatchingExperimentParams* params;
+    unsigned seed;
+    std::string seed_string;
     std::string beagle_cfg_file_path;
     std::string target_file_path;
     std::string output_dir_path;
-    std::string seed_string;
     float fitnessThreshold;
     int numGenerations;
+
+    // SUBOPTIMIZATION STATE
+    GPNetwork* suboptimize_network;
+    std::vector<GPMutatableParam*> suboptimize_best_params;
+    double suboptimize_min_fitness;
 
     // TARGET DATA CONTAINERS
     // metadata

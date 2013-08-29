@@ -16,7 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
-#include "../Common/GPMutatableParam.h"
+#include "GPMutatableParam.h"
 #include "../Common/GPHelpers.h"
 #include <sstream>
 

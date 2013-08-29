@@ -68,6 +68,7 @@ class GPLogger {
 
         std::string net_to_string_print(GPNetwork* net);
         std::string net_to_string_save(GPNetwork* net);
+        std::string param_to_string_print(GPMutatableParam* param);
 
         GPLog log_buff;
         GPLog verbose_buff;
