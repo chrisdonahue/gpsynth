@@ -16,8 +16,8 @@
     ============
 */
 
-void getWavFileInfo(String path, unsigned* numFrames, float* sampleRate) {
-    File input(path);
+void get_wav_file_metadata(std::string path, unsigned long* num_frames, unsigned* bits_per_sample, double* length_seconds, double* sampling_frequency, double* nyquist_frequency) {
+    File input(String(path));
     if (!(input.existsAsFile())) {
         std::cerr << "Invalid input file: " << path << std::endl;
     }
@@ -26,9 +26,14 @@ void getWavFileInfo(String path, unsigned* numFrames, float* sampleRate) {
     ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
 
-    // get info on target
-    *numFrames = afr->lengthInSamples;
-    *sampleRate = afr->sampleRate;
+    // get info on target from JUCE
+    *num_frames = afr->lengthInSamples;
+    *sampling_frequency = afr->sampleRate;
+    *bits_per_sample = afr->bitsPerSample;
+
+    // calculate more info on target
+    *length_seconds = (*num_frames) / (*sampling_frequency);
+    *nyquist_frequency = (*sampling_frequency) / 2;
 }
 
 void loadWavFile(String path, unsigned chunkSize, unsigned numFrames, float* buffer) {

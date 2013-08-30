@@ -70,11 +70,6 @@ class GPLogger {
         std::string net_to_string_save(GPNetwork* net);
         std::string param_to_string_print(GPMutatableParam* param);
 
-        GPLog log_buff;
-        GPLog verbose_buff;
-        GPLog debug_buff;
-        GPLog error_buff;
-
         std::ostream log;
         std::ostream verbose;
         std::ostream debug;
@@ -83,6 +78,11 @@ class GPLogger {
     private:
         GPLoggerParams* params;
         std::string seed_string;
+
+        GPLog log_buff;
+        GPLog verbose_buff;
+        GPLog debug_buff;
+        GPLog error_buff;
 };
 
 #endif

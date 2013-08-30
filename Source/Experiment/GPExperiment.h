@@ -79,14 +79,16 @@ public:
 private:
     bool is_sanity_test;
 
-    // EXPERIMENT PARAMETERS
+    // GP objects
     GPLogger* logger;
     GPSynth* synth;
+    GPAudioComparator* comparator;
+
+    // EXPERIMENT PARAMETERS
     GPMatchingExperimentParams* params;
     unsigned seed;
     std::string seed_string;
     std::string beagle_cfg_file_path;
-    std::string target_file_path;
     std::string output_dir_path;
     float fitnessThreshold;
     int numGenerations;
@@ -98,33 +100,13 @@ private:
 
     // TARGET DATA CONTAINERS
     // metadata
-    float targetSampleRate;
-    float targetNyquist;
-    unsigned numTargetFrames;
-    float targetLengthSeconds;
-    // time domain
-    float* targetFrames;
-    float* targetEnvelope;
-    // freq domain
-    unsigned fftOutputBufferSize;
-    kiss_fft_cpx* targetSpectra;
-    double* targetMagnitude;
-    double* targetPhase;
-    // fitness function analysis
-    float* analysisWindow;
-    double* binOvershootingPenalty;
-    double* binUndershootingPenalty;
-    double* fftFrameWeight;
-    
-    // COMPARISON BUFFERS
-    kiss_fftr_cfg fftConfig;
-    kiss_fft_scalar* candidateAmplitudeBuffer;
-    kiss_fft_cpx* candidateSpectraBuffer;
-    double* candidateMagnitudeBuffer;
-    double* candidatePhaseBuffer;
+    float target_sampling_frequency;
+    float target_nyquist_frequency;
+    unsigned long target_num_frames;
+    float target_last_sample_time;
 
     // EVALUATION DATA
-    float* targetSampleTimes;
+    float* target_sample_times;
     unsigned numConstantValues;
     float* constantValues;
     unsigned numVariableValues;
