@@ -1,6 +1,6 @@
 +Group = "UNDER"
 +Project = "AI_ROBOTICS"
-+ProjectDescription = "Target audio matching with genetic programming"
++ProjectDescription = "Target audio matching with genetic programming and CMA-ES"
 
 executable = ./condor_run.sh
 Arguments = $(Process)

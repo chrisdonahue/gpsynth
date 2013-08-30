@@ -71,7 +71,6 @@ TODO long run:
 
 TODO NEXT EXPERIMENTS:
     CMAES:
-        get seed working for BEAGLE
         read about how to limit number of generations
         start init values at current value to suboptimize future generations
     
