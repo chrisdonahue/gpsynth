@@ -6,6 +6,21 @@
 
 // params for log stream
 struct GPAudioComparatorParams {
+    double spectrum_mag_weight;
+    double spectrum_phase_weight;
+    char fft_window[5];
+    unsigned fft_size;
+    unsigned fft_overlap;
+
+    unsigned moving_average_type;
+    unsigned moving_average_past_radius;
+    unsigned moving_average_future_radius;
+    double moving_average_exponential_alpha;
+
+    double phase_comparison_p;
+    double mag_base_comparison_p;
+    double mag_good_comparison_additional_p;
+    double mag_bad_comparison_additional_p;
 };
 
 class GPAudioComparator {
@@ -27,6 +42,7 @@ class GPAudioComparator {
 
         // others
         void save_target_backup(std::string path);
+        void save_target_spectrum(std::string path);
 
     private:
         // GP object refs
@@ -51,8 +67,8 @@ class GPAudioComparator {
         kiss_fft_cpx* target_spectra;
         double* target_magnitude;
         double* target_phase;
-        double* bin_overshooting_penalty;
-        double* bin_undershooting_penalty;
+        double* bin_overshooting_p;
+        double* bin_undershooting_p;
         
         // temporary FFT buffers
         kiss_fftr_cfg fft_config;

@@ -326,23 +326,6 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
         free(freqAxis);
         free(mac);
         free(timeAxis);
-        
-        // calculate frame weights
-        double frameAverage = frameAverageSum / double(numFftFrames);
-        if (params->ff_weight_frames) {
-            //std::cerr << "average: " << frameAverage << std::endl;
-            for (unsigned i = 0; i < numFftFrames; i++) {
-                fftFrameWeight[i] = frameAverage / fftFrameWeight[i];
-                //std::cerr << i << " weight: " << fftFrameWeight[i] << std::endl;
-                fftFrameWeight[i] = pow(fftFrameWeight[i], params->ff_weight_frames_exponent);
-                //std::cerr << i << " power weight: " << fftFrameWeight[i] << std::endl;
-            }
-        }
-        else {
-            for (unsigned i = 0; i < numFftFrames; i++) {
-                fftFrameWeight[i] = 1.0;
-            }
-        }
     }
 }
 
