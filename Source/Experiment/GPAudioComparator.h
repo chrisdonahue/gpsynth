@@ -47,11 +47,14 @@ class GPAudioComparator {
 
         // freq domain
         unsigned fft_output_buffer_size;
-        kiss_fft_cpx* targetSpectra;
-        double* targetMagnitude;
-        double* targetPhase;
+        float* analysis_window;
+        kiss_fft_cpx* target_spectra;
+        double* target_magnitude;
+        double* target_phase;
+        double* bin_overshooting_penalty;
+        double* bin_undershooting_penalty;
         
-        // comparison buffers
+        // temporary FFT buffers
         kiss_fftr_cfg fft_config;
         kiss_fft_scalar* fft_amplitude_buffer;
         kiss_fft_cpx* fft_spectra_buffer;

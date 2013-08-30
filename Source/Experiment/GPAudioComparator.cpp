@@ -13,12 +13,27 @@ GPAudioComparator::GPAudioComparator(GPAudioComparatorParams* params, std::strin
     target_frames = (float*) malloc(sizeof(float) * target_num_frames);
     GPAudioUtil::load_wav_file(target_file_path, params->wav_file_buffer_size, target_num_frames, target_frames);
 
-    // fill evaluation buffers
-    target_sample
+    // set up FFT info
+    unsigned n = params->fft_size;
+    assert((n > 0) && ((n & (n - 1)) == 0));
+    unsigned overlap = params->fft_overlap;
+    assert(overlap < n);
+    fft_output_buffer_size = GPAudioUtil::calculateFftBufferSize(target_num_frames, n, overlap);
+
+    // allocate and create window
+    analysis_window = (float*) malloc(sizeof(float) * n);
+    GPAudioUtil::window(params->fft_window, n, analysis_window);
+
+    // allocate FFT buffers
+    kiss_fft_scalar* target_amplitude_buffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
+    target_spectra = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fft_output_buffer_size);
+    target_phase = (double*) malloc(sizeof(double) * fft_output_buffer_size);
+
 }
 
 GPAudioComparator::~GPAudioComparator() {
     free(target_frames);
+    free(analysis_window);
 }
 
 /*

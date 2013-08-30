@@ -1,18 +1,17 @@
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
-// Common GPSynth includes
+// GP object includes
 #include "../Common/GPLogger.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/GPAudioUtil.h"
-#include "../Common/JUCEFileIO.h"
-
-// GPSynth includes
 #include "../Synth/GPNode.h"
 #include "../Synth/GPSynth.h"
+#include "GPAudioComparator.h"
 
 // JUCE include
 #include "JuceHeader.h"
+#include "../Common/JUCEFileIO.h"
 
 // BEAGLE includes
 #include <numeric>
