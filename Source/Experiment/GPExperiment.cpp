@@ -6,15 +6,15 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants) :
+GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, GPAudioComparator* comparator, std::string output_dir_path, std::vector<float>& constants) :
     is_sanity_test(false),
     logger(logger),
     params(params), beagle_cfg_file_path(beagle_cfg_file_path),
     seed(seed), seed_string(logger->get_seed_string()),
-    synth(synth),
-    target_file_path(target_file_path), output_dir_path(output_dir_path),
-    suboptimize_network(NULL), suboptimize_best_params(0), suboptimize_min_fitness(0),
-    numConstantValues(constants.size()), constantValues(constants.data())
+    synth(synth), comparator(comparator),
+    output_dir_path(output_dir_path),
+    numConstantValues(constants.size()), constantValues(constants.data()),
+    suboptimize_network(NULL), suboptimize_best_params(0), suboptimize_min_fitness(0.0f),
 {
     // TARGET DATA CONTAINERS
     getWavFileInfo(target_file_path, &numTargetFrames, &targetSampleRate);
@@ -41,22 +41,7 @@ GPExperiment::GPExperiment(GPLogger* logger) :
 GPExperiment::~GPExperiment() {
     if (!is_sanity_test) {
         free(targetFrames);
-        //free(targetEnvelope);
         free(targetSampleTimes);
-        if (params->ff_type == 1) {
-            free(analysisWindow);
-            free(targetSpectra);
-            free(targetMagnitude);
-            free(targetPhase);
-            free(binOvershootingPenalty);
-            free(binUndershootingPenalty);
-            free(fftFrameWeight);
-			free(fftConfig);
-			free(candidateAmplitudeBuffer);
-			free(candidateSpectraBuffer);
-			free(candidateMagnitudeBuffer);
-			free(candidatePhaseBuffer);
-        }
     }
 }
 
@@ -156,177 +141,6 @@ GPNetwork* GPExperiment::evolve() {
     }
     free(champBuffer);
     return champ;
-}
-
-/*
-    =======================
-    FILL EVALUATION BUFFERS
-    =======================
-*/
-
-// PRECONDITIONS:
-// NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
-void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues) {
-    // FILL BUFFERS WITH SPECIAL VALUES
-    targetSampleTimes = (float*) malloc(sizeof(double) * numTargetFrames);
-    fillTimeAxisBuffer(numTargetFrames, targetSampleRate, targetSampleTimes);
-    targetLengthSeconds = targetSampleTimes[numTargetFrames - 1];
-    /*
-    numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
-    specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
-    for (int frame = 0; frame < numTargetFrames; frame++) {
-        sampleTimes[frame] = frame/targetSampleRate;
-        for (int val = 0; val < numConstantSpecialValues; val++) {
-            *(specialValuesByFrame + (frame * numSpecialValues) + val) = constantSpecialValues[val];
-        }
-        for (int val = 0; val < numVariableSpecialValues; val++) {
-            *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
-        }
-    }
-    */
-
-    // FILL ENVELOPE OF TARGET BUFFER
-    /*
-    targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
-    followEnvelope(numTargetFrames, targetFrames, targetEnvelope, params->envelopeFollowerAttack, params->envelopeFollowerDecay, targetSampleRate);
-    //findEnvelope();
-    if (params->log_save_target_envelope) {
-        char buffer[100];
-        snprintf(buffer, 100, "targetInfo/targetenvelope.txt");
-        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Time"), String("Amplitude"), false, numTargetFrames, targetSampleTimes, targetEnvelope, NULL));
-    }
-    */
-
-    // FILL FREQUENCY SPECTRUM OF TARGET
-    if (params->ff_type > 0) {
-        // calculate with fft window size/overlap
-        unsigned n = params->ff_fft_size;
-        unsigned overlap = params->ff_fft_overlap;
-        fftOutputBufferSize = GPAudioUtil::calculateFftBufferSize(numTargetFrames, n, overlap);
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
-        
-        // allocate window
-        analysisWindow = (float*) malloc(sizeof(float) * n);
-        GPAudioUtil::window(params->ff_fft_window, n, analysisWindow);
-
-        // allocate target FFT buffers
-	    kiss_fft_scalar* targetAmplitudeBuffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-        targetSpectra = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        targetMagnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        targetPhase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        fftFrameWeight = (double*) malloc(sizeof(double) * numFftFrames);
-        
-        // allocate candidate FFT buffers for speedy comparison
-        fftConfig = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-		candidateAmplitudeBuffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-    	candidateSpectraBuffer = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        candidateMagnitudeBuffer = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        candidatePhaseBuffer = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-
-        // take fft of target data
-        GPAudioUtil::FftReal(fftConfig, numTargetFrames, targetFrames, n, overlap, analysisWindow, targetAmplitudeBuffer, targetSpectra, false, targetMagnitude, targetPhase);
-        free(targetAmplitudeBuffer);
-
-        // allocate buffers
-        double* timeAxis = (double*) malloc(sizeof(double) * (numBins - 1));
-        double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
-        float* floatFreqAxis = (float*) malloc(sizeof(float) * numBins);
-        fillFrequencyAxisBuffer(n, targetSampleRate, floatFreqAxis);
-        double* freqAxis = (double*) malloc(sizeof(double) * (numBins));
-        for (unsigned i = 0; i < numBins; i++) {
-            freqAxis[i] = floatFreqAxis[i];
-        }
-        free(floatFreqAxis);
-
-        // calculate penalties for each frame
-        double base = params->ff_mag_base_comparison;
-        double good = params->ff_mag_good_comparison;
-        double bad = params->ff_mag_bad_comparison;
-        double frameAverageSum = 0.0;
-        for (unsigned i = 0; i < numFftFrames; i++) {
-            // find moving average
-            unsigned dataOffset = (i * numBins) + 1;
-            double frameAverage, maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, maxRatioBelowMean;
-            findMovingAverage(params->ff_moving_average_type, numBins - 1, targetMagnitude + dataOffset, mac, params->ff_moving_average_past_radius, params->ff_moving_average_future_radius, params->ff_moving_average_exponential_alpha, &frameAverage, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
-            fftFrameWeight[i] = frameAverage;
-            frameAverageSum += frameAverage;
-
-            // compare each bin EXCEPT DC OFFSET to the moving average magnitude
-            for (unsigned j = 1; j < numBins; j++) {
-                unsigned binIndex = (i * numBins) + j;
-                double binMagnitude = targetMagnitude[binIndex];
-                double binAverage = mac[j - 1];
-                
-                // calculate bin comparison metric data
-                double numerator, denominator, proportion;
-                /*
-                if (params->compareToMaxDeviation) {
-                }
-                else {
-                    if (binMagnitude > binAverage) {
-                        numerator = fabs(binAverage / binMagnitude);
-                        denominator = maxRatioAboveMean;
-                    }
-                    else {
-                        double binAbsMagnitude = (binAverage - binMagnitude) + binAverage;
-                        numerator = fabs(binAverage / binAbsMagnitude);
-                        denominator = maxRatioBelowMean;
-                    }
-                }
-                */
-                numerator = fabs(binMagnitude - binAverage);
-                if (binMagnitude > binAverage) {
-                    denominator = maxDeviationAboveMean;
-                }
-                else {
-                    denominator = maxDeviationBelowMean;
-                }
-
-                // calculate bin proportion for penalty assignments
-                //proportion = pow(numerator / denominator, params->penaltyComparisonExponent);
-                proportion = numerator / denominator;
-
-                // check to make sure proportions are correct
-                assert(proportion <= 1);
-
-                // if we are above the mean penalize undershooting more
-                if (binMagnitude > binAverage) {
-                    //double proportionOfMax = log((binMagnitude - binAverage)) / log(maxDeviationAboveMean);
-                    binUndershootingPenalty[binIndex] = (proportion * bad) + base;
-                    binOvershootingPenalty[binIndex] = (proportion * good) + base;
-                }
-
-                // if we are below the mean penalize overshooting more
-                else {
-                    //double proportionOfMin = log((binAverage - binMagnitude)) / log(maxDeviationBelowMean);
-                    binUndershootingPenalty[binIndex] = (proportion * good) + base;
-                    binOvershootingPenalty[binIndex] = (proportion * bad) + base;
-                }
-            }
-
-            // save spectrum files if requested
-            if (params->log_save_target_spectrum) {
-                std::stringstream ss;
-                ss << output_dir_path << "target_info/" << i << ".";
-                double time = i * (n - overlap);
-                time = double(time)/targetSampleRate;
-                for (unsigned j = 0; j < numBins - 1; j++) {
-                    timeAxis[j] = time;
-                }
-                saveTextFile(String(ss.str() + "magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetMagnitude + dataOffset));
-                saveTextFile(String(ss.str() + "mac.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
-                saveTextFile(String(ss.str() + "undershoot.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binUndershootingPenalty + dataOffset));
-                saveTextFile(String(ss.str() + "overshoot.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binOvershootingPenalty + dataOffset));
-            }
-        }
-        // free temp buffers
-        free(freqAxis);
-        free(mac);
-        free(timeAxis);
-    }
 }
 
 /*
@@ -509,295 +323,25 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 
 	// amplitude comparison
 	if (type == 0) {
-		ret = GPAudioUtil::compareAmplitudesWeighted(numTargetFrames, candidateFrames, targetFrames, 1.0f);
+		ret = comparator->compare_amplitude(candidateFrames);
 	}
 	
+	// weighted amplitude comparison
+	else if (type == 1) {
+		ret = comparator->compare_amplitude_weighted(candidateFrames);
+	}
+
 	// spectral comparison
 	else if (type == 1) {
-		ret = GPAudioUtil::compareSpectraWeighted(false, params->ff_fft_size, params->ff_fft_overlap, numTargetFrames, fftOutputBufferSize, fftConfig, candidateFrames, candidateAmplitudeBuffer, candidateSpectraBuffer, candidateMagnitudeBuffer, candidatePhaseBuffer, analysisWindow, targetMagnitude, targetPhase, binUndershootingPenalty, binOvershootingPenalty, fftFrameWeight, params->ff_phase_comparison_exponent, params->ff_spectrum_mag_weight, params->ff_spectrum_phase_weight);
+		ret = comparator->compare_spectra(candidateFrames);
+	}
+
+	// weighted spectral comparison
+	else if (type == 1) {
+		ret = comparator->compare_spectra_weighted(candidateFrames);
 	}
 	
 	return ret;
-}
-
-/*
-    ===================
-    WAVEFORM OPERATIONS
-    ===================
-*/
-
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* maxratiobelow) {
-    // NON-MOVING AVERAGE
-    if (type == 0) {
-        double sum = 0;
-        double max = std::numeric_limits<double>::min();
-        double min = std::numeric_limits<double>::max();
-        // EXCLUDE DC OFFSET
-        for (unsigned i = 0; i < n; i++) {
-            double magnitude = buffer[i];
-            sum += magnitude;
-            if (magnitude > max)
-                max = magnitude;
-            if (magnitude < min)
-                min = magnitude;
-        }
-        double average = sum / ((double) n);
-        for (unsigned i = 0; i < n; i++) {
-            movingaverage[i] = average;
-        }
-        *maxdeviationabove = max - average;
-        *maxdeviationbelow = average - min;
-        *frameaverage = average;
-        return;
-    }
-    
-    // CREATE TEMPORARY BUFFER FOR WEIGHTS
-    unsigned weightArraySize = (pastRadius + futureRadius) + 1;
-    float* weights = (float*) malloc(sizeof(float) * weightArraySize);
-
-    // ASSIGN WEIGHTS BY TYPE
-    // CONSTANT WEIGHT
-    if (type == 1) {
-        for (unsigned i = 0; i < weightArraySize; i++) {
-            weights[i] = 1.0;
-        }
-    }
-    // EXPONENTIAL WEIGHT
-    else if (type == 2) {
-        for (unsigned i = 0; i < pastRadius; i++) {
-            unsigned numAlpha = pastRadius - i + 1;
-            weights[i] = pow(alpha, numAlpha);
-        }
-        weights[pastRadius] = alpha;
-        for (unsigned i = pastRadius + 1; i < weightArraySize; i++) {
-            unsigned numAlpha = i - pastRadius + 1;
-            weights[i] = pow(alpha, numAlpha);
-        }
-    }
-    
-    // PRINT WEIGHT ARRAY
-    /*
-    for (unsigned i = 0; i < weightArraySize; i++) {
-        std::cerr << weights[i] << std::endl;
-    }
-    */
-
-    // CALCULATE MOVING AVERAGE BASED ON WEIGHTS
-    int leftrad = pastRadius;
-    int rightrad = futureRadius;
-    for (int i = 0; i < (int) n; i++) {
-        int lowerIndex = i - leftrad < 0 ? 0 : i - leftrad;
-        int upperIndex = i + rightrad + 1 > n ? n : i + rightrad + 1;
-        int weightIndex = i - leftrad < 0 ? leftrad - i: 0;
-        double sum = 0.0;
-        double weightsum = 0.0;
-        //std::cerr << i << ": (" << lowerIndex << ", " << upperIndex << ", " << weightIndex << ")" << std::endl;
-        for (int j = lowerIndex, k = weightIndex; j < upperIndex; j++, k++) {
-            sum += buffer[j] * weights[k];
-            weightsum += weights[k];
-        }
-        movingaverage[i] = (sum / weightsum);
-    }
-    free(weights);
-
-    // CALCULATE MIN/MAX DEVIATION INEFFICIENTLY
-    double maxdeva = std::numeric_limits<double>::min();
-    double maxdevb = std::numeric_limits<double>::min();
-    double maxrata = std::numeric_limits<double>::min();
-    double maxratb = std::numeric_limits<double>::min();
-    double sum = 0.0;
-    for (unsigned i = 0; i < n; i++) {
-        double pointValue = buffer[i];
-        sum += pointValue;
-        double pointAverage = movingaverage[i];
-        // if value is below average
-        if (pointValue < pointAverage) {
-            if (pointAverage - pointValue > maxdevb)
-                maxdevb = pointAverage - pointValue;
-
-            // absolute value over moving average
-            double absValue = (pointAverage - pointValue) + pointAverage;
-            if (pointAverage/absValue > maxratb)
-                maxratb = pointAverage/absValue;
-        }
-        else {
-            if (pointValue - pointAverage > maxdeva)
-                maxdeva = pointValue - pointAverage;
-            if (pointAverage/pointValue > maxrata)
-                maxrata = pointAverage/pointValue;
-        }
-    }
-    *maxdeviationabove = maxdeva;
-    *maxdeviationbelow = maxdevb;
-    *maxratioabove = maxrata;
-    *maxratiobelow = maxratb;
-    *frameaverage = sum / double(n);
-}
-
-// FROM: http://musicdsp.org/showArchiveComment.php?ArchiveID=136 
-void GPExperiment::followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate) {
-    double attack_coef = exp(log(0.01)/( attack_in_ms * samplerate * 0.001));
-    double release_coef = exp(log(0.01)/( release_in_ms * samplerate * 0.001));
-    
-    double currentValue;
-    envelope[0] = buffer[0];
-    double currentEnvelope = envelope[0];
-    for (unsigned i = 1; i < n; i++) {
-        currentValue = fabs(buffer[i]);
-        if (currentValue > currentEnvelope) {
-            currentEnvelope = attack_coef * (currentEnvelope - currentValue) + currentValue;
-        }
-        else {
-            currentEnvelope = release_coef * (currentEnvelope - currentValue) + currentValue;
-        }
-        envelope[i] = currentEnvelope;
-    }
-}
-
-void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env) {
-    // MAKE AMPLITUDE ENVELOPE OF TARGET
-    // x/y pairs for absolute waveform bound
-    std::vector<unsigned> x;
-    x.resize(0, 0);
-    std::vector<float> y;
-    y.resize(0, 0);
-
-    // set initial value
-    x.push_back(0);
-    y.push_back(fabs(wav[0]));
-
-    // find waveform minima/maxima
-    float prevSlope = (wav[1] - wav[0]);
-    float currSlope = 0;
-    float slopeProduct = 0;
-    for (unsigned i = 1; i < n - 2; i++) {
-        currSlope = (wav[i + 1] - wav[i]);
-
-        // if one slope is 0 we're at one edge of a plateau or silence
-        float slopeProduct = currSlope * prevSlope;
-
-        if (!ignoreZeroes) {
-            if (slopeProduct == 0) {
-                x.push_back(i);
-                y.push_back(fabs(wav[i]));
-            }
-            // else if slope has changed we found a minimum or maximum
-            else if (slopeProduct < 0 && prevSlope > 0) {
-                x.push_back(i);
-                y.push_back(fabs(wav[i]));
-            }
-        }
-        else {
-            //std::cout << i << ", " << n << std::endl;
-            //std::cout << slopeProduct << std::endl;
-            //std::cout << prevSlope << std::endl;
-            if (slopeProduct < 0 && prevSlope > 0) {
-                x.push_back(i);
-                y.push_back(fabs(wav[i]));
-            }
-        }
-
-        prevSlope = currSlope;
-    }
-
-    // set final value
-    x.push_back(n - 1);
-    y.push_back(fabs(wav[n - 1]));
-
-    // fill env buffer
-    for (unsigned i = 0; i < x.size() - 1; i++) {
-        // calculate slope between points
-        unsigned currFrameNumber = x[i];
-        float currEnvValue = y[i];
-        unsigned nextFrameNumber = x[i+1];
-        float nextEnvValue = y[i+1];
-        float slope = (nextEnvValue - currEnvValue)/(nextFrameNumber - currFrameNumber);
-
-        // fill buffer from slope
-        unsigned assignEnvelopeSample = currFrameNumber;
-        while (assignEnvelopeSample < nextFrameNumber) {
-            env[assignEnvelopeSample] = ((assignEnvelopeSample - currFrameNumber) * slope) + currEnvValue;
-            assignEnvelopeSample++;
-        }
-    }
-    env[n - 1] = wav[n - 1];
-}
-
-
-/*
-    =============
-    GRAPH HELPERS
-    =============
-*/
-
-void GPExperiment::fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer) {
-    for (unsigned frame = 0; frame < numSamples; frame++) {
-        buffer[frame] = float(frame)/sr;
-    }
-}
-
-void GPExperiment::fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer) {
-    for (unsigned i = 0; i < (fftSize/2) + 1; i++) {
-        buffer[i] = (sr / fftSize) * i;
-    }
-}
-
-// TODO: these get super slow when n is large. might want to use std::string and bring it to juce string at the very end
-String GPExperiment::floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z) {
-    String ret;
-    ret += options;
-    ret += "\n";
-    ret += xlab;
-    ret += "\t";
-    ret += ylab;
-    ret += "\n";
-    /*
-    ret += "\t";
-    ret += zlab;
-    ret += "\n";
-    */
-    for (unsigned i = 0; i < n; i++) {
-        if (indexAsX)
-            ret += String(i);
-        else
-            ret += String(x[i]);
-        if (y != NULL) {
-            ret += "\t";
-            ret += String(y[i]);
-        }
-        if (z != NULL) {
-            ret += "\t";
-            ret += String(z[i]);
-        }
-        ret += "\n";
-    }
-    return ret;
-}
-
-String GPExperiment::doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z) {
-    String ret;
-    ret += options;
-    ret += "\n";
-    ret += xlab;
-    ret += "\t";
-    ret += ylab;
-    ret += "\n";
-    for (unsigned i = 0; i < n; i++) {
-        if (indexAsX)
-            ret += String(i);
-        else
-            ret += String(x[i]);
-        if (y != NULL) {
-            ret += "\t";
-            ret += String(y[i]);
-        }
-        if (z != NULL) {
-            ret += "\t";
-            ret += String(z[i]);
-        }
-        ret += "\n";
-    }
-    return ret;
 }
 
 /*

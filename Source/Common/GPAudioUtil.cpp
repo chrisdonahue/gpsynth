@@ -169,3 +169,286 @@ double GPAudioUtil::compareSpectraWeighted(bool dBComparison, unsigned fftSize, 
     }
     return (magnitudeWeight * magnitudeError + phaseWeight * phaseError);
 }
+
+/*
+	=================
+	waveform analysis
+	=================
+*/
+
+void GPAudioUtil::find_moving_average(unsigned type, unsigned n, const double* data, double* moving_average_buffer, double* data_average, double* max_deviation_below, double* max_deviation_above, unsigned past_radius, unsigned future_radius, double alpha) {
+    // NON-MOVING AVERAGE
+    if (type == 0) {
+        double sum = 0;
+        double max = std::numeric_limits<double>::min();
+        double min = std::numeric_limits<double>::max();
+        // EXCLUDE DC OFFSET
+        for (unsigned i = 0; i < n; i++) {
+            double magnitude = data[i];
+            sum += magnitude;
+            if (magnitude > max)
+                max = magnitude;
+            if (magnitude < min)
+                min = magnitude;
+        }
+        double average = sum / ((double) n);
+        for (unsigned i = 0; i < n; i++) {
+            movingaverage[i] = average;
+        }
+        *maxdeviationabove = max - average;
+        *maxdeviationbelow = average - min;
+        *frameaverage = average;
+        return;
+    }
+    
+    // CREATE TEMPORARY BUFFER FOR WEIGHTS
+    unsigned weightArraySize = (pastRadius + futureRadius) + 1;
+    float* weights = (float*) malloc(sizeof(float) * weightArraySize);
+
+    // ASSIGN WEIGHTS BY TYPE
+    // CONSTANT WEIGHT
+    if (type == 1) {
+        for (unsigned i = 0; i < weightArraySize; i++) {
+            weights[i] = 1.0;
+        }
+    }
+    // EXPONENTIAL WEIGHT
+    else if (type == 2) {
+        for (unsigned i = 0; i < pastRadius; i++) {
+            unsigned numAlpha = pastRadius - i + 1;
+            weights[i] = pow(alpha, numAlpha);
+        }
+        weights[pastRadius] = alpha;
+        for (unsigned i = pastRadius + 1; i < weightArraySize; i++) {
+            unsigned numAlpha = i - pastRadius + 1;
+            weights[i] = pow(alpha, numAlpha);
+        }
+    }
+    
+    // PRINT WEIGHT ARRAY
+    /*
+    for (unsigned i = 0; i < weightArraySize; i++) {
+        std::cerr << weights[i] << std::endl;
+    }
+    */
+
+    // CALCULATE MOVING AVERAGE BASED ON WEIGHTS
+    int leftrad = pastRadius;
+    int rightrad = futureRadius;
+    for (int i = 0; i < (int) n; i++) {
+        int lowerIndex = i - leftrad < 0 ? 0 : i - leftrad;
+        int upperIndex = i + rightrad + 1 > n ? n : i + rightrad + 1;
+        int weightIndex = i - leftrad < 0 ? leftrad - i: 0;
+        double sum = 0.0;
+        double weightsum = 0.0;
+        //std::cerr << i << ": (" << lowerIndex << ", " << upperIndex << ", " << weightIndex << ")" << std::endl;
+        for (int j = lowerIndex, k = weightIndex; j < upperIndex; j++, k++) {
+            sum += buffer[j] * weights[k];
+            weightsum += weights[k];
+        }
+        movingaverage[i] = (sum / weightsum);
+    }
+    free(weights);
+
+    // CALCULATE MIN/MAX DEVIATION INEFFICIENTLY
+    double maxdeva = std::numeric_limits<double>::min();
+    double maxdevb = std::numeric_limits<double>::min();
+    double maxrata = std::numeric_limits<double>::min();
+    double maxratb = std::numeric_limits<double>::min();
+    double sum = 0.0;
+    for (unsigned i = 0; i < n; i++) {
+        double pointValue = buffer[i];
+        sum += pointValue;
+        double pointAverage = movingaverage[i];
+        // if value is below average
+        if (pointValue < pointAverage) {
+            if (pointAverage - pointValue > maxdevb)
+                maxdevb = pointAverage - pointValue;
+
+            // absolute value over moving average
+            double absValue = (pointAverage - pointValue) + pointAverage;
+            if (pointAverage/absValue > maxratb)
+                maxratb = pointAverage/absValue;
+        }
+        else {
+            if (pointValue - pointAverage > maxdeva)
+                maxdeva = pointValue - pointAverage;
+            if (pointAverage/pointValue > maxrata)
+                maxrata = pointAverage/pointValue;
+        }
+    }
+    *maxdeviationabove = maxdeva;
+    *maxdeviationbelow = maxdevb;
+    *maxratioabove = maxrata;
+    *maxratiobelow = maxratb;
+    *frameaverage = sum / double(n);
+}
+
+// FROM: http://musicdsp.org/showArchiveComment.php?ArchiveID=136 
+void GPAudioUtil::followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate) {
+    double attack_coef = exp(log(0.01)/( attack_in_ms * samplerate * 0.001));
+    double release_coef = exp(log(0.01)/( release_in_ms * samplerate * 0.001));
+    
+    double currentValue;
+    envelope[0] = buffer[0];
+    double currentEnvelope = envelope[0];
+    for (unsigned i = 1; i < n; i++) {
+        currentValue = fabs(buffer[i]);
+        if (currentValue > currentEnvelope) {
+            currentEnvelope = attack_coef * (currentEnvelope - currentValue) + currentValue;
+        }
+        else {
+            currentEnvelope = release_coef * (currentEnvelope - currentValue) + currentValue;
+        }
+        envelope[i] = currentEnvelope;
+    }
+}
+
+void GPAudioUtil::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env) {
+    // MAKE AMPLITUDE ENVELOPE OF TARGET
+    // x/y pairs for absolute waveform bound
+    std::vector<unsigned> x;
+    x.resize(0, 0);
+    std::vector<float> y;
+    y.resize(0, 0);
+
+    // set initial value
+    x.push_back(0);
+    y.push_back(fabs(wav[0]));
+
+    // find waveform minima/maxima
+    float prevSlope = (wav[1] - wav[0]);
+    float currSlope = 0;
+    float slopeProduct = 0;
+    for (unsigned i = 1; i < n - 2; i++) {
+        currSlope = (wav[i + 1] - wav[i]);
+
+        // if one slope is 0 we're at one edge of a plateau or silence
+        float slopeProduct = currSlope * prevSlope;
+
+        if (!ignoreZeroes) {
+            if (slopeProduct == 0) {
+                x.push_back(i);
+                y.push_back(fabs(wav[i]));
+            }
+            // else if slope has changed we found a minimum or maximum
+            else if (slopeProduct < 0 && prevSlope > 0) {
+                x.push_back(i);
+                y.push_back(fabs(wav[i]));
+            }
+        }
+        else {
+            //std::cout << i << ", " << n << std::endl;
+            //std::cout << slopeProduct << std::endl;
+            //std::cout << prevSlope << std::endl;
+            if (slopeProduct < 0 && prevSlope > 0) {
+                x.push_back(i);
+                y.push_back(fabs(wav[i]));
+            }
+        }
+
+        prevSlope = currSlope;
+    }
+
+    // set final value
+    x.push_back(n - 1);
+    y.push_back(fabs(wav[n - 1]));
+
+    // fill env buffer
+    for (unsigned i = 0; i < x.size() - 1; i++) {
+        // calculate slope between points
+        unsigned currFrameNumber = x[i];
+        float currEnvValue = y[i];
+        unsigned nextFrameNumber = x[i+1];
+        float nextEnvValue = y[i+1];
+        float slope = (nextEnvValue - currEnvValue)/(nextFrameNumber - currFrameNumber);
+
+        // fill buffer from slope
+        unsigned assignEnvelopeSample = currFrameNumber;
+        while (assignEnvelopeSample < nextFrameNumber) {
+            env[assignEnvelopeSample] = ((assignEnvelopeSample - currFrameNumber) * slope) + currEnvValue;
+            assignEnvelopeSample++;
+        }
+    }
+    env[n - 1] = wav[n - 1];
+}
+
+/*
+	==================
+	domain enumeration
+	==================
+*/
+
+void GPAudioUtil::fill_time_domain_buffer(unsigned numSamples, double sr, float* buffer) {
+    for (unsigned frame = 0; frame < numSamples; frame++) {
+        buffer[frame] = float(frame)/sr;
+    }
+}
+
+void GPAudioUtil::fill_frequency_domain_buffer(unsigned fftSize, double sr, float* buffer) {
+    for (unsigned i = 0; i < (fftSize/2) + 1; i++) {
+        buffer[i] = (sr / fftSize) * i;
+    }
+}
+
+/*
+	=============
+	graph helpers
+	=============
+*/
+
+std::string GPAudioUtil::float_buffers_to_graph_string(std::string options, std::string x_label, std::string y_label, bool index_as_x_axis, unsigned n, const float* x, const float* y, const float* z) {
+	std::stringstream ss;
+	ss << options;
+	ss << std::endl;
+	ss << x_label;
+	ss << std::endl;
+	ss << y_label;
+	ss << std::endl;
+	for (unsigned i = 0; i < n; i++) {
+		if (index_as_x_axis) {
+			ss << i;
+		}
+		else {
+			ss << x[i];
+		}
+		if (y != NULL) {
+			ss << "\t";
+			ss << y[i];
+		}
+		if (z != NULL) {
+			ss << "\t";
+			ss << z[i];
+		}
+		ss << std::endl;
+	}
+	return ss.str();
+}
+
+std::string GPAudioUtil::double_buffers_to_graph_string(std::string options, std::string x_label, std::string y_label, bool index_as_x_axis, unsigned n, const double* x, const double* y, const double* z) {
+	std::stringstream ss;
+	ss << options;
+	ss << std::endl;
+	ss << x_label;
+	ss << std::endl;
+	ss << y_label;
+	ss << std::endl;
+	for (unsigned i = 0; i < n; i++) {
+		if (index_as_x_axis) {
+			ss << i;
+		}
+		else {
+			ss << x[i];
+		}
+		if (y != NULL) {
+			ss << "\t";
+			ss << y[i];
+		}
+		if (z != NULL) {
+			ss << "\t";
+			ss << z[i];
+		}
+		ss << std::endl;
+	}
+	return ss.str();
+}

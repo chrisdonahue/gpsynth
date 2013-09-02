@@ -33,10 +33,11 @@ class GPAudioComparator {
         unsigned long get_target_num_frames();
         double get_target_sampling_frequency();
         double get_target_length_seconds();
-        float get_target_last_sample_time();
+        float get_target_last_sample_start_time();
 
         // comparators
         double compare_amplitude(float* candidate_frames);
+		double compare_amplitude_weighted(float* candidate_frames);
         double compare_spectra(float* candidate_frames);
         double compare_spectra_weighted(float* candidate_frames);
 
@@ -55,6 +56,7 @@ class GPAudioComparator {
         unsigned long target_num_frames;
         unsigned target_bits_per_sample;
         double target_length_seconds;
+        float target_last_sample_start_time;
         double target_sampling_frequency;
         double target_nyquist_frequency;
         

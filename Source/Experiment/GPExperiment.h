@@ -48,7 +48,7 @@ struct GPMatchingExperimentParams {
 class GPExperiment {
 public:
     // CONSTRUCTION
-    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, std::string target_file_path, std::string output_dir_path, std::vector<float>& constants);
+    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, GPAudioComparator* comparator, std::string output_dir_path, std::vector<float>& constants);
     GPExperiment(GPLogger* logger);
     ~GPExperiment();
 
@@ -81,12 +81,11 @@ private:
     std::vector<GPMutatableParam*> suboptimize_best_params;
     double suboptimize_min_fitness;
 
-    // TARGET DATA CONTAINERS
-    // metadata
+    // TARGET METADATA
     float target_sampling_frequency;
     float target_nyquist_frequency;
     unsigned long target_num_frames;
-    float target_last_sample_time;
+    float target_last_sample_start_time;
 
     // EVALUATION DATA
     float* target_sample_times;
@@ -99,24 +98,10 @@ private:
     double minFitnessAchieved;
     int numEvaluatedGenerations;
 
-    // FILL EVALUATION BUFFERS
-    void fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues);
-
     // FITNESS FUNCTION
     double suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer);
     void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvalues, float* constantvalues, int64 numsamples, float* sampletimes, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
-
-    // WAVEFORM OPERATIONS
-    void findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* minratiobelow);
-    void followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate);
-    void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
-
-    // GRAPH HELPERS
-    void fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer);
-    void fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer);
-    String floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z);
-    String doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z);
 };
 
 #endif
