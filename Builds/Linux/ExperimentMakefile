@@ -52,6 +52,7 @@ OBJECTS := \
   $(OBJDIR)/WaveTableOsc_d1a63392.o \
   $(OBJDIR)/kiss_fft_d39e94b3.o \
   $(OBJDIR)/kiss_fftr_a034fae9.o \
+  $(OBJDIR)/GPAudioComparator.o \
   $(OBJDIR)/GPNetwork_24a38153.o \
   $(OBJDIR)/GPSynth_cb664761.o \
   $(OBJDIR)/ADSREnvelopeNode_fa685ea3.o \
@@ -131,6 +132,11 @@ $(OBJDIR)/kiss_fftr_a034fae9.o: ../../Source/Dependencies/kissfft/kiss_fftr.c
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling kiss_fftr.c"
 	@$(CC) $(CFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/GPAudioComparator.o: ../../Source/Experiment/GPAudioComparator.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling GPAudioComparator.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/GPNetwork_24a38153.o: ../../Source/Synth/GPNetwork.cpp
 	-@mkdir -p $(OBJDIR)

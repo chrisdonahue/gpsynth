@@ -47,16 +47,16 @@ struct GPMatchingExperimentParams {
 
 class GPExperiment {
 public:
-    // CONSTRUCTION
+    // construction
     GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, GPAudioComparator* comparator, std::string output_dir_path, std::vector<float>& constants);
     GPExperiment(GPLogger* logger);
     ~GPExperiment();
 
-    // EVOLUTION CONTROL
+    // evolution control
     GPNetwork* evolve();
     double beagleComparisonCallback(unsigned type, float* candidateFramesBuffer);
 
-    // SANITY TEST CODE
+    // sanity test
     int sanityTest(GPRandom* rng);
 
 private:
@@ -67,34 +67,32 @@ private:
     GPSynth* synth;
     GPAudioComparator* comparator;
 
-    // EXPERIMENT PARAMETERS
+    // experiment params
     GPMatchingExperimentParams* params;
     unsigned seed;
     std::string seed_string;
     std::string beagle_cfg_file_path;
     std::string output_dir_path;
-    float fitnessThreshold;
-    int numGenerations;
 
-    // SUBOPTIMIZATION STATE
+    // suboptimization state
     GPNetwork* suboptimize_network;
     std::vector<GPMutatableParam*> suboptimize_best_params;
     double suboptimize_min_fitness;
 
-    // TARGET METADATA
+    // target metadata
     float target_sampling_frequency;
     float target_nyquist_frequency;
-    unsigned long target_num_frames;
+    unsigned target_num_frames;
     float target_last_sample_start_time;
 
-    // EVALUATION DATA
+    // evaluation data
     float* target_sample_times;
     unsigned numConstantValues;
     float* constantValues;
     unsigned numVariableValues;
     float* variableValues;
 
-    // EXPERIMENT STATE
+    // experiment state
     double minFitnessAchieved;
     int numEvaluatedGenerations;
 

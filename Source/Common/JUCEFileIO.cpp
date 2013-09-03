@@ -1,22 +1,12 @@
-/*
-  ==============================================================================
-
-    JUCEFileIO.cpp
-    Created: 6 Feb 2013 7:19:11pm
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "JUCEFileIO.h"
 
 /*
-    ============
-    JUCE FILE IO
-    ============
+    =============
+    wav interface
+    =============
 */
 
-void get_wav_file_metadata(std::string path, unsigned long* num_frames, unsigned* bits_per_sample, double* length_seconds, double* sampling_frequency, double* nyquist_frequency) {
+void JUCEFileIO::get_wav_file_metadata(std::string path, unsigned long* num_frames, unsigned* bits_per_sample, double* length_seconds, double* sampling_frequency, double* nyquist_frequency) {
     File input(String(path));
     if (!(input.existsAsFile())) {
         std::cerr << "Invalid input file: " << path << std::endl;
@@ -36,7 +26,7 @@ void get_wav_file_metadata(std::string path, unsigned long* num_frames, unsigned
     *nyquist_frequency = (*sampling_frequency) / 2;
 }
 
-void loadWavFile(String path, unsigned chunkSize, unsigned numFrames, float* buffer) {
+void JUCEFileIO::load_wav_file(std::string path, unsigned chunk_size, unsigned num_frames, float* buffer) {
     File input(path);
     if (!(input.existsAsFile())) {
         std::cerr << "Invalid input file: " << path << std::endl;
@@ -47,13 +37,13 @@ void loadWavFile(String path, unsigned chunkSize, unsigned numFrames, float* buf
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
 
     // get waveform of target
-    AudioSampleBuffer asb(1, numFrames);
-    afr->read(&asb, 0, numFrames, 0, false, true);
+    AudioSampleBuffer asb(1, num_frames);
+    afr->read(&asb, 0, num_frames, 0, false, true);
     float* chanData = asb.getSampleData(0);
-    memcpy(buffer, chanData, sizeof(float) * numFrames);
+    memcpy(buffer, chanData, sizeof(float) * num_frames);
 }
 
-void saveWavFile(String path, String desc, String origin, float sampleRate, unsigned chunkSize, unsigned numFrames, float* data) {
+void JUCEFileIO::save_wav_file(std::string path, std::string desc, std::string origin, double sample_rate, unsigned chunk_size, unsigned num_frames, float* data) {
     File output(path);
     if (output.existsAsFile()) {
         output.deleteFile();
@@ -62,27 +52,33 @@ void saveWavFile(String path, String desc, String origin, float sampleRate, unsi
     FileOutputStream* fos = output.createOutputStream();
 
     StringPairArray metaData(true);
-    metaData = WavAudioFormat::createBWAVMetadata(desc, ProjectInfo::versionString, "", Time::getCurrentTime(), int64(sampleRate), "JUCE");
+    metaData = WavAudioFormat::createBWAVMetadata(desc, ProjectInfo::versionString, "", Time::getCurrentTime(), int64(sample_rate), "JUCE");
 
     ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
-    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sampleRate, 1, 32, metaData, 0));
+    ScopedPointer<AudioFormatWriter> afw(wavFormat->createWriterFor(fos, sample_rate, 1, 32, metaData, 0));
 
-    int64 numRemaining = numFrames;
+    int64 numRemaining = num_frames;
     int64 numCompleted = 0;
-    AudioSampleBuffer asb(1, chunkSize);
+    AudioSampleBuffer asb(1, chunk_size);
     float* chanData = asb.getSampleData(0);
     while (numRemaining > 0) {
-        int numToWrite = numRemaining > chunkSize ? chunkSize : numRemaining;
+        int numToWrite = numRemaining > chunk_size ? chunk_size : numRemaining;
         for (int samp = 0; samp < numToWrite; samp++, numCompleted++) {
             chanData[samp] = data[numCompleted];
         }
         afw->writeFromAudioSampleBuffer(asb, 0, numToWrite);
         numRemaining -= numToWrite;
     }
-    assert (numCompleted == numFrames && numRemaining == 0);
+    assert (numCompleted == num_frames && numRemaining == 0);
 }
 
-void saveTextFile(String path, String text) {
+/*
+    ==============
+    text interface
+    ==============
+*/
+
+void JUCEFileIO::save_text_file(std::string path, std::string text) {
     File output(path);
     if (output.existsAsFile()) {
         output.deleteFile();
@@ -91,7 +87,7 @@ void saveTextFile(String path, String text) {
     output.replaceWithText(text);
 }
 
-void appendToTextFile(String path, String text) {
+void JUCEFileIO::append_to_text_file(std::string path, std::string text) {
     File output(path);
     if (!output.existsAsFile()) {
 		output.create();
@@ -99,10 +95,10 @@ void appendToTextFile(String path, String text) {
     output.appendText(text);
 }
 
-String readTextFromFile(String path) {
+std::string JUCEFileIO::read_text_from_file(std::string path) {
     File input(path);
     if (!input.existsAsFile()) {
-		return String::empty;
+		return "";
     }
-	return input.loadFileAsString();
+	return input.loadFileAsString().toStdString();
 }

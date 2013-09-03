@@ -14,6 +14,7 @@ int main( int argc, const char* argv[] )
     std::string logger_cfg_file_path;
     std::string synth_cfg_file_path;
     std::string primitives_file_path;
+    std::string comparator_cfg_file_path;
     std::string me_cfg_file_path;
     std::string beagle_cfg_file_path;
     std::string target_file_path;
@@ -31,6 +32,7 @@ int main( int argc, const char* argv[] )
         ("synth_cfg", po::value<std::string>(&synth_cfg_file_path), "synth config file")
         ("primitives", po::value<std::string>(&primitives_file_path), "list of primitives available to experiment")
         ("me_cfg", po::value<std::string>(&me_cfg_file_path), "matching experiment config file")
+        ("comparator_cfg", po::value<std::string>(&comparator_cfg_file_path), "comparator config file")
         ("beagle_cfg", po::value<std::string>(&beagle_cfg_file_path), "beagle suboptimization config file")
         ("target", po::value<std::string>(&target_file_path), "target wav file")
         ("output_dir", po::value<std::string>(&output_dir_path)->default_value("./"), "output file directory")
@@ -176,9 +178,48 @@ int main( int argc, const char* argv[] )
     // create synth
     GPSynth* synth = new GPSynth(logger, synth_params, rng, primitives);
 
+    // declare comparator desc
+    GPAudioComparatorParams* comparator_params = (GPAudioComparatorParams*) malloc(sizeof(GPAudioComparatorParams));
+    std::string window_type;
+    po::options_description comparator_desc("");
+    comparator_desc.add_options()
+        ("aux_wav_file_buffer_size", po::value<unsigned>(&(comparator_params->aux_wav_file_buffer_size))->default_value(512), "")
+
+        ("fft_window", po::value<std::string>(&window_type)->default_value("rect"), "")
+        ("fft_size", po::value<unsigned>(&comparator_params->fft_size)->default_value(1024), "")
+        ("fft_overlap", po::value<unsigned>(&(comparator_params->fft_overlap))->default_value(0), "")
+
+        ("moving_average_type", po::value<unsigned>(&(comparator_params->moving_average_type))->default_value(0), "")
+        ("moving_average_past_radius", po::value<unsigned>(&(comparator_params->moving_average_past_radius))->default_value(0), "")
+        ("moving_average_future_radius", po::value<unsigned>(&(comparator_params->moving_average_future_radius))->default_value(0), "")
+        ("moving_average_exponential_alpha", po::value<double>(&(comparator_params->moving_average_exponential_alpha))->default_value(0.95f), "")
+
+        ("amp_comparison_p", po::value<double>(&(comparator_params->amp_comparison_p))->default_value(1.0f), "")
+        ("mag_weight_multiplier", po::value<double>(&(comparator_params->mag_weight_multiplier))->default_value(1.0f), "")
+        ("mag_comparison_p", po::value<double>(&(comparator_params->mag_comparison_p))->default_value(0.9f), "")
+        ("mag_good_comparison_additional_p", po::value<double>(&(comparator_params->mag_good_comparison_additional_p))->default_value(0.1f), "")
+        ("mag_good_comparison_additional_p", po::value<double>(&(comparator_params->mag_good_comparison_additional_p))->default_value(1.1f), "")
+        ("phase_weight_multiplier", po::value<double>(&(comparator_params->phase_weight_multiplier))->default_value(1.0f), "")
+        ("phase_comparison_p", po::value<double>(&(comparator_params->phase_comparison_p))->default_value(2.0f), "")
+    ;
+
+    // parse comparator config file
+    std::ifstream comparator_cfg_file;
+    comparator_cfg_file.open(comparator_cfg_file_path.c_str());
+    po::variables_map comparator_vm;
+    po::store(po::parse_config_file(comparator_cfg_file, comparator_desc, true), comparator_vm);
+    po::notify(comparator_vm);
+    comparator_cfg_file.close();
+
+    if (comparator_vm.count("fft_window")) {
+        strncpy(comparator_params->fft_window, window_type.c_str(), 5);
+    }
+
+    // create comparator
+    GPAudioComparator* comparator = new GPAudioComparator(comparator_params, target_file_path);
+
     // declare matching experiments desc
     GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
-    std::string window_type;
     po::options_description me_desc("");
     me_desc.add_options()
         ("log_save_gen_summary_file", po::value<bool>(&(me_params->log_save_gen_summary_file))->default_value(false), "save rendered audio of the champion from each generation")
@@ -187,31 +228,13 @@ int main( int argc, const char* argv[] )
         ("log_save_target_spectrum", po::value<bool>(&(me_params->log_save_target_spectrum))->default_value(false), "save spectrum of target wav file")
         ("log_save_target_copy", po::value<bool>(&(me_params->log_save_target_copy))->default_value(false), "save copy of target wav file")
 
-        ("aux_wav_file_buffer_size", po::value<unsigned>(&(me_params->aux_wav_file_buffer_size))->default_value(512), "buffer size for wav file IO")
         ("aux_render_block_size", po::value<unsigned>(&(me_params->aux_render_block_size))->default_value(512), "chunk size for rendering synthesis algorithms")
  
+        ("exp_ff_type", po::value<unsigned>(&(me_params->exp_ff_type))->default_value(0), "which type of suboptimization to perform")
+        ("exp_suboptimize_ff_type", po::value<unsigned>(&(me_params->exp_suboptimize_ff_type))->default_value(0), "which type of suboptimization to perform")
         ("exp_suboptimize_type", po::value<unsigned>(&(me_params->exp_suboptimize_type))->default_value(0), "which type of suboptimization to perform")
         ("exp_generations", po::value<unsigned>(&(me_params->exp_generations))->default_value(10), "maximum number of generations to evaluate")
         ("exp_threshold", po::value<double>(&(me_params->exp_threshold))->default_value(0.0f), "fitness to reach to terminate evolution")
-
-        ("ff_type", po::value<unsigned>(&(me_params->ff_type))->default_value(1), "which fitness function to use")
-        ("ff_spectrum_mag_weight", po::value<double>(&(me_params->ff_spectrum_mag_weight))->default_value(1.0f), "weight multiplier for spectrum magnitudes in fitness function")
-        ("ff_spectrum_phase_weight", po::value<double>(&(me_params->ff_spectrum_phase_weight))->default_value(1.0f), "weight multiplier for spectrum phases in fitness function")
-        
-        ("ff_fft_window", po::value<std::string>(&window_type)->default_value("rect"), "fft window type")
-        ("ff_fft_size", po::value<unsigned>(&(me_params->ff_fft_size))->default_value(1024), "fft size")
-        ("ff_fft_overlap", po::value<unsigned>(&(me_params->ff_fft_overlap))->default_value(0), "fft overlap")
-
-        ("ff_moving_average_type", po::value<unsigned>(&(me_params->ff_moving_average_type))->default_value(0), "type of moving average to use for fitness function comparison")
-        ("ff_moving_average_past_radius", po::value<unsigned>(&(me_params->ff_moving_average_past_radius))->default_value(40), "# of feedback samples for moving average filter")
-        ("ff_moving_average_future_radius", po::value<unsigned>(&(me_params->ff_moving_average_future_radius))->default_value(40), "# of feedforward samples for moving average filter")
-        ("ff_moving_average_exponential_alpha", po::value<double>(&(me_params->ff_moving_average_exponential_alpha))->default_value(0.95), "importance of successive samples in the moving average")
-        ("ff_weight_frames", po::value<bool>(&(me_params->ff_weight_frames))->default_value(false), "weight importance of target frames in comparison")
-        ("ff_weight_frames_exponent", po::value<double>(&(me_params->ff_weight_frames_exponent))->default_value(1.0f), "exponent for target frames weighting")
-        ("ff_phase_comparison_exponent", po::value<double>(&(me_params->ff_phase_comparison_exponent))->default_value(1.0f), "exponent for penalizing bad phase")
-        ("ff_mag_base_comparison", po::value<double>(&(me_params->ff_mag_base_comparison))->default_value(1.0f), "penalty for comparing magnitudes of bins in each frame")
-        ("ff_mag_good_comparison", po::value<double>(&(me_params->ff_mag_good_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the correct side of the moving average")
-        ("ff_mag_bad_comparison", po::value<double>(&(me_params->ff_mag_bad_comparison))->default_value(0.0f), "penalty bonus for comparing bins which are on the incorrect side of the moving average")
     ;
 
     // parse me config file
@@ -222,12 +245,8 @@ int main( int argc, const char* argv[] )
     po::notify(me_vm);
     me_cfg_file.close();
 
-    if (me_vm.count("ff_fft_window")) {
-        strncpy(me_params->ff_fft_window, window_type.c_str(), 5);
-    }
-
     // create experiment
-    GPExperiment* experiment = new GPExperiment(logger, me_params, seed, beagle_cfg_file_path, synth, target_file_path, output_dir_path, constants);
+    GPExperiment* experiment = new GPExperiment(logger, me_params, seed, beagle_cfg_file_path, synth, comparator, output_dir_path, constants);
 
     // run experiment
     GPNetwork* champion = experiment->evolve();
