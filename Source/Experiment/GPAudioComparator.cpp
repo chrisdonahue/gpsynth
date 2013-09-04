@@ -4,7 +4,9 @@
     constructors
 */
 
-GPAudioComparator::GPAudioComparator(GPAudioComparatorParams* params, std::string target_file_path)
+GPAudioComparator::GPAudioComparator(GPLogger* logger, GPAudioComparatorParams* params, std::string target_file_path) :
+    logger(logger),
+    params(params)
 {
     // fetch metadata
     JUCEFileIO::get_wav_file_metadata(target_file_path, &target_num_frames, &target_bits_per_sample, &target_length_seconds, &target_sampling_frequency, &target_nyquist_frequency);
@@ -28,6 +30,7 @@ GPAudioComparator::GPAudioComparator(GPAudioComparatorParams* params, std::strin
     // allocate FFT buffers
     target_spectra = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fft_output_buffer_length);
     target_magnitude = (double*) malloc(sizeof(double) * fft_output_buffer_length);
+    target_magnitude_moving_average = (double*) malloc(sizeof(double) * fft_output_buffer_length);
     target_phase = (double*) malloc(sizeof(double) * fft_output_buffer_length);
     bin_overshoot_p = (double*) malloc(sizeof(double) * fft_output_buffer_length);
     bin_undershoot_p = (double*) malloc(sizeof(double) * fft_output_buffer_length);
@@ -42,17 +45,6 @@ GPAudioComparator::GPAudioComparator(GPAudioComparatorParams* params, std::strin
     // take FFT of target data
     GPAudioUtil::fft_real(fft_config, target_num_frames, target_frames, n, overlap, analysis_window, fft_amplitude_buffer, target_spectra, target_magnitude, target_phase);
 
-	// allocate buffers for moving average calculation
-    double* time_axis = (double*) malloc(sizeof(double) * (fft_num_bins - 1));
-    double* moving_average = (double*) malloc(sizeof(double) * (fft_num_bins - 1));
-    float* float_freq_axis = (float*) malloc(sizeof(float) * fft_num_bins);
-    GPAudioUtil::fill_frequency_domain_buffer(n, target_sampling_frequency, float_freq_axis);
-    double* freq_axis = (double*) malloc(sizeof(double) * (fft_num_bins));
-    for (unsigned i = 0; i < fft_num_bins; i++) {
-        freq_axis[i] = (double) float_freq_axis[i];
-    }
-    free(float_freq_axis);
-
     // calculate penalties for each frame
     double base = params->mag_comparison_p;
     double good = params->mag_good_comparison_additional_p;
@@ -61,6 +53,7 @@ GPAudioComparator::GPAudioComparator(GPAudioComparatorParams* params, std::strin
     for (unsigned i = 0; i < fft_num_frames; i++) {
         // find moving average
         unsigned data_offset = (i * fft_num_bins) + 1;
+        double* moving_average = target_magnitude_moving_average + data_offset;
         double frame_average, max_deviation_below, max_deviation_above;
         GPAudioUtil::find_moving_average(params->moving_average_type, fft_num_bins - 1, target_magnitude + data_offset, moving_average, &frame_average, &max_deviation_below, &max_deviation_above, params->moving_average_past_radius, params->moving_average_future_radius, params->moving_average_exponential_alpha);
         //fftFrameWeight[i] = frameAverage;
@@ -101,13 +94,7 @@ GPAudioComparator::GPAudioComparator(GPAudioComparatorParams* params, std::strin
                 bin_overshoot_p[bin_index] = (proportion * bad) + base;
             }
         }
-
     }
-
-	// free moving average calculation buffers
-	free(freq_axis);
-	free(moving_average);
-	free(time_axis);
 }
 
 GPAudioComparator::~GPAudioComparator() {
@@ -115,6 +102,7 @@ GPAudioComparator::~GPAudioComparator() {
     free(analysis_window);
     free(target_spectra);
     free(target_magnitude);
+    free(target_magnitude_moving_average);
     free(target_phase);
     free(bin_overshoot_p);
     free(bin_undershoot_p);
@@ -230,6 +218,16 @@ void GPAudioComparator::save_target_backup(std::string path) {
 }
 
 void GPAudioComparator::save_target_spectrum(std::string path) {
+    unsigned n = params->fft_size;
+    unsigned overlap = params->fft_overlap;
+    double* time_axis = (double*) malloc(sizeof(double) * (fft_num_bins - 1));
+    float* float_freq_axis = (float*) malloc(sizeof(float) * fft_num_bins);
+    GPAudioUtil::fill_frequency_domain_buffer(n, target_sampling_frequency, float_freq_axis);
+    double* freq_axis = (double*) malloc(sizeof(double) * (fft_num_bins));
+    for (unsigned i = 0; i < fft_num_bins; i++) {
+        freq_axis[i] = (double) float_freq_axis[i];
+    }
+    free(float_freq_axis);
     for (unsigned i = 0; i < fft_num_frames; i++) {
         unsigned data_offset = (i * fft_num_bins) + 1;
         // save spectrum files if requested
@@ -237,14 +235,16 @@ void GPAudioComparator::save_target_spectrum(std::string path) {
         ss << path << "target_info/" << i << ".";
         double time = i * (params->fft_size - params->fft_overlap);
         time = double(time)/target_sampling_frequency;
-        /*
         for (unsigned j = 0; j < fft_num_bins - 1; j++) {
             time_axis[j] = time;
         }
-        saveTextFile(String(ss.str() + "magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, fft_num_bins - 1, timeAxis, freqAxis + 1, targetMagnitude + data_offset));
-        saveTextFile(String(ss.str() + "mac.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, fft_num_bins - 1, freqAxis + 1, mac, NULL));
-        saveTextFile(String(ss.str() + "undershoot.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, fft_num_bins - 1, freqAxis + 1, targetMagnitude + data_offset, binUndershootingPenalty + data_offset));
-        saveTextFile(String(ss.str() + "overshoot.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, fft_num_bins - 1, freqAxis + 1, targetMagnitude + data_offset, binOvershootingPenalty + data_offset));
-        */
+        std::stringstream overlapstream;
+        overlapstream << overlap;
+        JUCEFileIO::save_text_file(ss.str() + "magnitude.txt", GPAudioUtil::double_buffers_to_graph_string(overlapstream.str(), "", "", false, fft_num_bins - 1, time_axis, freq_axis + 1, target_magnitude + data_offset));
+        JUCEFileIO::save_text_file(ss.str() + "mac.txt", GPAudioUtil::double_buffers_to_graph_string("", "", "", false, fft_num_bins - 1, freq_axis + 1, target_magnitude_moving_average + data_offset, NULL));
+        JUCEFileIO::save_text_file(ss.str() + "undershoot.txt", GPAudioUtil::double_buffers_to_graph_string("", "", "", false, fft_num_bins - 1, freq_axis + 1, target_magnitude + data_offset, bin_undershoot_p + data_offset));
+        JUCEFileIO::save_text_file(ss.str() + "overshoot.txt", GPAudioUtil::double_buffers_to_graph_string("", "", "", false, fft_num_bins - 1, freq_axis + 1, target_magnitude + data_offset, bin_overshoot_p + data_offset));
     }
+    free(time_axis);
+	free(freq_axis);
 }

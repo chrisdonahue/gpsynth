@@ -20,6 +20,10 @@ GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params,
     if (params->log_save_target_copy)
         comparator->save_target_backup(output_dir_path + "target_copy.wav");
 
+    // save spectrum if requested
+    if (params->log_save_target_spectrum)
+        comparator->save_target_spectrum(output_dir_path);
+
     // retrieve target metadata
     target_sampling_frequency = (float) comparator->get_target_sampling_frequency();
     target_nyquist_frequency = (float) comparator->get_target_nyquist_frequency();
@@ -331,12 +335,12 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 	}
 
 	// spectral comparison
-	else if (type == 1) {
+	else if (type == 2) {
 		ret = comparator->compare_spectra(candidateFrames);
 	}
 
 	// weighted spectral comparison
-	else if (type == 1) {
+	else if (type == 3) {
 		ret = comparator->compare_spectra_weighted(candidateFrames);
 	}
 	

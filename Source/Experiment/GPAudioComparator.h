@@ -29,7 +29,7 @@ struct GPAudioComparatorParams {
 class GPAudioComparator {
     public:
         // constructors
-        GPAudioComparator(GPAudioComparatorParams* params, std::string target_file_path);
+        GPAudioComparator(GPLogger* logger, GPAudioComparatorParams* params, std::string target_file_path);
         ~GPAudioComparator();
 
         // accessors
@@ -77,6 +77,7 @@ class GPAudioComparator {
         // freq domain
         kiss_fft_cpx* target_spectra;
         double* target_magnitude;
+        double* target_magnitude_moving_average;
         double* target_phase;
         double* bin_overshoot_p;
         double* bin_undershoot_p;

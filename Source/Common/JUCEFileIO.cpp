@@ -7,11 +7,12 @@
 */
 
 void JUCEFileIO::get_wav_file_metadata(std::string path, unsigned long* num_frames, unsigned* bits_per_sample, double* length_seconds, double* sampling_frequency, double* nyquist_frequency) {
-    File input(String(path));
+    using namespace juce;
+    File input(path);
     if (!(input.existsAsFile())) {
         std::cerr << "Invalid input file: " << path << std::endl;
+        return;
     }
-    assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
     ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));
@@ -30,8 +31,8 @@ void JUCEFileIO::load_wav_file(std::string path, unsigned chunk_size, unsigned n
     File input(path);
     if (!(input.existsAsFile())) {
         std::cerr << "Invalid input file: " << path << std::endl;
+        return;
     }
-    assert(input.existsAsFile());
     FileInputStream* fis = input.createInputStream();
     ScopedPointer<WavAudioFormat> wavFormat(new WavAudioFormat());
     ScopedPointer<AudioFormatReader> afr(wavFormat->createReaderFor(fis, true));

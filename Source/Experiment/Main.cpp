@@ -31,8 +31,8 @@ int main( int argc, const char* argv[] )
         ("logger_cfg", po::value<std::string>(&logger_cfg_file_path), "logger config file")
         ("synth_cfg", po::value<std::string>(&synth_cfg_file_path), "synth config file")
         ("primitives", po::value<std::string>(&primitives_file_path), "list of primitives available to experiment")
-        ("me_cfg", po::value<std::string>(&me_cfg_file_path), "matching experiment config file")
         ("comparator_cfg", po::value<std::string>(&comparator_cfg_file_path), "comparator config file")
+        ("me_cfg", po::value<std::string>(&me_cfg_file_path), "matching experiment config file")
         ("beagle_cfg", po::value<std::string>(&beagle_cfg_file_path), "beagle suboptimization config file")
         ("target", po::value<std::string>(&target_file_path), "target wav file")
         ("output_dir", po::value<std::string>(&output_dir_path)->default_value("./"), "output file directory")
@@ -198,7 +198,7 @@ int main( int argc, const char* argv[] )
         ("mag_weight_multiplier", po::value<double>(&(comparator_params->mag_weight_multiplier))->default_value(1.0f), "")
         ("mag_comparison_p", po::value<double>(&(comparator_params->mag_comparison_p))->default_value(0.9f), "")
         ("mag_good_comparison_additional_p", po::value<double>(&(comparator_params->mag_good_comparison_additional_p))->default_value(0.1f), "")
-        ("mag_good_comparison_additional_p", po::value<double>(&(comparator_params->mag_good_comparison_additional_p))->default_value(1.1f), "")
+        ("mag_bad_comparison_additional_p", po::value<double>(&(comparator_params->mag_bad_comparison_additional_p))->default_value(1.1f), "")
         ("phase_weight_multiplier", po::value<double>(&(comparator_params->phase_weight_multiplier))->default_value(1.0f), "")
         ("phase_comparison_p", po::value<double>(&(comparator_params->phase_comparison_p))->default_value(2.0f), "")
     ;
@@ -216,7 +216,7 @@ int main( int argc, const char* argv[] )
     }
 
     // create comparator
-    GPAudioComparator* comparator = new GPAudioComparator(comparator_params, target_file_path);
+    GPAudioComparator* comparator = new GPAudioComparator(logger, comparator_params, target_file_path);
 
     // declare matching experiments desc
     GPMatchingExperimentParams* me_params = (GPMatchingExperimentParams*) malloc(sizeof(GPMatchingExperimentParams));
@@ -228,6 +228,7 @@ int main( int argc, const char* argv[] )
         ("log_save_target_spectrum", po::value<bool>(&(me_params->log_save_target_spectrum))->default_value(false), "save spectrum of target wav file")
         ("log_save_target_copy", po::value<bool>(&(me_params->log_save_target_copy))->default_value(false), "save copy of target wav file")
 
+        ("aux_wav_file_buffer_size", po::value<unsigned>(&(me_params->aux_wav_file_buffer_size))->default_value(512), "")
         ("aux_render_block_size", po::value<unsigned>(&(me_params->aux_render_block_size))->default_value(512), "chunk size for rendering synthesis algorithms")
  
         ("exp_ff_type", po::value<unsigned>(&(me_params->exp_ff_type))->default_value(0), "which type of suboptimization to perform")
