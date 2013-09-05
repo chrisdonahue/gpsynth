@@ -5,8 +5,8 @@ set -e
 # NEW CONFIG FILES
 # note: seed 0 will cause beagle to use 
 #<<COMMENT
-#valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 #gdb --args \
+valgrind -v --leak-check=full --show-reachable=yes --log-file="2GenValgrind.txt" \
 ./build/GPAudioTargetMatchingExperiment\
     --sys_info \
     --logger_cfg ./cfg/logger_default.cfg \
@@ -18,7 +18,8 @@ set -e
     --target ./samples/TrumpetEb5.wav \
     --output_dir ./output/ \
     --seed 0 \
-    --constants 622.25
+    --constants 622.25 \
+    > 2GenValgrind.txt
 #COMMENT
 
 # DEBUG MEMORY

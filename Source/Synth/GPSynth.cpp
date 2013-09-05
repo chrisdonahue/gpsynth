@@ -594,7 +594,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     if (params->backup_all_networks)
       allNetworks.push_back(std::string(net->toString(params->backup_precision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
-    if (net->fitness != -1) {
+    if (net->fitness != -1 && !params->re_reevaluate) {
         logger->verbose << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << logger->net_to_string_print(net) << " which was algorithm " << oldID << " from the previous generation." << std::flush;
         assignFitness(net, net->fitness);
     }

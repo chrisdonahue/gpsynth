@@ -265,6 +265,7 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                     else {
                         stored_param->setCValue(param->getCValue());
                     }
+                    delete param;
                 }
                 logger->debug << "AFTER(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
             }

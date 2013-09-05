@@ -152,6 +152,7 @@ int main( int argc, const char* argv[] )
         ("re_proportion", po::value<double>(&(synth_params->re_proportion))->default_value(1.0f), "fitness to reach to terminate evolution")
         ("re_selection_type", po::value<unsigned>(&(synth_params->re_selection_type))->default_value(0), "which fitness function to use")
         ("re_selection_percentile", po::value<double>(&(synth_params->re_selection_percentile))->default_value(0.0f), "fitness to reach to terminate evolution")
+        ("re_reevaluate", po::value<bool>(&(synth_params->re_reevaluate))->default_value(false), "fitness to reach to terminate evolution")
 
         ("new_proportion", po::value<double>(&(synth_params->new_proportion))->default_value(1.0f), "fitness to reach to terminate evolution")
         ("new_type", po::value<unsigned>(&(synth_params->new_type))->default_value(0), "which fitness function to use")
@@ -262,6 +263,9 @@ int main( int argc, const char* argv[] )
     free(logger_params->error_params);
     free(logger_params);
     delete logger;
+
+    // delete comparator
+    delete comparator;
 
     // delete synth
     free(synth_params);

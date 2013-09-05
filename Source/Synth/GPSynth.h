@@ -45,6 +45,7 @@ struct GPSynthParams {
     double re_proportion;
     unsigned re_selection_type;
     double re_selection_percentile;
+    bool re_reevaluate;
     // random new individual
     double new_proportion;
     unsigned new_type;

@@ -89,7 +89,7 @@ GPLogger::GPLogger(GPLoggerParams* params, std::string seed_string, std::string 
     debug(&debug_buff),
     error(&error_buff)
 {
-    if (params->verbose_to_log);
+    if (params->verbose_to_log)
         verbose_buff.set_forward(&log);
 
     log.precision(params->log_precision);
