@@ -12,4 +12,4 @@ Error = ./$(Process).err
 #Output = ./$(Process).out
 
 Notification = Complete
-Queue 30
+Queue 15
