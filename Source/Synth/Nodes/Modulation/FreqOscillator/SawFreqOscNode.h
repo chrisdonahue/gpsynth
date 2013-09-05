@@ -5,7 +5,7 @@
 
 class SawFreqOscNode: public WaveTableFreqNode {
 public:
-    SawFreqOscNode(GPMutatableParam* partial, GPMutatableParam* phase, GPNode* freq);
+    SawFreqOscNode(GPMutatableParam* phase, GPNode* freq);
     ~SawFreqOscNode();
 
 	// GPNode overrides
@@ -15,9 +15,6 @@ public:
 	// WaveTable overrides
 	void makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsigned constantRatioLimit, double baseFreq, double topFreq);
     void defineHarmonics(int len, int numHarmonics, double* ar, double* ai);
-
-    // optional overrides
-	void updateMutatedParams();
 
 private:
 };

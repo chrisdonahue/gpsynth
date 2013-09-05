@@ -5,7 +5,7 @@
 
 class TriangleFreqOscNode: public WaveTableFreqNode {
 public:
-    TriangleFreqOscNode(GPMutatableParam* partial, GPMutatableParam* phase, GPNode* freq);
+    TriangleFreqOscNode(GPMutatableParam* phase, GPNode* freq);
     ~TriangleFreqOscNode();
 
 	// GPNode overrides
@@ -15,9 +15,6 @@ public:
 	// WaveTable overrides
 	void makeAddAllWaveTables(double sampleRate, unsigned overSamp, unsigned constantRatioLimit, double baseFreq, double topFreq);
     void defineHarmonics(int len, int numHarmonics, double* ar, double* ai);
-
-    // optional overrides
-	void updateMutatedParams();
 
 private:
 };

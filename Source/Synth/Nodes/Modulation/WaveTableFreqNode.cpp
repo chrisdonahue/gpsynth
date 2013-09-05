@@ -8,6 +8,7 @@
 
 void WaveTableFreqNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
 	sampleRate = sr;
+    nyquistFreq = sampleRate / 2;
 	osc = new WaveTableOsc();
 	makeAddAllWaveTables((double) sr, 2, 99999, 20.0f, (double) 20.0f * 2.0 / sampleRate);
 	//makeAddAllWaveTables((double) sr, 2, 99999, 20.0f, (double) sr/2);
@@ -31,8 +32,12 @@ void WaveTableFreqNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsi
 	}
 	
 	// fill the audio buffer
+    float adjusted_child_value;
+    float freq_val;
     for (unsigned i = 0; i < numSamples; i++) {
-        osc->setFrequency((buffer[i] * partial) / sampleRate);
+        adjusted_child_value = (buffer[i] * freq_m) + freq_b;
+        freq_val = (adjusted_child_value) / sampleRate;
+        osc->setFrequency(freq_val);
         buffer[i] = osc->getOutput();
         osc->updatePhase(); 
     }
@@ -40,6 +45,12 @@ void WaveTableFreqNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsi
 
 void WaveTableFreqNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
+
+    // update angular frequency constant
+    phase = mutatableParams[1]->getValue();
+
+    // get min max from descendants
+    continuous_map_range(descendants[0]->minimum, descendants[0]->maximum, 0.0f, nyquistFreq, &freq_m, &freq_b);
 }
 
 /*

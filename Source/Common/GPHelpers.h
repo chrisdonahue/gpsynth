@@ -18,6 +18,11 @@ inline void continuousMapRange(double w, double x, double y, double z, double* m
     *b = (y - w * (*m));
 }
 
+inline void continuous_map_range(float w, float x, float y, float z, float* m, float* b) {
+    *m = (z - y)/(x - w);
+    *b = (y - w * (*m));
+}
+
 inline void intervalAdd(float* min, float* max, float a, float b, float c, float d) {
     float differences[4];
     differences[0] = a + c;

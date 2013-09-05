@@ -64,6 +64,9 @@ TODO long run:
         fleschter munsion? :/
 
 TODO NEXT EXPERIMENTS:
+    test new freq oscillators
+    make new primitives file
+
     CMAES:
         read about how to limit number of generations
         start init values at current value to suboptimize future generations

@@ -6,8 +6,7 @@
     ========================
 */
 
-SawFreqOscNode::SawFreqOscNode(GPMutatableParam* partial, GPMutatableParam* phase, GPNode* freq) {
-    mutatableParams.push_back(partial);
+SawFreqOscNode::SawFreqOscNode(GPMutatableParam* phase, GPNode* freq) {
     mutatableParams.push_back(phase);
 
     descendants.push_back(freq);
@@ -29,21 +28,11 @@ SawFreqOscNode::~SawFreqOscNode() {
 */
 
 SawFreqOscNode* SawFreqOscNode::getCopy() {
-    return new SawFreqOscNode(mutatableParams[0]->getCopy(), mutatableParams[1]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
+    return new SawFreqOscNode(mutatableParams[0]->getCopy(), descendants[0] == NULL ? NULL : descendants[0]->getCopy());
 }
 
 void SawFreqOscNode::setRenderInfo(float sr, unsigned blockSize, unsigned maxFrameNumber, float maxTime) {
 	WaveTableFreqNode::setRenderInfo(sr, blockSize, maxFrameNumber, maxTime);
-}
-
-void SawFreqOscNode::updateMutatedParams() {
-    GPNode::updateMutatedParams();
-
-	// update angular frequency constant
-    partial = mutatableParams[0]->getValue();
-    phase = mutatableParams[1]->getValue();
-	
-    // minimum/maximum constant and declared in constructor
 }
 
 /*

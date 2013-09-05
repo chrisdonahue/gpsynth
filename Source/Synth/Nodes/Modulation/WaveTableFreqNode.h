@@ -26,8 +26,10 @@ public:
     // member variables
     int variableNum;
     float sampleRate;
-    float partial;
+    float nyquistFreq;
     float phase;
+    float freq_m;
+    float freq_b;
     WaveTableOsc* osc;
 private:
 };

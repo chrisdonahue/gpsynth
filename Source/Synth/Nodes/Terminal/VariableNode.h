@@ -12,9 +12,6 @@ public:
     VariableNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
 
-    // optional overrides
-	void updateMutatedParams();
-
 private:
     int variableNum;
 };

@@ -5,7 +5,7 @@
 executable = ./condor_run.sh
 Arguments = $(Process)
 
-Requirements = Lucid
+#Requirements = Lucid
 
 Log = ./condor.log
 Error = ./$(Process).err
