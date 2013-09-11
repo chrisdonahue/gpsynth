@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="v2xiX5" name="GPAudioTargetMatchingExperiment" projectType="consoleapp"
+              version="1.0.0" bundleIdentifier="com.yourcompany.GPAudioTargetMatchingExperiment"
+              jucerVersion="3.1.0">
+  <MAINGROUP id="c2TRCR" name="GPAudioTargetMatchingExperiment">
+    <GROUP id="{B858A941-1A1C-2ED4-3DAD-72CC92969E73}" name="Source">
+      <GROUP id="{E3B36CAE-8A14-62B3-43A6-2E392561879F}" name="Dependencies">
+        <GROUP id="{2683F7AC-FA47-3EF3-17C6-B807A6134F76}" name="WaveTableOsc">
+          <FILE id="Z1vTRm" name="WaveTableOsc.cpp" compile="1" resource="0"
+                file="Source/Dependencies/WaveTableOsc/WaveTableOsc.cpp"/>
+          <FILE id="MR4qnL" name="WaveTableOsc.h" compile="0" resource="0" file="Source/Dependencies/WaveTableOsc/WaveTableOsc.h"/>
+        </GROUP>
+        <GROUP id="{80E78731-EE0E-33B8-A3D9-5063BC6D5155}" name="kissfft">
+          <FILE id="pmRWSO" name="_kiss_fft_guts.h" compile="0" resource="0"
+                file="Source/Dependencies/kissfft/_kiss_fft_guts.h"/>
+          <FILE id="YSVCOP" name="kiss_fft.c" compile="1" resource="0" file="Source/Dependencies/kissfft/kiss_fft.c"/>
+          <FILE id="Vls2Kb" name="kiss_fft.h" compile="0" resource="0" file="Source/Dependencies/kissfft/kiss_fft.h"/>
+          <FILE id="xfFrbN" name="kiss_fftr.c" compile="1" resource="0" file="Source/Dependencies/kissfft/kiss_fftr.c"/>
+          <FILE id="QP4Im0" name="kiss_fftr.h" compile="0" resource="0" file="Source/Dependencies/kissfft/kiss_fftr.h"/>
+          <FILE id="XPnRJR" name="kissfft.hh" compile="0" resource="1" file="Source/Dependencies/kissfft/kissfft.hh"/>
+        </GROUP>
+      </GROUP>
+      <GROUP id="{CB468CF6-51BC-84CF-B075-E4E817403BF8}" name="Synth">
+        <FILE id="tbmst8" name="GPMutatableParam.h" compile="0" resource="1"
+              file="Source/Synth/GPMutatableParam.h"/>
+        <FILE id="GDbqpI" name="GPNetwork.cpp" compile="1" resource="0" file="Source/Synth/GPNetwork.cpp"/>
+        <FILE id="MJOedJ" name="GPNetwork.h" compile="0" resource="0" file="Source/Synth/GPNetwork.h"/>
+        <FILE id="BQdJsr" name="GPNode.h" compile="0" resource="0" file="Source/Synth/GPNode.h"/>
+        <FILE id="OImXFY" name="GPPrimitives.h" compile="0" resource="0" file="Source/Synth/GPPrimitives.h"/>
+        <FILE id="tejX3A" name="GPSynth.cpp" compile="1" resource="0" file="Source/Synth/GPSynth.cpp"/>
+        <FILE id="UZlwzR" name="GPSynth.h" compile="0" resource="0" file="Source/Synth/GPSynth.h"/>
+        <GROUP id="{33EDC239-F691-FA52-9153-21B8841D6559}" name="Nodes">
+          <GROUP id="{B9375AEE-7592-DBD3-E8B1-24275ED7553C}" name="Effect"/>
+          <GROUP id="{0E0CE7A1-6CBF-C4A8-87D1-FC216AEA98B7}" name="Envelope">
+            <FILE id="Rh73mf" name="ADSREnvelopeNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Envelope/ADSREnvelopeNode.cpp"/>
+            <FILE id="MGsIVe" name="ADSREnvelopeNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Envelope/ADSREnvelopeNode.h"/>
+            <FILE id="OPM9tE" name="GainNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Envelope/GainNode.cpp"/>
+            <FILE id="JJGd56" name="GainNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Envelope/GainNode.h"/>
+            <FILE id="mfhU12" name="LFOEnvelopeNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Envelope/LFOEnvelopeNode.cpp"/>
+            <FILE id="iF5pE5" name="LFOEnvelopeNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Envelope/LFOEnvelopeNode.h"/>
+            <FILE id="s8Tw0u" name="SplineEnvelopeNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Envelope/SplineEnvelopeNode.cpp"/>
+            <FILE id="a2iPc7" name="SplineEnvelopeNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Envelope/SplineEnvelopeNode.h"/>
+          </GROUP>
+          <GROUP id="{C963947E-9689-2472-C5F7-98F0D43F9A40}" name="Function">
+            <FILE id="Aot70F" name="AddNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Function/AddNode.cpp"/>
+            <FILE id="JM3SiV" name="AddNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Function/AddNode.h"/>
+            <FILE id="Xe9jhZ" name="CosineNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Function/CosineNode.cpp"/>
+            <FILE id="pE4IJC" name="CosineNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Function/CosineNode.h"/>
+            <FILE id="tMXqML" name="FunctionNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Function/FunctionNode.cpp"/>
+            <FILE id="itDmzI" name="FunctionNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Function/FunctionNode.h"/>
+            <FILE id="OdoyZg" name="MultiplyNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Function/MultiplyNode.cpp"/>
+            <FILE id="tZhc89" name="MultiplyNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Function/MultiplyNode.h"/>
+            <FILE id="ApCRN9" name="SineNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Function/SineNode.cpp"/>
+            <FILE id="H2iLcp" name="SineNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Function/SineNode.h"/>
+            <FILE id="aSpNmj" name="SubtractNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Function/SubtractNode.cpp"/>
+            <FILE id="xxJnAU" name="SubtractNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Function/SubtractNode.h"/>
+          </GROUP>
+          <GROUP id="{BEF39A7C-5347-C290-7BD9-C3705791DBD2}" name="Logic">
+            <FILE id="bLvPiK" name="MixerNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Logic/MixerNode.cpp"/>
+            <FILE id="A9VzWe" name="MixerNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Logic/MixerNode.h"/>
+            <FILE id="F22DEc" name="SwitchNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Logic/SwitchNode.cpp"/>
+            <FILE id="xG1xt6" name="SwitchNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Logic/SwitchNode.h"/>
+          </GROUP>
+          <GROUP id="{4DB6BB2B-8C0C-0FC3-9253-9AF024A2FE3C}" name="Modulation">
+            <GROUP id="{8E5E7D11-F954-EA63-C725-1E387FD0A4F2}" name="FreqOscillator">
+              <FILE id="fsKJMj" name="SawFreqOscNode.cpp" compile="1" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/SawFreqOscNode.cpp"/>
+              <FILE id="Q028Y6" name="SawFreqOscNode.h" compile="0" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/SawFreqOscNode.h"/>
+              <FILE id="eJQsLt" name="SinFreqOscNode.cpp" compile="1" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/SinFreqOscNode.cpp"/>
+              <FILE id="vyGOCS" name="SinFreqOscNode.h" compile="0" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/SinFreqOscNode.h"/>
+              <FILE id="OZ6noe" name="SquareFreqOscNode.cpp" compile="1" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/SquareFreqOscNode.cpp"/>
+              <FILE id="eXtH6K" name="SquareFreqOscNode.h" compile="0" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/SquareFreqOscNode.h"/>
+              <FILE id="toEM0E" name="TriangleFreqOscNode.cpp" compile="1" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/TriangleFreqOscNode.cpp"/>
+              <FILE id="CUfXjq" name="TriangleFreqOscNode.h" compile="0" resource="0"
+                    file="Source/Synth/Nodes/Modulation/FreqOscillator/TriangleFreqOscNode.h"/>
+            </GROUP>
+            <FILE id="J7pjrW" name="WaveTableFreqNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Modulation/WaveTableFreqNode.cpp"/>
+            <FILE id="YwsDTS" name="WaveTableFreqNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Modulation/WaveTableFreqNode.h"/>
+            <FILE id="pBsWLO" name="AMNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Modulation/AMNode.cpp"/>
+            <FILE id="oI2bTi" name="AMNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Modulation/AMNode.h"/>
+            <FILE id="yYJTT6" name="PMNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Modulation/PMNode.cpp"/>
+            <FILE id="BKdNc2" name="PMNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Modulation/PMNode.h"/>
+          </GROUP>
+          <GROUP id="{561AD08E-61D6-7852-A93C-59669E87E29A}" name="Terminal">
+            <FILE id="vDvxRR" name="ADSRTerminalNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Terminal/ADSRTerminalNode.cpp"/>
+            <FILE id="vXcg1e" name="ADSRTerminalNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Terminal/ADSRTerminalNode.h"/>
+            <FILE id="ispZlY" name="ConstantNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Terminal/ConstantNode.cpp"/>
+            <FILE id="DfMQQL" name="ConstantNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/ConstantNode.h"/>
+            <FILE id="UY589H" name="LFOTerminalNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Terminal/LFOTerminalNode.cpp"/>
+            <FILE id="DcOptJ" name="LFOTerminalNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Terminal/LFOTerminalNode.h"/>
+            <FILE id="eGtUY5" name="NoiseNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Terminal/NoiseNode.cpp"/>
+            <FILE id="emaitt" name="NoiseNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/NoiseNode.h"/>
+            <GROUP id="{B01277CC-3E92-E0CA-8946-661849FD711F}" name="Oscillator">
+              <FILE id="j6VutO" name="SawOscNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Terminal/Oscillator/SawOscNode.cpp"/>
+              <FILE id="MyWQTe" name="SawOscNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/Oscillator/SawOscNode.h"/>
+              <FILE id="Njpwoa" name="SinOscNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Terminal/Oscillator/SinOscNode.cpp"/>
+              <FILE id="AlcZdm" name="SinOscNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/Oscillator/SinOscNode.h"/>
+              <FILE id="wSzfcP" name="SquareOscNode.cpp" compile="1" resource="0"
+                    file="Source/Synth/Nodes/Terminal/Oscillator/SquareOscNode.cpp"/>
+              <FILE id="rUD7iC" name="SquareOscNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/Oscillator/SquareOscNode.h"/>
+              <FILE id="YrhoSH" name="TriangleOscNode.cpp" compile="1" resource="0"
+                    file="Source/Synth/Nodes/Terminal/Oscillator/TriangleOscNode.cpp"/>
+              <FILE id="PqnR0R" name="TriangleOscNode.h" compile="0" resource="0"
+                    file="Source/Synth/Nodes/Terminal/Oscillator/TriangleOscNode.h"/>
+            </GROUP>
+            <FILE id="Q5YJa7" name="SilenceNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Terminal/SilenceNode.cpp"/>
+            <FILE id="q86seF" name="SilenceNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/SilenceNode.h"/>
+            <FILE id="buEfDU" name="SplineTerminalNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Terminal/SplineTerminalNode.cpp"/>
+            <FILE id="Wq2KmL" name="SplineTerminalNode.h" compile="0" resource="0"
+                  file="Source/Synth/Nodes/Terminal/SplineTerminalNode.h"/>
+            <FILE id="gVNnCE" name="TimeNode.cpp" compile="1" resource="0" file="Source/Synth/Nodes/Terminal/TimeNode.cpp"/>
+            <FILE id="pwCYSH" name="TimeNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/TimeNode.h"/>
+            <FILE id="WbsxnP" name="VariableNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Terminal/VariableNode.cpp"/>
+            <FILE id="PAPO4N" name="VariableNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/VariableNode.h"/>
+            <FILE id="EWzd2A" name="WaveTableNode.cpp" compile="1" resource="0"
+                  file="Source/Synth/Nodes/Terminal/WaveTableNode.cpp"/>
+            <FILE id="r08HdB" name="WaveTableNode.h" compile="0" resource="0" file="Source/Synth/Nodes/Terminal/WaveTableNode.h"/>
+          </GROUP>
+        </GROUP>
+      </GROUP>
+      <GROUP id="{1933CEF6-17CC-51CA-036C-7C03513CD47F}" name="Experiment">
+        <FILE id="vcOAlo" name="AudioComparisonEvalOp.cpp" compile="1" resource="0"
+              file="Source/Experiment/AudioComparisonEvalOp.cpp"/>
+        <FILE id="Oasu1B" name="AudioComparisonEvalOp.hpp" compile="0" resource="0"
+              file="Source/Experiment/AudioComparisonEvalOp.hpp"/>
+        <FILE id="j99bSS" name="AudioComparisonParams.cpp" compile="1" resource="0"
+              file="Source/Experiment/AudioComparisonParams.cpp"/>
+        <FILE id="ZXS92m" name="AudioComparisonParams.hpp" compile="0" resource="0"
+              file="Source/Experiment/AudioComparisonParams.hpp"/>
+        <FILE id="FY2rRr" name="GPExperiment.cpp" compile="1" resource="0"
+              file="Source/Experiment/GPExperiment.cpp"/>
+        <FILE id="SBaj37" name="GPExperiment.h" compile="0" resource="0" file="Source/Experiment/GPExperiment.h"/>
+        <FILE id="ghdDif" name="Main.cpp" compile="1" resource="0" file="Source/Experiment/Main.cpp"/>
+      </GROUP>
+      <GROUP id="{D530E97E-51F5-3225-26B9-652FA9A43511}" name="Common">
+        <FILE id="qZyKXm" name="GPLogger.cpp" compile="1" resource="0" file="Source/Common/GPLogger.cpp"/>
+        <FILE id="Aqm7lk" name="GPLogger.h" compile="0" resource="0" file="Source/Common/GPLogger.h"/>
+        <FILE id="t457Em" name="GPAudioUtil.cpp" compile="1" resource="0" file="Source/Common/GPAudioUtil.cpp"/>
+        <FILE id="DLeAKs" name="GPAudioUtil.h" compile="0" resource="0" file="Source/Common/GPAudioUtil.h"/>
+        <FILE id="hnw2Hh" name="GPHelpers.h" compile="0" resource="0" file="Source/Common/GPHelpers.h"/>
+        <FILE id="NfeaJy" name="GPParser.cpp" compile="1" resource="0" file="Source/Common/GPParser.cpp"/>
+        <FILE id="eazf91" name="GPParser.h" compile="0" resource="0" file="Source/Common/GPParser.h"/>
+        <FILE id="qfQzTP" name="GPRandom.cpp" compile="1" resource="0" file="Source/Common/GPRandom.cpp"/>
+        <FILE id="qT11Jy" name="GPRandom.h" compile="0" resource="0" file="Source/Common/GPRandom.h"/>
+        <FILE id="rO97tE" name="JUCEFileIO.cpp" compile="1" resource="0" file="Source/Common/JUCEFileIO.cpp"/>
+        <FILE id="GmA1L3" name="JUCEFileIO.h" compile="0" resource="0" file="Source/Common/JUCEFileIO.h"/>
+      </GROUP>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/Linux" juceFolder="../JUCE/modules" extraCompilerFlags="-I ../../Source/Dependencies/OpenBEAGLE/include -I ../../Source/Dependencies/PACC/include"
+                extraLinkerFlags="-L../../Source/Dependencies/PACC/lib -Wl,-rpath=&quot;../../Source/Dependencies/PACC/lib&quot; -lpacc -L../../Source/Dependencies/OpenBEAGLE/lib -Wl,-rpath=&quot;../../Source/Dependencies/OpenBEAGLE/lib&quot; -lopenbeagle -lopenbeagle-GA">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="GPAudioTargetMatchingExperiment" headerPath=""/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
+                       targetName="GPAudioTargetMatchingExperiment"/>
+      </CONFIGURATIONS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <JUCEOPTIONS JUCE_ENABLE_REPAINT_DEBUGGING="disabled" JUCE_USE_XSHM="disabled"
+               JUCE_USE_XRENDER="disabled" JUCE_USE_XCURSOR="disabled"/>
+</JUCERPROJECT>

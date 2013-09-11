@@ -200,31 +200,6 @@ void GPSynth::getIndividuals(std::vector<GPNetwork*>& networks) {
 	std::sort(networks.begin(), networks.end(), compareNetworksByID);
 }
 
-int GPSynth::assignFitness(GPNetwork* net, double fitness) {
-    // assign network fitness and move it to evaluated
-    net->fitness = fitness;
-    unevaluated.erase(net);
-    evaluated.insert(net);
-    rawFitnesses[net->ID % populationSize] = fitness;
-
-    // print if verbose
-    if (params->verbose) {
-        std::cout << "Algorithm " << net->ID << " was assigned fitness " << fitness << std::endl;
-    }
-
-    // calculate num remaining and print summary if generation is done
-    int numStillNeedingEvaluation = populationSize - evaluated.size();
-    if (numStillNeedingEvaluation == 0) {
-        endGeneration();
-        printGenerationSummary();
-    }
-    return numStillNeedingEvaluation;
-}
-
-GPNetwork* GPSynth::growNewIndividual(unsigned maxHeight) {
-	return grow(maxHeight);
-}
-
 bool GPSynth::replaceIndividual(GPNetwork* old, GPNetwork* nu) {
 	// check if old is already evaluated
 	if (evaluated.find(old) != evaluated.end()) {
@@ -619,7 +594,7 @@ void GPSynth::addNetworkToPopulation(GPNetwork* net) {
     if (params->backup_all_networks)
       allNetworks.push_back(std::string(net->toString(params->backup_precision)));
     currentGeneration.insert(std::make_pair(net->ID % populationSize, net));
-    if (net->fitness != -1 && !params->re_reevaluate) {
+    if (net->fitness != -1) {
         logger->verbose << "Testing algorithm " << net->ID << " made by " << net->origin << " with height " << net->height << " and structure " << logger->net_to_string_print(net) << " which was algorithm " << oldID << " from the previous generation." << std::flush;
         assignFitness(net, net->fitness);
     }
