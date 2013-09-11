@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "GPMutatableParam.h"
 #include "../Synth/GPNode.h"
 #include "../Synth/GPPrimitives.h"
 

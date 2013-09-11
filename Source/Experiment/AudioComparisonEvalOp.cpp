@@ -128,7 +128,7 @@ Fitness::Handle AudioComparisonEvalOp::evaluate(Individual& inIndividual, Contex
     candidate->updateMutatedParams();
 
     // evaluate the new organism using the call back method
-    double fitness = experiment->beagleComparisonCallback(type, candidate, candidateFramesBuffer);
+    double fitness = experiment->beagleComparisonCallback(type, candidateFramesBuffer);
 
     // report fitness to the system
 	return new FitnessSimpleMin(fitness);

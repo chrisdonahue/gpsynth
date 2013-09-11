@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SwitchNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef SWITCHNODE_H
 #define SWITCHNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     SwitchNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

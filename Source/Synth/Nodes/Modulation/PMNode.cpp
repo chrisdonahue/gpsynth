@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    PMNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "PMNode.h"
 
 /*
@@ -28,6 +19,8 @@ PMNode::PMNode(GPMutatableParam* vn, GPMutatableParam* p, GPMutatableParam* i, G
     
     minimum = -1;
     maximum = 1;
+
+    symbol = "pm";
 }
 
 PMNode::~PMNode() {
@@ -62,16 +55,4 @@ void PMNode::updateMutatedParams() {
     index = mutatableParams[2]->getCValue();
     
     // minimum/maximum constant and declared in constructor
-}
-
-void PMNode::toString(std::stringstream& ss) {
-    ss << "(pm "; 
-    mutatableParams[0]->toString(ss);
-    ss << " ";
-    mutatableParams[1]->toString(ss);
-    ss << " ";
-    mutatableParams[2]->toString(ss);
-    ss << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
 }

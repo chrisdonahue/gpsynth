@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    VariableNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "VariableNode.h"
 
 /*
@@ -16,12 +7,18 @@
 */
 
 VariableNode::VariableNode(GPMutatableParam* vn, GPMutatableParam* range) {
-    assert(vn->isMutatable());
+    assert(vn->isUnmutatable());
     variableNum = vn->getDValue();
     mutatableParams.push_back(vn);
+
+    assert(range->isUnmutatable());
+    minimum = range->getMin();
+    maximum = range->getMax();
     mutatableParams.push_back(range);
 
     arity = 0;
+
+    symbol = "var";
 }
 
 VariableNode::~VariableNode() {
@@ -45,18 +42,4 @@ void VariableNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned 
     for (unsigned i = 0; i < numSamples; i++) {
         buffer[i] = constantVariables[variableNum];
     }
-}
-
-void VariableNode::updateMutatedParams() {
-    GPNode::updateMutatedParams();
-    minimum = mutatableParams[1]->getCMin();
-    maximum = mutatableParams[1]->getCMax();
-}
-
-void VariableNode::toString(std::stringstream& ss) {
-    ss << "(var " << variableNum;
-    mutatableParams[0]->toString(ss);
-    ss << " ";
-    mutatableParams[1]->toString(ss);
-    ss << ")";
 }

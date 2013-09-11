@@ -16,8 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
-#include "../Common/GPParams.h"
-#include "../Common/GPMutatableParam.h"
+#include "GPMutatableParam.h"
 #include "../Common/GPHelpers.h"
 #include <sstream>
 
@@ -52,7 +51,6 @@ public:
     // virtual GPNode* fromString(std::string nodestring) = 0;
     virtual GPNode* getCopy() = 0;
 	virtual void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer) = 0;
-    virtual void toString(std::stringstream& ss) = 0;
 
     // LINEAGE POINTERS
     GPNode* parent;
@@ -163,6 +161,22 @@ public:
         toString(ss);
         return ss.str();
     }
+
+    void toString(std::stringstream& ss) {
+        ss << "(" << symbol;
+        for (unsigned i = 0; i < mutatableParams.size(); i++) {
+            ss << " ";
+            mutatableParams[i]->toString(ss);
+        }
+        for (unsigned i = 0; i < descendants.size(); i++) {
+            ss << " ";
+            descendants[i]->toString(ss);
+        }
+        ss << ")";
+    }
+
+protected:
+    std::string symbol;
 };
 
 #endif

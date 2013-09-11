@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SwitchNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "SwitchNode.h"
 
 /*
@@ -20,6 +11,8 @@ SwitchNode::SwitchNode(GPNode* mod, GPNode* sigone, GPNode* sigtwo) {
     descendants.push_back(mod);
     descendants.push_back(sigone);
     descendants.push_back(sigtwo);
+
+    symbol = "switch";
 }
 
 SwitchNode::~SwitchNode() {
@@ -60,14 +53,4 @@ void SwitchNode::updateMutatedParams() {
     float signalTwoMax = descendants[2]->maximum;
     minimum = signalOneMin < signalTwoMin ? signalOneMin : signalTwoMin;
     maximum = signalOneMax > signalTwoMax ? signalOneMax : signalTwoMax;
-}
-
-void SwitchNode::toString(std::stringstream& ss) {
-    ss << "(switch "; 
-    descendants[0]->toString(ss);
-    ss << " ";
-    descendants[1]->toString(ss);
-    ss << " ";
-    descendants[2]->toString(ss);
-    ss << ")";
 }

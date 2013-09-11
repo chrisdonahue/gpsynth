@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SilenceNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef SILENCENODE_H
 #define SILENCENODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     SilenceNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
 private:
 };

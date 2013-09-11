@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    PMNode.h
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef PMNODE_H
 #define PMNODE_H
 
@@ -20,7 +11,6 @@ public:
 	// overrides
     PMNode* getCopy();
 	void evaluateBlockPerformance(unsigned firstFrameNumber, unsigned numSamples, float* sampleTimes, unsigned numConstantVariables, float* constantVariables, float* buffer);
-    void toString(std::stringstream& ss);
 
     // optional overrides
 	void updateMutatedParams();

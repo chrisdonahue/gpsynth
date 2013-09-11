@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    GPExperiment.cpp
-    Created: 6 Feb 2013 11:05:21am
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "GPExperiment.h"
 
 /*
@@ -16,149 +6,45 @@
     ============
 */
 
-GPExperiment::GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, unsigned numconstants, float* constants, bool* rq) :
-    params(p), seed(s), targetPath(target), savePath(path),
-    numConstantValues(numconstants), constantValues(constants),
-    requestedQuit(rq)
+GPExperiment::GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, GPAudioComparator* comparator, std::string output_dir_path, std::vector<float>& constants) :
+    is_sanity_test(false),
+    logger(logger),
+    params(params), beagle_cfg_file_path(beagle_cfg_file_path),
+    seed(seed), seed_string(logger->get_seed_string()),
+    synth(synth), comparator(comparator),
+    output_dir_path(output_dir_path),
+    numConstantValues(constants.size()), constantValues(constants.data()),
+    suboptimize_network(NULL), suboptimize_best_params(0), suboptimize_min_fitness(0.0f)
 {
-    // AUDIO SANITY TEST
-    if (params->experimentNumber == 0) {
-        synth = NULL;
-        sanityTest(rng);
-    }
+    // backup target if requested
+    if (params->log_save_target_copy)
+        comparator->save_target_backup(output_dir_path + "target_copy.wav");
 
-    // EXPERIMENT
-    else {
-        // TARGET DATA CONTAINERS
-        getWavFileInfo(target, &numTargetFrames, &targetSampleRate);
-        targetNyquist = targetSampleRate / 2;
-        targetFrames = (float*) malloc(sizeof(float) * numTargetFrames);
-        loadWavFile(target, params->wavFileBufferSize, numTargetFrames, targetFrames);
-        if (params->backupTarget)
-            saveWavFile(savePath + String("targetcopy.wav"), String(""), String("target"), targetSampleRate, params->wavFileBufferSize, numTargetFrames, targetFrames);
+    // save spectrum if requested
+    if (params->log_save_target_spectrum)
+        comparator->save_target_spectrum(output_dir_path);
 
-        fillEvaluationBuffers(numConstantValues, constantValues, 0, NULL);
+    // retrieve target metadata
+    target_sampling_frequency = (float) comparator->get_target_sampling_frequency();
+    target_nyquist_frequency = (float) comparator->get_target_nyquist_frequency();
+    target_num_frames = (unsigned) comparator->get_target_num_frames();
+    target_last_sample_start_time = comparator->get_target_last_sample_start_time();
+    target_sample_times = (float*) malloc(sizeof(float) * target_num_frames);
+    GPAudioUtil::fill_time_domain_buffer(target_num_frames, comparator->get_target_sampling_frequency(), target_sample_times);
 
-        // EXPERIMENT PARAMETERS THAT USE SAMPLE RATE
-        params->delayNodeMaxBufferSize = params->delayNodeBufferMaxSeconds * targetSampleRate;
-
-        // EXPERIMENT STATE
-        numGenerations = p->numGenerations;
-        fitnessThreshold = p->thresholdFitness;
-        minFitnessAchieved = INFINITY;
-        numEvaluatedGenerations = 0;
-
-        // AVAILABLE SYNTH NODES
-        std::vector<GPNode*>* nodes = new std::vector<GPNode*>();
-
-        // MUTATABLE PARAMS
-        GPMutatableParam* constantValue = new GPMutatableParam("constantvalue", true, 0.0, params->valueNodeMinimum, params->valueNodeMaximum);
-        GPMutatableParam* constantTwo = new GPMutatableParam("two", false, 2.0f, 0.0f, 0.0f);
-        GPMutatableParam* constantPi = new GPMutatableParam("pi", false, (float) M_PI, 0.0f, 0.0f);
-
-        GPMutatableParam* oscilPartial = new GPMutatableParam("oscilpartial", true, 1, 1, params->oscilNodeMaxPartial);
-        GPMutatableParam* oscilContinuousPartial = new GPMutatableParam("oscilpartial", true, 1.0f, 0.0f, targetNyquist/constantValues[0]);
-        GPMutatableParam* oscilModIndex = new GPMutatableParam("oscilmodindex", true, 1.0, params->oscilNodeMinIndexOfModulation, params->oscilNodeMaxIndexOfModulation);
-
-        GPMutatableParam* filterCenterFrequencyMultiplierMin = new GPMutatableParam("filtercenterfrequencymin", true, 1.0, params->filterNodeCenterFrequencyMinimum/constantValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/constantValues[0]);
-        GPMutatableParam* filterCenterFrequencyMultiplierMax = new GPMutatableParam("filtercenterfrequencymax", true, 1.0, params->filterNodeCenterFrequencyMinimum/constantValues[0], (targetNyquist * params->filterNodeCenterFrequencyMaximumProportionOfNyquist)/constantValues[0]);
-        GPMutatableParam* filterQualityMin = new GPMutatableParam("filterqualitymin", true, 0.0, 0.0, params->filterNodeQualityMinimum);
-        GPMutatableParam* filterQualityMax = new GPMutatableParam("filterqualitymax", true, 0.0, 0.0, params->filterNodeQualityMaximum);
-        GPMutatableParam* filterBandwidth = new GPMutatableParam("filterbandwidthmin", true, 10.0, params->filterNodeBandwidthMinimum, params->filterNodeBandwidthMaximum);
-
-        GPMutatableParam* ADSRDelay = new GPMutatableParam("adsrdelay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* ADSRAttack = new GPMutatableParam("adsrattack", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* ADSRAttackHeight = new GPMutatableParam("adsrattackheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
-        GPMutatableParam* ADSRDecay = new GPMutatableParam("adsrdecay", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* ADSRSustain = new GPMutatableParam("adsrsustain", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-        GPMutatableParam* ADSRSustainHeight = new GPMutatableParam("adsrsustainheight", true, 0.0, params->ADSRNodeEnvelopeMin, params->ADSRNodeEnvelopeMax);
-        GPMutatableParam* ADSRRelease = new GPMutatableParam("adsrrelease", true, 0.0, 0.0, numTargetFrames / targetSampleRate);
-
-        GPMutatableParam* specialValues = new GPMutatableParam("special", false, 0, 0, numConstantValues);
-
-        // CURRENT DEFAULT EXPERIMENT
-        if (params->experimentNumber == 1) {
-            // SUPPLY AVAILABLE NODES
-            //nodes->push_back(new NoiseNode(rng));
-            //nodes->push_back(new ADSRNode(true, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-            //nodes->push_back(new ADSRNode(false, ADSRDelay->getCopy(), ADSRAttack->getCopy(), ADSRAttackHeight->getCopy(), ADSRDecay->getCopy(), ADSRSustain->getCopy(), ADSRSustainHeight->getCopy(), ADSRRelease->getCopy(), NULL));
-            //currentPrimitives->push_back(createNode("(sawosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
-            //currentPrimitives->push_back(createNode("(squareosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
-            //currentPrimitives->push_back(createNode("(triangleosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", &rng));
-            //currentPrimitives->push_back(createNode("(lfo* {c 0 0.0 20} (null))", &rng));
-            //currentPrimitives->push_back(createNode("(time)", &rng));
-            //currentPrimitives->push_back(createNode("(switch (null) (null) (null))", &rng));
-
-            nodes->push_back(createNode("(+ (null) (null))", rng));
-            nodes->push_back(createNode("(* (null) (null))", rng));
-            nodes->push_back(createNode("(const {c -1.0 0.0 1.0})", rng));
-            nodes->push_back(createNode("(gain {c -1.0 0.0 1.0} (null))", rng));
-            nodes->push_back(createNode("(sinosc {d 0 0 0} {c 0.5 1.0 10.0} {c 0.0 0.0 1.0})", rng));
-            nodes->push_back(createNode("(am {d 0 0 0} {d 1 1 10} {c 0 0 1.0} {c 0 0 1.0} (null))", rng));
-            nodes->push_back(createNode("(pm {d 0 0 0} {d 1 1 10} {c 0 1.0 5.0} (null))", rng));
-            nodes->push_back(createNode("(spline {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2})", rng));
-            nodes->push_back(createNode("(spline* {d 0 0 0} {d 0 0 5} {c 0 0 1.0} {c 0 0 0.2} (null))", rng));
-        }
-
-        // set parameters that vary by fitness function
-        if (params->fitnessFunctionType == 0) {
-            p->bestPossibleFitness = 0.0f;
-            p->lowerFitnessIsBetter = true;
-            lowerFitnessIsBetter = params->lowerFitnessIsBetter;
-        }
-        else {
-            p->bestPossibleFitness = 0.0f;
-            p->lowerFitnessIsBetter = true;
-            lowerFitnessIsBetter = params->lowerFitnessIsBetter;
-        }
-        
-        // create population
-        if (numGenerations != 0)
-            synth = new GPSynth(p, rng, nodes);
-
-        // DELETE MUTATABLE PARAMS
-        delete constantValue;
-        delete constantTwo;
-        delete constantPi;
-        delete oscilPartial;
-        delete oscilContinuousPartial;
-        delete oscilModIndex;
-        delete filterCenterFrequencyMultiplierMin;
-        delete filterCenterFrequencyMultiplierMax;
-        delete filterQualityMin;
-        delete filterQualityMax;
-        delete filterBandwidth;
-        delete ADSRDelay;
-        delete ADSRAttack;
-        delete ADSRAttackHeight;
-        delete ADSRDecay;
-        delete ADSRSustain;
-        delete ADSRSustainHeight;
-        delete ADSRRelease;
-        delete specialValues;
-    }
+    // experiment state
+    minFitnessAchieved = INFINITY;
+    numEvaluatedGenerations = 0;
 }
 
+GPExperiment::GPExperiment(GPLogger* logger) :
+    is_sanity_test(true),
+    logger(logger)
+{}
+
 GPExperiment::~GPExperiment() {
-    if (params->experimentNumber != 0) {
-        free(targetFrames);
-        free(targetEnvelope);
-        free(targetSampleTimes);
-        if (params->fitnessFunctionType == 1) {
-            free(analysisWindow);
-            free(targetSpectra);
-            free(targetMagnitude);
-            free(targetPhase);
-            free(binOvershootingPenalty);
-            free(binUndershootingPenalty);
-            free(fftFrameWeight);
-			free(fftConfig);
-			free(candidateAmplitudeBuffer);
-			free(candidateSpectraBuffer);
-			free(candidateMagnitudeBuffer);
-			free(candidatePhaseBuffer);
-        }
-        delete synth;
+    if (!is_sanity_test) {
+        free(target_sample_times);
     }
 }
 
@@ -169,8 +55,7 @@ GPExperiment::~GPExperiment() {
 */
 
 GPNetwork* GPExperiment::evolve() {
-    // if we're sanity testing
-    if (params->experimentNumber == 0) {
+    if (is_sanity_test) {
         return NULL;
     }
 
@@ -180,36 +65,50 @@ GPNetwork* GPExperiment::evolve() {
     int numUnevaluatedThisGeneration = 0;
 
     // temp buffers for rendering
-    float* candidateData = (float*) malloc(sizeof(float) * numTargetFrames);
-    float* champBuffer = (float*) malloc(sizeof(float) * numTargetFrames);
+    float* candidateData = (float*) malloc(sizeof(float) * target_num_frames);
+    float* champBuffer = (float*) malloc(sizeof(float) * target_num_frames);
 
-    while (minFitnessAchieved > fitnessThreshold && numEvaluatedGenerations < numGenerations && !(*requestedQuit)) {
+    while (minFitnessAchieved > params->exp_threshold && numEvaluatedGenerations < params->exp_generations) {
         // get individual from EA and suboptimize/evaluate it
         GPNetwork* candidate = synth->getIndividual();
         candidate->traceNetwork();
-        candidate->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
-        double fitness = suboptimizeAndCompareToTarget(params->suboptimizeType, candidate, candidateData);
+        candidate->prepareToRender(target_sampling_frequency, params->aux_render_block_size, target_num_frames, target_last_sample_start_time);
+        double fitness = suboptimizeAndCompareToTarget(params->exp_suboptimize_type, candidate, candidateData);
         
         // report fitness to EA
         numUnevaluatedThisGeneration = synth->assignFitness(candidate, fitness);
         if (fitness < minFitnessAchieved) {
             minFitnessAchieved = fitness;
+            logger->debug << "NEW EXPERIMENT MIN FITNESS ACHIEVED: " << fitness << ", CANDIDATE FITNESS: " << candidate->fitness << std::flush;
         }
         numEvaluatedThisGeneration++;
 
         // if we're done with this generation...
         if (numUnevaluatedThisGeneration == 0) {
-            if (params->saveGenerationChampions) {
+            if (params->log_save_gen_champ_audio) {
                 // grab and render the generation champ
                 GPNetwork* generationChamp = synth->generationChamp;
-                generationChamp->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
-                renderIndividualByBlockPerformance(generationChamp, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
+                generationChamp->prepareToRender(target_sampling_frequency, params->aux_render_block_size, target_num_frames, target_last_sample_start_time);
+                renderIndividualByBlockPerformance(generationChamp, params->aux_render_block_size, numConstantValues, constantValues, target_num_frames, target_sample_times, champBuffer);
                 generationChamp->doneRendering();
 
                 // save generation champions
-                char buffer[100];
-                snprintf(buffer, 100, "%d.gen.%d.best.wav", seed, numEvaluatedGenerations);
-                saveWavFile(savePath + String(buffer), String(generationChamp->toString(params->savePrecision).c_str()), String(generationChamp->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
+                std::stringstream ss;
+                ss << output_dir_path << seed_string << ".gen." << numEvaluatedGenerations << ".best.wav";
+                JUCEFileIO::save_wav_file(ss.str(), logger->net_to_string_save(generationChamp), generationChamp->origin, target_sampling_frequency, params->aux_wav_file_buffer_size, target_num_frames, champBuffer);
+            }
+
+            if (params->log_save_gen_summary_file) {
+                std::stringstream ss;
+                ss << output_dir_path << seed_string << ".gen." << numEvaluatedGenerations << ".summary";
+                std::vector<GPNetwork*> currentGeneration(0);
+                synth->getCurrentGeneration(currentGeneration);
+                std::stringstream ss2;
+                for (std::vector<GPNetwork*>::iterator i = currentGeneration.begin(); i != currentGeneration.end(); i++) {
+                    GPNetwork* net = (*i);
+                    ss2 << "(" << net->ID << ", " << net->fitness << ", " << net->origin << "): " << logger->net_to_string_save(net) << std::endl << std::endl;
+                }
+                JUCEFileIO::save_text_file(ss.str(), ss2.str()); 
             }
 
             // increment number of evaluted generations
@@ -226,218 +125,25 @@ GPNetwork* GPExperiment::evolve() {
 
     free(candidateData);
 
-    // print evolution summary
-    std::cerr << "-------------------------------- SUMMARY ---------------------------------" << std::endl;
-
-    // print a message if we met the threshold
-    if (minFitnessAchieved <= fitnessThreshold) {
-        std::cerr << "Evolution found a synthesis algorithm at or below the specified fitness threshold" << std::endl;
-    }
-
-    // print the number of generations evolution ran for
-    if (numUnevaluatedThisGeneration != 0)
-        std::cerr << "Evolution ran for " << numEvaluatedGenerations + (params->populationSize - numUnevaluatedThisGeneration)/float(params->populationSize) << " generations" << std::endl;
-    else
-        std::cerr << "Evolution ran for " << numEvaluatedGenerations << " generations" << std::endl;
+    synth->printEvolutionSummary();
 
     // render the champion
     GPNetwork* champ = synth == NULL ? NULL : synth->champ;
     if (champ != NULL) {
-        champ->prepareToRender(targetSampleRate, params->renderBlockSize, numTargetFrames, targetLengthSeconds);
-        renderIndividualByBlockPerformance(champ, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, champBuffer);
+        champ->prepareToRender(target_sampling_frequency, params->aux_render_block_size, target_num_frames, target_last_sample_start_time);
+        renderIndividualByBlockPerformance(champ, params->aux_render_block_size, numConstantValues, constantValues, target_num_frames, target_sample_times, champBuffer);
         champ->doneRendering();
-        assert(champ->fitness == minFitnessAchieved);
-        std::cerr << "The best synthesis algorithm found was number " << champ->ID << " from generation " << champ->ID/params->populationSize << " made by " << champ->origin << " with height " << champ->height << ", fitness " << champ->fitness << " and structure " << champ->toString(params->savePrecision) << std::endl;
-        char buffer[100];
-        snprintf(buffer, 100, "%d.champion.wav", seed);
-        saveWavFile(savePath + String(buffer), String(champ->toString(params->savePrecision).c_str()), String(champ->origin.c_str()), targetSampleRate, params->wavFileBufferSize, numTargetFrames, champBuffer);
+        if (champ->fitness != minFitnessAchieved) {
+            logger->error << "Champ fitness: " << champ->fitness << " is not equal to experiment min fitness achieved: " << minFitnessAchieved << std::flush;
+            assert(champ->fitness == minFitnessAchieved);
+        }
+        std::stringstream ss;
+        ss << output_dir_path << seed_string << ".champion.wav";
+        if (params->log_save_overall_champ_audio)
+            JUCEFileIO::save_wav_file(ss.str(), logger->net_to_string_save(champ), champ->origin, target_sampling_frequency, params->aux_wav_file_buffer_size, target_num_frames, champBuffer);
     }
     free(champBuffer);
     return champ;
-}
-
-/*
-    =======================
-    FILL EVALUATION BUFFERS
-    =======================
-*/
-
-// PRECONDITIONS:
-// NUMTARGETFRAMES, TARGETSAMPLERATE, TARGETFRAMES ALL FILLED IN
-void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues) {
-    // FILL BUFFERS WITH SPECIAL VALUES
-    targetSampleTimes = (float*) malloc(sizeof(double) * numTargetFrames);
-    fillTimeAxisBuffer(numTargetFrames, targetSampleRate, targetSampleTimes);
-    targetLengthSeconds = targetSampleTimes[numTargetFrames - 1];
-    /*
-    numSpecialValues = numConstantSpecialValues + numVariableSpecialValues;
-    specialValuesByFrame = (double*) malloc(sizeof(double) * numTargetFrames * numSpecialValues);
-    for (int frame = 0; frame < numTargetFrames; frame++) {
-        sampleTimes[frame] = frame/targetSampleRate;
-        for (int val = 0; val < numConstantSpecialValues; val++) {
-            *(specialValuesByFrame + (frame * numSpecialValues) + val) = constantSpecialValues[val];
-        }
-        for (int val = 0; val < numVariableSpecialValues; val++) {
-            *(specialValuesByFrame + (frame * numSpecialValues) + numConstantSpecialValues + val) = variableSpecialValues[val]; // TODO: RHS of this assignment is placeholder
-        }
-    }
-    */
-
-    // FILL ENVELOPE OF TARGET BUFFER
-    targetEnvelope = (float*) malloc(sizeof(float) * numTargetFrames);
-    followEnvelope(numTargetFrames, targetFrames, targetEnvelope, params->envelopeFollowerAttack, params->envelopeFollowerDecay, targetSampleRate);
-    //findEnvelope();
-    if (params->saveTargetEnvelope) {
-        char buffer[100];
-        snprintf(buffer, 100, "targetInfo/targetenvelope.txt");
-        saveTextFile(savePath + String(buffer), floatBuffersToGraphText(String("x> y^ xi yf"), String("Time"), String("Amplitude"), false, numTargetFrames, targetSampleTimes, targetEnvelope, NULL));
-    }
-
-    // FILL FREQUENCY SPECTRUM OF TARGET
-    if (params->fitnessFunctionType > 0) {
-        // calculate with fft window size/overlap
-        unsigned n = params->fftSize;
-        unsigned overlap = params->fftOverlap;
-        fftOutputBufferSize = GPAudioUtil::calculateFftBufferSize(numTargetFrames, n, overlap);
-        unsigned numBins = (n/2) + 1;
-        unsigned numFftFrames = fftOutputBufferSize / numBins;
-        
-        // allocate window
-        analysisWindow = (float*) malloc(sizeof(float) * n);
-        GPAudioUtil::window(params->windowType, n, analysisWindow);
-
-        // allocate target FFT buffers
-	    kiss_fft_scalar* targetAmplitudeBuffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-        targetSpectra = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        targetMagnitude = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        targetPhase = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        binOvershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        binUndershootingPenalty = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        fftFrameWeight = (double*) malloc(sizeof(double) * numFftFrames);
-        
-        // allocate candidate FFT buffers for speedy comparison
-        fftConfig = kiss_fftr_alloc(n, 0/*is_inverse_fft*/, NULL, NULL);
-		candidateAmplitudeBuffer = (kiss_fft_scalar*) malloc(sizeof(kiss_fft_scalar) * n);
-    	candidateSpectraBuffer = (kiss_fft_cpx*) malloc(sizeof(kiss_fft_cpx) * fftOutputBufferSize);
-        candidateMagnitudeBuffer = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-        candidatePhaseBuffer = (double*) malloc(sizeof(double) * fftOutputBufferSize);
-
-        // take fft of target data
-        GPAudioUtil::FftReal(fftConfig, numTargetFrames, targetFrames, n, overlap, analysisWindow, targetAmplitudeBuffer, targetSpectra, params->dBMagnitude, DBREF, targetMagnitude, targetPhase);
-        free(targetAmplitudeBuffer);
-
-        // allocate buffers
-        double* timeAxis = (double*) malloc(sizeof(double) * (numBins - 1));
-        double* mac = (double*) malloc(sizeof(double) * (numBins - 1));
-        float* floatFreqAxis = (float*) malloc(sizeof(float) * numBins);
-        fillFrequencyAxisBuffer(n, targetSampleRate, floatFreqAxis);
-        double* freqAxis = (double*) malloc(sizeof(double) * (numBins));
-        for (unsigned i = 0; i < numBins; i++) {
-            freqAxis[i] = floatFreqAxis[i];
-        }
-        free(floatFreqAxis);
-
-        // calculate penalties for each frame
-        double base = params->baseComparisonFactor;
-        double good = params->goodComparisonFactor;
-        double bad = params->badComparisonFactor;
-        double frameAverageSum = 0.0;
-        for (unsigned i = 0; i < numFftFrames; i++) {
-            // find moving average
-            unsigned dataOffset = (i * numBins) + 1;
-            double frameAverage, maxDeviationAboveMean, maxDeviationBelowMean, maxRatioAboveMean, maxRatioBelowMean;
-            findMovingAverage(params->averageComparisonType, numBins - 1, targetMagnitude + dataOffset, mac, params->movingAveragePastRadius, params->movingAverageFutureRadius, params->exponentialMovingAverageAlpha, &frameAverage, &maxDeviationAboveMean, &maxDeviationBelowMean, &maxRatioAboveMean, &maxRatioBelowMean);
-            fftFrameWeight[i] = frameAverage;
-            frameAverageSum += frameAverage;
-
-            // compare each bin EXCEPT DC OFFSET to the moving average magnitude
-            for (unsigned j = 1; j < numBins; j++) {
-                unsigned binIndex = (i * numBins) + j;
-                double binMagnitude = targetMagnitude[binIndex];
-                double binAverage = mac[j - 1];
-                
-                // calculate bin comparison metric data
-                double numerator, denominator, proportion;
-                if (params->compareToMaxDeviation) {
-                    numerator = fabs(binMagnitude - binAverage);
-                    if (binMagnitude > binAverage) {
-                        denominator = maxDeviationAboveMean;
-                    }
-                    else {
-                        denominator = maxDeviationBelowMean;
-                    }
-                }
-                else {
-                    if (binMagnitude > binAverage) {
-                        numerator = fabs(binAverage / binMagnitude);
-                        denominator = maxRatioAboveMean;
-                    }
-                    else {
-                        double binAbsMagnitude = (binAverage - binMagnitude) + binAverage;
-                        numerator = fabs(binAverage / binAbsMagnitude);
-                        denominator = maxRatioBelowMean;
-                    }
-                }
-
-                // calculate bin proportion for penalty assignments
-                proportion = pow(numerator / denominator, params->penaltyComparisonExponent);
-
-                // check to make sure proportions are correct
-                assert(proportion <= 1);
-
-                // if we are above the mean penalize undershooting more
-                if (binMagnitude > binAverage) {
-                    //double proportionOfMax = log((binMagnitude - binAverage)) / log(maxDeviationAboveMean);
-                    binUndershootingPenalty[binIndex] = (proportion * bad) + base;
-                    binOvershootingPenalty[binIndex] = (proportion * good) + base;
-                }
-
-                // if we are below the mean penalize overshooting more
-                else {
-                    //double proportionOfMin = log((binAverage - binMagnitude)) / log(maxDeviationBelowMean);
-                    binUndershootingPenalty[binIndex] = (proportion * good) + base;
-                    binOvershootingPenalty[binIndex] = (proportion * bad) + base;
-                }
-            }
-
-            // save spectrum files if requested
-            if (params->saveTargetSpectrum) {
-                char buffer[200];
-                snprintf(buffer, 200, "targetInfo/%d.", i);
-                String tag(buffer);
-                double time = i * (n - overlap);
-                time = double(time)/targetSampleRate;
-                for (unsigned j = 0; j < numBins - 1; j++) {
-                    timeAxis[j] = time;
-                }
-                saveTextFile(savePath + tag + String("magnitude.txt"), doubleBuffersToGraphText(String(overlap), String(""), String(""), String(""), false, numBins - 1, timeAxis, freqAxis + 1, targetMagnitude + dataOffset));
-                saveTextFile(savePath + tag + String("movingAverage.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, mac, NULL));
-                saveTextFile(savePath + tag + String("undershootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binUndershootingPenalty + dataOffset));
-                saveTextFile(savePath + tag + String("overshootPenalty.txt"), doubleBuffersToGraphText(String(""), String(""), String(""), String(""), false, numBins - 1, freqAxis + 1, targetMagnitude + dataOffset, binOvershootingPenalty + dataOffset));
-            }
-        }
-        // free temp buffers
-        free(freqAxis);
-        free(mac);
-        free(timeAxis);
-        
-        // calculate frame weights
-        double frameAverage = frameAverageSum / double(numFftFrames);
-        if (params->weightFftFrames) {
-            //std::cerr << "average: " << frameAverage << std::endl;
-            for (unsigned i = 0; i < numFftFrames; i++) {
-                fftFrameWeight[i] = frameAverage / fftFrameWeight[i];
-                //std::cerr << i << " weight: " << fftFrameWeight[i] << std::endl;
-                fftFrameWeight[i] = pow(fftFrameWeight[i], params->frameWeightExponent);
-                //std::cerr << i << " power weight: " << fftFrameWeight[i] << std::endl;
-            }
-        }
-        else {
-            for (unsigned i = 0; i < numFftFrames; i++) {
-                fftFrameWeight[i] = 1.0;
-            }
-        }
-    }
 }
 
 /*
@@ -449,8 +155,8 @@ void GPExperiment::fillEvaluationBuffers(unsigned numconstantvalues, float* cons
 double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer) {
     // suboptimize according to suboptimize type
     if (suboptimizeType == 0) {
-        renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
-        double fitness = compareToTarget(params->fitnessFunctionType, buffer);
+        renderIndividualByBlockPerformance(candidate, params->aux_render_block_size, numConstantValues, constantValues, target_num_frames, target_sample_times, buffer);
+        double fitness = compareToTarget(params->exp_suboptimize_ff_type, buffer);
         candidate->doneRendering();
         return fitness;
     }
@@ -460,6 +166,21 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
         
         if (candidateParams->size() != 0) {
             try {
+                // test initial conditions
+                suboptimize_network = candidate;
+                renderIndividualByBlockPerformance(suboptimize_network, params->aux_render_block_size, numConstantValues, constantValues, target_num_frames, target_sample_times, buffer);
+                suboptimize_min_fitness = compareToTarget(params->exp_suboptimize_ff_type, buffer);
+
+                // backup initial params
+                logger->debug << "BEFORE(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
+                std::vector<GPMutatableParam*>* candidate_params = suboptimize_network->getAllMutatableParams();
+                unsigned num_params = candidate_params->size();
+                suboptimize_best_params.resize(num_params);
+                for (unsigned i = 0; i < num_params; i++) {
+                    GPMutatableParam* param = candidate_params->at(i);
+                    suboptimize_best_params[i] = param->getCopy();
+                }
+
                 using namespace Beagle;
 
                 // Build system
@@ -501,6 +222,8 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
                       
                 // register state space with system
                 Register::Description lDescription("Parameter state space", "Vector", "", "");
+                unsigned seed_beagle = seed + 1;
+                lSystem->getRegister().insertEntry("ec.rand.seed", new ULong(seed_beagle), lDescription);
                 lSystem->getRegister().insertEntry("ga.init.minvalue", initMinValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.init.maxvalue", initMaxValueArray, lDescription);
                 lSystem->getRegister().insertEntry("ga.float.minvalue", minValueArray, lDescription);
@@ -524,33 +247,65 @@ double GPExperiment::suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPN
 
                 // Initialize the evolver
                 Evolver::Handle lEvolver = new Evolver;
-                lEvolver->initialize(lSystem, "audiocomparison-cmaes.conf");
+                lEvolver->initialize(lSystem, beagle_cfg_file_path);
                 
                 // Create population
                 Vivarium::Handle lVivarium = new Vivarium;
 
                 // Launch evolution
                 lEvolver->evolve(lVivarium, lSystem);
+
+                // Lamarckian!
+                for (unsigned i = 0; i < num_params; i++) {
+                    GPMutatableParam* param = suboptimize_best_params[i];
+                    GPMutatableParam* stored_param = candidate_params->at(i);
+                    if (param->isDiscrete()) {
+                        stored_param->setDValue(param->getDValue());
+                    }
+                    else {
+                        stored_param->setCValue(param->getCValue());
+                    }
+                    delete param;
+                }
+                logger->debug << "AFTER(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
             }
             catch(Beagle::Exception& inException) {
-                std::cerr << "Beagle exception caught:" << std::endl << std::flush;
-                std::cerr << inException.what() << std::endl << std::flush;
-                inException.terminate(std::cerr);
+                logger->error << "Beagle exception caught:" << std::flush;
+                logger->error << inException.what() << std::flush;
+                inException.terminate(logger->error);
                 return -1;
             }
             catch (std::exception& inException) {
-                std::cerr << "Standard exception caught:" << std::endl << std::flush;
-                std::cerr << inException.what() << std::endl << std::flush;
+                logger->error << "Standard exception caught:" << std::flush;
+                logger->error << inException.what() << std::flush;
                 return -1;
             }
         }
-
-        renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, buffer);
-        double fitness = compareToTarget(params->fitnessFunctionType, buffer);
         candidate->doneRendering();
-        return fitness;
+        return suboptimize_min_fitness;
     }
     return -1;
+}
+
+double GPExperiment::beagleComparisonCallback(unsigned type, float* candidateFramesBuffer) {
+        renderIndividualByBlockPerformance(suboptimize_network, params->aux_render_block_size, numConstantValues, constantValues, target_num_frames, target_sample_times, candidateFramesBuffer);
+        double fitness = compareToTarget(params->exp_suboptimize_ff_type, candidateFramesBuffer);
+        if (fitness < suboptimize_min_fitness) {
+            suboptimize_min_fitness = fitness;
+            std::vector<GPMutatableParam*>* network_params = suboptimize_network->getAllMutatableParams();
+            for (unsigned i = 0; i < suboptimize_best_params.size(); i++) {
+                GPMutatableParam* param = network_params->at(i);
+                GPMutatableParam* stored_param = suboptimize_best_params[i];
+                if (param->isDiscrete()) {
+                    stored_param->setDValue(param->getDValue());
+                }
+                else {
+                    stored_param->setCValue(param->getCValue());
+                }
+            }
+            logger->debug << "NEW(" << suboptimize_min_fitness << "): " << logger->net_to_string_print(suboptimize_network) << std::flush;
+        }
+        return compareToTarget(params->exp_suboptimize_ff_type, candidateFramesBuffer);
 }
 
 // TODO: change numconstantvariables to numconstantvalues
@@ -572,303 +327,25 @@ double GPExperiment::compareToTarget(unsigned type, float* candidateFrames) {
 
 	// amplitude comparison
 	if (type == 0) {
-		ret = GPAudioUtil::compareAmplitudesWeighted(numTargetFrames, candidateFrames, targetFrames, 2.0f);
+		ret = comparator->compare_amplitude(candidateFrames);
 	}
 	
-	// spectral comparison
+	// weighted amplitude comparison
 	else if (type == 1) {
-		ret = GPAudioUtil::compareSpectraWeighted(params->dBMagnitude, params->fftSize, params->fftOverlap, numTargetFrames, fftOutputBufferSize, fftConfig, candidateFrames, candidateAmplitudeBuffer, candidateSpectraBuffer, candidateMagnitudeBuffer, candidatePhaseBuffer, analysisWindow, targetMagnitude, targetPhase, binUndershootingPenalty, binOvershootingPenalty, fftFrameWeight, params->penalizeBadPhase, params->magnitudeWeight, params->phaseWeight);
+		ret = comparator->compare_amplitude_weighted(candidateFrames);
+	}
+
+	// spectral comparison
+	else if (type == 2) {
+		ret = comparator->compare_spectra(candidateFrames);
+	}
+
+	// weighted spectral comparison
+	else if (type == 3) {
+		ret = comparator->compare_spectra_weighted(candidateFrames);
 	}
 	
 	return ret;
-}
-
-double GPExperiment::beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer) {
-		std::cerr << std::endl << candidate->toString(5);
-        renderIndividualByBlockPerformance(candidate, params->renderBlockSize, numConstantValues, constantValues, numTargetFrames, targetSampleTimes, candidateFramesBuffer);
-        double fitness = compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
-        std::cerr << " fitness: " << fitness;
-        return compareToTarget(params->fitnessFunctionType, candidateFramesBuffer);
-}
-
-/*
-    ===================
-    WAVEFORM OPERATIONS
-    ===================
-*/
-
-void GPExperiment::findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* maxratiobelow) {
-    // NON-MOVING AVERAGE
-    if (type == 0) {
-        double sum = 0;
-        double max = std::numeric_limits<double>::min();
-        double min = std::numeric_limits<double>::max();
-        // EXCLUDE DC OFFSET
-        for (unsigned i = 0; i < n; i++) {
-            double magnitude = buffer[i];
-            sum += magnitude;
-            if (magnitude > max)
-                max = magnitude;
-            if (magnitude < min)
-                min = magnitude;
-        }
-        double average = sum / ((double) n);
-        for (unsigned i = 0; i < n; i++) {
-            movingaverage[i] = average;
-        }
-        *maxdeviationabove = max - average;
-        *maxdeviationbelow = average - min;
-        *frameaverage = average;
-        return;
-    }
-    
-    // CREATE TEMPORARY BUFFER FOR WEIGHTS
-    unsigned weightArraySize = (pastRadius + futureRadius) + 1;
-    float* weights = (float*) malloc(sizeof(float) * weightArraySize);
-
-    // ASSIGN WEIGHTS BY TYPE
-    // CONSTANT WEIGHT
-    if (type == 1) {
-        for (unsigned i = 0; i < weightArraySize; i++) {
-            weights[i] = 1.0;
-        }
-    }
-    // EXPONENTIAL WEIGHT
-    else if (type == 2) {
-        for (unsigned i = 0; i < pastRadius; i++) {
-            unsigned numAlpha = pastRadius - i + 1;
-            weights[i] = pow(alpha, numAlpha);
-        }
-        weights[pastRadius] = alpha;
-        for (unsigned i = pastRadius + 1; i < weightArraySize; i++) {
-            unsigned numAlpha = i - pastRadius + 1;
-            weights[i] = pow(alpha, numAlpha);
-        }
-    }
-    
-    // PRINT WEIGHT ARRAY
-    /*
-    for (unsigned i = 0; i < weightArraySize; i++) {
-        std::cerr << weights[i] << std::endl;
-    }
-    */
-
-    // CALCULATE MOVING AVERAGE BASED ON WEIGHTS
-    int leftrad = pastRadius;
-    int rightrad = futureRadius;
-    for (int i = 0; i < (int) n; i++) {
-        int lowerIndex = i - leftrad < 0 ? 0 : i - leftrad;
-        int upperIndex = i + rightrad + 1 > n ? n : i + rightrad + 1;
-        int weightIndex = i - leftrad < 0 ? leftrad - i: 0;
-        double sum = 0.0;
-        double weightsum = 0.0;
-        //std::cerr << i << ": (" << lowerIndex << ", " << upperIndex << ", " << weightIndex << ")" << std::endl;
-        for (int j = lowerIndex, k = weightIndex; j < upperIndex; j++, k++) {
-            sum += buffer[j] * weights[k];
-            weightsum += weights[k];
-        }
-        movingaverage[i] = (sum / weightsum);
-    }
-    free(weights);
-
-    // CALCULATE MIN/MAX DEVIATION INEFFICIENTLY
-    double maxdeva = std::numeric_limits<double>::min();
-    double maxdevb = std::numeric_limits<double>::min();
-    double maxrata = std::numeric_limits<double>::min();
-    double maxratb = std::numeric_limits<double>::min();
-    double sum = 0.0;
-    for (unsigned i = 0; i < n; i++) {
-        double pointValue = buffer[i];
-        sum += pointValue;
-        double pointAverage = movingaverage[i];
-        // if value is below average
-        if (pointValue < pointAverage) {
-            if (pointAverage - pointValue > maxdevb)
-                maxdevb = pointAverage - pointValue;
-
-            // absolute value over moving average
-            double absValue = (pointAverage - pointValue) + pointAverage;
-            if (pointAverage/absValue > maxratb)
-                maxratb = pointAverage/absValue;
-        }
-        else {
-            if (pointValue - pointAverage > maxdeva)
-                maxdeva = pointValue - pointAverage;
-            if (pointAverage/pointValue > maxrata)
-                maxrata = pointAverage/pointValue;
-        }
-    }
-    *maxdeviationabove = maxdeva;
-    *maxdeviationbelow = maxdevb;
-    *maxratioabove = maxrata;
-    *maxratiobelow = maxratb;
-    *frameaverage = sum / double(n);
-}
-
-// FROM: http://musicdsp.org/showArchiveComment.php?ArchiveID=136 
-void GPExperiment::followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate) {
-    double attack_coef = exp(log(0.01)/( attack_in_ms * samplerate * 0.001));
-    double release_coef = exp(log(0.01)/( release_in_ms * samplerate * 0.001));
-    
-    double currentValue;
-    envelope[0] = buffer[0];
-    double currentEnvelope = envelope[0];
-    for (unsigned i = 1; i < n; i++) {
-        currentValue = fabs(buffer[i]);
-        if (currentValue > currentEnvelope) {
-            currentEnvelope = attack_coef * (currentEnvelope - currentValue) + currentValue;
-        }
-        else {
-            currentEnvelope = release_coef * (currentEnvelope - currentValue) + currentValue;
-        }
-        envelope[i] = currentEnvelope;
-    }
-}
-
-void GPExperiment::findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env) {
-    // MAKE AMPLITUDE ENVELOPE OF TARGET
-    // x/y pairs for absolute waveform bound
-    std::vector<unsigned> x;
-    x.resize(0, 0);
-    std::vector<float> y;
-    y.resize(0, 0);
-
-    // set initial value
-    x.push_back(0);
-    y.push_back(fabs(wav[0]));
-
-    // find waveform minima/maxima
-    float prevSlope = (wav[1] - wav[0]);
-    float currSlope = 0;
-    float slopeProduct = 0;
-    for (unsigned i = 1; i < n - 2; i++) {
-        currSlope = (wav[i + 1] - wav[i]);
-
-        // if one slope is 0 we're at one edge of a plateau or silence
-        float slopeProduct = currSlope * prevSlope;
-
-        if (!ignoreZeroes) {
-            if (slopeProduct == 0) {
-                x.push_back(i);
-                y.push_back(fabs(wav[i]));
-            }
-            // else if slope has changed we found a minimum or maximum
-            else if (slopeProduct < 0 && prevSlope > 0) {
-                x.push_back(i);
-                y.push_back(fabs(wav[i]));
-            }
-        }
-        else {
-            //std::cout << i << ", " << n << std::endl;
-            //std::cout << slopeProduct << std::endl;
-            //std::cout << prevSlope << std::endl;
-            if (slopeProduct < 0 && prevSlope > 0) {
-                x.push_back(i);
-                y.push_back(fabs(wav[i]));
-            }
-        }
-
-        prevSlope = currSlope;
-    }
-
-    // set final value
-    x.push_back(n - 1);
-    y.push_back(fabs(wav[n - 1]));
-
-    // fill env buffer
-    for (unsigned i = 0; i < x.size() - 1; i++) {
-        // calculate slope between points
-        unsigned currFrameNumber = x[i];
-        float currEnvValue = y[i];
-        unsigned nextFrameNumber = x[i+1];
-        float nextEnvValue = y[i+1];
-        float slope = (nextEnvValue - currEnvValue)/(nextFrameNumber - currFrameNumber);
-
-        // fill buffer from slope
-        unsigned assignEnvelopeSample = currFrameNumber;
-        while (assignEnvelopeSample < nextFrameNumber) {
-            env[assignEnvelopeSample] = ((assignEnvelopeSample - currFrameNumber) * slope) + currEnvValue;
-            assignEnvelopeSample++;
-        }
-    }
-    env[n - 1] = wav[n - 1];
-}
-
-
-/*
-    =============
-    GRAPH HELPERS
-    =============
-*/
-
-void GPExperiment::fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer) {
-    for (unsigned frame = 0; frame < numSamples; frame++) {
-        buffer[frame] = float(frame)/sr;
-    }
-}
-
-void GPExperiment::fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer) {
-    for (unsigned i = 0; i < (fftSize/2) + 1; i++) {
-        buffer[i] = (sr / fftSize) * i;
-    }
-}
-
-// TODO: these get super slow when n is large. might want to use std::string and bring it to juce string at the very end
-String GPExperiment::floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z) {
-    String ret;
-    ret += options;
-    ret += "\n";
-    ret += xlab;
-    ret += "\t";
-    ret += ylab;
-    ret += "\n";
-    /*
-    ret += "\t";
-    ret += zlab;
-    ret += "\n";
-    */
-    for (unsigned i = 0; i < n; i++) {
-        if (indexAsX)
-            ret += String(i);
-        else
-            ret += String(x[i]);
-        if (y != NULL) {
-            ret += "\t";
-            ret += String(y[i]);
-        }
-        if (z != NULL) {
-            ret += "\t";
-            ret += String(z[i]);
-        }
-        ret += "\n";
-    }
-    return ret;
-}
-
-String GPExperiment::doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z) {
-    String ret;
-    ret += options;
-    ret += "\n";
-    ret += xlab;
-    ret += "\t";
-    ret += ylab;
-    ret += "\n";
-    for (unsigned i = 0; i < n; i++) {
-        if (indexAsX)
-            ret += String(i);
-        else
-            ret += String(x[i]);
-        if (y != NULL) {
-            ret += "\t";
-            ret += String(y[i]);
-        }
-        if (z != NULL) {
-            ret += "\t";
-            ret += String(z[i]);
-        }
-        ret += "\n";
-    }
-    return ret;
 }
 
 /*
@@ -877,7 +354,7 @@ String GPExperiment::doubleBuffersToGraphText(String options, String xlab, Strin
     ===========
 */
 
-void GPExperiment::sanityTest(GPRandom* rng) {
+int GPExperiment::sanityTest(GPRandom* rng) {
     // TODO: timers for all tests
 
     // test random
@@ -920,9 +397,9 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     variables[0] = 440.0;
     variables[1] = 659.26;
     float* times = (float*) malloc(sizeof(float) * numframes);
-    fillTimeAxisBuffer(numframes, samplerate, times);
+    GPAudioUtil::fill_time_domain_buffer(numframes, samplerate, times);
     float maxSeconds = times[numframes - 1];
-    loadWavFile("./tests/silenceTestTarget.wav", wavchunk, numframes, silenceBuffer);
+    JUCEFileIO::load_wav_file("./tests/silenceTestTarget.wav", wavchunk, numframes, silenceBuffer);
 
     // test network strings
     std::string silenceTest = "(silence)";
@@ -959,11 +436,11 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sinTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sinTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNet->doneRendering();
-    loadWavFile("./tests/sineWave440TestTarget.wav", wavchunk, numframes, comparisonBuffer);
+    JUCEFileIO::load_wav_file("./tests/sineWave440TestTarget.wav", wavchunk, numframes, comparisonBuffer);
     double error = GPAudioUtil::compareAmplitudes(numframes, comparisonBuffer, testBuffer);
     std::cout << "Comparison error to Audacity sine wave: " << error << std::endl;
     assert(error < 10);
-    saveWavFile("./sineWaveTest.wav", String(sinTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./sineWaveTest.wav", sinTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
 
     // test copy/mutatable params
     std::cout << "----TESTING MUTATABLE PARAMS----" << std::endl;
@@ -978,7 +455,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinTestNetNewCenter->prepareToRender(samplerate, renderblocksize, numframes, maxSeconds); 
     renderIndividualByBlockPerformance(sinTestNetNewCenter, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
-    saveWavFile("./sineWaveTestNewCenter.wav", String(sinTestNetNewCenter->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./sineWaveTestNewCenter.wav", sinTestNetNewCenter->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete sinTestNetNewCenter;
 
     // adsr test network
@@ -993,7 +470,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << ADSRTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(ADSRTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     ADSRTestNet->doneRendering();
-    saveWavFile("./ADSRsineWaveTest.wav", String(ADSRTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./ADSRsineWaveTest.wav", ADSRTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete ADSRTestNet;
 
     // constant node envelope test network
@@ -1008,7 +485,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << constantNodeEnvelopeTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(constantNodeEnvelopeTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     constantNodeEnvelopeTestNet->doneRendering();
-    saveWavFile("./constantNodeEnvelopesineWaveTest.wav", String(constantNodeEnvelopeTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./constantNodeEnvelopesineWaveTest.wav", constantNodeEnvelopeTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete constantNodeEnvelopeTestNet;
 
     // sin oscillator test
@@ -1026,7 +503,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sinOscTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sinOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sinOscTestNet->doneRendering();
-    saveWavFile("./sinOscTest.wav", String(sinOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./sinOscTest.wav", sinOscTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete sinOscTestNet;
 
     // saw oscillator test
@@ -1044,7 +521,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << sawOscTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(sawOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     sawOscTestNet->doneRendering();
-    saveWavFile("./sawOscTest.wav", String(sawOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./sawOscTest.wav", sawOscTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete sawOscTestNet;
 
     // square oscillator test
@@ -1062,7 +539,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << squareOscTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(squareOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     squareOscTestNet->doneRendering();
-    saveWavFile("./squareOscTest.wav", String(squareOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./squareOscTest.wav", squareOscTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete squareOscTestNet;
 
     // triangle oscillator test
@@ -1080,7 +557,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << triangleOscTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(triangleOscTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     triangleOscTestNet->doneRendering();
-    saveWavFile("./triangleOscTest.wav", String(triangleOscTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./triangleOscTest.wav", triangleOscTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete triangleOscTestNet;
 
     // erc spline test network
@@ -1096,7 +573,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << splineTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(splineTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     splineTestNet->doneRendering();
-    saveWavFile("./splineEnvelopeTest.wav", String(splineTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./splineEnvelopeTest.wav", splineTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete splineTestNet;
 
     // instantiated spline test network
@@ -1111,7 +588,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << splineInstantiatedTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(splineInstantiatedTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     splineInstantiatedTestNet->doneRendering();
-    saveWavFile("./splineInstantiatedEnvelopeTest.wav", String(splineInstantiatedTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./splineInstantiatedEnvelopeTest.wav", splineInstantiatedTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete splineInstantiatedTestNet;
 
     // spline sine envelope
@@ -1127,7 +604,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << splineSineEnvelopeTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(splineSineEnvelopeTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     splineSineEnvelopeTestNet->doneRendering();
-    saveWavFile("./splineSineWaveEnvelopeTest.wav", String(splineSineEnvelopeTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./splineSineWaveEnvelopeTest.wav", splineSineEnvelopeTestNet->toString(10), "test", samplerate, wavchunk, numframes, testBuffer);
     delete splineSineEnvelopeTestNet;
 
     // additive synthesis test
@@ -1143,7 +620,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << additiveSynthesisTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(additiveSynthesisTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     additiveSynthesisTestNet->doneRendering();
-    saveWavFile("./additiveSynthesisTest.wav", String(additiveSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./additiveSynthesisTest.wav", String(additiveSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete additiveSynthesisTestNet;
 
     // FM synthesis test
@@ -1158,7 +635,7 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     std::cout << "Max: " << FMSynthesisTestNet->maximum << std::endl;
     renderIndividualByBlockPerformance(FMSynthesisTestNet, renderblocksize, numconstantvariables, variables, numframes, times, testBuffer);
     FMSynthesisTestNet->doneRendering();
-    saveWavFile("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
+    JUCEFileIO::save_wav_file("./FMSynthesisTest.wav", String(FMSynthesisTestNet->toString(10).c_str()), String("test"), samplerate, wavchunk, numframes, testBuffer);
     delete FMSynthesisTestNet;
 
     */
@@ -1169,4 +646,6 @@ void GPExperiment::sanityTest(GPRandom* rng) {
     free(testBuffer);
     free(comparisonBuffer);
     free(silenceBuffer);
+    
+    return 1;
 }

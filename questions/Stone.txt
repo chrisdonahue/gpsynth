@@ -25,3 +25,9 @@ Idea for experiment:
 
     one experiment that shows the system works
     make one thing that is as convincing as possible that this works
+
+August:
+    Peter Stone
+        Publications, longest name "koyanakrishan or something"
+        Efficient selection of multiple bandit arms: theory and practice
+        UROPS

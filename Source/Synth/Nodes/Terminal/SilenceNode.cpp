@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SilenceNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "SilenceNode.h"
 
 /*
@@ -17,6 +8,8 @@
 
 SilenceNode::SilenceNode() {
     arity = 0;
+
+    symbol = "silence";
 }
 
 SilenceNode::~SilenceNode() {
@@ -42,8 +35,4 @@ void SilenceNode::evaluateBlockPerformance(unsigned firstFrameNumber, unsigned n
     for (unsigned i = 0; i < numSamples; i++) {
         buffer[i] = 0.0;
     }
-}
-
-void SilenceNode::toString(std::stringstream& ss) {
-    ss << "(silence)";
 }

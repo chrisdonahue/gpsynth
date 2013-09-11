@@ -1,13 +1,3 @@
-/*
-  ==============================================================================
-
-    GPSynth.h
-    Created: 6 Feb 2013 7:19:38pm
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef GPSYNTH_H
 #define GPSYNTH_H
 
@@ -18,12 +8,53 @@
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
+#include "../Common/GPLogger.h"
+#include "../Common/GPRandom.h"
 #include "GPNetwork.h"
+
+struct GPSynthParams {
+    // synth evolution parameters
+    unsigned population_size;
+    unsigned max_initial_height;
+    unsigned max_height;
+    bool erc;
+    bool backup_all_networks;
+    unsigned backup_precision;
+
+    // fitness landscape parameters
+    double best_possible_fitness;
+    bool lower_fitness_is_better;
+
+    // synth genetic parameters
+    // numeric mutation
+    double nm_proportion;
+    double nm_temperature;
+    unsigned nm_selection_type;
+    double nm_selection_percentile;
+    // mutation
+    double mu_proportion;
+    unsigned mu_type;
+    unsigned mu_selection_type;
+    double mu_selection_percentile;
+    // crossover
+    double x_proportion;
+    unsigned x_type;
+    unsigned x_selection_type;
+    double x_selection_percentile;
+    // reproduction
+    double re_proportion;
+    unsigned re_selection_type;
+    double re_selection_percentile;
+    bool re_reevaluate;
+    // random new individual
+    double new_proportion;
+    unsigned new_type;
+};
 
 class GPSynth {
 public:
     // CONSTRUCTION
-    GPSynth(GPParams* p, GPRandom* r, std::vector<GPNode*>* nodes);
+    GPSynth(GPLogger* logger, GPSynthParams* params, GPRandom* rng, std::vector<GPNode*>* primitives);
     ~GPSynth();
 
     // EVOLUTION CONTROL
@@ -36,6 +67,8 @@ public:
     void endGeneration();
     void printGenerationDelim();
     void printGenerationSummary();
+    void printEvolutionSummary();
+    void getCurrentGeneration(std::vector<GPNetwork*>& networks);
 
     // PUBLIC EVOLUTION STATE
     int currentGenerationNumber;
@@ -64,9 +97,11 @@ private:
     GPNetwork* crossover(unsigned crossoverType, GPNetwork* one, GPNetwork* two);
     void mutate(unsigned mutationType, GPNetwork* one);
     void numericallyMutate(GPNetwork* one);
+    GPNetwork* newIndividual(unsigned new_type);
 
     // PRIVATE EVOLUTION STATE
-    GPParams* params;
+    GPLogger* logger;
+    GPSynthParams* params;
     GPRandom* rng;
     unsigned populationSize;
     int nextNetworkID;
@@ -82,12 +117,12 @@ private:
     std::vector<double*> continuousConvergenceVaryingTemperatures;
 
     // AVAILABLE CONTAINERS
-    std::vector<GPNode*>* availableNodes;
+    std::vector<GPNode*>* availablePrimitives;
     std::vector<GPNode*>* availableFunctions;
     std::vector<GPNode*>* availableTerminals;
 
     // NETWORK CONTAINERS
-    std::vector<std::string*> allNetworks;
+    std::vector<std::string> allNetworks;
     std::set<GPNetwork*> unevaluated;
     std::set<GPNetwork*> evaluated;
     std::map<int, GPNetwork*> currentGeneration;

@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    ConstantNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "ConstantNode.h"
 
 /*
@@ -25,6 +16,8 @@ ConstantNode::ConstantNode(bool pi, GPMutatableParam* v) {
     arity = 0;
 
     value = 0.0;
+
+    symbol = "const";
 }
 
 ConstantNode::~ConstantNode() {
@@ -74,16 +67,5 @@ void ConstantNode::updateMutatedParams() {
         value = mutatableParams[0]->getValue();
         minimum = mutatableParams[0]->getMin();
         maximum = mutatableParams[0]->getMax();
-    }
-}
-
-void ConstantNode::toString(std::stringstream& ss) {
-    if (isPi) {
-        ss << "(pi)";
-    }
-    else {
-        ss << "(const ";
-        mutatableParams[0]->toString(ss);
-        ss << ")";
     }
 }

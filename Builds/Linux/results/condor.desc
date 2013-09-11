@@ -1,15 +1,15 @@
 +Group = "UNDER"
 +Project = "AI_ROBOTICS"
-+ProjectDescription = "Target audio matching with genetic programming"
++ProjectDescription = "Target audio matching with genetic programming and CMA-ES"
 
 executable = ./condor_run.sh
 Arguments = $(Process)
 
-Requirements = Lucid
+#Requirements = Lucid
 
 Log = ./condor.log
 Error = ./$(Process).err
 #Output = ./$(Process).out
 
 Notification = Complete
-Queue 30
+Queue 15

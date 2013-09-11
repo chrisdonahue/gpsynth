@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    SplineTerminalNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "SplineTerminalNode.h"
 
 /*
@@ -40,6 +31,8 @@ SplineTerminalNode::SplineTerminalNode(GPMutatableParam* splinetype, GPMutatable
     delete pointsOrParams;
 
     arity = 0;
+
+    symbol = "spline";
 }
 
 SplineTerminalNode::~SplineTerminalNode() {
@@ -149,15 +142,6 @@ void SplineTerminalNode::updateMutatedParams() {
     maximum = maxSplineHeight;
     
     fillFromParams();
-}
-
-void SplineTerminalNode::toString(std::stringstream& ss) {
-    ss << "(spline";
-    for (unsigned i = 0; i < mutatableParams.size(); i++) {
-        ss << " ";
-        mutatableParams[i]->toString(ss);
-    }
-    ss << ")";
 }
 
 /*

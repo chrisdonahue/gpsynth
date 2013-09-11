@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    ADSRTerminalNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "ADSRTerminalNode.h"
 
 /*
@@ -31,6 +22,8 @@ ADSRTerminalNode::ADSRTerminalNode(GPMutatableParam* del, GPMutatableParam* atk,
     mutatableParams.push_back(rel);
 
     arity = 0;
+
+    symbol = "adsr";
 }
 
 ADSRTerminalNode::~ADSRTerminalNode() {
@@ -112,15 +105,6 @@ void ADSRTerminalNode::updateMutatedParams() {
     maximum = maxAttackHeight;
     
     fillFromParams();
-}
-
-void ADSRTerminalNode::toString(std::stringstream& ss) {
-    ss << "(adsr";
-    for (unsigned i = 0; i < mutatableParams.size(); i++) {
-        ss << " ";
-        mutatableParams[i]->toString(ss);
-    }
-    ss << ")";
 }
 
 /*

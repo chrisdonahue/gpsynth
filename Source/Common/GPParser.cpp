@@ -1,8 +1,7 @@
 /*
   ==============================================================================
 
-    GPNetwork.cpp
-    Created: 6 Feb 2013 11:05:02am
+    GPParser.cpp
     Author:  cdonahue
 
   ==============================================================================
@@ -369,6 +368,55 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
 
         return new PMNode(params[0], params[1], params[2], signal);
     }
+    // wave table freq nodes
+    else if (type.compare("sinfreqosc") == 0) {
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for a SinFreqOsc Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("sinfreqosc_phase");
+
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
+
+        return new SinFreqOscNode(params[0], signal);
+    }
+    else if (type.compare("sawfreqosc") == 0) {
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for a SawFreqOsc Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("sawfreqosc_phase");
+
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
+
+        return new SawFreqOscNode(params[0], signal);
+    }
+    else if (type.compare("squarefreqosc") == 0) {
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for a SquareFreqOsc Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("squarefreqosc_phase");
+
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
+
+        return new SquareFreqOscNode(params[0], signal);
+    }
+    else if (type.compare("trianglefreqosc") == 0) {
+        if (params.size() != 1) {
+            std::cerr << "Incorrect number of mutatable params for a TriangleFreqOsc Node" << std::endl;
+            return NULL;
+        }
+        params[0]->setType("trianglefreqosc_phase");
+
+		GPNode* signal;
+		if (!parseChild(tokenizerArgs, subtreeArgs, &signal)) return NULL;
+
+        return new TriangleFreqOscNode(params[0], signal);
+    }
     // silence node
     else if (type.compare("silence") == 0) {
         if (params.size() != 0) {
@@ -499,6 +547,7 @@ GPNode* createNode(tokenizerFunctionArgs, subtreeFunctionArgs) {
         params[0]->setType("var_num");
         params[0]->setUnmutatable();
         params[1]->setType("var_range");
+        params[1]->setUnmutatable();
 
         return new VariableNode(params[0], params[1]);
     }

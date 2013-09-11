@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    MixerNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "MixerNode.h"
 
 /*
@@ -20,6 +11,8 @@ MixerNode::MixerNode(GPNode* mod, GPNode* sigone, GPNode* sigtwo) {
     descendants.push_back(mod);
     descendants.push_back(sigone);
     descendants.push_back(sigtwo);
+
+    symbol = "mix";
 }
 
 MixerNode::~MixerNode() {
@@ -63,14 +56,4 @@ void MixerNode::updateMutatedParams() {
     float signalTwoMax = descendants[2]->maximum;
     minimum = signalOneMin < signalTwoMin ? signalOneMin : signalTwoMin;
     maximum = signalOneMax > signalTwoMax ? signalOneMax : signalTwoMax;
-}
-
-void MixerNode::toString(std::stringstream& ss) {
-    ss << "(mix ";
-    descendants[0]->toString(ss);
-    ss << " ";
-    descendants[1]->toString(ss);
-    ss << " ";
-    descendants[2]->toString(ss);
-    ss << ")";
 }

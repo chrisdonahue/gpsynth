@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    GainNode.cpp
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #include "GainNode.h"
 
 /*
@@ -22,6 +13,8 @@ GainNode::GainNode(GPMutatableParam* v, GPNode* signal) {
     descendants.push_back(signal);
 
     value = 0.0;
+
+    symbol = "gain";
 }
 
 GainNode::~GainNode() {
@@ -64,12 +57,4 @@ void GainNode::updateMutatedParams() {
     GPNode::updateMutatedParams();
     value = mutatableParams[0]->getValue();
     intervalMultiply(&minimum, &maximum, mutatableParams[0]->getMin(), mutatableParams[0]->getMax(), descendants[0]->minimum, descendants[0]->maximum);
-}
-
-void GainNode::toString(std::stringstream& ss) {
-    ss << "(gain ";
-    mutatableParams[0]->toString(ss);
-    ss << " ";
-    descendants[0]->toString(ss);
-    ss << ")";
 }

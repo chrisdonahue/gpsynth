@@ -1,0 +1,45 @@
+Interactive:
+    10 networks, 4 or 5 faders, one keyboard
+    Button to interactively suboptimize constants
+    Ability to edit network
+    PITCHBEND
+    Introduce Novelty button replaces current network with new full()
+    Buttons to step backwards through evolution
+    button to run random evolution for a while towards a target with best suboptimization method
+    novelty search of new spectrum elements/spectral peak ratios
+    Add max note length as a slider to GUI in order to make TimeNode potentially useful
+    primative/options menu:
+        available primitives (two adjacent lists) (oscils with center frequency at 3rd, 4th, 5th, 7th, etc)
+        maxNoteLength
+        maxNetworkHeight
+	
+	v0.2:
+		more primitives
+            may have to implement wave table reading synthesis with interpolation
+            generator nodes would then just generate buffer based on mutatable params at setRenderInfo time or construction depending on what is necessary
+            could try Audacity stuff for now
+            FINISH and TEST SPLINE
+        options page:
+            num networks
+            maxnotelen
+            maxnetworkheight
+            initialnetworkmaxheight
+            primitive selector
+        random button
+        reset button
+        string view of network with sliders for mutatable params and update button
+		check how fitness probabilities are working
+		display name of synth if loaded or saved
+        vst plugin save current generation
+
+Names:
+	synthsearch
+	exploration synthesis
+		
+Web:
+	Save button posts network to mySQL db
+	make personal website utilizing django in some way for practice
+	maybe make database entries for synthesizers in order to set up a platform for future use
+	figure out how to host stuff on UTCS
+	host the web server from NN lab. also go there to get form
+

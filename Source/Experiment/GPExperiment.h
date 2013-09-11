@@ -1,30 +1,17 @@
-/*
-  ==============================================================================
-
-    GPExperiment.h
-    Created: 6 Feb 2013 11:05:21am
-    Author:  cdonahue
-
-  ==============================================================================
-*/
-
 #ifndef GPEXPERIMENT_H
 #define GPEXPERIMENT_H
 
-// Common GPSynth includes
-#include "../Common/GPParams.h"
-#include "../Common/GPParser.h"
+// GP object includes
+#include "../Common/GPLogger.h"
 #include "../Common/GPHelpers.h"
 #include "../Common/GPAudioUtil.h"
-#include "../Common/JUCEFileIO.h"
-
-// GPSynth includes
 #include "../Synth/GPNode.h"
-#include "../Synth/GPPrimitives.h"
 #include "../Synth/GPSynth.h"
+#include "GPAudioComparator.h"
 
 // JUCE include
 #include "JuceHeader.h"
+#include "../Common/JUCEFileIO.h"
 
 // BEAGLE includes
 #include <numeric>
@@ -37,91 +24,82 @@
 // other includes
 #include "../Dependencies/kissfft/kiss_fftr.h"
 #include <limits>
-#include <fstream>
+
+struct GPMatchingExperimentParams {
+    // logging parameters
+    bool log_save_gen_summary_file;
+    bool log_save_gen_champ_audio;
+    bool log_save_overall_champ_audio;
+    bool log_save_target_spectrum;
+    bool log_save_target_copy;
+
+    // auxiliary experiment parameters
+    unsigned aux_wav_file_buffer_size;
+    unsigned aux_render_block_size;
+
+    // experiment parameters
+    unsigned exp_ff_type;
+    unsigned exp_suboptimize_ff_type;
+    unsigned exp_suboptimize_type;
+    unsigned exp_generations;
+    double exp_threshold;
+};
 
 class GPExperiment {
 public:
-    // CONSTUCTION
-    GPExperiment(GPParams* p, GPRandom* rng, unsigned s, String target, String path, unsigned numconstants, float* constants, bool* rq);
+    // construction
+    GPExperiment(GPLogger* logger, GPMatchingExperimentParams* params, unsigned seed, std::string beagle_cfg_file_path, GPSynth* synth, GPAudioComparator* comparator, std::string output_dir_path, std::vector<float>& constants);
+    GPExperiment(GPLogger* logger);
     ~GPExperiment();
 
-    // EVOLUTION CONTROL
+    // evolution control
     GPNetwork* evolve();
-    double beagleComparisonCallback(unsigned type, GPNetwork* candidate, float* candidateFramesBuffer);
+    double beagleComparisonCallback(unsigned type, float* candidateFramesBuffer);
+
+    // sanity test
+    int sanityTest(GPRandom* rng);
 
 private:
-    // EXPERIMENT PARAMETERS
-    GPParams* params;
+    bool is_sanity_test;
+
+    // GP objects
+    GPLogger* logger;
+    GPSynth* synth;
+    GPAudioComparator* comparator;
+
+    // experiment params
+    GPMatchingExperimentParams* params;
     unsigned seed;
-    String targetPath;
-    String savePath;
-    float fitnessThreshold;
-    int numGenerations;
-    bool lowerFitnessIsBetter;
+    std::string seed_string;
+    std::string beagle_cfg_file_path;
+    std::string output_dir_path;
 
-    // TARGET DATA CONTAINERS
-    // metadata
-    float targetSampleRate;
-    float targetNyquist;
-    unsigned numTargetFrames;
-    float targetLengthSeconds;
-    // time domain
-    float* targetFrames;
-    float* targetEnvelope;
-    // freq domain
-    unsigned fftOutputBufferSize;
-    kiss_fft_cpx* targetSpectra;
-    double* targetMagnitude;
-    double* targetPhase;
-    // fitness function analysis
-    float* analysisWindow;
-    double* binOvershootingPenalty;
-    double* binUndershootingPenalty;
-    double* fftFrameWeight;
-    
-    // COMPARISON BUFFERS
-    kiss_fftr_cfg fftConfig;
-    kiss_fft_scalar* candidateAmplitudeBuffer;
-    kiss_fft_cpx* candidateSpectraBuffer;
-    double* candidateMagnitudeBuffer;
-    double* candidatePhaseBuffer;
+    // suboptimization state
+    GPNetwork* suboptimize_network;
+    std::vector<GPMutatableParam*> suboptimize_best_params;
+    double suboptimize_min_fitness;
 
-    // EVALUATION DATA
-    float* targetSampleTimes;
+    // target metadata
+    float target_sampling_frequency;
+    float target_nyquist_frequency;
+    unsigned target_num_frames;
+    float target_last_sample_start_time;
+
+    // evaluation data
+    float* target_sample_times;
     unsigned numConstantValues;
     float* constantValues;
     unsigned numVariableValues;
     float* variableValues;
 
-    // EXPERIMENT STATE
+    // experiment state
     double minFitnessAchieved;
     int numEvaluatedGenerations;
-    bool* requestedQuit;
-
-    // SYNTH
-    GPSynth* synth;
-
-    // FILL EVALUATION BUFFERS
-    void fillEvaluationBuffers(unsigned numconstantvalues, float* constantvalues, unsigned numvariablevalues, float* variablevalues);
 
     // FITNESS FUNCTION
     double suboptimizeAndCompareToTarget(unsigned suboptimizeType, GPNetwork* candidate, float* buffer);
     void renderIndividualByBlockPerformance(GPNetwork* candidate, unsigned renderblocksize, unsigned numconstantvalues, float* constantvalues, int64 numsamples, float* sampletimes, float* buffer);
     double compareToTarget(unsigned type, float* candidateFrames);
-
-    // WAVEFORM OPERATIONS
-    void findMovingAverage(unsigned type, unsigned n, const double* buffer, double* movingaverage, unsigned pastRadius, unsigned futureRadius, double alpha, double* frameaverage, double* maxdeviationabove, double* maxdeviationbelow, double* maxratioabove, double* minratiobelow);
-    void followEnvelope(unsigned n, float* buffer, float* envelope, double attack_in_ms, double release_in_ms, double samplerate);
-    void findEnvelope(bool ignoreZeroes, unsigned n, float* wav, float* env);
-
-    // GRAPH HELPERS
-    void fillTimeAxisBuffer(unsigned numSamples, float sr, float* buffer);
-    void fillFrequencyAxisBuffer(unsigned fftSize, double sr, float* buffer);
-    String floatBuffersToGraphText(String options, String xlab, String ylab, bool indexAsX, unsigned n, const float* x, const float* y, const float* z);
-    String doubleBuffersToGraphText(String options, String xlab, String ylab, String zlab, bool indexAsX, unsigned n, const double* x, const double* y, const double* z);
-
-    // SANITY TEST CODE
-    void sanityTest(GPRandom* rng);
 };
 
 #endif
