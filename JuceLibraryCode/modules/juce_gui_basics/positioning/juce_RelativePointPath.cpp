@@ -94,7 +94,7 @@ bool RelativePointPath::operator!= (const RelativePointPath& other) const noexce
 
 void RelativePointPath::swapWith (RelativePointPath& other) noexcept
 {
-    elements.swapWith (other.elements);
+    elements.swapWithArray (other.elements);
     std::swap (usesNonZeroWinding, other.usesNonZeroWinding);
     std::swap (containsDynamicPoints, other.containsDynamicPoints);
 }

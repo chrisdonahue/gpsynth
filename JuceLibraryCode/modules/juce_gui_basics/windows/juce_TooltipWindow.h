@@ -101,6 +101,7 @@ private:
     int mouseClicks, mouseWheelMoves;
     unsigned int lastCompChangeTime, lastHideTime;
     Component* lastComponentUnderMouse;
+    bool changedCompsSinceShown;
     String tipShowing, lastTipUnderMouse;
 
     void paint (Graphics&) override;

@@ -143,6 +143,18 @@ void Desktop::componentBroughtToFront (Component* const c)
 }
 
 //==============================================================================
+void Desktop::addPeer (ComponentPeer* peer)
+{
+    peers.add (peer);
+}
+
+void Desktop::removePeer (ComponentPeer* peer)
+{
+    peers.removeFirstMatchingValue (peer);
+    triggerFocusCallback();
+}
+
+//==============================================================================
 Point<int> Desktop::getMousePosition()
 {
     return getInstance().getMainMouseSource().getScreenPosition();
@@ -378,9 +390,9 @@ const Desktop::Displays::Display& Desktop::Displays::getDisplayContaining (Point
     return *best;
 }
 
-RectangleList<int> Desktop::Displays::getRectangleList (bool userAreasOnly) const
+RectangleList Desktop::Displays::getRectangleList (bool userAreasOnly) const
 {
-    RectangleList<int> rl;
+    RectangleList rl;
 
     for (int i = 0; i < displays.size(); ++i)
     {
@@ -420,7 +432,7 @@ void Desktop::Displays::init (Desktop& desktop)
 void Desktop::Displays::refresh()
 {
     Array<Display> oldDisplays;
-    oldDisplays.swapWith (displays);
+    oldDisplays.swapWithArray (displays);
 
     init (Desktop::getInstance());
 
@@ -476,14 +488,4 @@ bool Desktop::isOrientationEnabled (const DisplayOrientation orientation) const 
     jassert (orientation == upright || orientation == upsideDown || orientation == rotatedClockwise || orientation ==  rotatedAntiClockwise);
 
     return (allowedOrientations & orientation) != 0;
-}
-
-void Desktop::setGlobalScaleFactor (float newScaleFactor) noexcept
-{
-    if (masterScaleFactor != newScaleFactor)
-    {
-        masterScaleFactor = newScaleFactor;
-
-        displays->refresh();
-    }
 }

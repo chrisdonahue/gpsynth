@@ -310,13 +310,15 @@ DragAndDropContainer::~DragAndDropContainer()
 
 void DragAndDropContainer::startDragging (const var& sourceDescription,
                                           Component* sourceComponent,
-                                          Image dragImage,
+                                          const Image& dragImage_,
                                           const bool allowDraggingToExternalWindows,
                                           const Point<int>* imageOffsetFromMouse)
 {
+    Image dragImage (dragImage_);
+
     if (dragImageComponent == nullptr)
     {
-        MouseInputSource* const draggingSource = Desktop::getInstance().getDraggingMouseSource (0);
+        MouseInputSource* draggingSource = Desktop::getInstance().getDraggingMouseSource (0);
 
         if (draggingSource == nullptr || ! draggingSource->isDragging())
         {
@@ -324,7 +326,7 @@ void DragAndDropContainer::startDragging (const var& sourceDescription,
             return;
         }
 
-        const Point<int> lastMouseDown (draggingSource->getLastMouseDownPosition());
+        const Point<int> lastMouseDown (Desktop::getLastMouseDownPosition());
         Point<int> imageOffset;
 
         if (dragImage.isNull())
@@ -387,15 +389,15 @@ void DragAndDropContainer::startDragging (const var& sourceDescription,
         }
         else
         {
-            if (Component* const thisComp = dynamic_cast <Component*> (this))
-            {
-                thisComp->addChildComponent (dragImageComponent);
-            }
-            else
+            Component* const thisComp = dynamic_cast <Component*> (this);
+
+            if (thisComp == nullptr)
             {
                 jassertfalse;   // Your DragAndDropContainer needs to be a Component!
                 return;
             }
+
+            thisComp->addChildComponent (dragImageComponent);
         }
 
         static_cast <DragImageComponent*> (dragImageComponent.get())->updateLocation (false, lastMouseDown);
@@ -415,10 +417,10 @@ bool DragAndDropContainer::isDragAndDropActive() const
     return dragImageComponent != nullptr;
 }
 
-var DragAndDropContainer::getCurrentDragDescription() const
+String DragAndDropContainer::getCurrentDragDescription() const
 {
     return dragImageComponent != nullptr ? currentDragDesc
-                                         : var();
+                                         : String::empty;
 }
 
 DragAndDropContainer* DragAndDropContainer::findParentDragContainerFor (Component* c)

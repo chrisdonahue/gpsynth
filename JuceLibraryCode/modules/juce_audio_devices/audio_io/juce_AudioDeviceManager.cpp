@@ -886,7 +886,8 @@ void AudioDeviceManager::setDefaultMidiOutput (const String& deviceName)
 
         {
             const ScopedLock sl (audioCallbackLock);
-            oldCallbacks.swapWith (callbacks);
+            oldCallbacks = callbacks;
+            callbacks.clear();
         }
 
         if (currentAudioDevice != nullptr)
@@ -905,7 +906,7 @@ void AudioDeviceManager::setDefaultMidiOutput (const String& deviceName)
 
         {
             const ScopedLock sl (audioCallbackLock);
-            oldCallbacks.swapWith (callbacks);
+            callbacks = oldCallbacks;
         }
 
         updateXml();

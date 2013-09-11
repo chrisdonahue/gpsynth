@@ -128,7 +128,7 @@ public:
 
 
     //==============================================================================
-    virtual Typeface::Ptr getTypefaceForFont (const Font& font);
+    virtual const Typeface::Ptr getTypefaceForFont (const Font& font);
 
     /** Allows you to change the default sans-serif font.
 
@@ -148,7 +148,7 @@ public:
     // Creates a new graphics context object.
     virtual LowLevelGraphicsContext* createGraphicsContext (const Image& imageToRenderOn,
                                                             const Point<int>& origin,
-                                                            const RectangleList<int>& initialClip);
+                                                            const RectangleList& initialClip);
 
     //==============================================================================
     /** Draws the lozenge-shaped background for a standard button. */
@@ -259,7 +259,7 @@ public:
         @param width                the width of the thumb area to draw in
         @param height               the height of the thumb area to draw in
         @param isScrollbarVertical  true if it's a vertical bar, false if horizontal
-        @param thumbStartPosition   for vertical bars, the y coordinate of the top of the
+        @param thumbStartPosition   for vertical bars, the y co-ordinate of the top of the
                                     thumb, or its x position for horizontal bars
         @param thumbSize            for vertical bars, the height of the thumb, or its width for
                                     horizontal bars. This may be 0 if the thumb shouldn't be drawn.

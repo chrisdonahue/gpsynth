@@ -59,7 +59,7 @@ public:
     explicit EdgeTable (const Rectangle<int>& rectangleToAdd);
 
     /** Creates an edge table containing a rectangle list. */
-    explicit EdgeTable (const RectangleList<int>& rectanglesToAdd);
+    explicit EdgeTable (const RectangleList& rectanglesToAdd);
 
     /** Creates an edge table containing a rectangle. */
     explicit EdgeTable (const Rectangle<float>& rectangleToAdd);

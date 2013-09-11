@@ -28,7 +28,8 @@ TooltipWindow::TooltipWindow (Component* const parentComp, const int delayMs)
       mouseClicks (0),
       mouseWheelMoves (0),
       lastHideTime (0),
-      lastComponentUnderMouse (nullptr)
+      lastComponentUnderMouse (nullptr),
+      changedCompsSinceShown (true)
 {
     if (Desktop::getInstance().getMainMouseSource().canHover())
         startTimer (123);

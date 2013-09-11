@@ -27,26 +27,21 @@
 */
 
 MemoryOutputStream::MemoryOutputStream (const size_t initialSize)
-  : blockToUse (&internalBlock), externalData (nullptr),
-    position (0), size (0), availableSize (0)
+  : data (internalBlock),
+    position (0),
+    size (0)
 {
     internalBlock.setSize (initialSize, false);
 }
 
 MemoryOutputStream::MemoryOutputStream (MemoryBlock& memoryBlockToWriteTo,
                                         const bool appendToExistingBlockContent)
-  : blockToUse (&memoryBlockToWriteTo), externalData (nullptr),
-    position (0), size (0), availableSize (0)
+  : data (memoryBlockToWriteTo),
+    position (0),
+    size (0)
 {
     if (appendToExistingBlockContent)
         position = size = memoryBlockToWriteTo.getSize();
-}
-
-MemoryOutputStream::MemoryOutputStream (void* destBuffer, size_t destBufferSize)
-  : blockToUse (nullptr), externalData (destBuffer),
-    position (0), size (0), availableSize (destBufferSize)
-{
-    jassert (externalData != nullptr); // This must be a valid pointer.
 }
 
 MemoryOutputStream::~MemoryOutputStream()
@@ -61,14 +56,13 @@ void MemoryOutputStream::flush()
 
 void MemoryOutputStream::trimExternalBlockSize()
 {
-    if (blockToUse != &internalBlock && blockToUse != nullptr)
-        blockToUse->setSize (size, false);
+    if (&data != &internalBlock)
+        data.setSize (size, false);
 }
 
 void MemoryOutputStream::preallocate (const size_t bytesToPreallocate)
 {
-    if (blockToUse != nullptr)
-        blockToUse->ensureSize (bytesToPreallocate + 1);
+    data.ensureSize (bytesToPreallocate + 1);
 }
 
 void MemoryOutputStream::reset() noexcept
@@ -82,24 +76,10 @@ char* MemoryOutputStream::prepareToWrite (size_t numBytes)
     jassert ((ssize_t) numBytes >= 0);
     size_t storageNeeded = position + numBytes;
 
-    char* data;
+    if (storageNeeded >= data.getSize())
+        data.ensureSize ((storageNeeded + jmin (storageNeeded / 2, (size_t) (1024 * 1024)) + 32) & ~31u);
 
-    if (blockToUse != nullptr)
-    {
-        if (storageNeeded >= blockToUse->getSize())
-            blockToUse->ensureSize ((storageNeeded + jmin (storageNeeded / 2, (size_t) (1024 * 1024)) + 32) & ~31u);
-
-        data = static_cast <char*> (blockToUse->getData());
-    }
-    else
-    {
-        if (storageNeeded > availableSize)
-            return nullptr;
-
-        data = static_cast <char*> (externalData);
-    }
-
-    char* const writePointer = data + position;
+    char* const writePointer = static_cast <char*> (data.getData()) + position;
     position += numBytes;
     size = jmax (size, position);
     return writePointer;
@@ -107,43 +87,25 @@ char* MemoryOutputStream::prepareToWrite (size_t numBytes)
 
 bool MemoryOutputStream::write (const void* const buffer, size_t howMany)
 {
-    jassert (buffer != nullptr);
+    jassert (buffer != nullptr && ((ssize_t) howMany) >= 0);
 
-    if (howMany == 0)
-        return true;
+    if (howMany > 0)
+        memcpy (prepareToWrite (howMany), buffer, howMany);
 
-    if (char* dest = prepareToWrite (howMany))
-    {
-        memcpy (dest, buffer, howMany);
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 bool MemoryOutputStream::writeRepeatedByte (uint8 byte, size_t howMany)
 {
-    if (howMany == 0)
-        return true;
+    if (howMany > 0)
+        memset (prepareToWrite (howMany), byte, howMany);
 
-    if (char* dest = prepareToWrite (howMany))
-    {
-        memset (dest, byte, howMany);
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
-bool MemoryOutputStream::appendUTF8Char (juce_wchar c)
+void MemoryOutputStream::appendUTF8Char (juce_wchar c)
 {
-    if (char* dest = prepareToWrite (CharPointer_UTF8::getBytesRequiredFor (c)))
-    {
-        CharPointer_UTF8 (dest).write (c);
-        return true;
-    }
-
-    return false;
+    CharPointer_UTF8 (prepareToWrite (CharPointer_UTF8::getBytesRequiredFor (c))).write (c);
 }
 
 MemoryBlock MemoryOutputStream::getMemoryBlock() const
@@ -153,13 +115,10 @@ MemoryBlock MemoryOutputStream::getMemoryBlock() const
 
 const void* MemoryOutputStream::getData() const noexcept
 {
-    if (blockToUse == nullptr)
-        return externalData;
+    if (data.getSize() > size)
+        static_cast <char*> (data.getData()) [size] = 0;
 
-    if (blockToUse->getSize() > size)
-        static_cast <char*> (blockToUse->getData()) [size] = 0;
-
-    return blockToUse->getData();
+    return data.getData();
 }
 
 bool MemoryOutputStream::setPosition (int64 newPosition)
@@ -185,8 +144,7 @@ int MemoryOutputStream::writeFromInputStream (InputStream& source, int64 maxNumB
         if (maxNumBytesToWrite > availableData)
             maxNumBytesToWrite = availableData;
 
-        if (blockToUse != nullptr)
-            preallocate (blockToUse->getSize() + (size_t) maxNumBytesToWrite);
+        preallocate (data.getSize() + (size_t) maxNumBytesToWrite);
     }
 
     return OutputStream::writeFromInputStream (source, maxNumBytesToWrite);

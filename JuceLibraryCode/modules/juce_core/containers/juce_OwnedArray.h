@@ -98,7 +98,7 @@ public:
 
     //==============================================================================
     /** Clears the array, optionally deleting the objects inside it first. */
-    void clear (bool deleteObjects = true)
+    void clear (const bool deleteObjects = true)
     {
         const ScopedLockType lock (getLock());
 
@@ -106,18 +106,6 @@ public:
             deleteAllObjects();
 
         data.setAllocatedSize (0);
-        numUsed = 0;
-    }
-
-    //==============================================================================
-    /** Clears the array, optionally deleting the objects inside it first. */
-    void clearQuick (bool deleteObjects)
-    {
-        const ScopedLockType lock (getLock());
-
-        if (deleteObjects)
-            deleteAllObjects();
-
         numUsed = 0;
     }
 
@@ -792,11 +780,11 @@ public:
         If you need to exchange two arrays, this is vastly quicker than using copy-by-value
         because it just swaps their internal pointers.
     */
-    template <class OtherArrayType>
-    void swapWith (OtherArrayType& otherArray) noexcept
+    void swapWithArray (OwnedArray& otherArray) noexcept
     {
         const ScopedLockType lock1 (getLock());
-        const typename OtherArrayType::ScopedLockType lock2 (otherArray.getLock());
+        const ScopedLockType lock2 (otherArray.getLock());
+
         data.swapWith (otherArray.data);
         std::swap (numUsed, otherArray.numUsed);
     }
@@ -873,11 +861,6 @@ public:
     /** Returns the type of scoped lock to use for locking this array */
     typedef typename TypeOfCriticalSectionToUse::ScopedLockType ScopedLockType;
 
-
-    //==============================================================================
-    // Note that the swapWithArray method has been replaced by a more flexible templated version,
-    // and renamed "swapWith" to be more consistent with the names used in other classes.
-    JUCE_DEPRECATED_WITH_BODY (void swapWithArray (OwnedArray& other) noexcept, { swapWith (other); })
 
 private:
     //==============================================================================

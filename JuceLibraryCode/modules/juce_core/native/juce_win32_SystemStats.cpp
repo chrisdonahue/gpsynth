@@ -104,13 +104,16 @@ String SystemStats::getCpuVendor()
 
 
 //==============================================================================
-void CPUInformation::initialise() noexcept
+SystemStats::CPUFlags::CPUFlags()
 {
     hasMMX   = IsProcessorFeaturePresent (PF_MMX_INSTRUCTIONS_AVAILABLE) != 0;
     hasSSE   = IsProcessorFeaturePresent (PF_XMMI_INSTRUCTIONS_AVAILABLE) != 0;
     hasSSE2  = IsProcessorFeaturePresent (PF_XMMI64_INSTRUCTIONS_AVAILABLE) != 0;
-    hasSSE3  = IsProcessorFeaturePresent (13 /*PF_SSE3_INSTRUCTIONS_AVAILABLE*/) != 0;
-    has3DNow = IsProcessorFeaturePresent (7  /*PF_AMD3D_INSTRUCTIONS_AVAILABLE*/) != 0;
+   #ifdef PF_AMD3D_INSTRUCTIONS_AVAILABLE
+    has3DNow = IsProcessorFeaturePresent (PF_AMD3D_INSTRUCTIONS_AVAILABLE) != 0;
+   #else
+    has3DNow = IsProcessorFeaturePresent (PF_3DNOW_INSTRUCTIONS_AVAILABLE) != 0;
+   #endif
 
     SYSTEM_INFO systemInfo;
     GetNativeSystemInfo (&systemInfo);

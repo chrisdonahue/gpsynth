@@ -22,8 +22,10 @@
   ==============================================================================
 */
 
-ToolbarItemPalette::ToolbarItemPalette (ToolbarItemFactory& tbf, Toolbar& bar)
-    : factory (tbf), toolbar (bar)
+ToolbarItemPalette::ToolbarItemPalette (ToolbarItemFactory& factory_,
+                                        Toolbar* const toolbar_)
+    : factory (factory_),
+      toolbar (toolbar_)
 {
     Component* const itemHolder = new Component();
     viewport.setViewedComponent (itemHolder);
@@ -56,13 +58,13 @@ void ToolbarItemPalette::addComponent (const int itemId, const int index)
     }
 }
 
-void ToolbarItemPalette::replaceComponent (ToolbarItemComponent& comp)
+void ToolbarItemPalette::replaceComponent (ToolbarItemComponent* const comp)
 {
-    const int index = items.indexOf (&comp);
+    const int index = items.indexOf (comp);
     jassert (index >= 0);
-    items.removeObject (&comp, false);
+    items.removeObject (comp, false);
 
-    addComponent (comp.getItemId(), index);
+    addComponent (comp->getItemId(), index);
     resized();
 }
 
@@ -74,7 +76,7 @@ void ToolbarItemPalette::resized()
 
     const int indent = 8;
     const int preferredWidth = viewport.getWidth() - viewport.getScrollBarThickness() - indent;
-    const int height = toolbar.getThickness();
+    const int height = toolbar->getThickness();
     int x = indent;
     int y = indent;
     int maxX = 0;
@@ -83,7 +85,7 @@ void ToolbarItemPalette::resized()
     {
         ToolbarItemComponent* const tc = items.getUnchecked(i);
 
-        tc->setStyle (toolbar.getStyle());
+        tc->setStyle (toolbar->getStyle());
 
         int preferredSize = 1, minSize = 1, maxSize = 1;
 

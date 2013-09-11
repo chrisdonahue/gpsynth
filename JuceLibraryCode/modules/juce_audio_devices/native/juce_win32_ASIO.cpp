@@ -323,7 +323,6 @@ public:
          minSize (0), maxSize (0),
          preferredSize (0),
          granularity (0),
-         numClockSources (0),
          currentBlockSizeSamples (0),
          currentBitDepth (16),
          currentSampleRate (0),
@@ -377,16 +376,18 @@ public:
 
         if (newRates.size() == 0)
         {
-            double cr = getSampleRate();
+            double cr = 0;
+            const long err = asioObject->getSampleRate (&cr);
             JUCE_ASIO_LOG ("No sample rates supported - current rate: " + String ((int) cr));
+            JUCE_ASIO_LOG_ERROR ("getSampleRate", err);
 
-            if (cr > 0)
+            if (err == 0)
                 newRates.add ((int) cr);
         }
 
         if (sampleRates != newRates)
         {
-            sampleRates.swapWith (newRates);
+            sampleRates.swapWithArray (newRates);
 
            #if JUCE_ASIO_DEBUGGING
             StringArray s;
@@ -430,11 +431,46 @@ public:
 
         isStarted = false;
         bufferIndex = -1;
+        minSize = 0;
+        maxSize = 0;
+        granularity = 0;
 
         long err = asioObject->getChannels (&totalNumInputChans, &totalNumOutputChans);
         jassert (err == ASE_OK);
 
-        bufferSizeSamples = readBufferSizes (bufferSizeSamples);
+        long newPreferredSize = 0;
+        if (asioObject->getBufferSize (&minSize, &maxSize, &newPreferredSize, &granularity) == ASE_OK)
+        {
+            if (preferredSize != 0 && newPreferredSize != 0 && newPreferredSize != preferredSize)
+                shouldUsePreferredSize = true;
+
+            if (bufferSizeSamples < minSize || bufferSizeSamples > maxSize)
+                shouldUsePreferredSize = true;
+
+            preferredSize = newPreferredSize;
+        }
+
+        // unfortunate workaround for certain manufacturers whose drivers crash horribly if you make
+        // dynamic changes to the buffer size...
+        shouldUsePreferredSize = shouldUsePreferredSize
+                                   || getName().containsIgnoreCase ("Digidesign");
+
+        if (shouldUsePreferredSize)
+        {
+            JUCE_ASIO_LOG ("Using preferred size for buffer..");
+
+            if ((err = asioObject->getBufferSize (&minSize, &maxSize, &preferredSize, &granularity)) == ASE_OK)
+            {
+                bufferSizeSamples = preferredSize;
+            }
+            else
+            {
+                bufferSizeSamples = 1024;
+                JUCE_ASIO_LOG_ERROR ("getBufferSize1", err);
+            }
+
+            shouldUsePreferredSize = false;
+        }
 
         int sampleRate = roundToInt (sr);
         currentSampleRate = sampleRate;
@@ -453,13 +489,71 @@ public:
         if (sampleRate == 0)
             sampleRate = 44100;
 
-        updateClockSources();
-        currentSampleRate = getSampleRate();
+        ASIOClockSource clocks[32] = { 0 };
+        long numSources = numElementsInArray (clocks);
+        asioObject->getClockSources (clocks, &numSources);
+        bool isSourceSet = false;
+
+        // careful not to remove this loop because it does more than just logging!
+        for (int i = 0; i < numSources; ++i)
+        {
+            String s ("clock: ");
+            s += clocks[i].name;
+
+            if (clocks[i].isCurrentSource)
+            {
+                isSourceSet = true;
+                s << " (cur)";
+            }
+
+            JUCE_ASIO_LOG (s);
+        }
+
+        if (numSources > 1 && ! isSourceSet)
+        {
+            JUCE_ASIO_LOG ("setting clock source");
+            err = asioObject->setClockSource (clocks[0].index);
+            JUCE_ASIO_LOG_ERROR ("setClockSource1", err);
+            Thread::sleep (20);
+        }
+        else
+        {
+            if (numSources == 0)
+                JUCE_ASIO_LOG ("no clock sources!");
+        }
+
+        {
+            double cr = 0;
+            err = asioObject->getSampleRate (&cr);
+            JUCE_ASIO_LOG_ERROR ("getSampleRate", err);
+            currentSampleRate = cr;
+        }
 
         error = String::empty;
+        err = 0;
         buffersCreated = false;
 
-        setSampleRate (sampleRate);
+        if (currentSampleRate != sampleRate)
+        {
+            JUCE_ASIO_LOG ("rate change: " + String (currentSampleRate) + " to " + String (sampleRate));
+            err = asioObject->setSampleRate (sampleRate);
+
+            if (err == ASE_NoClock && numSources > 0)
+            {
+                JUCE_ASIO_LOG ("trying to set a clock source..");
+                Thread::sleep (10);
+                err = asioObject->setClockSource (clocks[0].index);
+                JUCE_ASIO_LOG_ERROR ("setClockSource2", err);
+
+                Thread::sleep (10);
+                err = asioObject->setSampleRate (sampleRate);
+            }
+
+            if (err == 0)
+                currentSampleRate = sampleRate;
+
+            // on fail, ignore the attempt to change rate, and run with the current one..
+        }
 
         if (needToReset)
         {
@@ -558,7 +652,12 @@ public:
                 outputFormat[i].clear (bufferInfos [numActiveInputChans + i].buffers[1], currentBlockSizeSamples);
             }
 
-            readLatencies();
+            inputLatency = outputLatency = 0;
+
+            if (asioObject->getLatencies (&inputLatency, &outputLatency) != 0)
+                JUCE_ASIO_LOG ("no latencies");
+            else
+                JUCE_ASIO_LOG ("latencies: " + String ((int) outputLatency) + ", " + String ((int) inputLatency));
 
             asioObject->getBufferSize (&minSize, &maxSize, &preferredSize, &granularity);
             deviceIsOpen = true;
@@ -767,8 +866,6 @@ private:
     Array<int> sampleRates, bufferSizes;
     long inputLatency, outputLatency;
     long minSize, maxSize, preferredSize, granularity;
-    ASIOClockSource clocks[32];
-    int numClockSources;
 
     int volatile currentBlockSizeSamples;
     int volatile currentBitDepth;
@@ -831,50 +928,6 @@ private:
             outputChannelNames.appendNumbersToDuplicates (false, true);
             inputChannelNames.appendNumbersToDuplicates (false, true);
         }
-    }
-
-    int readBufferSizes (int bufferSizeSamples)
-    {
-        minSize = 0;
-        maxSize = 0;
-        granularity = 0;
-
-        long newPreferredSize = 0;
-
-        if (asioObject->getBufferSize (&minSize, &maxSize, &newPreferredSize, &granularity) == ASE_OK)
-        {
-            if (preferredSize != 0 && newPreferredSize != 0 && newPreferredSize != preferredSize)
-                shouldUsePreferredSize = true;
-
-            if (bufferSizeSamples < minSize || bufferSizeSamples > maxSize)
-                shouldUsePreferredSize = true;
-
-            preferredSize = newPreferredSize;
-        }
-
-        // unfortunate workaround for certain drivers which crash if you make
-        // dynamic changes to the buffer size...
-        shouldUsePreferredSize = shouldUsePreferredSize || getName().containsIgnoreCase ("Digidesign");
-
-        if (shouldUsePreferredSize)
-        {
-            JUCE_ASIO_LOG ("Using preferred size for buffer..");
-            long err = asioObject->getBufferSize (&minSize, &maxSize, &preferredSize, &granularity);
-
-            if (err == ASE_OK)
-            {
-                bufferSizeSamples = (int) preferredSize;
-            }
-            else
-            {
-                bufferSizeSamples = 1024;
-                JUCE_ASIO_LOG_ERROR ("getBufferSize1", err);
-            }
-
-            shouldUsePreferredSize = false;
-        }
-
-        return bufferSizeSamples;
     }
 
     int resetBuffers (const BigInteger& inputChannels,
@@ -941,157 +994,6 @@ private:
 
         DefaultElementComparator <int> comparator;
         bufferSizes.sort (comparator);
-    }
-
-    double getSampleRate() const
-    {
-        double cr = 0;
-        long err = asioObject->getSampleRate (&cr);
-        JUCE_ASIO_LOG_ERROR ("getSampleRate", err);
-        return cr;
-    }
-
-    void setSampleRate (int newRate)
-    {
-        if (currentSampleRate != newRate)
-        {
-            JUCE_ASIO_LOG ("rate change: " + String (currentSampleRate) + " to " + String (newRate));
-            long err = asioObject->setSampleRate (newRate);
-
-            if (err == ASE_NoClock && numClockSources > 0)
-            {
-                JUCE_ASIO_LOG ("trying to set a clock source..");
-                Thread::sleep (10);
-                err = asioObject->setClockSource (clocks[0].index);
-                JUCE_ASIO_LOG_ERROR ("setClockSource2", err);
-
-                Thread::sleep (10);
-                err = asioObject->setSampleRate (newRate);
-            }
-
-            if (err == 0)
-                currentSampleRate = newRate;
-
-            // on fail, ignore the attempt to change rate, and run with the current one..
-        }
-    }
-
-    void updateClockSources()
-    {
-        zeromem (clocks, sizeof (clocks));
-        long numSources = numElementsInArray (clocks);
-        asioObject->getClockSources (clocks, &numSources);
-        numClockSources = (int) numSources;
-
-        bool isSourceSet = false;
-
-        // careful not to remove this loop because it does more than just logging!
-        for (int i = 0; i < numClockSources; ++i)
-        {
-            String s ("clock: ");
-            s += clocks[i].name;
-
-            if (clocks[i].isCurrentSource)
-            {
-                isSourceSet = true;
-                s << " (cur)";
-            }
-
-            JUCE_ASIO_LOG (s);
-        }
-
-        if (numClockSources > 1 && ! isSourceSet)
-        {
-            JUCE_ASIO_LOG ("setting clock source");
-            long err = asioObject->setClockSource (clocks[0].index);
-            JUCE_ASIO_LOG_ERROR ("setClockSource1", err);
-            Thread::sleep (20);
-        }
-        else
-        {
-            if (numClockSources == 0)
-                JUCE_ASIO_LOG ("no clock sources!");
-        }
-    }
-
-    void readLatencies()
-    {
-        inputLatency = outputLatency = 0;
-
-        if (asioObject->getLatencies (&inputLatency, &outputLatency) != 0)
-            JUCE_ASIO_LOG ("getLatencies() failed");
-        else
-            JUCE_ASIO_LOG ("Latencies: in = " + String ((int) inputLatency) + ", out = " + String ((int) outputLatency));
-    }
-
-    void createDummyBuffers (long preferredSize)
-    {
-        numActiveInputChans = 0;
-        numActiveOutputChans = 0;
-
-        ASIOBufferInfo* info = bufferInfos;
-        int numChans = 0;
-
-        for (int i = 0; i < jmin (2, (int) totalNumInputChans); ++i)
-        {
-            info->isInput = 1;
-            info->channelNum = i;
-            info->buffers[0] = info->buffers[1] = nullptr;
-            ++info;
-            ++numChans;
-        }
-
-        const int outputBufferIndex = numChans;
-
-        for (int i = 0; i < jmin (2, (int) totalNumOutputChans); ++i)
-        {
-            info->isInput = 0;
-            info->channelNum = i;
-            info->buffers[0] = info->buffers[1] = nullptr;
-            ++info;
-            ++numChans;
-        }
-
-        setCallbackFunctions();
-
-        JUCE_ASIO_LOG ("creating buffers (dummy): " + String (numChans) + ", " + String ((int) preferredSize));
-
-        if (preferredSize > 0)
-        {
-            long err = asioObject->createBuffers (bufferInfos, numChans, preferredSize, &callbacks);
-            JUCE_ASIO_LOG_ERROR ("dummy buffers", err);
-        }
-
-        long newInps = 0, newOuts = 0;
-        asioObject->getChannels (&newInps, &newOuts);
-
-        if (totalNumInputChans != newInps || totalNumOutputChans != newOuts)
-        {
-            totalNumInputChans = newInps;
-            totalNumOutputChans = newOuts;
-
-            JUCE_ASIO_LOG (String ((int) totalNumInputChans) + " in; " + String ((int) totalNumOutputChans) + " out");
-        }
-
-        updateSampleRates();
-        reloadChannelNames();
-
-        for (int i = 0; i < totalNumOutputChans; ++i)
-        {
-            ASIOChannelInfo channelInfo = { 0 };
-            channelInfo.channel = i;
-            channelInfo.isInput = 0;
-            asioObject->getChannelInfo (&channelInfo);
-
-            outputFormat[i] = ASIOSampleFormat (channelInfo.type);
-
-            if (i < 2)
-            {
-                // clear the channels that are used with the dummy stuff
-                outputFormat[i].clear (bufferInfos [outputBufferIndex + i].buffers[0], preferredSize);
-                outputFormat[i].clear (bufferInfos [outputBufferIndex + i].buffers[1], preferredSize);
-            }
-        }
     }
 
     void removeCurrentDriver()
@@ -1213,15 +1115,16 @@ private:
                     {
                         addBufferSizes (minSize, maxSize, preferredSize, granularity);
 
-                        double currentRate = getSampleRate();
+                        double currentRate = 0;
+                        asioObject->getSampleRate (&currentRate);
 
-                        if (currentRate < 1.0 || currentRate > 192001.0)
+                        if (currentRate <= 0.0 || currentRate > 192001.0)
                         {
-                            JUCE_ASIO_LOG ("setting default sample rate");
+                            JUCE_ASIO_LOG ("setting sample rate");
                             err = asioObject->setSampleRate (44100.0);
                             JUCE_ASIO_LOG_ERROR ("setting sample rate", err);
 
-                            currentRate = getSampleRate();
+                            asioObject->getSampleRate (&currentRate);
                         }
 
                         currentSampleRate = currentRate;
@@ -1232,11 +1135,85 @@ private:
 
                         updateSampleRates();
 
-                        readLatencies();                     // ..doing these steps because cubase does so at this stage
-                        createDummyBuffers (preferredSize);  // in initialisation, and some devices fail if we don't.
-                        readLatencies();
+                        // ..because cubase does it at this point
+                        inputLatency = outputLatency = 0;
+                        if (asioObject->getLatencies (&inputLatency, &outputLatency) != 0)
+                            JUCE_ASIO_LOG ("no latencies");
+
+                        JUCE_ASIO_LOG ("latencies: " + String ((int) inputLatency) + ", " + String ((int) outputLatency));
+
+                        // create some dummy buffers now.. because cubase does..
+                        numActiveInputChans = 0;
+                        numActiveOutputChans = 0;
+
+                        ASIOBufferInfo* info = bufferInfos;
+                        int numChans = 0;
+
+                        for (int i = 0; i < jmin (2, (int) totalNumInputChans); ++i)
+                        {
+                            info->isInput = 1;
+                            info->channelNum = i;
+                            info->buffers[0] = info->buffers[1] = nullptr;
+                            ++info;
+                            ++numChans;
+                        }
+
+                        const int outputBufferIndex = numChans;
+
+                        for (int i = 0; i < jmin (2, (int) totalNumOutputChans); ++i)
+                        {
+                            info->isInput = 0;
+                            info->channelNum = i;
+                            info->buffers[0] = info->buffers[1] = nullptr;
+                            ++info;
+                            ++numChans;
+                        }
+
+                        setCallbackFunctions();
+
+                        JUCE_ASIO_LOG ("creating buffers (dummy): " + String (numChans) + ", " + String ((int) preferredSize));
+
+                        if (preferredSize > 0)
+                        {
+                            err = asioObject->createBuffers (bufferInfos, numChans, preferredSize, &callbacks);
+                            JUCE_ASIO_LOG_ERROR ("dummy buffers", err);
+                        }
+
+                        long newInps = 0, newOuts = 0;
+                        asioObject->getChannels (&newInps, &newOuts);
+
+                        if (totalNumInputChans != newInps || totalNumOutputChans != newOuts)
+                        {
+                            totalNumInputChans = newInps;
+                            totalNumOutputChans = newOuts;
+
+                            JUCE_ASIO_LOG (String ((int) totalNumInputChans) + " in; " + String ((int) totalNumOutputChans) + " out");
+                        }
+
+                        updateSampleRates();
+
+                        reloadChannelNames();
+
+                        for (int i = 0; i < totalNumOutputChans; ++i)
+                        {
+                            ASIOChannelInfo channelInfo = { 0 };
+                            channelInfo.channel = i;
+                            channelInfo.isInput = 0;
+                            asioObject->getChannelInfo (&channelInfo);
+
+                            outputFormat[i] = ASIOSampleFormat (channelInfo.type);
+
+                            if (i < 2)
+                            {
+                                // clear the channels that are used with the dummy stuff
+                                outputFormat[i].clear (bufferInfos [outputBufferIndex + i].buffers[0], preferredSize);
+                                outputFormat[i].clear (bufferInfos [outputBufferIndex + i].buffers[1], preferredSize);
+                            }
+                        }
 
                         // start and stop because cubase does it..
+                        asioObject->getLatencies (&inputLatency, &outputLatency);
+
                         err = asioObject->start();
                         // ignore an error here, as it might start later after setting other stuff up
                         JUCE_ASIO_LOG_ERROR ("start", err);

@@ -71,13 +71,13 @@ public:
 
     //==============================================================================
     /** @internal */
-    void componentParentHierarchyChanged (Component&) override;
+    void componentParentHierarchyChanged (Component& component);
     /** @internal */
-    void componentMovedOrResized (Component&, bool wasMoved, bool wasResized) override;
+    void componentMovedOrResized (Component& component, bool wasMoved, bool wasResized);
     /** @internal */
-    void componentBeingDeleted (Component&) override;
+    void componentBeingDeleted (Component& component);
     /** @internal */
-    void componentVisibilityChanged (Component&) override;
+    void componentVisibilityChanged (Component& component);
 
 private:
     //==============================================================================

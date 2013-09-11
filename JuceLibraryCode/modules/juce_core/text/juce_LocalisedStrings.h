@@ -218,11 +218,6 @@ String translate (const char* stringLiteral);
 /** Uses the LocalisedStrings class to translate the given string literal.
     @see LocalisedStrings
 */
-String translate (CharPointer_UTF8 stringLiteral);
-
-/** Uses the LocalisedStrings class to translate the given string literal.
-    @see LocalisedStrings
-*/
 String translate (const String& stringLiteral, const String& resultIfNotFound);
 
 

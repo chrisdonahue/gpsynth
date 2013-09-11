@@ -48,13 +48,6 @@ void Process::makeForegroundProcess()
    #endif
 }
 
-void Process::hide()
-{
-   #if JUCE_MAC
-    [NSApp hide: nil];
-   #endif
-}
-
 void Process::raisePrivilege()
 {
     jassertfalse;
@@ -67,7 +60,7 @@ void Process::lowerPrivilege()
 
 void Process::terminate()
 {
-    std::exit (EXIT_FAILURE);
+    exit (0);
 }
 
 void Process::setPriority (ProcessPriority)

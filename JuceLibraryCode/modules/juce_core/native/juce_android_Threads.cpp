@@ -64,7 +64,8 @@ void Process::setPriority (ProcessPriority prior)
 
 void Process::terminate()
 {
-    std::exit (EXIT_FAILURE);
+    // TODO
+    exit (0);
 }
 
 JUCE_API bool JUCE_CALLTYPE juce_isRunningUnderDebugger()

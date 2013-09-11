@@ -57,23 +57,12 @@ public:
         return lastPeer;
     }
 
-    static Point<int> screenPosToLocalPos (Component& comp, Point<int> pos)
-    {
-        if (ComponentPeer* const peer = comp.getPeer())
-        {
-            pos = peer->globalToLocal (pos);
-            return comp.getLocalPoint (&peer->getComponent(), Component::ComponentHelpers::unscaledScreenPosToScaled (pos));
-        }
-
-        return comp.getLocalPoint (nullptr, Component::ComponentHelpers::unscaledScreenPosToScaled (pos));
-    }
-
     Component* findComponentAt (Point<int> screenPos)
     {
         if (ComponentPeer* const peer = getPeer())
         {
-            Point<int> relativePos (Component::ComponentHelpers::unscaledScreenPosToScaled (peer->globalToLocal (screenPos)));
             Component& comp = peer->getComponent();
+            const Point<int> relativePos (comp.getLocalPoint (nullptr, screenPos));
 
             // (the contains() call is needed to test for overlapping desktop windows)
             if (comp.contains (relativePos))
@@ -87,21 +76,20 @@ public:
     {
         // This needs to return the live position if possible, but it mustn't update the lastScreenPos
         // value, because that can cause continuity problems.
-        return Component::ComponentHelpers::unscaledScreenPosToScaled
-                    (unboundedMouseOffset + (isMouseDevice ? MouseInputSource::getCurrentRawMousePosition()
-                                                           : lastScreenPos));
+        return unboundedMouseOffset + (isMouseDevice ? MouseInputSource::getCurrentRawMousePosition()
+                                                     : lastScreenPos);
     }
 
     void setScreenPosition (Point<int> p)
     {
-        MouseInputSource::setRawMousePosition (Component::ComponentHelpers::scaledScreenPosToUnscaled (p));
+        MouseInputSource::setRawMousePosition (p);
     }
 
     //==============================================================================
    #if JUCE_DUMP_MOUSE_EVENTS
     #define JUCE_MOUSE_EVENT_DBG(desc)   DBG ("Mouse " desc << " #" << source.getIndex() \
-                                                << ": " << screenPosToLocalPos (comp, screenPos).toString() \
-                                                << " - Comp: " << String::toHexString ((int) &comp));
+                                                << ": " << comp->getLocalPoint (nullptr, screenPos).toString() \
+                                                << " - Comp: " << String::toHexString ((int) comp));
    #else
     #define JUCE_MOUSE_EVENT_DBG(desc)
    #endif
@@ -109,49 +97,49 @@ public:
     void sendMouseEnter (Component& comp, Point<int> screenPos, Time time)
     {
         JUCE_MOUSE_EVENT_DBG ("enter")
-        comp.internalMouseEnter (source, screenPosToLocalPos (comp, screenPos), time);
+        comp.internalMouseEnter (source, comp.getLocalPoint (nullptr, screenPos), time);
     }
 
     void sendMouseExit (Component& comp, Point<int> screenPos, Time time)
     {
         JUCE_MOUSE_EVENT_DBG ("exit")
-        comp.internalMouseExit (source, screenPosToLocalPos (comp, screenPos), time);
+        comp.internalMouseExit (source, comp.getLocalPoint (nullptr, screenPos), time);
     }
 
     void sendMouseMove (Component& comp, Point<int> screenPos, Time time)
     {
         JUCE_MOUSE_EVENT_DBG ("move")
-        comp.internalMouseMove (source, screenPosToLocalPos (comp, screenPos), time);
+        comp.internalMouseMove (source, comp.getLocalPoint (nullptr, screenPos), time);
     }
 
     void sendMouseDown (Component& comp, Point<int> screenPos, Time time)
     {
         JUCE_MOUSE_EVENT_DBG ("down")
-        comp.internalMouseDown (source, screenPosToLocalPos (comp, screenPos), time);
+        comp.internalMouseDown (source, comp.getLocalPoint (nullptr, screenPos), time);
     }
 
     void sendMouseDrag (Component& comp, Point<int> screenPos, Time time)
     {
         JUCE_MOUSE_EVENT_DBG ("drag")
-        comp.internalMouseDrag (source, screenPosToLocalPos (comp, screenPos), time);
+        comp.internalMouseDrag (source, comp.getLocalPoint (nullptr, screenPos), time);
     }
 
     void sendMouseUp (Component& comp, Point<int> screenPos, Time time, const ModifierKeys oldMods)
     {
         JUCE_MOUSE_EVENT_DBG ("up")
-        comp.internalMouseUp (source, screenPosToLocalPos (comp, screenPos), time, oldMods);
+        comp.internalMouseUp (source, comp.getLocalPoint (nullptr, screenPos), time, oldMods);
     }
 
     void sendMouseWheel (Component& comp, Point<int> screenPos, Time time, const MouseWheelDetails& wheel)
     {
         JUCE_MOUSE_EVENT_DBG ("wheel")
-        comp.internalMouseWheel (source, screenPosToLocalPos (comp, screenPos), time, wheel);
+        comp.internalMouseWheel (source, comp.getLocalPoint (nullptr, screenPos), time, wheel);
     }
 
     void sendMagnifyGesture (Component& comp, Point<int> screenPos, Time time, const float amount)
     {
         JUCE_MOUSE_EVENT_DBG ("magnify")
-        comp.internalMagnifyGesture (source, screenPosToLocalPos (comp, screenPos), time, amount);
+        comp.internalMagnifyGesture (source, comp.getLocalPoint (nullptr, screenPos), time, amount);
     }
 
     //==============================================================================
@@ -342,7 +330,7 @@ public:
 
     //==============================================================================
     Time getLastMouseDownTime() const noexcept              { return mouseDowns[0].time; }
-    Point<int> getLastMouseDownPosition() const noexcept    { return Component::ComponentHelpers::unscaledScreenPosToScaled (mouseDowns[0].position); }
+    Point<int> getLastMouseDownPosition() const noexcept    { return mouseDowns[0].position; }
 
     int getNumberOfMultipleClicks() const noexcept
     {

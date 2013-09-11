@@ -396,7 +396,7 @@ private:
     OwnedArray <ItemInfo> items;
     Value currentId;
     int lastCurrentId;
-    bool isButtonDown, separatorPending, menuActive;
+    bool isButtonDown, separatorPending, menuActive, textIsCustom;
     ListenerList <Listener> listeners;
     ScopedPointer<Label> label;
     String textWhenNothingSelected, noChoicesMessage;

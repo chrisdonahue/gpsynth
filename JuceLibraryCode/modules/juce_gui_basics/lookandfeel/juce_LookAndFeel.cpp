@@ -264,7 +264,7 @@ void LookAndFeel::setDefaultLookAndFeel (LookAndFeel* newDefaultLookAndFeel) noe
 }
 
 //==============================================================================
-Typeface::Ptr LookAndFeel::getTypefaceForFont (const Font& font)
+const Typeface::Ptr LookAndFeel::getTypefaceForFont (const Font& font)
 {
     if (defaultSans.isNotEmpty() && font.getTypefaceName() == Font::getDefaultSansSerifFontName())
     {
@@ -300,8 +300,7 @@ MouseCursor LookAndFeel::getMouseCursorFor (Component& component)
     return m;
 }
 
-LowLevelGraphicsContext* LookAndFeel::createGraphicsContext (const Image& imageToRenderOn, const Point<int>& origin,
-                                                             const RectangleList<int>& initialClip)
+LowLevelGraphicsContext* LookAndFeel::createGraphicsContext (const Image& imageToRenderOn, const Point<int>& origin, const RectangleList& initialClip)
 {
     return new LowLevelGraphicsSoftwareRenderer (imageToRenderOn, origin, initialClip);
 }

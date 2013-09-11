@@ -53,23 +53,23 @@ public:
         The toolbar and factory must not be deleted while this object exists.
     */
     ToolbarItemPalette (ToolbarItemFactory& factory,
-                        Toolbar& toolbar);
+                        Toolbar* toolbar);
 
     /** Destructor. */
     ~ToolbarItemPalette();
 
     //==============================================================================
     /** @internal */
-    void resized() override;
+    void resized();
 
 private:
     ToolbarItemFactory& factory;
-    Toolbar& toolbar;
+    Toolbar* toolbar;
     Viewport viewport;
     OwnedArray <ToolbarItemComponent> items;
 
     friend class Toolbar;
-    void replaceComponent (ToolbarItemComponent&);
+    void replaceComponent (ToolbarItemComponent* comp);
     void addComponent (int itemId, int index);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ToolbarItemPalette)

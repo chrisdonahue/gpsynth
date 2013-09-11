@@ -10,8 +10,8 @@
 
 */
 
-#ifndef __APPHEADERFILE_0NRD9LLGO__
-#define __APPHEADERFILE_0NRD9LLGO__
+#ifndef __APPHEADERFILE_V2XIX5__
+#define __APPHEADERFILE_V2XIX5__
 
 #include "AppConfig.h"
 #include "modules/juce_audio_basics/juce_audio_basics.h"
@@ -26,6 +26,7 @@
 #include "modules/juce_graphics/juce_graphics.h"
 #include "modules/juce_gui_basics/juce_gui_basics.h"
 #include "modules/juce_gui_extra/juce_gui_extra.h"
+#include "BinaryData.h"
 
 #if ! DONT_SET_USING_JUCE_NAMESPACE
  // If your code uses a lot of JUCE classes, then this will obviously save you
@@ -35,9 +36,9 @@
 
 namespace ProjectInfo
 {
-    const char* const  projectName    = "evosynth";
+    const char* const  projectName    = "GPAudioTargetMatchingExperiment";
     const char* const  versionString  = "1.0.0";
     const int          versionNumber  = 0x10000;
 }
 
-#endif   // __APPHEADERFILE_0NRD9LLGO__
+#endif   // __APPHEADERFILE_V2XIX5__

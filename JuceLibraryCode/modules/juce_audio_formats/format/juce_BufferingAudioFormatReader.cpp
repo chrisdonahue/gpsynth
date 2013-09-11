@@ -162,7 +162,7 @@ bool BufferingAudioReader::readNextBufferChunk()
 
     {
         const ScopedLock sl (lock);
-        newBlocks.swapWith (blocks);
+        newBlocks.swapWithArray (blocks);
     }
 
     for (int i = blocks.size(); --i >= 0;)

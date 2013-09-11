@@ -406,7 +406,7 @@ public:
 
             outParameterInfo.minValue = 0.0f;
             outParameterInfo.maxValue = 1.0f;
-            outParameterInfo.defaultValue = juceFilter->getParameterDefaultValue (index);
+            outParameterInfo.defaultValue = 0.0f;
             outParameterInfo.unit = kAudioUnitParameterUnit_Generic;
 
             return noErr;
@@ -924,7 +924,7 @@ public:
         return noErr;
     }
 
-    void componentMovedOrResized (Component& component, bool /*wasMoved*/, bool /*wasResized*/) override
+    void componentMovedOrResized (Component& component, bool /*wasMoved*/, bool /*wasResized*/)
     {
         NSView* view = (NSView*) component.getWindowHandle();
         NSRect r = [[view superview] frame];
@@ -932,7 +932,7 @@ public:
         r.size.width = component.getWidth();
         r.size.height = component.getHeight();
         [[view superview] setFrame: r];
-        [view setFrame: makeNSRect (component.getLocalBounds())];
+        [view setFrame: NSMakeRect (0, 0, component.getWidth(), component.getHeight())];
         [view setNeedsDisplay: YES];
     }
 
@@ -961,7 +961,7 @@ public:
         static NSView* createViewFor (AudioProcessor* filter, JuceAU* au, AudioProcessorEditor* const editor)
         {
             EditorCompHolder* editorCompHolder = new EditorCompHolder (editor);
-            NSRect r = makeNSRect (editorCompHolder->getLocalBounds());
+            NSRect r = NSMakeRect (0, 0, editorCompHolder->getWidth(), editorCompHolder->getHeight());
 
             static JuceUIViewClass cls;
             NSView* view = [[cls.createInstance() initWithFrame: r] autorelease];
@@ -999,7 +999,7 @@ public:
                 r.size.width = editor->getWidth();
                 r.size.height = editor->getHeight();
                 [[view superview] setFrame: r];
-                [view setFrame: makeNSRect (editor->getLocalBounds())];
+                [view setFrame: NSMakeRect (0, 0, editor->getWidth(), editor->getHeight())];
                 [view setNeedsDisplay: YES];
             }
         }

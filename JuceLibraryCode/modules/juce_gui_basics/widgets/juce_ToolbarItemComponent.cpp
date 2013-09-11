@@ -22,8 +22,13 @@
   ==============================================================================
 */
 
-ToolbarItemFactory::ToolbarItemFactory() {}
-ToolbarItemFactory::~ToolbarItemFactory() {}
+ToolbarItemFactory::ToolbarItemFactory()
+{
+}
+
+ToolbarItemFactory::~ToolbarItemFactory()
+{
+}
 
 //==============================================================================
 class ToolbarItemComponent::ItemDragAndDropOverlayComponent    : public Component

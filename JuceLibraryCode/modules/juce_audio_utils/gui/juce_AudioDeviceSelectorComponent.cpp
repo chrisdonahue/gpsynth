@@ -69,11 +69,15 @@ class AudioDeviceSelectorComponent::MidiInputSelectorComponentListBox  : public 
                                                                          private ListBoxModel
 {
 public:
-    MidiInputSelectorComponentListBox (AudioDeviceManager& dm,
-                                       const String& noItemsMessage_)
+    MidiInputSelectorComponentListBox (AudioDeviceManager& deviceManager_,
+                                       const String& noItemsMessage_,
+                                       const int minNumber_,
+                                       const int maxNumber_)
         : ListBox (String::empty, nullptr),
-          deviceManager (dm),
-          noItemsMessage (noItemsMessage_)
+          deviceManager (deviceManager_),
+          noItemsMessage (noItemsMessage_),
+          minNumber (minNumber_),
+          maxNumber (maxNumber_)
     {
         items = MidiInput::getDevices();
 
@@ -158,6 +162,7 @@ private:
     AudioDeviceManager& deviceManager;
     const String noItemsMessage;
     StringArray items;
+    int minNumber, maxNumber;
 
     void flipEnablement (const int row)
     {
@@ -912,7 +917,7 @@ private:
 
 
 //==============================================================================
-AudioDeviceSelectorComponent::AudioDeviceSelectorComponent (AudioDeviceManager& dm,
+AudioDeviceSelectorComponent::AudioDeviceSelectorComponent (AudioDeviceManager& deviceManager_,
                                                             const int minInputChannels_,
                                                             const int maxInputChannels_,
                                                             const int minOutputChannels_,
@@ -921,7 +926,7 @@ AudioDeviceSelectorComponent::AudioDeviceSelectorComponent (AudioDeviceManager& 
                                                             const bool showMidiOutputSelector,
                                                             const bool showChannelsAsStereoPairs_,
                                                             const bool hideAdvancedOptionsWithButton_)
-    : deviceManager (dm),
+    : deviceManager (deviceManager_),
       minOutputChannels (minOutputChannels_),
       maxOutputChannels (maxOutputChannels_),
       minInputChannels (minInputChannels_),
@@ -932,7 +937,7 @@ AudioDeviceSelectorComponent::AudioDeviceSelectorComponent (AudioDeviceManager& 
     jassert (minOutputChannels >= 0 && minOutputChannels <= maxOutputChannels);
     jassert (minInputChannels >= 0 && minInputChannels <= maxInputChannels);
 
-    const OwnedArray<AudioIODeviceType>& types = deviceManager.getAvailableDeviceTypes();
+    const OwnedArray<AudioIODeviceType>& types = deviceManager_.getAvailableDeviceTypes();
 
     if (types.size() > 1)
     {
@@ -953,7 +958,8 @@ AudioDeviceSelectorComponent::AudioDeviceSelectorComponent (AudioDeviceManager& 
     {
         addAndMakeVisible (midiInputsList
                             = new MidiInputSelectorComponentListBox (deviceManager,
-                                                                     "(" + TRANS("No MIDI inputs available") + ")"));
+                                                                     "(" + TRANS("No MIDI inputs available") + ")",
+                                                                     0, 0));
 
         midiInputsLabel = new Label (String::empty, TRANS ("Active MIDI inputs:"));
         midiInputsLabel->setJustificationType (Justification::topRight);
@@ -979,7 +985,7 @@ AudioDeviceSelectorComponent::AudioDeviceSelectorComponent (AudioDeviceManager& 
         midiOutputLabel = nullptr;
     }
 
-    deviceManager.addChangeListener (this);
+    deviceManager_.addChangeListener (this);
     updateAllControls();
 }
 

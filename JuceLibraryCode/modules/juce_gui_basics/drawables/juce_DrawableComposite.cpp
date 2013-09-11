@@ -40,8 +40,12 @@ DrawableComposite::DrawableComposite (const DrawableComposite& other)
       updateBoundsReentrant (false)
 {
     for (int i = 0; i < other.getNumChildComponents(); ++i)
-        if (const Drawable* const d = dynamic_cast <const Drawable*> (other.getChildComponent(i)))
+    {
+        const Drawable* const d = dynamic_cast <const Drawable*> (other.getChildComponent(i));
+
+        if (d != nullptr)
             addAndMakeVisible (d->createCopy());
+    }
 }
 
 DrawableComposite::~DrawableComposite()
@@ -60,9 +64,13 @@ Rectangle<float> DrawableComposite::getDrawableBounds() const
     Rectangle<float> r;
 
     for (int i = getNumChildComponents(); --i >= 0;)
-        if (const Drawable* const d = dynamic_cast <const Drawable*> (getChildComponent(i)))
-            r = r.getUnion (d->isTransformed() ? d->getDrawableBounds().transformedBy (d->getTransform())
+    {
+        const Drawable* const d = dynamic_cast <const Drawable*> (getChildComponent(i));
+
+        if (d != nullptr)
+            r = r.getUnion (d->isTransformed() ? d->getDrawableBounds().transformed (d->getTransform())
                                                : d->getDrawableBounds());
+    }
 
     return r;
 }
@@ -191,8 +199,12 @@ void DrawableComposite::updateBoundsToFitChildren()
                 originRelativeToComponent -= delta;
 
                 for (int i = getNumChildComponents(); --i >= 0;)
-                    if (Component* const c = getChildComponent(i))
+                {
+                    Component* const c = getChildComponent(i);
+
+                    if (c != nullptr)
                         c->setBounds (c->getBounds() - delta);
+                }
             }
 
             setBounds (childArea);

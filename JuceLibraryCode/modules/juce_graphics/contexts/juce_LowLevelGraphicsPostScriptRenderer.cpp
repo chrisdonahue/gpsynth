@@ -117,7 +117,7 @@ bool LowLevelGraphicsPostScriptRenderer::clipToRectangle (const Rectangle<int>& 
     return stateStack.getLast()->clip.clipTo (r.translated (stateStack.getLast()->xOffset, stateStack.getLast()->yOffset));
 }
 
-bool LowLevelGraphicsPostScriptRenderer::clipToRectangleList (const RectangleList<int>& clipRegion)
+bool LowLevelGraphicsPostScriptRenderer::clipToRectangleList (const RectangleList& clipRegion)
 {
     needToClip = true;
     return stateStack.getLast()->clip.clipTo (clipRegion);
@@ -470,7 +470,7 @@ void LowLevelGraphicsPostScriptRenderer::drawImage (const Image& sourceImage, co
     writeTransform (transform.translated ((float) stateStack.getLast()->xOffset, (float) stateStack.getLast()->yOffset)
                              .scaled (1.0f, -1.0f));
 
-    RectangleList<int> imageClip;
+    RectangleList imageClip;
     sourceImage.createSolidAreaMask (imageClip, 0.5f);
 
     out << "newpath ";

@@ -43,7 +43,7 @@ MidiMessageSequence& MidiMessageSequence::operator= (const MidiMessageSequence& 
 
 void MidiMessageSequence::swapWith (MidiMessageSequence& other) noexcept
 {
-    list.swapWith (other.list);
+    list.swapWithArray (other.list);
 }
 
 MidiMessageSequence::~MidiMessageSequence()

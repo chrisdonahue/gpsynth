@@ -26,7 +26,7 @@
 #define JUCE_GRAPHICSCONTEXT_H_INCLUDED
 
 #include "../fonts/juce_Font.h"
-#include "../geometry/juce_RectangleList.h"
+#include "../geometry/juce_Rectangle.h"
 #include "../geometry/juce_PathStrokeType.h"
 #include "../geometry/juce_Line.h"
 #include "../colour/juce_Colours.h"
@@ -35,6 +35,7 @@
 class LowLevelGraphicsContext;
 class Image;
 class FillType;
+class RectangleList;
 
 
 //==============================================================================
@@ -266,7 +267,7 @@ public:
     /** Fills a rectangle with the current colour or brush.
 
         This uses sub-pixel positioning so is slower than the fillRect method which
-        takes integer coordinates.
+        takes integer co-ordinates.
     */
     void fillRect (float x, float y, float width, float height) const;
 
@@ -473,7 +474,7 @@ public:
     /** Draws an image.
 
         This will draw the whole of an image, positioning its top-left corner at the
-        given coordinates, and keeping its size the same. This is the simplest image
+        given co-ordinates, and keeping its size the same. This is the simplest image
         drawing method - the others give more control over the scaling and clipping
         of the images.
 
@@ -596,7 +597,7 @@ public:
         @returns true if the resulting clipping region is non-zero in size
         @see setOrigin, clipRegionIntersects
     */
-    bool reduceClipRegion (const RectangleList<int>& clipRegion);
+    bool reduceClipRegion (const RectangleList& clipRegion);
 
     /** Intersects the current clipping region with a path.
 

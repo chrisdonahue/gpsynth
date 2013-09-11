@@ -322,7 +322,7 @@ void Process::terminate()
    #endif
 
     // bullet in the head in case there's a problem shutting down..
-    ExitProcess (1);
+    ExitProcess (0);
 }
 
 bool juce_isRunningInWine()

@@ -471,9 +471,6 @@ protected:
                      int midiNoteNumber,
                      float velocity);
 
-    /** Can be overridden to do custom handling of incoming midi events. */
-    virtual void handleMidiEvent (const MidiMessage&);
-
 private:
     //==============================================================================
     double sampleRate;
@@ -481,7 +478,8 @@ private:
     bool shouldStealNotes;
     BigInteger sustainPedalsDown;
 
-    void stopVoice (SynthesiserVoice*, bool allowTailOff);
+    void handleMidiEvent (const MidiMessage& m);
+    void stopVoice (SynthesiserVoice* voice, bool allowTailOff);
 
    #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
     // Note the new parameters for this method.

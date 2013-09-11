@@ -150,7 +150,7 @@ public:
 
     /** Returns the rectangle that this item occupies.
 
-        If relativeToTreeViewTopLeft is true, the coordinates are relative to the
+        If relativeToTreeViewTopLeft is true, the co-ordinates are relative to the
         top-left of the TreeView comp, so this will depend on the scroll-position of
         the tree. If false, it is relative to the top-left of the topmost item in the
         tree (so this would be unaffected by scrolling the view).
@@ -836,8 +836,11 @@ private:
     ScopedPointer<InsertPointHighlight> dragInsertPointHighlight;
     ScopedPointer<TargetGroupHighlight> dragTargetGroupHighlight;
     int indentSize;
-    bool defaultOpenness, needsRecalculating, rootItemVisible;
-    bool multiSelectEnabled, openCloseButtonsVisible;
+    bool defaultOpenness : 1;
+    bool needsRecalculating : 1;
+    bool rootItemVisible : 1;
+    bool multiSelectEnabled : 1;
+    bool openCloseButtonsVisible : 1;
 
     void itemsChanged() noexcept;
     void recalculateIfNeeded();

@@ -306,14 +306,14 @@ public:
         DeleteObject (hBitmap);
     }
 
-    ImageType* createType() const override                       { return new NativeImageType(); }
+    ImageType* createType() const                       { return new NativeImageType(); }
 
-    LowLevelGraphicsContext* createLowLevelContext() override
+    LowLevelGraphicsContext* createLowLevelContext()
     {
         return new LowLevelGraphicsSoftwareRenderer (Image (this));
     }
 
-    void initialiseBitmapData (Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode) override
+    void initialiseBitmapData (Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode)
     {
         bitmap.data = imageData + x * pixelStride + y * lineStride;
         bitmap.pixelFormat = pixelFormat;
@@ -321,7 +321,7 @@ public:
         bitmap.pixelStride = pixelStride;
     }
 
-    ImagePixelData* clone() override
+    ImagePixelData* clone()
     {
         WindowsBitmapImage* im = new WindowsBitmapImage (pixelFormat, width, height, false);
 
@@ -333,12 +333,19 @@ public:
 
     void blitToWindow (HWND hwnd, HDC dc, const bool transparent,
                        const int x, const int y,
+                       const RectangleList& maskedRegion,
                        const uint8 updateLayeredWindowAlpha) noexcept
     {
         SetMapMode (dc, MM_TEXT);
 
         if (transparent)
         {
+            if (! maskedRegion.isEmpty())
+            {
+                for (const Rectangle<int>* i = maskedRegion.begin(), * const e = maskedRegion.end(); i != e; ++i)
+                    ExcludeClipRect (hdc, i->getX(), i->getY(), i->getRight(), i->getBottom());
+            }
+
             RECT windowBounds;
             GetWindowRect (hwnd, &windowBounds);
 
@@ -357,11 +364,24 @@ public:
         }
         else
         {
+            int savedDC = 0;
+
+            if (! maskedRegion.isEmpty())
+            {
+                savedDC = SaveDC (dc);
+
+                for (const Rectangle<int>* i = maskedRegion.begin(), * const e = maskedRegion.end(); i != e; ++i)
+                    ExcludeClipRect (dc, i->getX(), i->getY(), i->getRight(), i->getBottom());
+            }
+
             StretchDIBits (dc,
                            x, y, width, height,
                            0, 0, width, height,
                            bitmapData, (const BITMAPINFO*) &bitmapInfo,
                            DIB_RGB_COLORS, SRCCOPY);
+
+            if (! maskedRegion.isEmpty())
+                RestoreDC (dc, savedDC);
         }
     }
 
@@ -548,9 +568,9 @@ public:
     }
 
     //==============================================================================
-    void* getNativeHandle() const override    { return hwnd; }
+    void* getNativeHandle() const    { return hwnd; }
 
-    void setVisible (bool shouldBeVisible) override
+    void setVisible (bool shouldBeVisible)
     {
         ShowWindow (hwnd, shouldBeVisible ? SW_SHOWNA : SW_HIDE);
 
@@ -560,7 +580,7 @@ public:
             lastPaintTime = 0;
     }
 
-    void setTitle (const String& title) override
+    void setTitle (const String& title)
     {
         // Unfortunately some ancient bits of win32 mean you can only perform this operation from the message thread.
         jassert (MessageManager::getInstance()->isThisTheMessageThread());
@@ -593,7 +613,7 @@ public:
        #endif
     }
 
-    void setBounds (const Rectangle<int>& bounds, bool isNowFullScreen) override
+    void setBounds (const Rectangle<int>& bounds, bool isNowFullScreen)
     {
         fullScreen = isNowFullScreen;
 
@@ -630,7 +650,7 @@ public:
         }
     }
 
-    Rectangle<int> getBounds() const override
+    Rectangle<int> getBounds() const
     {
         RECT r;
         GetWindowRect (hwnd, &r);
@@ -653,17 +673,17 @@ public:
                            r.top + windowBorder.getTop());
     }
 
-    Point<int> localToGlobal (const Point<int>& relativePosition) override
+    Point<int> localToGlobal (const Point<int>& relativePosition)
     {
         return relativePosition + getScreenPosition();
     }
 
-    Point<int> globalToLocal (const Point<int>& screenPosition) override
+    Point<int> globalToLocal (const Point<int>& screenPosition)
     {
         return screenPosition - getScreenPosition();
     }
 
-    void setAlpha (float newAlpha) override
+    void setAlpha (float newAlpha)
     {
         const uint8 intAlpha = (uint8) jlimit (0, 255, (int) (newAlpha * 255.0f));
 
@@ -687,13 +707,13 @@ public:
         }
     }
 
-    void setMinimised (bool shouldBeMinimised) override
+    void setMinimised (bool shouldBeMinimised)
     {
         if (shouldBeMinimised != isMinimised())
             ShowWindow (hwnd, shouldBeMinimised ? SW_MINIMIZE : SW_SHOWNORMAL);
     }
 
-    bool isMinimised() const override
+    bool isMinimised() const
     {
         WINDOWPLACEMENT wp;
         wp.length = sizeof (WINDOWPLACEMENT);
@@ -702,7 +722,7 @@ public:
         return wp.showCmd == SW_SHOWMINIMIZED;
     }
 
-    void setFullScreen (bool shouldBeFullScreen) override
+    void setFullScreen (bool shouldBeFullScreen)
     {
         setMinimised (false);
 
@@ -734,7 +754,7 @@ public:
         }
     }
 
-    bool isFullScreen() const override
+    bool isFullScreen() const
     {
         if (! hasTitleBar())
             return fullScreen;
@@ -758,19 +778,19 @@ public:
         return w == hwnd || (trueIfInAChildWindow && (IsChild (hwnd, w) != 0));
     }
 
-    bool contains (const Point<int>& position, bool trueIfInAChildWindow) const override
+    bool contains (const Point<int>& position, bool trueIfInAChildWindow) const
     {
         return isPositiveAndBelow (position.x, component.getWidth())
             && isPositiveAndBelow (position.y, component.getHeight())
             && isWindowAtPoint (position, trueIfInAChildWindow);
     }
 
-    BorderSize<int> getFrameSize() const override
+    BorderSize<int> getFrameSize() const
     {
         return windowBorder;
     }
 
-    bool setAlwaysOnTop (bool alwaysOnTop) override
+    bool setAlwaysOnTop (bool alwaysOnTop)
     {
         const bool oldDeactivate = shouldDeactivateTitleBar;
         shouldDeactivateTitleBar = ((styleFlags & windowIsTemporary) == 0);
@@ -787,7 +807,7 @@ public:
         return true;
     }
 
-    void toFront (bool makeActive) override
+    void toFront (bool makeActive)
     {
         setMinimised (false);
 
@@ -805,7 +825,7 @@ public:
         }
     }
 
-    void toBehind (ComponentPeer* other) override
+    void toBehind (ComponentPeer* other)
     {
         if (HWNDComponentPeer* const otherPeer = dynamic_cast <HWNDComponentPeer*> (other))
         {
@@ -824,12 +844,12 @@ public:
         }
     }
 
-    bool isFocused() const override
+    bool isFocused() const
     {
         return callFunctionIfNotLocked (&getFocusCallback, 0) == (void*) hwnd;
     }
 
-    void grabFocus() override
+    void grabFocus()
     {
         const bool oldDeactivate = shouldDeactivateTitleBar;
         shouldDeactivateTitleBar = ((styleFlags & windowIsTemporary) == 0);
@@ -839,7 +859,7 @@ public:
         shouldDeactivateTitleBar = oldDeactivate;
     }
 
-    void textInputRequired (const Point<int>&) override
+    void textInputRequired (const Point<int>&)
     {
         if (! hasCreatedCaret)
         {
@@ -851,18 +871,18 @@ public:
         SetCaretPos (0, 0);
     }
 
-    void dismissPendingTextInput() override
+    void dismissPendingTextInput()
     {
         imeHandler.handleSetContext (hwnd, false);
     }
 
-    void repaint (const Rectangle<int>& area) override
+    void repaint (const Rectangle<int>& area)
     {
         const RECT r = { area.getX(), area.getY(), area.getRight(), area.getBottom() };
         InvalidateRect (hwnd, &r, FALSE);
     }
 
-    void performAnyPendingRepaintsNow() override
+    void performAnyPendingRepaintsNow()
     {
         MSG m;
         if (component.isVisible()
@@ -1402,19 +1422,6 @@ private:
         }
     }
 
-    static BOOL CALLBACK clipChildWindowCallback (HWND hwnd, LPARAM context)
-    {
-        RECT r;
-        GetWindowRect (hwnd, &r);
-        POINT pos = { r.left, r.top };
-        ScreenToClient (GetParent (hwnd), &pos);
-
-        ((RectangleList<int>*) context)->subtract (Rectangle<int> (pos.x, pos.y,
-                                                                   r.right  - r.left,
-                                                                   r.bottom - r.top));
-        return TRUE;
-    }
-
     //==============================================================================
     void handlePaintMessage()
     {
@@ -1476,9 +1483,11 @@ private:
 
             if (w > 0 && h > 0)
             {
+                clearMaskedRegion();
+
                 Image& offscreenImage = offscreenImageGenerator.getImage (transparent, w, h);
 
-                RectangleList<int> contextClip;
+                RectangleList contextClip;
                 const Rectangle<int> clipBounds (w, h);
 
                 bool needToPaintAll = true;
@@ -1530,27 +1539,24 @@ private:
                     contextClip.addWithoutMerging (Rectangle<int> (w, h));
                 }
 
-                EnumChildWindows (hwnd, clipChildWindowCallback, (LPARAM) &contextClip);
-
-                if (! contextClip.isEmpty())
+                if (transparent)
                 {
-                    if (transparent)
-                        for (const Rectangle<int>* i = contextClip.begin(), * const e = contextClip.end(); i != e; ++i)
-                            offscreenImage.clear (*i);
-
-                    // if the component's not opaque, this won't draw properly unless the platform can support this
-                    jassert (Desktop::canUseSemiTransparentWindows() || component.isOpaque());
-
-                    {
-                        ScopedPointer<LowLevelGraphicsContext> context (component.getLookAndFeel()
-                                                                            .createGraphicsContext (offscreenImage, Point<int> (-x, -y), contextClip));
-                        handlePaint (*context);
-                    }
-
-                    if (! dontRepaint)
-                        static_cast <WindowsBitmapImage*> (offscreenImage.getPixelData())
-                            ->blitToWindow (hwnd, dc, transparent, x, y, updateLayeredWindowAlpha);
+                    for (const Rectangle<int>* i = contextClip.begin(), * const e = contextClip.end(); i != e; ++i)
+                        offscreenImage.clear (*i);
                 }
+
+                // if the component's not opaque, this won't draw properly unless the platform can support this
+                jassert (Desktop::canUseSemiTransparentWindows() || component.isOpaque());
+
+                {
+                    ScopedPointer<LowLevelGraphicsContext> context (component.getLookAndFeel()
+                                                                        .createGraphicsContext (offscreenImage, Point<int> (-x, -y), contextClip));
+                    handlePaint (*context);
+                }
+
+                if (! dontRepaint)
+                    static_cast <WindowsBitmapImage*> (offscreenImage.getPixelData())
+                        ->blitToWindow (hwnd, dc, transparent, x, y, maskedRegion, updateLayeredWindowAlpha);
             }
 
             DeleteObject (rgn);
@@ -1570,7 +1576,7 @@ private:
         handleMouseEvent (0, position, currentModifiers, getMouseEventTime());
     }
 
-    StringArray getAvailableRenderingEngines() override
+    StringArray getAvailableRenderingEngines()
     {
         StringArray s (ComponentPeer::getAvailableRenderingEngines());
 
@@ -1582,7 +1588,7 @@ private:
         return s;
     }
 
-    int getCurrentRenderingEngine() const override    { return currentRenderingEngine; }
+    int getCurrentRenderingEngine() const    { return currentRenderingEngine; }
 
    #if JUCE_DIRECT2D
     void updateDirect2DContext()
@@ -1594,7 +1600,7 @@ private:
     }
    #endif
 
-    void setCurrentRenderingEngine (int index) override
+    void setCurrentRenderingEngine (int index)
     {
         (void) index;
 
@@ -2874,9 +2880,10 @@ bool Process::isForegroundProcess()
     return false;
 }
 
-// N/A on Windows as far as I know.
-void Process::makeForegroundProcess() {}
-void Process::hide() {}
+void Process::makeForegroundProcess()
+{
+    // is this possible in Windows?
+}
 
 //==============================================================================
 static BOOL CALLBACK enumAlwaysOnTopWindows (HWND hwnd, LPARAM lParam)

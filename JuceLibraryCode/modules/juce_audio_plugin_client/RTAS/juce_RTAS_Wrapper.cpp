@@ -100,14 +100,7 @@
 #ifdef _MSC_VER
  #pragma pack (pop)
 
- // This JUCE_RTAS_LINK_TO_DEBUG_LIB setting can be used to force linkage
- // against only the release build of the RTAS lib, since in older SDKs there
- // can be problems with the debug build.
- #if JUCE_DEBUG && ! defined (JUCE_RTAS_LINK_TO_DEBUG_LIB)
-  #define JUCE_RTAS_LINK_TO_DEBUG_LIB 1
- #endif
-
- #if JUCE_RTAS_LINK_TO_DEBUG_LIB
+ #if JUCE_DEBUGxxx // (the debug lib in the 8.0 SDK fails to link, so we'll stick to the release one...)
   #define PT_LIB_PATH  JucePlugin_WinBag_path "\\Debug\\lib\\"
  #else
   #define PT_LIB_PATH  JucePlugin_WinBag_path "\\Release\\lib\\"
@@ -847,9 +840,9 @@ private:
 
         //==============================================================================
         OSType GetID() const            { return index + 1; }
-        long GetDefaultValue() const    { return floatToLong (juceFilter->getParameterDefaultValue (index)); }
+        long GetDefaultValue() const    { return floatToLong (0); }
         void SetDefaultValue (long)     {}
-        long GetNumSteps() const        { return juceFilter->getParameterNumSteps (index); }
+        long GetNumSteps() const        { return 0xffffffff; }
 
         long ConvertStringToValue (const char* valueString) const
         {
@@ -863,7 +856,7 @@ private:
             // Pro-tools expects all your parameters to have valid names!
             jassert (juceFilter->getParameterName (index).isNotEmpty());
 
-            juceFilter->getParameterName (index, maxLength).copyToUTF8 (name, (size_t) maxLength + 1);
+            juceFilter->getParameterName (index).copyToUTF8 (name, (size_t) maxLength);
         }
 
         long GetPriority() const        { return kFicCooperativeTaskPriority; }
@@ -878,7 +871,7 @@ private:
 
         void GetValueString (char* valueString, int maxLength, long value) const
         {
-            juceFilter->getParameterText (index, maxLength).copyToUTF8 (valueString, (size_t) maxLength + 1);
+            juceFilter->getParameterText (index).copyToUTF8 (valueString, (size_t) maxLength);
         }
 
         Cmn_Bool IsAutomatable() const
@@ -988,12 +981,11 @@ private:
             case 4:   return ePlugIn_StemFormat_Quad;
             case 5:   return ePlugIn_StemFormat_5dot0;
             case 6:   return ePlugIn_StemFormat_5dot1;
+            case 7:   return ePlugIn_StemFormat_6dot1;
 
            #if PT_VERS_MAJOR >= 9
-            case 7:   return ePlugIn_StemFormat_7dot0DTS;
             case 8:   return ePlugIn_StemFormat_7dot1DTS;
            #else
-            case 7:   return ePlugIn_StemFormat_7dot0;
             case 8:   return ePlugIn_StemFormat_7dot1;
            #endif
 

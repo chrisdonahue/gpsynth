@@ -140,13 +140,12 @@ private:
     ContentComponent* content;
     const bool warnAboutOverwritingExistingFiles;
 
-    void buttonClicked (Button*) override;
+    void buttonClicked (Button*);
     void closeButtonPressed();
-    void selectionChanged() override;
-    void fileClicked (const File&, const MouseEvent&) override;
-    void fileDoubleClicked (const File&) override;
-    void browserRootChanged (const File&) override;
-    int getDefaultWidth() const;
+    void selectionChanged();
+    void fileClicked (const File&, const MouseEvent&);
+    void fileDoubleClicked (const File&);
+    void browserRootChanged (const File&);
 
     void okButtonPressed();
     void createNewFolder();

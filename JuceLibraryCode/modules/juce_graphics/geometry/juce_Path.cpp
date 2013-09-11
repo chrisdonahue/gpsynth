@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-// tests that some coordinates aren't NaNs
+// tests that some co-ords aren't NaNs
 #define JUCE_CHECK_COORDS_ARE_VALID(x, y) \
     jassert (x == x && y == y);
 
@@ -250,7 +250,7 @@ Rectangle<float> Path::getBounds() const noexcept
 
 Rectangle<float> Path::getBoundsTransformed (const AffineTransform& transform) const noexcept
 {
-    return getBounds().transformedBy (transform);
+    return getBounds().transformed (transform);
 }
 
 //==============================================================================

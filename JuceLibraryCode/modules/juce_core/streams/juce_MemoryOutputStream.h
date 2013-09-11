@@ -46,6 +46,7 @@ class JUCE_API  MemoryOutputStream  : public OutputStream
 public:
     //==============================================================================
     /** Creates an empty memory stream, ready to be written into.
+
         @param initialSize  the intial amount of capacity to allocate for writing into
     */
     MemoryOutputStream (size_t initialSize = 256);
@@ -64,13 +65,6 @@ public:
     */
     MemoryOutputStream (MemoryBlock& memoryBlockToWriteTo,
                         bool appendToExistingBlockContent);
-
-    /** Creates a MemoryOutputStream that will write into a user-supplied, fixed-size
-        block of memory.
-        When using this mode, the stream will write directly into this memory area until
-        it's full, at which point write operations will fail.
-    */
-    MemoryOutputStream (void* destBuffer, size_t destBufferSize);
 
     /** Destructor.
         This will free any data that was written to it.
@@ -97,7 +91,7 @@ public:
     void preallocate (size_t bytesToPreallocate);
 
     /** Appends the utf-8 bytes for a unicode character */
-    bool appendUTF8Char (juce_wchar character);
+    void appendUTF8Char (juce_wchar character);
 
     /** Returns a String created from the (UTF8) data that has been written to the stream. */
     String toUTF8() const;
@@ -125,10 +119,9 @@ public:
 
 private:
     //==============================================================================
-    MemoryBlock* const blockToUse;
+    MemoryBlock& data;
     MemoryBlock internalBlock;
-    void* externalData;
-    size_t position, size, availableSize;
+    size_t position, size;
 
     void trimExternalBlockSize();
     char* prepareToWrite (size_t);

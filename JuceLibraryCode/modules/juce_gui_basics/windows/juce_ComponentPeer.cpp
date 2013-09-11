@@ -22,7 +22,7 @@
   ==============================================================================
 */
 
-static uint32 lastUniquePeerID = 1;
+static uint32 lastUniqueID = 1;
 
 //==============================================================================
 ComponentPeer::ComponentPeer (Component& comp, const int flags)
@@ -30,17 +30,16 @@ ComponentPeer::ComponentPeer (Component& comp, const int flags)
       styleFlags (flags),
       constrainer (nullptr),
       lastDragAndDropCompUnderMouse (nullptr),
-      uniqueID (lastUniquePeerID += 2), // increment by 2 so that this can never hit 0
+      uniqueID (lastUniqueID += 2), // increment by 2 so that this can never hit 0
+      fakeMouseMessageSent (false),
       isWindowMinimised (false)
 {
-    Desktop::getInstance().peers.add (this);
+    Desktop::getInstance().addPeer (this);
 }
 
 ComponentPeer::~ComponentPeer()
 {
-    Desktop& desktop = Desktop::getInstance();
-    desktop.peers.removeFirstMatchingValue (this);
-    desktop.triggerFocusCallback();
+    Desktop::getInstance().removePeer (this);
 }
 
 //==============================================================================
@@ -74,11 +73,6 @@ bool ComponentPeer::isValidPeer (const ComponentPeer* const peer) noexcept
     return Desktop::getInstance().peers.contains (const_cast <ComponentPeer*> (peer));
 }
 
-void ComponentPeer::updateBounds()
-{
-    setBounds (Component::ComponentHelpers::scaledScreenPosToUnscaled (component.getBoundsInParent()), false);
-}
-
 //==============================================================================
 void ComponentPeer::handleMouseEvent (const int touchIndex, const Point<int> positionWithinPeer,
                                       const ModifierKeys newMods, const int64 time)
@@ -107,14 +101,6 @@ void ComponentPeer::handlePaint (LowLevelGraphicsContext& contextToPaintTo)
     ModifierKeys::updateCurrentModifiers();
 
     Graphics g (&contextToPaintTo);
-
-    if (component.isTransformed())
-        g.addTransform (component.getTransform());
-
-    float masterScale = Desktop::getInstance().masterScaleFactor;
-
-    if (masterScale != 1.0f)
-        g.addTransform (AffineTransform::scale (masterScale));
 
    #if JUCE_ENABLE_REPAINT_DEBUGGING
     g.saveState();
@@ -293,18 +279,12 @@ void ComponentPeer::handleMovedOrResized()
     {
         const WeakReference<Component> deletionChecker (&component);
 
-        Rectangle<int> newBounds (getBounds());
-        Rectangle<int> oldBounds (component.getBounds());
-
-        oldBounds = Component::ComponentHelpers::localPositionToRawPeerPos (component, oldBounds);
-
-        const bool wasMoved   = (oldBounds.getPosition() != newBounds.getPosition());
-        const bool wasResized = (oldBounds.getWidth() != newBounds.getWidth() || oldBounds.getHeight() != newBounds.getHeight());
+        const Rectangle<int> newBounds (getBounds());
+        const bool wasMoved   = (component.getPosition() != newBounds.getPosition());
+        const bool wasResized = (component.getWidth() != newBounds.getWidth() || component.getHeight() != newBounds.getHeight());
 
         if (wasMoved || wasResized)
         {
-            newBounds = Component::ComponentHelpers::rawPeerPositionToLocal (component, newBounds);
-
             component.bounds = newBounds;
 
             if (wasResized)
@@ -397,12 +377,6 @@ Rectangle<int> ComponentPeer::localToGlobal (const Rectangle<int>& relativePosit
 Rectangle<int> ComponentPeer::globalToLocal (const Rectangle<int>& screenPosition)
 {
     return screenPosition.withPosition (globalToLocal (screenPosition.getPosition()));
-}
-
-Rectangle<int> ComponentPeer::getAreaCoveredBy (Component& subComponent) const
-{
-    return Component::ComponentHelpers::scaledScreenPosToUnscaled
-            (component.getLocalArea (&subComponent, subComponent.getLocalBounds()));
 }
 
 //==============================================================================
@@ -571,6 +545,17 @@ bool ComponentPeer::setDocumentEditedStatus (bool)
 
 void ComponentPeer::setRepresentedFile (const File&)
 {
+}
+
+//==============================================================================
+void ComponentPeer::clearMaskedRegion()
+{
+    maskedRegion.clear();
+}
+
+void ComponentPeer::addMaskedRegion (const Rectangle<int>& area)
+{
+    maskedRegion.add (area);
 }
 
 //==============================================================================

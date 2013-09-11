@@ -65,7 +65,7 @@ class JUCE_API  Result
 public:
     //==============================================================================
     /** Creates and returns a 'successful' result. */
-    static Result ok() noexcept                         { return Result(); }
+    static Result ok() noexcept;
 
     /** Creates a 'failure' result.
         If you pass a blank error message in here, a default "Unknown Error" message
@@ -99,12 +99,12 @@ public:
     const String& getErrorMessage() const noexcept;
 
     //==============================================================================
-    Result (const Result&);
-    Result& operator= (const Result&);
+    Result (const Result& other);
+    Result& operator= (const Result& other);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    Result (Result&&) noexcept;
-    Result& operator= (Result&&) noexcept;
+    Result (Result&& other) noexcept;
+    Result& operator= (Result&& other) noexcept;
    #endif
 
     bool operator== (const Result& other) const noexcept;
@@ -113,9 +113,6 @@ public:
 private:
     String errorMessage;
 
-    // The default constructor is not for public use!
-    // Instead, use Result::ok() or Result::fail()
-    Result() noexcept;
     explicit Result (const String&) noexcept;
 
     // These casts are private to prevent people trying to use the Result object in numeric contexts

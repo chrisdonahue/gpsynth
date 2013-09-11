@@ -61,7 +61,7 @@ public:
     //==============================================================================
     /** Moves the origin to a new position.
 
-        The coordinates are relative to the current origin, and indicate the new position
+        The co-ords are relative to the current origin, and indicate the new position
         of (0, 0).
     */
     virtual void setOrigin (int x, int y) = 0;
@@ -71,7 +71,7 @@ public:
     virtual float getTargetDeviceScaleFactor()    { return 1.0f; }
 
     virtual bool clipToRectangle (const Rectangle<int>&) = 0;
-    virtual bool clipToRectangleList (const RectangleList<int>&) = 0;
+    virtual bool clipToRectangleList (const RectangleList&) = 0;
     virtual void excludeClipRectangle (const Rectangle<int>&) = 0;
     virtual void clipToPath (const Path&, const AffineTransform&) = 0;
     virtual void clipToImageAlpha (const Image&, const AffineTransform&) = 0;
