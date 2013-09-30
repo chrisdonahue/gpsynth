@@ -33,8 +33,8 @@ University of Texas at Austin\vspace{-2ex}
 \usepackage{verbatim}
 \usepackage{amsmath}
 
-\newcommand{\audiolanguagenamelower}{test}
-\newcommand{\audiolanguagenameupper}{Test}
+\newcommand{\audiolanguagenamelower}{\emph{synthax}}
+\newcommand{\audiolanguagenameupper}{\emph{Synthax}}
 
 \begin{document}
 \maketitle
@@ -43,32 +43,44 @@ University of Texas at Austin\vspace{-2ex}
 This paper presents a novel method of digital audio synthesis using Lisp-like symbolic expressions. The developed system is an audio programming language called ``\audiolanguagenamelower'' where valid programs directly represent algorithms for audio synthesis. The symbolic expression representation is convenient from a computational standpoint as it is recursively defined and highly parallelizable. The structures can be created and manipulated through genetic programming allowing users to search for synthesis algorithms that mimic acoustic and electronic timbres. It is also possible for users to search for desirable timbres using an interactive genetic algorithm where timbres can be auditioned in real-time using MIDI.
 \end{abstract}
 
-\section{Introduction}\label{INTRO}
+
+
+\section{Introduction}\label{TOPINTRO}
 This paper will begin by elaborating on the \audiolanguagenamelower programming language. Following this discussion will be two applications of the language. The first application is a system for automatically generating audio synthesis algorithms with the goal of mimicking the timbre of a provided sound file. The second application is a VST plugin that allows users to interactively evolve and control \audiolanguagenamelower programs using MIDI. Finally, there will be a discussion of future applications and ideas for expanding the language.
 
+
+
 \section{The Language}
-\subsection{Syntax}\label{SYNTAX}
-\audiolanguagenameupper is a functional programming language with a symbolic expression (S-expression) syntax. Legal expressions begin with a function name, zero or more numeric parameter clauses, and zero or more child expressions. In the current version of the language...
 
-$(\emph{function name} {c/d \emph{min val max}}* (\emph{child function})*)$
+\subsection{Symbolic Expression of Audio Synthesis}\label{SEXPRESSION}
 
-\subsection{Sound Synthesis Algorithms}\label{SSA}
 Sound synthesis algorithms (SSA's) are typically numerical algorithms for rendering sonically interesting sounds \citep{tolonen1998evaluation}. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as $sin (2 \times \pi \times f \times t)$ where $f$ is the desired frequency of the sine wave and $t$ is the time since the start of the sine wave in seconds. In the digital domain, time at the $n$th sample would be $n/sample rate$.
 	
 The sine wave rendering equation could be expressed in several different ways. Using prefix notation, it can be expressed equivalently as the S-expression $\sexp{({sin} (\times (\times (\times 2 \pi) f) t))}$. S-expressions are computationally convenient as they allow easy evaluation and modification of an equation in a recursive tree structure. The evaluatable arrangements of operators and terminals (together referred to as primitives) induce a space of S-expressions. This concept will become more important when this paper details its use of genetic programming.
 	
 This sine wave rendering equation is so important to the domain of musical sounds that it will be convenient for our purposes to see it as a single, high level unit instead of the combination of eight lower level units as shown in FIGURE. Also included is a depiction of the sine wave rendering equation expressed as a more traditional synthesis topology. TODO: figures
 
-\subsection{Rendering}\label{PROCESSING}
+
+
+\subsection{Syntax}\label{SYNTAX}
+\audiolanguagenameupper is a functional programming language with a symbolic expression (S-expression) syntax. Legal expressions begin with a function name, zero or more numeric parameter clauses, and zero or more child expressions. In the current version of the language...
+
+$(\emph{function name} {c/d \emph{min val max}}* (\emph{child function})*)$
+
+
+\subsection{Rendering Audio From \audiolanguagenameupper Code}\label{RENDER}
 Audio is generated from \audiolanguagenamelower programs recursively using a post-order traversal. Any given expression must have all audio signals from its children before rendering itself. The audio signal trickles up from the leaves towards the root node where the final output is rendered. At the present time expressions are strictly trees; no expression can have more than one parent.
 
 In order to maximize efficiency the object representation of an expression must know certain conditions about the rendering environment. These necessary conditions are the sample rate, the render block size, and the maximum render length in seconds. These allow the expressions to allocate necessary memory in advance of rendering. Expressions are also required to keep track of their minimum and maximum output values as parent expressions may need to transform their childrens' ranges to a different range.
 
 This rendering paradigm is highly parallelizable. It is possible to render any sub-expression in parallel with others by allocating one additional floating-point buffer the size of the render block. Rendering can be distributed amongst a pool of worker threads evaluating progressively shallower sub-expressions. Allocating the worker threads to sub-expressions with multiple child nodes may be the most efficient way to approach parallelization. At present time, no parallel rendering implementation exists for \audiolanguagenamelower.
 
+
+
+
 \section{Application 1: Automatic Timbre Mimicking}
 
-\subsection{Introduction}\label{GPINTRO}
+\subsection{Introduction}\label{TMINTRO}
 Timbre is a collection of physical properties of a sound and is frequently explained in terms of its human utility rather than its underlying components. The American National Standards Institute defined timbre as ``that attribute of auditory sensation in terms of which a listener can judge that two sounds similarly presented and having the same loudness and pitch are dissimilar'' \citep{american1960american}. The ambiguity lies in determining what exactly ``that attribute'' is and what physical phenomena cause it. This psychoacoustic debate continues to this day; the advent of computer technology has introduced both a great road block and a great opportunity in our understand of timbre \citep{erickson1975sound}. Computers have the ability to render any sound representable by a discrete waveform and thus the umbrella term timbre can no longer be interpreted as a direct association between certain sounds and the concrete characteristics of the objects that produce them.
 
 Early attempts to characterize the physical components of timbre mostly focused on the relative amplitudes and ratios of partial tones. These assumptions were based perhaps too heavily on Fourier's theorem that any periodic waveform can be decomposed into simple sin wave components \citep{helmholtz1857physiological, helmholtz1954sensations}. Like most aspects of music however, humans interpret not the absolute values of individual notes or frequencies but the way their relations change over time. Characterizations of timbre that place full emphasis on instantaneous spectral relationships are antiquated and have been augmented by multidimensional descriptions made up of several components with codependencies \citep{erickson1975sound}. One such description was proposed by J. F. Schouten in 1968 and involves five characteristics \citep{schouten1968perception, erickson1975sound}:
@@ -87,14 +99,17 @@ The prefix, an onset of a sound quite dissimilar to the ensuing lasting vibratio
 
 For the purposes of this experiment, these five perceptual characteristics will be used to develop a method for comparing the timbral characteristics of two sounds. A computable metric of timbral comparison that is similar to human judgement is necessary for a genetic algorithm designed to produce synthesis algorithms capable of believably imitating target timbres.
 
-\subsection{Motivations}
+
+
+\subsection{Motivations}\label{TMMOTIVATION}
 Chowning summarized the motivations for timbre matching research in his paper detailing the technique of frequency modulation audio synthesis.
 \begin{quote}
 Of interest in both acoustical re-search and electronic music is the synthesis of natural sound. For the researcher, it is the ultimate test of acoustical theory, while for the composer of electronic music it is an extraordinarily rich point of departure in the domain of timbre, or tone quality. \citep{chowning1973synthesis}
 \end{quote}
 Acoustic instruments are something of a rigor test for any new synthesis technique. They represent well-known ``problems'' that can be used to demonstrate the adaptability of any new synthesis algorithm and the field of sounds that it can create. In the past, there have been many attempts to solve these ``problems'' by hand. This paper will present a system that allows one to supply a target sound and automatically receive a synthesis algorithm that mimics its timbral characteristics.
 	
-\subsection{Mimicking Acoustic Instruments Using Sound Synthesis Algorithms}
+
+\subsection{Historical Precendence}\label{TMHISTORY}
 Sound synthesis algorithms are a well studied aspect of computer music, and for as long as they have existed people have been using them to mimic recognizable acoustic timbres.
 
 \subsubsection{Early Investigations (1950-1970)}
@@ -115,14 +130,15 @@ John Koza's 1994 book defined a new class of genetic algorithms altogether \cite
 			
 The domain-specific applications of genetic programming are intriguing for sound synthesis as nodes of the S-expression could represent functional units such as sin wave oscillators and time-varying filters as discussed previously. In 2000, Ricardo Garcia successfully demonstrated the technique of GP in the domain of target-matching sound synthesis algorithms \citep{garcia2000towards}.
 
-Garcia's approach evolved trees that represented a set of instructions for building sound synthesis topologies such as the topology depicted in figure (TODO: FIGURE ABOVE FROM \ref{SSA}). This indirect encoding was motivated by the fact that sound synthesis topologies can be cyclical and S-expressions cannot be. However, these non-cyclical ``instruction trees'' could contain instructions to build a cyclical synthesis topology and therefore allow unmodified genetic programming to be utilized to create cyclical synthesis algorithms.
+Garcia's approach evolved trees that represented a set of instructions for building sound synthesis topologies such as the topology depicted in figure (TODO: FIGURE ABOVE FROM \ref{SEXPRESSION}). This indirect encoding was motivated by the fact that sound synthesis topologies can be cyclical and S-expressions cannot be. However, these non-cyclical ``instruction trees'' could contain instructions to build a cyclical synthesis topology and therefore allow unmodified genetic programming to be utilized to create cyclical synthesis algorithms.
 
 Garcia made the following statement about his instruction trees ``every [instruction] tree maps into a single topology... but a topology can be represented by many different [instruction] trees.'' \citep{garcia2012automatic}. This leads me to believe that this approach is perhaps not the ideal way to apply GP to sound synthesis as this representation is searching through a larger space of S-expressions that map into a smaller space of synthesis algorithms. No examples of hand-designed SSA's that utilize cyclic topologies to mimic acoustic instruments were found in the research for this paper which also suggests that the cost of search efficiency is not worth this feature. Regardless, cyclic behavior could also be represented non-cyclically by the use of a delay buffer primitive if it is found to be necessary. Additionally, Garcia uses sub-optimization of a known number of constants once a topology had been produced. This is an interesting strategy but could theoretically be encoded into GP itself by using ephemeral random constants with numeric mutation \citep{evett1998numeric}.
 
-\subsection{Target-Matching Genetic Programming Search for Sound Synthesis Algorithms}
-\subsubsection{Method}
+\subsection{Experiment}
+\subsubsection{Method Overview}\label{TMMETHOD}
 This experiment will use genetic programming to evolve synthesis algorithms directly, utilizing a set of primitives identified as essential components for mimicking timbres. The inputs to this system are a recorded target sound represented by a WAV file and the fundamental frequency of the target sound. This method differs from Garcia's whose representation did not involve the fundamental frequency as input. I argue that providing the fundamental frequency is a good addition to the inputs of the system as it prevents the algorithm from having to waste search time to find the fundamental and allows the experimenter to test how well the discovered algorithm generalizes to other pitches.
-\subsubsection{Available primitives}
+
+\subsubsection{Initialization}\label{TMINIT}
 Arity is the number of input arguments a particular primitive requires. Primitives with arity of $0$ are the terminal nodes of S-expressions. These are the primitives used in all tests unless otherwise noted. TODO: add/remove primatives found to be necessary/not useful
 \begin{center}
 \begin{tabular}{ | l | l | } \hline
@@ -154,10 +170,11 @@ If $best\ fitness\ found\ <\ threshold\ ||\ number of generations\ >=\ limit$, F
 otherwise render the next generation of individuals using traditional genetic programming operations and return to LOOP START
 \end{enumerate}
 TODO: params
-\subsubsection{Initial Population}
+
 The random generation of the initial population is a mostly unmodified implementation of Koza's ramped half and half method used to generate diversity in the initial population \citep{koza1992genetic}. The only difference is that I do not check for duplicate S-expressions. The performance gain from not evaluating the same S-expression more than once does not seem to be worth the performance hit of comparing each new S-expression to all existing ones. I am using the technique of ephemeral random constants to propagate random values throughout the initial population.
 TODO: params
-\subsubsection{Fitness Function}
+
+\subsubsection{Evaluation}\label{TMEVAL}
 The fitness function used for these tests was designed with the five parameters listed in \ref{GPINTRO} in mind. The target samples are partitioned into $m$ groups of $n$ samples with $o$ overlap between groups. These groups are analyzed using a discrete Fourier transform which can be used to determine magnitude and phase at $n/2$ frequency bins equally spaced between $0$ and $\frac{sample rate}{2}$ $Hz$.
 
 The following values are calculated for each bin $j$ of group $i$:
@@ -231,7 +248,7 @@ The motivations for this fitness function come from the attributes of timbre lis
 This fitness function was empirically found to produce spectral content that roughly matched the sustain portion of targets but was worse at matching overall amplitude envelope. Experiments were performed where groups were weighted by their magnitude average's difference from the average magnitude across all groups. This placed higher fitness emphasis on transient groups, where the amplitude spectrum was the most different from the average (usually the attack/decay periods of the target). However, this technique was empirically found to lower the quality of the spectral matching.
 
 TODO: params
-\subsubsection{Genetic Operations}
+\subsubsection{Population Maintenance}\label{TMMAINTENANCE}
 The utilized genetic operations are those typically associated with genetic programming. Individuals are selected proportionally to their assigned fitnesses (where lower is better due to the fact that fitness is a calculation of error).
 \begin{itemize}
 \item
@@ -245,23 +262,19 @@ Numerical mutation: Select one algorithm and numerically mutate all of its coeff
 
 TODO: params/include figures from Koza/elaborate on numerical mutation
 \end{itemize}
-\subsubsection{Experiments}
+\subsubsection{Experiments}\label{TMEXPERIMENTS}
 \begin{comment}
 Ideally one would ``clean'' the WAV file as much as possible by removing areas of silence, removing any DC offset and normalizing.
 \end{comment}
-\subsubsection{Results}
-\subsubsection{Identified Limitations}
+\subsubsection{Results}\label{TMRESULTS}
+\subsubsection{Conclusions}\label{TMCONCLUSIONS}
 Because of the nature of S-expressions, a given node cannot have multiple parents. This theoretically does not limit the capabilities of the sound synthesis algorithms produced by GP because an S-expression can have multiple identical terminals that would be identical in behavior to a node with multiple parents. However, this greatly increases search complexity and computation time to match discover efficient algorithms such as FM synthesis using a single modulator and multiple carriers (the topology that \citep{horner1993machine} optimized using a genetic algorithm). Another limitation is lack of support for cyclic algorithms although as was hypothesized earlier this might not be of too much concern in the domain of target matching.
-\subsubsection{Conclusions}
-\subsubsection{Parameters}
+\subsubsection{Implementation Details and Parameters}\label{TMIMPLEMENTATION}
 
 
-\subsection{Implementation}
-
-\begin{comment}
-
-\section{Application 2: Interactive Evolution of \audiolanguagenameupper Programs}
-\subsection{Motivation}
+\section{Application 2: Interactive Evolution of Audio Synthesis Algorithms}
+\subsection{Introduction}\label{IGAINTRO}
+\subsection{Motivation}\label{IGAMOTIVATION}
 \begin{quote}
 \emph{To seek out new tonalities, new timbres... \\
 To boldly listen to what no one has heard before.} \citep{sethares2004tuning}
@@ -276,15 +289,15 @@ The spectral characteristics of sound have, for so long, been inaccessible to th
 \end{quote}	 
 These issues suggest the need for alternative and accessible methods of timbre investigation for musicians and researchers. Such capabilities could theoretically allow a musician to utilize an instrument they do not have physical access too from a single recording of its sound. Many electronic musicians utilize synthesis techniques such as additive, subtractive, ring modulation, amplitude modulation, and frequency modulation to create sounds. This paper will also present an interactive genetic algorithm for searching the space of sound synthesis algorithms of which these traditional synthesis techniques are a minuscule subset of the search space.
 
-\subsection{Experimental Setup}
-\subsubsection{Method}
+\subsection{Experiment}
+\subsubsection{Method}\label{IGAMETHOD}
 This experiment will use genetic programming to evolve synthesis algorithms directly, utilizing any set of primitives that the user chooses. The inputs to this system will be the user-selected primitives and the output will be multiple SSA's for the user to modify and evaluate. The user will be able to step through the evolutionary process, assigning fitness and auditioning the produced SSA's using a MIDI keyboard or virtual MIDI keyboard. The user may manipulate any variable constants of the produced SSA. The user may opt to input an audio file and let the synthesizer attempt to evolve towards it. The user may also let evolution experiment randomly using novelty search with unencountered fundamental/partial frequency ratios as the novelty goal.
-\subsubsection{Results}
-\subsubsection{Identified Limitations}
-\subsubsection{Conclusions}
-\subsubsection{Parameters}
+\subsubsection{Initialization}\label{IGAINIT}
+\subsubsection{Evaluation}\label{IGAINIT}
+\subsubsection{Population Maintenance}\label{IGAMAINTENANCE}
+\subsubsection{Conclusions}\label{IGACONCLUSIONS}
+\subsubsection{Implementation Details and Parameters}\label{IGAIMPLEMENTATION}
 
-\subsection{Implementation}
 An early prototype for the interactive system was built using Cabbage, Csound and Python. After several performance limitations with this setup were encountered the implementation was switched to C++ and utilized the JUCE audio/GUI library. JUCE is a popular open-source library for developing audio plug-ins and was used as the core audio engine of the implementation. This project could not have been possible without JUCE and author/maintainer Jules's relentless demand for quality. Filter primitives were developed by modifying Tony Fisher's filter design C program. Spectrum analysis for the fitness function was performed by Kiss FFT, a relatively fast and extremely lightweight implementation of the Fast Fourier transform.
 
 Target-matching tests were run on the UT Condor Computing Cluster. \begin{comment}Interactive evolution tests were run on a variety of different machines. TODO: fill in with actual data \end{comment}
@@ -293,6 +306,10 @@ Target-matching tests were run on the UT Condor Computing Cluster. \begin{commen
 
 \section{Future Work}
 The system will also allow the user to examine, test and adjust these discovered algorithms to improve their fit.
+
+\subsection{Language Enhancements}\label{FUTUREENHANCEMENTS}
+\subsection{Additional Primitives}\label{FUTUREPRIMITIVES}
+\subsection{New Applications}\label{FUTUREAPPLICATIONS}
 
 \section{Acknowledgements}
 The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for advice on the genetic algorithm aspects of this project. Thanks to Ashvin Bashyam for his advice on the subtleties of working in a frequency domain representation of a signal. 

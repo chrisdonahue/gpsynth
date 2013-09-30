@@ -1,14 +1,10 @@
-names:
-	timbretree
-	synthex
-	synthax
-
 S-expressions as a means for audio synthesis:
 	Abstract
 	1. Intro
 	2. The Language
-		a. sound synthesis algorithms/syntax
-		b. processing
+		a. symbolic expression of audio synthesis
+		b. sound synthesis algorithms/syntax
+		c. processing
 	3. Application 1: Automatic Generation of Timbre-Mimicking Algorithms
 		a. timbre-mimicking introduction
 		b. motivations (probably merge with a)
