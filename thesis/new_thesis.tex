@@ -32,6 +32,7 @@ University of Texas at Austin\vspace{-2ex}
 \usepackage{natbib}
 \usepackage{verbatim}
 \usepackage{amsmath}
+\usepackage{hyperref}
 
 \newcommand{\audiolanguagenamelower}{\emph{synthax}}
 \newcommand{\audiolanguagenameupper}{\emph{Synthax}}
@@ -40,40 +41,62 @@ University of Texas at Austin\vspace{-2ex}
 \maketitle
 
 \begin{abstract}
-This paper presents a novel method of digital audio synthesis using Lisp-like symbolic expressions. The developed system is an audio programming language called ``\audiolanguagenamelower'' where valid programs directly represent algorithms for audio synthesis. The symbolic expression representation is convenient from a computational standpoint as it is recursively defined and highly parallelizable. The structures can be created and manipulated through genetic programming allowing users to search for synthesis algorithms that mimic acoustic and electronic timbres. It is also possible for users to search for desirable timbres using an interactive genetic algorithm where timbres can be auditioned in real-time using MIDI.
+This paper presents an alternative method of digital audio synthesis using Lisp-like symbolic expressions (S-expressions). The method centers around a novel audio programming language called \audiolanguagenamelower{} where valid programs directly represent algorithms for audio synthesis. The motivation for \audiolanguagenamelower's use of S-expressions to generate audio is that they are recursively defined, flexible and convenient from a computational perspective. Additionally, the structures can be created and manipulated through genetic programming allowing users to search for synthesis algorithms that mimic existing instruments or to find entirely new timbres.
 \end{abstract}
 
 
 
 \section{Introduction}\label{TOPINTRO}
-This paper will begin by elaborating on the \audiolanguagenamelower programming language. Following this discussion will be two applications of the language. The first application is a system for automatically generating audio synthesis algorithms with the goal of mimicking the timbre of a provided sound file. The second application is a VST plugin that allows users to interactively evolve and control \audiolanguagenamelower programs using MIDI. Finally, there will be a discussion of future applications and ideas for expanding the language.
-
-
+This paper will begin by elaborating on the \audiolanguagenamelower{} programming language. Following this two concrete applications of the language will be presented. The first application is a system for automatically generating audio synthesis algorithms with the goal of mimicking the timbre of a provided sound file. The second application is a VST plugin that allows users to interactively evolve and control \audiolanguagenamelower{} programs using MIDI. Finally, there will be a discussion of future applications and ideas for expanding the language.
 
 \section{The Language}
 
-\subsection{Symbolic Expression of Audio Synthesis}\label{SEXPRESSION}
+\subsection{Symbolic Expression of Audio Synthesis Algorithms}\label{SEXPRESSION}
 
-Sound synthesis algorithms (SSA's) are typically numerical algorithms for rendering sonically interesting sounds \citep{tolonen1998evaluation}. Perhaps the quintessential SSA is the equation for rendering a sine wave. Mathematically, this equation can be expressed as $sin (2 \times \pi \times f \times t)$ where $f$ is the desired frequency of the sine wave and $t$ is the time since the start of the sine wave in seconds. In the digital domain, time at the $n$th sample would be $n/sample rate$.
-	
-The sine wave rendering equation could be expressed in several different ways. Using prefix notation, it can be expressed equivalently as the S-expression $\sexp{({sin} (\times (\times (\times 2 \pi) f) t))}$. S-expressions are computationally convenient as they allow easy evaluation and modification of an equation in a recursive tree structure. The evaluatable arrangements of operators and terminals (together referred to as primitives) induce a space of S-expressions. This concept will become more important when this paper details its use of genetic programming.
-	
-This sine wave rendering equation is so important to the domain of musical sounds that it will be convenient for our purposes to see it as a single, high level unit instead of the combination of eight lower level units as shown in FIGURE. Also included is a depiction of the sine wave rendering equation expressed as a more traditional synthesis topology. TODO: figures
+\begin{equation}\label{SINRENDERINFIX}
+sin (2 \times \pi \times f \times t)
+\end{equation}
 
+\begin{figure}\label{SINRENDERNETWORKFIG}
+	\caption{Traditional audio synthesis algorithm diagram of sine wave rendering equation}
+	\centering
+\end{figure}
 
+\begin{equation}\label{SINRENDERSEXP}
+\sexp{({sin} (\times (\times (\times 2 \pi) f) t))}
+\end{equation}
+
+\begin{figure}\label{SINRENDERSEXPFIG}
+	\caption{S-expression diagram of sine wave rendering equation}
+	\centering
+\end{figure}
+
+Audio synthesis algorithms (ASA's) are numerical algorithms designed to fill an audio buffer with a changing signal. Perhaps the quintessential ASA is the algorithm for rendering a pure sine wave tone. Mathematically, this equation can be expressed as \ref{SINRENDERINFIX} where $f$ is the desired frequency of the waveform and $t$ is the time in seconds. The value of $t$ at the $n$th sample would be $n/sample rate$. To render this structure to an audio sample buffer, one would calculate the output of the equation at the desired frequency $f$ and at values of $t$ corresponding to the start times of the samples.
+
+The sine wave rendering equation can be expressed in several different ways. It is displayed as an infix equation in \ref{SINRENDERINFIX} and as a synthesis diagram in \ref{SINRENDERNETWORKFIG}. It can be also be expressed equivalently as a traditional symbolic expression as shown in text form in \ref{SINRENDERSEXP} and image form in \ref{SINRENDERSEXPFIG}.
+
+Expressions such as the sine wave rendering equation are so important to the domain of musical sounds that it will be convenient for our purposes to see them as single units. This allows for a larger amount of programs in \audiolanguagenamelower{} to produce human-recognizable audio than would be the case if it was instead necessary to build the eight-unit subtree shown in \ref{SINRENDERSEXPFIG} to render a sine wave.
 
 \subsection{Syntax}\label{SYNTAX}
-\audiolanguagenameupper is a functional programming language with a symbolic expression (S-expression) syntax. Legal expressions begin with a function name, zero or more numeric parameter clauses, and zero or more child expressions. In the current version of the language...
+\begin{description}\label{CURRENTPRIMITIVES}
+	\item[first] \hfill \\
+		The first item
+	\item[second] \hfill \\
+		the second item
+\end{description}
 
-$(\emph{function name} {c/d \emph{min val max}}* (\emph{child function})*)$
+\begin{equation}\label{SYNTAXEXAMPLE}
+\sexp{({function} {name} \{{c/d} {min} {val} {max}\}\ldots ({child} {function})\ldots)}
+\end{equation}
 
+\audiolanguagenameupper{} is a functional programming language with a symbolic expression-based syntax. Legal expressions begin with a function name followed by zero or more numeric parameters and zero or more child expressions as shown in \ref{SYNTAXEXAMPLE}. The current functions in \audiolanguagenamelower{} are listed in \ref{CURRENTPRIMITIVES}.
 
-\subsection{Rendering Audio From \audiolanguagenameupper Code}\label{RENDER}
-Audio is generated from \audiolanguagenamelower programs recursively using a post-order traversal. Any given expression must have all audio signals from its children before rendering itself. The audio signal trickles up from the leaves towards the root node where the final output is rendered. At the present time expressions are strictly trees; no expression can have more than one parent.
+\subsection{Rendering Audio From \audiolanguagenameupper{} Code}\label{RENDER}
+Audio is generated from \audiolanguagenamelower{} programs recursively using a post-order traversal. Any given expression must render all audio signals from its children before rendering itself. The audio signal trickles up from the leaves towards the root node where the final output is rendered. At the present time \audiolanguagenamelower{} programs are strictly trees; no expression can have more than one parent.
 
-In order to maximize efficiency the object representation of an expression must know certain conditions about the rendering environment. These necessary conditions are the sample rate, the render block size, and the maximum render length in seconds. These allow the expressions to allocate necessary memory in advance of rendering. Expressions are also required to keep track of their minimum and maximum output values as parent expressions may need to transform their childrens' ranges to a different range.
+In order to maximize efficiency the object representation of an expression must know certain conditions about the environment before rendering. These necessary conditions are the sample rate, the render block size, and the maximum render length in seconds. These allow the expressions to allocate necessary memory in advance of rendering. Expressions are also required to keep track of their minimum and maximum output values as parent expressions may need to transform their childrens' ranges to a different range.
 
-This rendering paradigm is highly parallelizable. It is possible to render any sub-expression in parallel with others by allocating one additional floating-point buffer the size of the render block. Rendering can be distributed amongst a pool of worker threads evaluating progressively shallower sub-expressions. Allocating the worker threads to sub-expressions with multiple child nodes may be the most efficient way to approach parallelization. At present time, no parallel rendering implementation exists for \audiolanguagenamelower.
+This rendering paradigm is highly parallelizable. It is possible to render any sub-expression in parallel with others by allocating one additional floating-point buffer the size of the render block. Rendering can be distributed amongst a pool of worker threads evaluating progressively shallower sub-expressions. Allocating the worker threads to sub-expressions with multiple child nodes may be the most efficient way to approach parallelization. At present time no parallel rendering implementation exists for \audiolanguagenamelower, though it is certainly theoretically possible.
 
 
 
@@ -302,8 +325,6 @@ An early prototype for the interactive system was built using Cabbage, Csound an
 
 Target-matching tests were run on the UT Condor Computing Cluster. \begin{comment}Interactive evolution tests were run on a variety of different machines. TODO: fill in with actual data \end{comment}
 
-\end{comment}
-
 \section{Future Work}
 The system will also allow the user to examine, test and adjust these discovered algorithms to improve their fit.
 
@@ -312,24 +333,14 @@ The system will also allow the user to examine, test and adjust these discovered
 \subsection{New Applications}\label{FUTUREAPPLICATIONS}
 
 \section{Acknowledgements}
-The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for advice on the genetic algorithm aspects of this project. Thanks to Ashvin Bashyam for his advice on the subtleties of working in a frequency domain representation of a signal. 
-\begin{comment}
-Thanks to TESTERS for kindly agreeing to test the interactive genetic algorithm.
-\end{comment}
-Finally, the author wishes to express gratitude to his advisors and committee members who were extremely helpful throughout the process.
+The author would like to thank the Computational Intelligence in Game Design lab, part of the University of Texas's Freshman Research Initiative program, for providing the tools and workspace to implement this project. Thanks to Joel Lehman for advice on the genetic algorithm aspects of this project. Thanks to Ashvin Bashyam for his advice on the subtleties of working in a frequency domain representation of a signal. Thanks to Jules, creator of the JUCE C++ toolkit, for his attention to quality making this project a pleasure to implement. Finally, the author wishes to express gratitude to his advisors and committee members who were extremely helpful throughout the process.
 
-%\section{For More Information and Download}
-%cs.utexas.edu/~cdonahue/GPSynth.html (audio samples)
-%github.com/cdonahue/gpsynth (source and downloadable/plugin versions of the interactive GA)
-
-%\paragraph{Outline}
-%The remainder of this article is organized as follows.
-%Section~\ref{previous work} gives account of previous work.
-%Our new and exciting results are described in Section~\ref{results}.
-%Finally, Section~\ref{conclusions} gives the conclusions.
-
-%\section{Results}\label{results}
-%In this section we describe the results.
+\section{Links}
+\begin{itemize}
+\item{\url{http://www.synthax.tk}}
+\item{\url{http://www.juce.com/}}
+\item{\url{http://www.steinberg.net/en/products/vst.html}}
+\end{itemize}
 
 \bibliographystyle{abbrv}
 \bibliography{bibthesis}
