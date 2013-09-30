@@ -1,0 +1,44 @@
+names:
+	timbretree
+	synthex
+	synthax
+
+S-expressions as a means for audio synthesis:
+	Abstract
+	1. Intro
+	2. The Language
+		a. sound synthesis algorithms/syntax
+		b. processing
+	3. Application 1: Automatic Generation of Timbre-Mimicking Algorithms
+		a. timbre-mimicking introduction
+		b. motivations (probably merge with a)
+		c. history
+			i. early investigations
+			ii. FM synthesis
+			iii. genetic algorithms/genetic programming
+		d. experiment
+			i. method overview (inputs/outputs), (experiment loop)
+			ii. initializing experiment (setup, primitives)
+			iii. evaluating algorithms (fitness functions)
+			iv. population maintenence/genetic operations
+			v. experiments
+			vi. results
+			vii. conclusions/identified limitations
+			viii. implementation details/detailed experiment parameters
+	4. Application 2: Interactive Evolution of Audio Synthesis Algorithms
+		a. interactive introduction
+		b. motivations
+		c. experiment
+			i. method overview
+			ii. initializing experiment
+			iii. evaluating algorithms
+			iv. population maintenence/genetic operations
+			vi. discussion/limitiations/conclusions
+			vii. implementation details/detailed experiment parameters
+	5. Future Work
+		a. future language enhancements (parallelization, cyclic graphs)
+		b. future primitives
+		c. future applications
+	6. Acknowledgements
+	7. Links
+	8. Bibliography
